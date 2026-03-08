@@ -1,0 +1,506 @@
+/* ── Overlay ────────────────────────────────────────────────────────────────── */
+.wargear-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem calc(2rem + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+}
+
+/* ── Panel ──────────────────────────────────────────────────────────────────── */
+.wargear-panel {
+  background: #1e1e2e;
+  border: 2px solid #00b4db;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 860px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 4rem - env(safe-area-inset-bottom, 0px));
+  overflow: hidden;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────────── */
+.wargear-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1.2rem 1.5rem;
+  background: linear-gradient(90deg, #0f3460 0%, #16213e 100%);
+  border-bottom: 2px solid #00b4db;
+  flex-shrink: 0;
+}
+
+.wargear-header h2 {
+  margin: 0 0 0.2rem 0;
+  color: #fff;
+  font-size: 1.3rem;
+}
+
+.wargear-subtitle {
+  margin: 0;
+  color: #a0a0b0;
+  font-size: 0.9rem;
+}
+
+.wargear-subtitle strong {
+  color: #00b4db;
+}
+
+.btn-close {
+  background: transparent;
+  border: 1px solid #555;
+  color: #ccc;
+  border-radius: 4px;
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 1rem;
+  margin-top: 0.1rem;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-close:hover {
+  background: #e63946;
+  border-color: #e63946;
+  color: #fff;
+}
+
+/* ── Panel body (single scroll area below header) ──────────────────────── */
+.wargear-scroll-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Cannot Equip notice ──────────────────────────────────────────────── */
+.wg-cannot-equip-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #2a1010;
+  border: 1px solid #cc3333;
+  border-radius: 6px;
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 1rem 1.5rem 0.5rem;
+  padding: 0.7rem 1rem;
+}
+.wg-cannot-equip-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* ── Selected items section ──────────────────────────────────────── */
+/* ── Included (default) wargear section ──────────────────────────────────── */
+.wargear-included {
+  background: #0f1a2a;
+  border-bottom: 1px solid #2a2a3e;
+  flex-shrink: 0;
+  padding: 1rem 1.5rem;
+}
+
+.wargear-included h3 {
+  margin: 0 0 0.7rem 0;
+  font-size: 0.95rem;
+  color: #7fba00;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.wg-default-item {
+  opacity: 0.9;
+  border-color: #2a3a2a !important;
+  background: #1a241a !important;
+}
+
+.wg-default-item.wg-replaced {
+  opacity: 0.4;
+  border-color: #3a3030 !important;
+  background: #1e1818 !important;
+}
+
+.wg-default-lock {
+  font-size: 0.85rem;
+  min-width: 1.2rem;
+  text-align: center;
+}
+
+.wg-included-label {
+  font-size: 0.75rem;
+  color: #7fba00;
+  background: rgba(127, 186, 0, 0.12);
+  border: 1px solid rgba(127, 186, 0, 0.3);
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+  white-space: nowrap;
+}
+
+.wg-replaced-label {
+  font-size: 0.75rem;
+  color: #e0801a;
+  background: rgba(224, 128, 26, 0.12);
+  border: 1px solid rgba(224, 128, 26, 0.3);
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+  white-space: nowrap;
+}
+
+.wargear-selected {
+  background: #16213e;
+  border-bottom: 1px solid #2a2a3e;
+  flex-shrink: 0;
+  padding: 1rem 1.5rem;
+}
+
+.wargear-selected h3 {
+  margin: 0 0 0.7rem 0;
+  font-size: 0.95rem;
+  color: #00b4db;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.wargear-selected-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.wargear-selected-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #1e1e2e;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.88rem;
+}
+
+.wg-name {
+  flex: 1;
+  color: #e0e0e0;
+}
+
+.wg-qty {
+  color: #a0a0b0;
+  min-width: 2rem;
+  text-align: center;
+}
+
+.wg-cost {
+  color: #00b4db;
+  min-width: 4rem;
+  text-align: right;
+}
+
+.wg-qty-controls {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.wg-qty-controls button,
+.wg-item-controls button {
+  background: #2a2a3e;
+  border: 1px solid #444;
+  color: #ccc;
+  border-radius: 3px;
+  width: 1.5rem;
+  height: 1.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s;
+}
+
+.wg-qty-controls button:hover,
+.wg-item-controls button:hover {
+  background: #00b4db;
+  color: #fff;
+  border-color: #00b4db;
+}
+
+/* ── Search bar ──────────────────────────────────────────────────────────────── */
+.wg-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.5rem;
+  background: #12121e;
+  border-bottom: 1px solid #2a2a3e;
+  flex-shrink: 0;
+}
+
+.wg-search-icon {
+  font-size: 0.95rem;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.wg-search-input {
+  flex: 1;
+  background: #1e1e2e;
+  border: 1px solid #3a3a50;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 0.88rem;
+  padding: 0.38rem 0.75rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.wg-search-input:focus {
+  border-color: #00b4db;
+  background: #1a1a2e;
+}
+
+.wg-search-input::placeholder {
+  color: #4a4a60;
+}
+
+.wg-search-clear {
+  background: transparent;
+  border: 1px solid #444;
+  color: #888;
+  border-radius: 4px;
+  width: 1.7rem;
+  height: 1.7rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.wg-search-clear:hover {
+  background: #e63946;
+  border-color: #e63946;
+  color: #fff;
+}
+
+/* ── Category accordion ──────────────────────────────────────────────────────── */
+.wargear-categories {
+  background: #1a1a2a;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+}
+
+.wargear-category {
+  border: 1px solid #2a2a3e;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.wargear-cat-header {
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  background: #16213e;
+  color: #00b4db;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.15s;
+}
+
+.wargear-cat-header::before {
+  content: '▶';
+  font-size: 0.65rem;
+  transition: transform 0.15s;
+}
+
+.wargear-category.open .wargear-cat-header::before {
+  transform: rotate(90deg);
+}
+
+.wargear-cat-header:hover {
+  background: #1e3a5f;
+}
+
+.wg-cat-count {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: #8888aa;
+  font-weight: 400;
+}
+
+/* ── Weapon item cards ────────────────────────────────────────────────────────── */
+.wargear-item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #12121e;
+}
+
+.wargear-item {
+  background: #1e1e2e;
+  border: 1px solid #2a2a3e;
+  border-radius: 5px;
+  padding: 0.6rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  transition: border-color 0.15s;
+}
+
+.wargear-item.wg-active {
+  border-color: #00b4db;
+  background: #0f3460;
+}
+
+.wg-item-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.wg-item-keywords {
+  font-size: 0.75rem;
+  color: #7a8a9a;
+  line-height: 1.3;
+  flex: 1;
+}
+
+.wg-item-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.3rem;
+}
+
+.wg-item-cost {
+  font-size: 0.82rem;
+  color: #00b4db;
+  font-weight: 600;
+}
+
+.btn-add-wg {
+  background: #0f3460;
+  border: 1px solid #00b4db;
+  color: #00b4db;
+  border-radius: 3px;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background 0.1s, color 0.1s;
+}
+
+.btn-add-wg:hover {
+  background: #00b4db;
+  color: #fff;
+}
+
+.wg-item-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: #e0e0e0;
+}
+
+/* ── Slot usage bar ─────────────────────────────────────────────────────────── */
+.wg-slot-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  background: #16213e;
+  border-bottom: 1px solid #333;
+  flex-shrink: 0;
+}
+
+.wg-slot-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: #1e1e2e;
+  border: 1px solid #444;
+  color: #a0a0b0;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.wg-slot-pill.slot-full {
+  border-color: #e74c3c;
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.12);
+}
+
+.wg-slot-pill.slot-used {
+  border-color: #27ae60;
+  color: #2ecc71;
+  background: rgba(46, 204, 113, 0.1);
+}
+
+.wg-slot-pill.slot-blocked {
+  border-color: #e67e22;
+  color: #e67e22;
+  background: rgba(230, 126, 34, 0.1);
+}
+
+/* ── Blocked item state ─────────────────────────────────────────────────────── */
+.wargear-item.wg-blocked {
+  opacity: 0.55;
+  border-color: #5a3535 !important;
+  background: rgba(231, 76, 60, 0.06) !important;
+  cursor: not-allowed;
+}
+
+.wg-block-reason {
+  font-size: 0.72rem;
+  color: #e74c3c;
+  margin: 0.2rem 0;
+  line-height: 1.3;
+}
+
+.btn-add-wg:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ── Handedness badge ───────────────────────────────────────────────────────── */
+.wg-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.05rem 0.35rem;
+  border-radius: 3px;
+  margin-left: 0.3rem;
+  vertical-align: middle;
+  letter-spacing: 0.03em;
+}
+
+.badge-two  { background: #c0392b; color: #fff; }
+.badge-one  { background: #2980b9; color: #fff; }
+.badge-main { background: #8e44ad; color: #fff; }
+.badge-faction { background: #b8860b; color: #fff; font-size: 0.55rem; font-weight: 700; letter-spacing: 0.04em; padding: 0.05rem 0.3rem; border-radius: 2px; }

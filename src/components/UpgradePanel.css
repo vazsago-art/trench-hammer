@@ -1,0 +1,395 @@
+﻿/* UpgradePanel â€“ modal overlay for unit class upgrades */
+
+
+.upgrade-card-auto {
+  border-color: #aa44ff66;
+  background: #2a1a3a;
+  pointer-events: none;
+}
+
+.upgrade-auto-dot {
+  color: #d0a0ff;
+  margin-right: 0.3rem;
+}
+
+.upgrade-auto-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.45rem;
+  background: #3a1a5a;
+  border: 1px solid #aa44ff66;
+  border-radius: 10px;
+  font-size: 0.7em;
+  color: #d0a0ff;
+  font-weight: normal;
+  vertical-align: middle;
+}
+
+.upgrade-subtier-label {
+  padding: 0.15rem 0.9rem 0.4rem;
+  color: #888;
+  font-size: 0.82em;
+  font-style: italic;
+}
+
+.upgrade-panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.upgrade-panel {
+  background: #1c1c2e;
+  border: 1px solid #8b6914;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+}
+
+/* â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.upgrade-panel-header {
+  background: #2a2a3e;
+  border-bottom: 1px solid #8b6914;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.upgrade-panel-title {
+  margin: 0 0 0.2rem;
+  font-size: 1.2rem;
+  color: #d4a017;
+}
+
+.upgrade-panel-subtitle {
+  color: #aaa;
+  font-size: 0.85rem;
+}
+
+.upgrade-current-notice {
+  background: #1e2f1e;
+  border: 1px solid #2e5c2e;
+  border-radius: 5px;
+  padding: 0.35rem 1rem;
+  font-size: 0.83rem;
+  color: #7ccc9a;
+  flex-shrink: 0;
+  margin: 0 1rem;
+}
+
+.upgrade-close-btn {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+.upgrade-close-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
+
+/* â”€â”€ Info note â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.upgrade-panel-note {
+  font-size: 0.8rem;
+  color: #888;
+  padding: 0.45rem 1.25rem 0;
+  margin: 0;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+/* â”€â”€ Body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.upgrade-panel-body {
+  overflow-y: auto;
+  padding: 0.75rem 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* â”€â”€ Upgrade card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.upgrade-card {
+  background: #242438;
+  border: 1.5px solid #3a3a5c;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  transition: border-color 0.15s;
+}
+.upgrade-card:hover { border-color: #6a5010; }
+
+.upgrade-card-selected {
+  border-color: #d4a017 !important;
+  background: #2a2510;
+}
+
+.upgrade-card-full {
+  opacity: 0.55;
+}
+
+.upgrade-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.35rem;
+}
+
+.upgrade-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e8c56a;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.upgrade-selected-dot {
+  color: #d4a017;
+  font-size: 0.65rem;
+  line-height: 1;
+}
+
+.upgrade-cost {
+  font-size: 0.82rem;
+  color: #7ccc9a;
+  font-weight: 600;
+}
+
+/* â”€â”€ Keyword row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.upgrade-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 0.4rem;
+}
+
+.upgrade-kw-label {
+  font-size: 0.72rem;
+  color: #888;
+  font-weight: 600;
+}
+
+.upgrade-kw-chip {
+  background: #1e3a5f;
+  color: #7ac4f8;
+  border: 1px solid #2f5c8e;
+  border-radius: 3px;
+  font-size: 0.72rem;
+  padding: 0.1rem 0.4rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* â”€â”€ Description â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.upgrade-description {
+  color: #c0c0d8;
+  font-size: 0.83rem;
+  line-height: 1.45;
+  margin-bottom: 0.55rem;
+}
+
+/* â”€â”€ Footer row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.upgrade-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-top: 0.2rem;
+}
+
+.upgrade-limit {
+  color: #888;
+  font-size: 0.75rem;
+}
+
+.upgrade-full-label { color: #e08080; font-weight: 600; }
+.upgrade-slots-left { color: #7fba7f; font-weight: 600; }
+
+.upgrade-action-row {}
+
+.upgrade-btn-action {
+  padding: 0.35rem 0.85rem;
+  border-radius: 5px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid;
+  transition: background 0.13s;
+}
+
+.upgrade-btn-select {
+  background: #2a2000;
+  color: #e8c56a;
+  border-color: #8b6914;
+}
+.upgrade-btn-select:hover:not(:disabled) { background: #3d3000; }
+.upgrade-btn-select:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.upgrade-btn-remove {
+  background: #2a0000;
+  color: #f9a8a8;
+  border-color: #842929;
+}
+.upgrade-btn-remove:hover { background: #3d0000; }
+
+/* â”€â”€ Panel footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.upgrade-panel-footer {
+  border-top: 1px solid #3a3a5c;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.upgrade-done-btn {
+  background: #8b6914;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 0.55rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.upgrade-done-btn:hover { background: #a07820; }
+
+/* â”€â”€ Summary tags (used in ArmyBuilder / MobileApp) â”€â”€â”€â”€â”€â”€â”€ */
+.upgrade-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #2a1f00;
+  color: #e8c56a;
+  border: 1px solid #8b6914;
+  border-radius: 4px;
+  font-size: 0.76rem;
+  padding: 0.15rem 0.45rem;
+  margin: 0.15rem;
+}
+
+/* â”€â”€ Desktop button in ArmyBuilder â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.btn-upgrade {
+  background: #2a1f00;
+  color: #e8c56a;
+  border: 1px solid #8b6914;
+  border-radius: 5px;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-upgrade:hover { background: #3d2d00; }
+
+/* â”€â”€ Mobile button in MobileApp â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.mbtn-upgrade {
+  background: #2a1f00;
+  color: #e8c56a;
+  border: 1px solid #8b6914;
+}
+.mbtn-upgrade:hover { background: #3d2d00; }
+
+/* â”€â”€ Inline upgrade info in unit detail (Army tab) â”€â”€â”€â”€â”€â”€â”€â”€ */
+.munit-upgrade-info {
+  background: #1e1a08;
+  border: 1px solid #5c4800;
+  border-radius: 8px;
+  padding: 0.6rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.munit-upgrade-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #e8c56a;
+}
+
+.munit-upgrade-kws {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.mkw-upgrade {
+  background: #1e3a5f !important;
+  color: #7ac4f8 !important;
+  border-color: #2f5c8e !important;
+}
+
+.munit-upgrade-desc {
+  font-size: 0.79rem;
+  color: #b8a87a;
+  line-height: 1.4;
+}
+
+/* â”€â”€ Psychic power list in unit detail (Army tab) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.munit-psychic-list {
+  background: #110d1f;
+  border: 1px solid #3d1a5e;
+  border-radius: 8px;
+  padding: 0.55rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.munit-section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9b59b6;
+  margin-bottom: 2px;
+}
+
+.munit-psychic-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.munit-psychic-name {
+  font-size: 0.83rem;
+  color: #c39bd3;
+  font-weight: 600;
+}
+
+.munit-psychic-meta {
+  font-size: 0.72rem;
+  color: #7a5c8a;
+  white-space: nowrap;
+}
+
+
+/* ── Keyword chip inside an upgrade tag (granted keywords) ──── */
+.upgrade-tag-kw {
+  background: #1a3050;
+  color: #7ac4f8;
+  border: 1px solid #2f5c8e;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  padding: 0.05rem 0.3rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}

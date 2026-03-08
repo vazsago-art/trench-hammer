@@ -1,0 +1,367 @@
+/* ── Overlay ──────────────────────────────────────────────────────────────── */
+.psychic-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem calc(2rem + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+}
+
+/* ── Panel ────────────────────────────────────────────────────────────────── */
+.psychic-panel {
+  background: #1a1a2e;
+  border: 2px solid #9b59b6;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 860px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 4rem - env(safe-area-inset-bottom, 0px));
+  overflow: hidden;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.psychic-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1.2rem 1.5rem;
+  background: linear-gradient(90deg, #2d0a4e 0%, #1a1a2e 100%);
+  border-bottom: 2px solid #9b59b6;
+  flex-shrink: 0;
+}
+
+.psychic-header h2 {
+  margin: 0 0 0.2rem 0;
+  color: #fff;
+  font-size: 1.3rem;
+}
+
+.psychic-subtitle {
+  margin: 0;
+  color: #a0a0b0;
+  font-size: 0.9rem;
+}
+
+.psychic-subtitle strong {
+  color: #9b59b6;
+}
+
+/* ── Scroll body ──────────────────────────────────────────────────────────── */
+.psychic-scroll-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Selected powers section ────────────────────────────────────────────── */
+.psychic-selected {
+  background: #0f0f1e;
+  border-bottom: 1px solid #2a2a3e;
+  flex-shrink: 0;
+  padding: 1rem 1.5rem;
+}
+
+.psychic-selected h3 {
+  margin: 0 0 0.7rem 0;
+  font-size: 0.95rem;
+  color: #9b59b6;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.psychic-selected-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.psychic-selected-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #1a0a2e;
+  border: 1px solid #6c3483;
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+}
+
+.psychic-sel-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.psychic-sel-name {
+  font-weight: 600;
+  color: #e0e0f8;
+  font-size: 0.9rem;
+}
+
+.psychic-sel-disc {
+  font-size: 0.75rem;
+  color: #9b59b6;
+}
+
+.psychic-sel-cost {
+  font-weight: 700;
+  color: #f39c12;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.btn-remove-psychic {
+  background: #6c3483;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.btn-remove-psychic:hover {
+  background: #e63946;
+}
+
+/* ── Disciplines section ──────────────────────────────────────────────────── */
+.psychic-disciplines {
+  flex: 1;
+  padding: 0.8rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.psychic-discipline {
+  border: 1px solid #3a2a4e;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.psychic-disc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  background: linear-gradient(90deg, #2d0a4e 0%, #1a1230 100%);
+  cursor: pointer;
+  font-weight: 600;
+  color: #e0e0f8;
+  font-size: 0.95rem;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+.psychic-disc-header:hover {
+  background: linear-gradient(90deg, #4a1870 0%, #2a1a50 100%);
+}
+
+.psychic-discipline.open .psychic-disc-header {
+  border-bottom: 1px solid #6c3483;
+}
+
+.psychic-disc-count {
+  font-size: 0.8rem;
+  color: #9b59b6;
+  font-weight: 400;
+}
+
+/* ── Power card grid ──────────────────────────────────────────────────────── */
+.psychic-power-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.8rem;
+  padding: 1rem;
+  background: #10101e;
+}
+
+.psychic-power-card {
+  background: #1e1e30;
+  border: 1px solid #3a2a4e;
+  border-radius: 6px;
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  transition: border-color 0.15s;
+}
+
+.psychic-power-card:hover {
+  border-color: #6c3483;
+}
+
+.psychic-power-card.power-selected {
+  background: #1a0a2e;
+  border-color: #9b59b6;
+  box-shadow: 0 0 8px rgba(155, 89, 182, 0.3);
+}
+
+.power-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.power-name {
+  font-weight: 700;
+  color: #e0e0f8;
+  font-size: 0.9rem;
+}
+
+.power-type-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 3px;
+  padding: 0.15rem 0.45rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.badge-attack {
+  background: #6c1e2a;
+  color: #ff8896;
+  border: 1px solid #c0392b;
+}
+
+.badge-effect {
+  background: #1e4a6c;
+  color: #88c0ff;
+  border: 1px solid #2980b9;
+}
+
+.power-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.power-meta span {
+  font-size: 0.75rem;
+  color: #8080a0;
+  background: #12122a;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.power-description {
+  font-size: 0.8rem;
+  color: #b0b0c8;
+  line-height: 1.45;
+  margin: 0;
+  flex: 1;
+}
+
+.power-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.2rem;
+}
+
+.power-cost {
+  font-weight: 700;
+  color: #f39c12;
+  font-size: 0.9rem;
+}
+
+.btn-power-add {
+  background: #6c3483;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.btn-power-add:hover {
+  background: #9b59b6;
+}
+
+.btn-power-remove {
+  background: #2d0a0a;
+  border: 1px solid #c0392b;
+  color: #ff8896;
+  border-radius: 4px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.btn-power-remove:hover {
+  background: #6c1e2a;
+}
+
+/* ── "Psychic Powers" button in unit cards ────────────────────────────────── */
+.btn-psychic {
+  background: linear-gradient(135deg, #2d0a4e, #6c3483);
+  border: 1px solid #9b59b6;
+  color: #e0e0f8;
+  border-radius: 6px;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.btn-psychic:hover {
+  background: linear-gradient(135deg, #4a1870, #9b59b6);
+  border-color: #c39bd3;
+}
+
+.btn-psychic:active {
+  transform: scale(0.97);
+}
+
+/* ── Psychic power tags in wargear summary ────────────────────────────────── */
+.psychic-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: #1a0a2e;
+  border: 1px solid #6c3483;
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.78rem;
+  color: #c39bd3;
+  margin: 0.1rem;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .psychic-overlay {
+    padding: 0.5rem 0.3rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .psychic-panel {
+    max-height: calc(100dvh - 1rem - env(safe-area-inset-bottom, 0px));
+  }
+
+  .psychic-power-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .psychic-disciplines {
+    padding: 0.5rem 0.8rem 1rem;
+  }
+}

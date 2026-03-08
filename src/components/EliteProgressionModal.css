@@ -1,0 +1,430 @@
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* EliteProgressionModal.css                                                    */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Overlay ──────────────────────────────────────────────────────────────── */
+.ep-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  z-index: 1200;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem calc(2rem + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+}
+
+/* ── Panel ────────────────────────────────────────────────────────────────── */
+.ep-modal {
+  background: #1a1a2a;
+  border: 2px solid #7a3caa;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 680px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 4rem - env(safe-area-inset-bottom, 0px));
+  overflow: hidden;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.ep-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1.1rem 1.4rem;
+  background: linear-gradient(90deg, #2a0a3e 0%, #1a1a2a 100%);
+  border-bottom: 2px solid #7a3caa;
+  flex-shrink: 0;
+  gap: 1rem;
+}
+
+.ep-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.ep-unit-name {
+  margin: 0;
+  color: #c484e8;
+  font-size: 1.35rem;
+}
+
+.ep-unit-badge {
+  display: inline-block;
+  background: #3a1a50;
+  color: #c484e8;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid #7a3caa;
+}
+
+.ep-close {
+  background: transparent;
+  border: 1px solid #555;
+  color: #888;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.ep-close:hover {
+  border-color: #c484e8;
+  color: #c484e8;
+}
+
+/* ── XP Section ───────────────────────────────────────────────────────────── */
+.ep-xp-section {
+  padding: 1rem 1.4rem;
+  background: #1e1030;
+  border-bottom: 1px solid #3a2050;
+  flex-shrink: 0;
+}
+
+.ep-xp-block {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.5rem;
+}
+
+.ep-xp-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9966bb;
+  font-weight: 700;
+  width: 2.2rem;
+}
+
+.ep-xp-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #c484e8;
+  min-width: 3rem;
+  text-align: center;
+  background: #2a1040;
+  border: 1px solid #7a3caa;
+  border-radius: 6px;
+  padding: 0.1rem 0.6rem;
+  line-height: 1.2;
+}
+
+.ep-xp-btn {
+  padding: 0.35rem 0.75rem;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+
+.ep-btn-minus {
+  background: #333;
+  color: #888;
+}
+.ep-btn-minus:hover:not(:disabled) {
+  background: #555;
+  color: #ccc;
+}
+.ep-btn-minus:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.ep-btn-plus {
+  background: #3a206a;
+  color: #c484e8;
+  border: 1px solid #7a3caa;
+}
+.ep-btn-plus:hover {
+  background: #5a3090;
+  color: #fff;
+}
+
+.ep-btn-plus5 {
+  background: #2a1050;
+  color: #9966bb;
+  border: 1px solid #6a2c90;
+}
+.ep-btn-plus5:hover {
+  background: #4a2070;
+  color: #c484e8;
+}
+
+.ep-xp-hint {
+  margin: 0;
+  color: #665577;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────────── */
+.ep-tabs {
+  display: flex;
+  border-bottom: 1px solid #3a2050;
+  flex-shrink: 0;
+  background: #16101e;
+}
+
+.ep-tab {
+  flex: 1;
+  padding: 0.65rem 0.5rem;
+  background: transparent;
+  border: none;
+  color: #665577;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: color 0.15s;
+  border-bottom: 2px solid transparent;
+}
+
+.ep-tab:hover {
+  color: #9966bb;
+}
+
+.ep-tab--active {
+  color: #c484e8;
+  border-bottom-color: #7a3caa;
+  background: #1a1028;
+}
+
+.ep-badge {
+  background: #7a3caa;
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 10px;
+  min-width: 1.2rem;
+  text-align: center;
+}
+
+/* ── Tab content area ─────────────────────────────────────────────────────── */
+.ep-tab-content {
+  overflow-y: auto;
+  flex: 1;
+  padding: 1rem 1.4rem;
+}
+
+.ep-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.ep-empty {
+  color: #555;
+  font-style: italic;
+  font-size: 0.88rem;
+  margin: 0;
+  padding: 0.5rem 0;
+}
+
+/* ── Add panels ───────────────────────────────────────────────────────────── */
+.ep-add-panel {
+  background: #1e1030;
+  border: 1px solid #3a2050;
+  border-radius: 6px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.ep-add-title {
+  margin: 0;
+  color: #9966bb;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ep-add-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.ep-add-label {
+  font-size: 0.8rem;
+  color: #7a5090;
+  flex-shrink: 0;
+  width: 4.5rem;
+}
+
+.ep-add-select {
+  flex: 1;
+  background: #16101e;
+  border: 1px solid #4a2870;
+  color: #c0a0d8;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.ep-add-preview {
+  margin: 0;
+  color: #7a6090;
+  font-size: 0.78rem;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.ep-add-btn {
+  align-self: flex-start;
+  background: #3a1060;
+  border: 1px solid #7a3caa;
+  color: #c484e8;
+  padding: 0.35rem 0.9rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ep-add-btn:hover {
+  background: #5a2090;
+}
+
+/* ── List items (skills, scars, traumas) ──────────────────────────────────── */
+.ep-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ep-list-item {
+  border-radius: 5px;
+  padding: 0.6rem 0.8rem;
+}
+
+.ep-item-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.ep-item-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.ep-item-tag {
+  font-size: 0.72rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.ep-item-desc {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  opacity: 0.85;
+}
+
+.ep-remove-btn {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #555;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.ep-remove-btn:hover {
+  color: #e05050;
+  border-color: #e05050;
+}
+
+/* Skills — purple tint */
+.ep-skill-item {
+  background: #1e1038;
+  border: 1px solid #3a2860;
+}
+.ep-skill-item .ep-item-name  { color: #c484e8; }
+.ep-skill-item .ep-item-tag   { background: #2a1050; color: #8855cc; }
+.ep-skill-item .ep-item-desc  { color: #9080a8; }
+
+/* Battle Scars — amber/red tint */
+.ep-scar-item {
+  background: #201812;
+  border: 1px solid #5a3000;
+}
+.ep-scar-item .ep-item-name  { color: #e0902a; }
+.ep-scar-item .ep-item-desc  { color: #9a7050; }
+
+/* Traumas — dark red/teal tint */
+.ep-trauma-item {
+  background: #1a1e1e;
+  border: 1px solid #1e4040;
+}
+.ep-trauma-item .ep-item-name  { color: #50c8c8; }
+.ep-trauma-item .ep-item-desc  { color: #507070; }
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+.ep-footer {
+  padding: 0.8rem 1.4rem;
+  border-top: 1px solid #3a2050;
+  display: flex;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  background: #16101e;
+}
+
+.ep-done-btn {
+  background: #3a206a;
+  border: 1px solid #7a3caa;
+  color: #c484e8;
+  padding: 0.5rem 1.5rem;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ep-done-btn:hover {
+  background: #5a3090;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .ep-overlay {
+    padding: 0;
+    align-items: stretch;
+  }
+  .ep-modal {
+    border-radius: 0;
+    max-width: 100%;
+    max-height: 100dvh;
+    border-left: none;
+    border-right: none;
+  }
+  .ep-xp-value {
+    font-size: 1.6rem;
+  }
+}

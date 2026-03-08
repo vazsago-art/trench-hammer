@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TH Army Builder</string>
+    <string name="title_activity_main">TH Army Builder</string>
+    <string name="package_name">com.trenchhammer.armybuilder</string>
+    <string name="custom_url_scheme">com.trenchhammer.armybuilder</string>
+</resources>

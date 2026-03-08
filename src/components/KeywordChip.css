@@ -1,0 +1,110 @@
+/* ── Base chip wrapper ────────────────────────────────────────────────────── */
+/*
+  .kw-chip is always inline-flex so it wraps tightly around its content.
+  The outer class (e.g. .unit-kw-tag, .mkw-chip) controls colour, padding
+  and font — we only add the interactive layer here.
+*/
+.kw-chip {
+  display: inline-flex;
+  align-items: center;
+  position: static; /* popup uses position:fixed, no relative ancestor needed */
+}
+
+/* ── Clickable variant ────────────────────────────────────────────────────── */
+.kw-chip--has-info .kw-chip__btn {
+  /* Strip all native button chrome, inherit every visual property from parent */
+  all: inherit;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  /* Subtle dotted underline signals it's interactive */
+  text-decoration: underline dotted currentColor;
+  text-underline-offset: 2px;
+  transition: color 0.1s, text-decoration-color 0.1s;
+}
+
+.kw-chip--has-info .kw-chip__btn:hover,
+.kw-chip--has-info .kw-chip__btn:focus-visible {
+  color: #2ecc71;
+  text-decoration-color: #2ecc71;
+  outline: none;
+}
+
+.kw-chip--open .kw-chip__btn {
+  color: #2ecc71;
+}
+
+/* ── Floating popup ───────────────────────────────────────────────────────── */
+/*
+  Rendered at position:fixed using coordinates set via inline style,
+  so it escapes overflow:hidden on table wrappers and modals.
+  transform(-50%, -100%) places it centred above the button.
+*/
+.kw-chip__popup {
+  position: fixed;
+  transform: translateX(-50%) translateY(-100%);
+  z-index: 9999;
+
+  /* Panel style */
+  background: #131320;
+  border: 1.5px solid #2ecc71;
+  border-radius: 7px;
+  padding: 0.55rem 0.75rem;
+  width: 240px;
+  max-width: min(260px, 80vw);
+  box-shadow:
+    0 6px 24px rgba(0, 0, 0, 0.75),
+    0 0 0 1px rgba(46, 204, 113, 0.12);
+
+  /* Stack name + description vertically */
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  /* Prevent any accidental pointer-events blocking */
+  pointer-events: auto;
+
+  /* Small entrance animation */
+  animation: kwpopup-in 0.12s ease-out both;
+}
+
+@keyframes kwpopup-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(calc(-100% + 6px)); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(-100%); }
+}
+
+.kw-chip__popup-name {
+  color: #2ecc71;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.kw-chip__popup-desc {
+  color: #cdd6d0;
+  font-size: 0.79rem;
+  line-height: 1.45;
+  font-weight: 400;
+}
+
+/* ── Separator in KeywordList ─────────────────────────────────────────────── */
+.kw-sep {
+  color: inherit;
+  opacity: 0.55;
+  user-select: none;
+}
+
+/* ── Wrapper for lists of chips ───────────────────────────────────────────── */
+.kw-list {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 0; /* gap handled via kw-sep characters */
+}

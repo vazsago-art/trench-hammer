@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="80" fill="#0f1722"/>
+  <!-- Shield outer -->
+  <path d="M256 60 L420 130 L420 280 Q420 390 256 460 Q92 390 92 280 L92 130 Z" fill="#0e7490"/>
+  <!-- Shield inner -->
+  <path d="M256 95 L390 155 L390 278 Q390 372 256 432 Q122 372 122 278 L122 155 Z" fill="#0f1722"/>
+  <!-- Hammer head -->
+  <rect x="175" y="175" width="120" height="70" rx="10" fill="#e2d9c5"/>
+  <!-- Hammer handle -->
+  <rect x="245" y="245" width="22" height="110" rx="6" fill="#c4a862"/>
+  <!-- T cross bar -->
+  <rect x="165" y="175" width="30" height="70" rx="8" fill="#c4a862"/>
+  <rect x="317" y="175" width="30" height="70" rx="8" fill="#c4a862"/>
+</svg>

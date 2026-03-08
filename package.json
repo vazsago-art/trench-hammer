@@ -1,0 +1,50 @@
+{
+  "name": "trench-hammer-army-builder",
+  "version": "1.0.5",
+  "description": "Army builder for the Trench Hammer wargame - combining Trench Crusade mechanics with Warhammer 40K universe",
+  "type": "module",
+  "homepage": "https://vazsago-art.github.io/trench-hammer",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "wargame",
+    "army-builder",
+    "trench-hammer",
+    "trench-crusade",
+    "40k"
+  ],
+  "author": "Vazsago",
+  "license": "MIT",
+  "devDependencies": {
+    "@capacitor/cli": "^8.1.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.4",
+    "@vitest/coverage-v8": "^4.0.18",
+    "gh-pages": "^6.3.0",
+    "jsdom": "^28.1.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.18"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.1.0",
+    "@capacitor/core": "^8.1.0",
+    "@capacitor/filesystem": "^8.1.2",
+    "@capacitor/share": "^8.0.1",
+    "jspdf": "^4.2.0",
+    "jspdf-autotable": "^5.0.7",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  }
+}

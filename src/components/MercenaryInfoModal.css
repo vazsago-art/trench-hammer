@@ -1,0 +1,295 @@
+/* ── Overlay ─────────────────────────────────────────────────────────────── */
+.merc-info-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 1100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem calc(2rem + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+}
+
+/* ── Panel ───────────────────────────────────────────────────────────────── */
+.merc-info-panel {
+  background: #1e1e2e;
+  border: 2px solid #8b4513;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 640px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.merc-info-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1rem 1.2rem;
+  background: linear-gradient(90deg, #3b1a00 0%, #1e1e2e 100%);
+  border-bottom: 2px solid #8b4513;
+  gap: 0.75rem;
+}
+
+.merc-info-header-left {
+  flex: 1;
+}
+
+.merc-info-name {
+  margin: 0 0 0.15rem 0;
+  color: #cd7f32;
+  font-size: 1.25rem;
+}
+
+.merc-info-subcat {
+  color: #a08060;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.merc-info-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.merc-info-glory-badge {
+  background: #3b1a00;
+  border: 1px solid #cd7f32;
+  color: #cd7f32;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 6px;
+}
+
+.merc-info-glory-badge span {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #a08060;
+  margin-left: 0.2em;
+}
+
+.merc-info-close-btn {
+  background: transparent;
+  border: 1px solid #8b4513;
+  color: #a08060;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0.3rem 0.55rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.merc-info-close-btn:hover {
+  background: #8b4513;
+  color: #fff;
+}
+
+/* ── Content sections ────────────────────────────────────────────────────── */
+.merc-info-panel > *:not(.merc-info-header):not(.merc-info-footer):not(.merc-info-keywords-row):not(.merc-info-description) {
+  padding: 0.75rem 1.2rem;
+}
+
+.merc-info-section {
+  padding: 0.75rem 1.2rem;
+  border-top: 1px solid #2e2840;
+}
+
+.merc-info-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8b6030;
+  margin-bottom: 0.5rem;
+}
+
+/* ── Stats row ───────────────────────────────────────────────────────────── */
+.merc-info-stats-row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.merc-info-stat-cell {
+  flex: 1;
+  background: #252535;
+  border: 1px solid #3a3a55;
+  border-radius: 4px;
+  text-align: center;
+  padding: 0.35rem 0.2rem;
+  min-width: 0;
+}
+
+.merc-info-stat-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6878a0;
+  margin-bottom: 0.25rem;
+}
+
+.merc-info-stat-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e0e8ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Keywords row ────────────────────────────────────────────────────────── */
+.merc-info-keywords-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.5rem 1.2rem;
+  background: #191926;
+  border-top: 1px solid #2e2840;
+}
+
+.merc-info-keyword-tag {
+  background: #252535;
+  border: 1px solid #3a3a55;
+  color: #8090b8;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+}
+
+/* ── Weapon table ────────────────────────────────────────────────────────── */
+.merc-info-weapon-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+}
+
+.merc-info-weapon-table th {
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #a08060;
+  border-bottom: 1px solid #3a3a55;
+  padding: 0.25rem 0.5rem;
+  background: #1a1a28;
+}
+
+.merc-info-weapon-table td {
+  padding: 0.3rem 0.5rem;
+  color: #ccd0e0;
+  vertical-align: top;
+  border-bottom: 1px solid #252535;
+}
+
+.merc-info-weapon-table tr.alt td {
+  background: #202030;
+}
+
+.merc-info-weapon-table .weapon-name {
+  font-weight: 600;
+  color: #e8e0c8;
+  white-space: nowrap;
+  width: 38%;
+}
+
+.merc-info-weapon-table .weapon-profile {
+  color: #a0b0c8;
+  font-size: 0.8rem;
+}
+
+/* ── Abilities ───────────────────────────────────────────────────────────── */
+.merc-info-abilities {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.merc-info-ability {
+  font-size: 0.83rem;
+  line-height: 1.45;
+  color: #b8c0d8;
+}
+
+.merc-info-ability-name {
+  font-weight: 700;
+  color: #cd9a50;
+}
+
+.merc-info-ability-desc {
+  color: #a0aac0;
+}
+
+/* ── Psychic section accent ──────────────────────────────────────────────── */
+.merc-info-section--psychic .merc-info-section-title {
+  color: #9070c0;
+}
+
+.merc-info-section--psychic .merc-info-ability-name {
+  color: #b08adf;
+}
+
+/* ── Description note ────────────────────────────────────────────────────── */
+.merc-info-description {
+  padding: 0.5rem 1.2rem;
+  font-size: 0.8rem;
+  color: #7080a0;
+  font-style: italic;
+  border-top: 1px solid #2e2840;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.merc-info-footer {
+  padding: 0.8rem 1.2rem;
+  border-top: 2px solid #8b4513;
+  display: flex;
+  justify-content: flex-end;
+  background: #191926;
+}
+
+.merc-info-done-btn {
+  background: #8b4513;
+  border: none;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.5rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.merc-info-done-btn:hover {
+  background: #cd7f32;
+}
+
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .merc-info-panel {
+    max-width: 100%;
+  }
+
+  .merc-info-stats-row {
+    flex-wrap: wrap;
+  }
+
+  .merc-info-stat-cell {
+    flex: 1 1 30%;
+  }
+
+  .merc-info-stat-value {
+    font-size: 0.9rem;
+  }
+}

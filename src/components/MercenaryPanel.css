@@ -1,0 +1,518 @@
+/* ── Overlay ─────────────────────────────────────────────────────────────── */
+.mercenary-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1050;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem calc(2rem + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+}
+
+/* ── Panel ───────────────────────────────────────────────────────────────── */
+.mercenary-panel {
+  background: #1e1e2e;
+  border: 2px solid #8b4513;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 860px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 4rem - env(safe-area-inset-bottom, 0px));
+  overflow: hidden;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.mercenary-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1.2rem 1.5rem;
+  background: linear-gradient(90deg, #3b1a00 0%, #1e1e2e 100%);
+  border-bottom: 2px solid #8b4513;
+  flex-shrink: 0;
+  gap: 1rem;
+}
+
+.mercenary-header-left h2 {
+  margin: 0 0 0.2rem 0;
+  color: #cd7f32;
+  font-size: 1.4rem;
+}
+
+.mercenary-header-left p {
+  margin: 0;
+  color: #a08060;
+  font-size: 0.88rem;
+}
+
+.mercenary-glory-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #2a1500;
+  border: 1px solid #8b4513;
+  border-radius: 6px;
+  color: #cd7f32;
+  font-weight: bold;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.mercenary-glory-badge.over-limit {
+  border-color: #cc2222;
+  color: #ff5555;
+}
+
+.mercenary-close-btn {
+  background: transparent;
+  border: 1px solid #555;
+  color: #888;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.mercenary-close-btn:hover {
+  border-color: #cd7f32;
+  color: #cd7f32;
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────────────────── */
+.mercenary-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  background: #161625;
+  border-bottom: 1px solid #333;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.mercenary-toolbar label {
+  color: #888;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.mercenary-search {
+  flex: 1;
+  min-width: 160px;
+  padding: 0.4rem 0.75rem;
+  background: #252535;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #e0e0f0;
+  font-size: 0.9rem;
+}
+
+.mercenary-search::placeholder {
+  color: #555;
+}
+
+.mercenary-search:focus {
+  outline: none;
+  border-color: #8b4513;
+}
+
+/* ── Content ─────────────────────────────────────────────────────────────── */
+.mercenary-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ── Category Group ──────────────────────────────────────────────────────── */
+.merc-subcategory {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.merc-subcategory-title {
+  font-size: 0.78rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8b4513;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid #2a1500;
+}
+
+/* ── Mercenary Row ───────────────────────────────────────────────────────── */
+.merc-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.6rem 0.75rem;
+  background: #252535;
+  border: 1px solid #333;
+  border-radius: 6px;
+  transition: border-color 0.15s;
+}
+
+.merc-row:hover {
+  border-color: #6b3410;
+}
+
+.merc-row.hired {
+  border-color: #8b4513;
+  background: #2a1800;
+}
+
+/* Line 1: name + description */
+.merc-row-line1 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.merc-name {
+  font-weight: 600;
+  color: #e0d0b0;
+  font-size: 0.95rem;
+}
+
+.merc-desc {
+  font-size: 0.78rem;
+  color: #7a7080;
+  font-style: italic;
+}
+
+/* Line 2: ℹ + cost + controls */
+.merc-row-line2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.merc-info-placeholder {
+  display: inline-block;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.merc-meta {
+  font-size: 0.78rem;
+  color: #606070;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.merc-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.1rem;
+}
+
+.merc-keyword-tag {
+  background: #1a1a2e;
+  border: 1px solid #333;
+  border-radius: 3px;
+  padding: 0.05rem 0.35rem;
+  font-size: 0.7rem;
+  color: #6060a0;
+}
+
+.merc-glory-cost {
+  font-weight: bold;
+  color: #cd7f32;
+  font-size: 1rem;
+  white-space: nowrap;
+  min-width: 3.5rem;
+  text-align: right;
+}
+
+.merc-glory-cost span {
+  font-size: 0.75rem;
+  color: #7a6040;
+  font-weight: normal;
+}
+
+/* ── Info button ─────────────────────────────────────────────────────────── */
+.merc-info-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  border: 1px solid #8b6030;
+  background: #1e1e2e;
+  color: #8b6030;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.merc-info-btn:hover {
+  background: #8b4513;
+  border-color: #cd7f32;
+  color: #fff;
+}
+
+
+.merc-count-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.merc-count-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: 1px solid #555;
+  background: #1a1a2e;
+  color: #aaa;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.merc-count-btn:hover:not(:disabled) {
+  border-color: #cd7f32;
+  color: #cd7f32;
+}
+
+.merc-count-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.merc-count-display {
+  min-width: 1.5rem;
+  text-align: center;
+  font-weight: bold;
+  color: #e0d0b0;
+  font-size: 0.95rem;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.mercenary-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: #161625;
+  border-top: 1px solid #333;
+  flex-shrink: 0;
+  gap: 1rem;
+}
+
+.mercenary-footer-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.mercenary-footer-total {
+  color: #cd7f32;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.mercenary-footer-total.over-limit {
+  color: #ff5555;
+}
+
+.mercenary-footer-count {
+  color: #666;
+  font-size: 0.82rem;
+}
+
+.mercenary-done-btn {
+  padding: 0.55rem 1.5rem;
+  background: #8b4513;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.mercenary-done-btn:hover {
+  background: #a0521a;
+}
+
+/* ── Empty State ─────────────────────────────────────────────────────────── */
+.mercenary-empty {
+  text-align: center;
+  padding: 2rem;
+  color: #555;
+  font-style: italic;
+}
+
+/* ── Limit input row in header ───────────────────────────────────────────── */
+.mercenary-limit-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  font-size: 0.82rem;
+  color: #a08060;
+}
+
+.mercenary-limit-row input {
+  width: 60px;
+  padding: 0.2rem 0.4rem;
+  background: #2a1500;
+  border: 1px solid #5a3010;
+  border-radius: 4px;
+  color: #cd7f32;
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+.mercenary-limit-row input:focus {
+  outline: none;
+  border-color: #8b4513;
+}
+
+/* ── Options Toggle Button ───────────────────────────────────────────────── */
+.merc-options-toggle {
+  padding: 0.22rem 0.55rem;
+  background: #1a1000;
+  border: 1px solid #7a5510;
+  border-radius: 4px;
+  color: #c0900a;
+  font-size: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.merc-options-toggle:hover {
+  background: #2a1800;
+  border-color: #cd7f32;
+  color: #ffd080;
+}
+
+.merc-options-toggle.active {
+  background: #2a1800;
+  border-color: #cd7f32;
+  color: #ffd080;
+}
+
+.merc-options-toggle.chosen {
+  border-color: #4a9a4a;
+  color: #7acc7a;
+  background: #0a1a0a;
+}
+
+.merc-options-toggle.chosen:hover,
+.merc-options-toggle.chosen.active {
+  border-color: #6add6a;
+  color: #aaffaa;
+  background: #102010;
+}
+
+.merc-row.picking {
+  background: rgba(139, 69, 19, 0.08);
+}
+
+.merc-option-btn.selected {
+  border-color: #4a9a4a;
+  color: #7acc7a;
+  background: #0a1a0a;
+}
+
+/* ── Recruit Option Picker ───────────────────────────────────────────────── */
+.merc-option-picker {
+  margin: 0.35rem 0 0.25rem;
+  padding: 0.5rem 0.65rem;
+  background: #1a1200;
+  border: 1px solid #7a5510;
+  border-radius: 5px;
+}
+
+.merc-option-prompt {
+  display: block;
+  font-size: 0.8rem;
+  color: #b8900a;
+  margin-bottom: 0.4rem;
+  font-style: italic;
+}
+
+.merc-option-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.merc-option-btn {
+  padding: 0.28rem 0.65rem;
+  background: #2a1800;
+  border: 1px solid #8b5e15;
+  border-radius: 4px;
+  color: #e0b060;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.merc-option-btn:hover {
+  background: #3a2200;
+  border-color: #cd7f32;
+  color: #ffd080;
+}
+
+.merc-option-cancel {
+  padding: 0.28rem 0.55rem;
+  background: transparent;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: #888;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.merc-option-cancel:hover {
+  color: #bbb;
+  border-color: #888;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .mercenary-header {
+    flex-wrap: wrap;
+  }
+
+  .mercenary-content {
+    padding: 0.75rem 1rem;
+  }
+
+  .merc-keywords {
+    display: none;
+  }
+}

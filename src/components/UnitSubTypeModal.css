@@ -1,0 +1,226 @@
+/* ============================================================
+   UnitSubTypeModal – type-selection modal overlay
+   ============================================================ */
+
+.subtype-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
+}
+
+.subtype-modal {
+  background: #1a1a2e;
+  border: 1px solid #444;
+  border-radius: 10px;
+  width: min(680px, 96vw);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+
+/* ----- Header ----- */
+.subtype-modal-header {
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid #333;
+  position: relative;
+}
+
+.subtype-modal-header h2 {
+  margin: 0 2rem 0.35rem 0;
+  color: #00b4db;
+  font-size: 1.3em;
+}
+
+.subtype-modal-prompt {
+  margin: 0;
+  color: #aaa;
+  font-size: 0.9em;
+}
+
+.subtype-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 1.5em;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.25rem;
+}
+
+.subtype-modal-close:hover {
+  color: #fff;
+}
+
+/* ----- Options list ----- */
+.subtype-options-list {
+  overflow-y: auto;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  flex: 1;
+}
+
+/* ----- Individual option card ----- */
+.subtype-option-card {
+  text-align: left;
+  background: #242435;
+  border: 2px solid #3a3a55;
+  border-radius: 7px;
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+}
+
+.subtype-option-card:hover {
+  background: #2a2a45;
+  border-color: #5a5a80;
+}
+
+.subtype-option-card.selected {
+  background: #1a2a40;
+  border-color: #00b4db;
+}
+
+.subtype-option-titlerow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.45rem;
+}
+
+.subtype-option-name {
+  font-weight: 700;
+  font-size: 1em;
+  color: #e0e0e0;
+}
+
+.subtype-option-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.subtype-cost-badge {
+  background: #2a4a25;
+  color: #7ed36a;
+  border: 1px solid #3a6a35;
+  border-radius: 4px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.78em;
+  font-weight: 600;
+}
+
+.subtype-cost-badge:empty {
+  display: none;
+}
+
+/* Negative cost override */
+.subtype-option-card .subtype-cost-badge[data-neg='true'] {
+  background: #4a2a25;
+  color: #ed9a6a;
+  border-color: #6a3a35;
+}
+
+.subtype-limit-badge {
+  background: #3a2a10;
+  color: #e0ba60;
+  border: 1px solid #6a5a20;
+  border-radius: 4px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.78em;
+  font-weight: 600;
+}
+
+.subtype-final-cost {
+  background: #222;
+  color: #aaa;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.78em;
+}
+
+.subtype-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.4rem;
+}
+
+.subtype-keyword-chip {
+  background: #1a3040;
+  color: #5bc4e8;
+  border: 1px solid #2a5060;
+  border-radius: 12px;
+  padding: 0.1rem 0.55rem;
+  font-size: 0.75em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.subtype-option-desc {
+  margin: 0;
+  color: #bbb;
+  font-size: 0.88em;
+  line-height: 1.5;
+}
+
+/* ----- Footer ----- */
+.subtype-modal-footer {
+  padding: 0.9rem 1.25rem 1.1rem;
+  border-top: 1px solid #333;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.subtype-modal-footer .btn-cancel {
+  background: #333;
+  color: #ccc;
+  border: 1px solid #555;
+  border-radius: 5px;
+  padding: 0.55rem 1.2rem;
+  cursor: pointer;
+  font-size: 0.95em;
+}
+
+.subtype-modal-footer .btn-cancel:hover {
+  background: #444;
+}
+
+.subtype-modal-footer .btn-confirm {
+  background: #00b4db;
+  color: #111;
+  border: none;
+  border-radius: 5px;
+  padding: 0.55rem 1.4rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.95em;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.subtype-modal-footer .btn-confirm:hover:not(:disabled) {
+  background: #00cdf5;
+}
+
+.subtype-modal-footer .btn-confirm:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

@@ -1,0 +1,26 @@
+{
+  "name": "Trench Hammer Army Builder",
+  "short_name": "TrenchHammer",
+  "description": "Build and manage warbands for the Trench Hammer wargame",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f1722",
+  "theme_color": "#0e7490",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["games", "utilities"],
+  "lang": "en"
+}
