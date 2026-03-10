@@ -376,6 +376,11 @@
   background: #0f3460;
 }
 
+/* Push all card content below the variant tag so it is never obscured */
+.wargear-item.wg-variant-item {
+  padding-top: 1.5rem;
+}
+
 /* ── Item header row (name + eye button) ─────────────────────────────────── */
 .wg-item-header {
   display: flex;
@@ -391,22 +396,22 @@
   margin-top: -0.1rem;
 }
 
-/* ── Variant ribbon (top-right corner) ───────────────────────────────────── */
+/* ── Variant tag (top-right corner tab) ──────────────────────────────────── */
 .wg-variant-ribbon {
   position: absolute;
-  top: 4px;
-  right: -20px;
+  top: 0;
+  right: 0;
   background: linear-gradient(135deg, #7c3aed, #4f46e5);
   color: #fff;
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
-  padding: 0.15rem 1.6rem;
-  transform: rotate(35deg);
-  transform-origin: top right;
+  letter-spacing: 0.07em;
+  padding: 0.13rem 0.45rem;
+  border-radius: 0 4px 0 5px;
   pointer-events: none;
   z-index: 1;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  line-height: 1.4;
+  text-transform: uppercase;
 }
 
 .wg-item-name {
