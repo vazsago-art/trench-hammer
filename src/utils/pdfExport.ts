@@ -377,14 +377,22 @@ function drawUnitCard(
   // ── Default Battlekit ─────────────────────────────────────────────────
   // Filter out any default items that have been replaced
   const visibleDefaultWargear = unitOption.defaultWargear.filter(item => {
-    // 1. Slot-based replacement
+    // 1. Explicit replacesDefaultId
+    if (wbu.selectedWargear.some(sw => sw.replacesDefaultId === item.id)) return false;
+    // 2. Slot-based replacement
     const defSlot = (item as { slot?: string }).slot;
     if (defSlot && wbu.selectedWargear.some(sw => lookupWargear(sw.id)?.slot === defSlot)) return false;
-    // 2. Explicit replacesDefaultId
-    if (wbu.selectedWargear.some(sw => sw.replacesDefaultId === item.id)) return false;
-    // 3. weaponReplacementRules (e.g. adding any melee weapon replaces default claws/fists)
-    const wrRule = unitOption.weaponReplacementRules?.find(r => r.replacedDefaultId === item.id);
-    if (wrRule && wbu.selectedWargear.some(sw => lookupWeapon(sw.id)?.type === wrRule.whenAddingWeaponType)) return false;
+    // 3. weaponReplacementRules
+    const wrRule = (unitOption.weaponReplacementRules ?? []).find(r => r.replacedDefaultId === item.id);
+    if (wrRule) {
+      const replaced = wbu.selectedWargear.some(sw => {
+        const wp = lookupWeapon(sw.id);
+        if (wp) return wp.type === wrRule.whenAddingWeaponType;
+        return sw.type === 'weapon'
+          && (item as { type?: string }).type === wrRule.whenAddingWeaponType;
+      });
+      if (replaced) return false;
+    }
     return true;
   });
   if (visibleDefaultWargear.length > 0) {

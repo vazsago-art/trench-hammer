@@ -1357,15 +1357,26 @@ export function ArmyBuilder({
                         <div className="unit-wargear-summary">
                           {defItems
                             .filter(item => {
-                              // 1. Slot-based replacement (e.g. Terminator Armour replaces Power Armour)
+                              // 1. Explicit replacesDefaultId
+                              if (selItems.some(sel => sel.replacesDefaultId === item.id)) return false;
+                              // 2. Slot-based replacement (e.g. Terminator Armour replaces Power Armour)
                               const defSlot = (item as WargearOption).slot ?? lookupWargear(item.id)?.slot;
                               if (defSlot && selItems.some(sel =>
                                 (sel.slot ?? lookupWargear(sel.id)?.slot) === defSlot)) return false;
-                              // 2. Explicit replacesDefaultId (locked upgrade explicitly replaces this item)
-                              if (selItems.some(sel => sel.replacesDefaultId === item.id)) return false;
                               // 3. weaponReplacementRules (e.g. adding any melee weapon replaces default fists/claws)
-                              const wrRule = unitDef?.weaponReplacementRules?.find(r => r.replacedDefaultId === item.id);
-                              if (wrRule && selItems.some(sel => lookupWeapon(sel.id)?.type === wrRule.whenAddingWeaponType)) return false;
+                              const wrRules = unitDef?.weaponReplacementRules ?? [];
+                              const wrRule = wrRules.find(r => r.replacedDefaultId === item.id);
+                              if (wrRule) {
+                                const replaced = selItems.some(sel => {
+                                  const wp = lookupWeapon(sel.id);
+                                  if (wp) return wp.type === wrRule.whenAddingWeaponType;
+                                  // Fallback: if weapon not in registry, match by SelectedWargear type
+                                  // and the replaced item's own type
+                                  return sel.type === 'weapon'
+                                    && (item as { type?: string }).type === wrRule.whenAddingWeaponType;
+                                });
+                                if (replaced) return false;
+                              }
                               return true;
                             })
                             .map(item => (
