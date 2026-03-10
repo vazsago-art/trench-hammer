@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { Warband, UnitOption, UnitSubType, SelectedWargear, WargearOption, SelectedPsychicPower, SelectedGiftOfChaos, UnitUpgrade, WarbandMercenary, Mercenary, WarbandUnit, MercenaryStats, SharedWarbandProps } from '../types/index.js';
 import { getFactionById, allFactions } from '../data/factions_complete.js';
 import { calculateWarbandPoints, calculateWarbandGlory, calculateTotalModels, validateWarband } from '../data/validation.js';
@@ -25,7 +25,16 @@ import { EliteProgressionModal } from './EliteProgressionModal.js';
 import { isEliteEligible } from '../data/campaignProgression.js';
 import { getPatronsForFaction, getPatronById, filterAbilitiesForSubfaction } from '../data/patrons.js';
 import { PatronAbilityChip } from './PatronAbilityChip.js';
+import { getFactionRules } from '../data/factionRules.js';
 import './ArmyBuilder.css';
+
+/** Renders a string with **bold** markdown markers as JSX with <strong> elements. */
+function renderFormattedText(text: string): ReactNode {
+  const parts = text.split(/\*\*(.*?)\*\*/g);
+  return parts.map((part, i) =>
+    i % 2 === 1 ? <strong key={i}>{part}</strong> : part
+  );
+}
 
 export function ArmyBuilder({
   selectedFaction, setSelectedFaction,
@@ -891,6 +900,22 @@ export function ArmyBuilder({
               ))}
             </select>
           </div>
+
+          {/* Faction Special Rules */}
+          {(() => {
+            const factionRules = getFactionRules(selectedFaction);
+            if (!factionRules) return null;
+            return (
+              <div className="faction-rules">
+                <div className="faction-rules-title">{factionRules.title}</div>
+                <ul className="faction-rules-list">
+                  {factionRules.rules.map((rule, i) => (
+                    <li key={i}>{renderFormattedText(rule)}</li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })()}
 
           {factionHasSubFactions(selectedFaction) && (() => {
             const sfData = getSubFactions(selectedFaction);

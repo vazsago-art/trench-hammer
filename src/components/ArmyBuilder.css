@@ -872,6 +872,46 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
+/* ── Faction Special Rules ───────────────────────────────────────────────── */
+
+.faction-rules {
+  margin: 0 0 0.8rem;
+  padding: 0.6rem 0.75rem;
+  background: rgba(30, 60, 100, 0.15);
+  border: 1px solid rgba(70, 130, 180, 0.35);
+  border-radius: 6px;
+  font-size: 0.82em;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.faction-rules-title {
+  color: #7eb8e8;
+  font-weight: 700;
+  font-size: 0.9em;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.45rem;
+  text-transform: uppercase;
+}
+
+.faction-rules-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #b0bec5;
+}
+
+.faction-rules-list li {
+  margin-bottom: 0.35rem;
+  line-height: 1.4;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
+}
+
+.faction-rules-list strong {
+  color: #90caf9;
+}
+
 /* ── Mercenary panel trigger & hired list ─────────────────────────────────── */
 
 .selected-units-header-row {

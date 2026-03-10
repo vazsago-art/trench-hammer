@@ -12,6 +12,7 @@ import { expandKeywords } from '../data/keywordGlossary.js';
 import { isEliteEligible, SKILL_TABLE_LABELS } from '../data/campaignProgression.js';
 import { getPatronById, filterAbilitiesForSubfaction } from '../data/patrons.js';
 import { getSubFactionById } from '../data/subfactions.js';
+import { getFactionRules } from '../data/factionRules.js';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
@@ -937,6 +938,41 @@ export async function exportWarbandToPDF(warband: Warband): Promise<void> {
       });
       y = tableY(doc) + 6;
     }
+  }
+
+  // ── Faction Special Rules section ──────────────────────────────────
+  const factionRulesData = getFactionRules(warband.faction);
+  if (factionRulesData && factionRulesData.rules.length > 0) {
+    y = guard(doc, y, 20);
+    const C_FACTION_BLUE: RGB = [22, 70, 140];
+    rect(doc, ML, y, CW, 7, C_FACTION_BLUE);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    ink(doc, C_WHITE);
+    doc.text(safe('  ' + factionRulesData.title.toUpperCase()), ML + 2, y + 5);
+    y += 9;
+
+    // Parse each rule: split on **Rule Name.** Description
+    const ruleRows: [string, string][] = factionRulesData.rules.map(rule => {
+      const m = rule.match(/^\*\*(.*?)\*\*\s*(.*)$/s);
+      return m ? [safe(m[1]), safe(m[2])] : ['', safe(rule)];
+    });
+
+    y = guard(doc, y, 10);
+    autoTable(doc, {
+      startY: y,
+      margin: { left: ML, right: ML },
+      tableWidth: CW,
+      body: ruleRows,
+      styles: { fontSize: 7.5, cellPadding: 2.2, overflow: 'linebreak' },
+      alternateRowStyles: { fillColor: C_ALTROW as RGB },
+      columnStyles: {
+        0: { cellWidth: 48, fontStyle: 'bold', textColor: [100, 160, 230] as RGB },
+        1: { cellWidth: 'auto' },
+      },
+      theme: 'plain',
+    });
+    y = tableY(doc) + 6;
   }
 
   // ── Subfaction / Faction Rules section ───────────────────────────────
