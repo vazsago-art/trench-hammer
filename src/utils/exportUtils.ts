@@ -33,6 +33,20 @@ export function exportWarbandAsText(warband: Warband, pointLimit: number, gloryL
         text += `      - ${w.name} (${w.cost} ${wCurrency} each)\n`;
       });
     }
+    if ((unit.selectedPsychicPowers ?? []).length > 0) {
+      text += `   Psychic Powers:\n`;
+      (unit.selectedPsychicPowers ?? []).forEach(p => {
+        const pCurrency = p.costCurrency === 'glory' ? 'Glory' : 'Credits';
+        text += `      - ${p.name} [${p.disciplineName}] (+${p.cost} ${pCurrency})\n`;
+      });
+    }
+    if ((unit.selectedGiftsOfChaos ?? []).length > 0) {
+      text += `   Mutations (Gifts of Chaos):\n`;
+      (unit.selectedGiftsOfChaos ?? []).forEach(g => {
+        const gCurrency = g.costCurrency === 'glory' ? 'Glory' : 'Credits';
+        text += `      - ${g.name} [D66: ${g.diceResult}] (+${g.cost} ${gCurrency})\n`;
+      });
+    }
     text += `   Keywords: ${unit.keywords.join(', ')}\n`;
   });
 

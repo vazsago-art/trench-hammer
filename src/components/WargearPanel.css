@@ -367,6 +367,8 @@
   flex-direction: column;
   gap: 0.3rem;
   transition: border-color 0.15s;
+  position: relative;
+  overflow: hidden;
 }
 
 .wargear-item.wg-active {
@@ -374,14 +376,49 @@
   background: #0f3460;
 }
 
+/* ── Item header row (name + eye button) ─────────────────────────────────── */
+.wg-item-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.wg-item-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: -0.1rem;
+}
+
+/* ── Variant ribbon (top-right corner) ───────────────────────────────────── */
+.wg-variant-ribbon {
+  position: absolute;
+  top: 4px;
+  right: -20px;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 0.15rem 1.6rem;
+  transform: rotate(35deg);
+  transform-origin: top right;
+  pointer-events: none;
+  z-index: 1;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
 .wg-item-name {
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   font-weight: 600;
   color: #e0e0e0;
+  flex: 1;
+  line-height: 1.3;
 }
 
 .wg-item-keywords {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   color: #7a8a9a;
   line-height: 1.3;
   flex: 1;

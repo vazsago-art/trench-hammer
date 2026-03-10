@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Warband, UnitOption, UnitSubType, SelectedWargear, WargearOption, SelectedPsychicPower, UnitUpgrade, WarbandMercenary, Mercenary, WarbandUnit, MercenaryStats } from '../types/index.js';
+import { Warband, UnitOption, UnitSubType, SelectedWargear, WargearOption, SelectedPsychicPower, SelectedGiftOfChaos, UnitUpgrade, WarbandMercenary, Mercenary, WarbandUnit, MercenaryStats, SharedWarbandProps } from '../types/index.js';
 import { getFactionById, allFactions } from '../data/factions_complete.js';
 import { calculateWarbandPoints, calculateWarbandGlory, calculateTotalModels, validateWarband } from '../data/validation.js';
 import { getAllowedWargearIds } from '../data/faction_wargear.js';
@@ -9,6 +9,8 @@ import { saveWarbandLocal, exportWarbandToMDFile, importWarbandFromJSON } from '
 import { exportWarbandToPDF } from '../utils/pdfExport.js';
 import { WargearPanel } from './WargearPanel.js';
 import { PsychicPanel } from './PsychicPanel.js';
+import { MutationsPanel } from './MutationsPanel.js';
+import { GIFTS_OF_CHAOS } from '../data/gifts_of_chaos.js';
 import { UpgradePanel } from './UpgradePanel.js';
 import { UnitInfoModal } from './UnitInfoModal.js';
 import { UnitSubTypeModal } from './UnitSubTypeModal.js';
@@ -21,31 +23,28 @@ import { MercenaryInfoModal } from './MercenaryInfoModal.js';
 import { ALL_MERCENARIES } from '../data/mercenaries.js';
 import { EliteProgressionModal } from './EliteProgressionModal.js';
 import { isEliteEligible } from '../data/campaignProgression.js';
+import { getPatronsForFaction, getPatronById, filterAbilitiesForSubfaction } from '../data/patrons.js';
+import { PatronAbilityChip } from './PatronAbilityChip.js';
 import './ArmyBuilder.css';
 
-export function ArmyBuilder() {
-  const [selectedFaction, setSelectedFaction] = useState<string>(allFactions[0].id);
-  const [selectedSubFaction, setSelectedSubFaction] = useState<string>('no_variant');
-  const [pointLimit, setPointLimit] = useState<number>(500);
-  const [gloryLimit, setGloryLimit] = useState<number>(0);
-  const [warband, setWarband] = useState<Warband>({
-    id: `warband-${Date.now()}`,
-    name: 'My Warband',
-    faction: selectedFaction,
-    pointLimit,
-    gloryLimit: 0,
-    units: [],
-    mercenaries: [],
-    totalPoints: 0,
-    totalGlory: 0,
-    totalModels: 0,
-  });
+export function ArmyBuilder({
+  selectedFaction, setSelectedFaction,
+  selectedSubFaction, setSelectedSubFaction,
+  pointLimit, setPointLimit,
+  gloryLimit, setGloryLimit,
+  warband, setWarband,
+}: SharedWarbandProps) {
 
   const currentFaction = getFactionById(selectedFaction);
   const currentSubFaction = getSubFactionById(selectedFaction, selectedSubFaction);
   const bannedUnitIdsSet = new Set<string>(currentSubFaction?.bannedUnitIds ?? []);
+  const unitMaxCountOverrides = currentSubFaction?.unitMaxCountOverrides ?? {};
   const allAvailableUnits: UnitOption[] = [
-    ...(currentFaction?.units.filter(u => !bannedUnitIdsSet.has(u.id)) ?? []),
+    ...(currentFaction?.units.filter(u => !bannedUnitIdsSet.has(u.id)).map(u =>
+      unitMaxCountOverrides[u.id] !== undefined
+        ? { ...u, maxCount: unitMaxCountOverrides[u.id] }
+        : u
+    ) ?? []),
     ...(currentSubFaction?.extraUnits ?? []),
   ];
   const validation = validateWarband(warband);
@@ -57,6 +56,7 @@ export function ArmyBuilder() {
   const [wargearUnitIdx, setWargearUnitIdx] = useState<number | null>(null);
   /** Index of the unit whose psychic powers panel is open (null = panel closed) */
   const [psychicUnitIdx, setPsychicUnitIdx] = useState<number | null>(null);
+  const [mutationUnitIdx, setMutationUnitIdx] = useState<number | null>(null);
   /** Index of the unit whose upgrade panel is open (null = panel closed) */
   const [upgradeUnitIdx, setUpgradeUnitIdx] = useState<number | null>(null);
 
@@ -69,6 +69,7 @@ export function ArmyBuilder() {
   const [infoWargear, setInfoWargear] = useState<SelectedWargear[] | undefined>(undefined);
   const [infoSelectedUpgrades, setInfoSelectedUpgrades] = useState<Record<string, number>>({});
   const [infoPsychicPowers, setInfoPsychicPowers] = useState<SelectedPsychicPower[]>([]);
+  const [infoGiftsOfChaos, setInfoGiftsOfChaos] = useState<SelectedGiftOfChaos[]>([]);
   const [infoWarbandUnit, setInfoWarbandUnit] = useState<WarbandUnit | null>(null);
 
   /** Unit awaiting sub-type selection (null = modal closed) */
@@ -103,13 +104,13 @@ export function ArmyBuilder() {
     const defaultSF = getDefaultSubFactionId(defaultFaction);
     setSelectedFaction(defaultFaction);
     setSelectedSubFaction(defaultSF);
-    setPointLimit(500);
+    setPointLimit(700);
     setGloryLimit(0);
     setWarband({
       id: `warband-${Date.now()}`,
       name: 'My Warband',
       faction: defaultFaction,
-      pointLimit: 500,
+      pointLimit: 700,
       gloryLimit: 0,
       units: [],
       mercenaries: [],
@@ -212,6 +213,7 @@ export function ArmyBuilder() {
       faction: newFactionId,
       subfaction: defaultSF === 'no_variant' ? undefined : defaultSF,
       subfactionName: undefined,
+      patron: undefined,
       units: [], // Clear units when changing faction
       mercenaries: [], // Clear mercenaries when changing faction
     }));
@@ -294,12 +296,14 @@ export function ArmyBuilder() {
           quantity: 1,
           isDefault: true,
           isSubfactionRule: true,
-          grantsKeywords: [],
-          // Attach movementDelta and/or rangedSkillDelta as statModifiers on the first ability item
-          ...(i === 0 && (mod.movementDelta != null || mod.rangedSkillDelta != null)
+          // First ability item carries: keyword grants (addKeywords) + stat modifiers — both survive upgrade recompute via wgKw
+          grantsKeywords: i === 0 ? (mod.addKeywords ?? []) : [],
+          // Attach movementDelta and/or rangedSkillDelta and/or meleeSkillDelta as statModifiers on the first ability item
+          ...(i === 0 && (mod.movementDelta != null || mod.rangedSkillDelta != null || mod.meleeSkillDelta != null)
             ? { statModifiers: {
                 ...(mod.movementDelta    != null ? { movement:    mod.movementDelta    } : {}),
                 ...(mod.rangedSkillDelta != null ? { rangedSkill: mod.rangedSkillDelta } : {}),
+                ...(mod.meleeSkillDelta  != null ? { meleeSkill:  mod.meleeSkillDelta  } : {}),
               }}
             : {}),
         });
@@ -320,10 +324,11 @@ export function ArmyBuilder() {
         });
       }
       // If there are no abilities but there IS a stat delta, create a dedicated stat item
-      if ((mod.addAbilities ?? []).length === 0 && (mod.movementDelta != null || mod.rangedSkillDelta != null)) {
+      if ((mod.addAbilities ?? []).length === 0 && (mod.movementDelta != null || mod.rangedSkillDelta != null || mod.meleeSkillDelta != null)) {
         const statMods = {
           ...(mod.movementDelta    != null ? { movement:    mod.movementDelta    } : {}),
           ...(mod.rangedSkillDelta != null ? { rangedSkill: mod.rangedSkillDelta } : {}),
+          ...(mod.meleeSkillDelta  != null ? { meleeSkill:  mod.meleeSkillDelta  } : {}),
         };
         modWargear.push({
           id: `mod_stat_${unit.id}_${mod.unitIds.join('_')}`,
@@ -446,13 +451,25 @@ export function ArmyBuilder() {
         };
       }, {} as Partial<{ movement: number; rangedSkill: number; meleeSkill: number; armourSave: number }>);
 
+    // Aggregate stat modifiers from active Gifts of Chaos mutations
+    const activeGifts = (warbandUnit.selectedGiftsOfChaos ?? []).map(sg => GIFTS_OF_CHAOS.find(g => g.id === sg.id)).filter(Boolean);
+    const giftMods = activeGifts.reduce((acc, g) => {
+      const m = g!.statModifiers ?? {};
+      return {
+        movement:    (acc.movement    ?? 0) + (m.movement    ?? 0),
+        rangedSkill: (acc.rangedSkill ?? 0) + (m.rangedSkill ?? 0),
+        meleeSkill:  (acc.meleeSkill  ?? 0) + (m.meleeSkill  ?? 0),
+        armourSave:  (acc.armourSave  ?? 0) + (m.armourSave  ?? 0),
+      };
+    }, {} as Partial<{ movement: number; rangedSkill: number; meleeSkill: number; armourSave: number }>);
+
     const effectiveStats = {
       movement:    wargearMovementOverride != null
-        ? wargearMovementOverride
-        : unitDef.stats.movement    + (mods.movement    ?? 0) + wargearMovementBonus + (upgradeMods.movement ?? 0),
-      rangedSkill: unitDef.stats.rangedSkill + (mods.rangedSkill ?? 0) + wargearRangedSkillBonus + (upgradeMods.rangedSkill ?? 0),
-      meleeSkill:  unitDef.stats.meleeSkill  + (mods.meleeSkill  ?? 0) + (upgradeMods.meleeSkill ?? 0),
-      armourSave:  effectiveArmourSave + (upgradeMods.armourSave ?? 0),
+        ? wargearMovementOverride + (giftMods.movement ?? 0)
+        : unitDef.stats.movement    + (mods.movement    ?? 0) + wargearMovementBonus + (upgradeMods.movement ?? 0) + (giftMods.movement ?? 0),
+      rangedSkill: unitDef.stats.rangedSkill + (mods.rangedSkill ?? 0) + wargearRangedSkillBonus + (upgradeMods.rangedSkill ?? 0) + (giftMods.rangedSkill ?? 0),
+      meleeSkill:  unitDef.stats.meleeSkill  + (mods.meleeSkill  ?? 0) + (upgradeMods.meleeSkill ?? 0) + (giftMods.meleeSkill ?? 0),
+      armourSave:  effectiveArmourSave + (upgradeMods.armourSave ?? 0) + (giftMods.armourSave ?? 0),
       toughness:   mods.toughness ?? unitDef.stats.toughness,
     };
 
@@ -471,8 +488,10 @@ export function ArmyBuilder() {
       const resolved = lookupWargear(sw.id);
       return resolved?.grantsKeywords ?? sw.grantsKeywords ?? [];
     });
+    // Keywords granted by Gifts of Chaos mutations
+    const giftGrantedKeywords = activeGifts.flatMap(g => g!.grantedKeywords ?? []);
     const baseKeywords = warbandUnit.keywords.length > 0 ? warbandUnit.keywords : unitDef.keywords;
-    const resolvedKeywords = [...new Set([...baseKeywords, ...wargearGrantedKeywords])];
+    const resolvedKeywords = [...new Set([...baseKeywords, ...wargearGrantedKeywords, ...giftGrantedKeywords])];
 
     // Collect abilities granted by equipped wargear (e.g. Turbo-Boost from Astartes Bike)
     const wargearGrantedAbilities = warbandUnit.selectedWargear.flatMap(sw => {
@@ -495,12 +514,20 @@ export function ArmyBuilder() {
         type: 'passive' as const,
       }));
 
+    // Abilities derived from active Gifts of Chaos mutations
+    const giftAbilities = activeGifts.map(g => ({
+      id: `gift-${g!.id}`,
+      name: `☣ ${g!.name}`,
+      description: g!.description,
+      type: 'passive' as const,
+    }));
+
     if (!sub) {
       return {
         ...unitDef,
         keywords: resolvedKeywords,
         stats: effectiveStats,
-        abilities: [...subfactionRuleAbilities, ...upgradeAbilities, ...wargearGrantedAbilities, ...(unitDef.abilities ?? [])],
+        abilities: [...subfactionRuleAbilities, ...upgradeAbilities, ...wargearGrantedAbilities, ...giftAbilities, ...(unitDef.abilities ?? [])],
       };
     }
 
@@ -516,7 +543,7 @@ export function ArmyBuilder() {
       baseCost: warbandUnit.baseCostPerModel,
       keywords: resolvedKeywords,
       stats:    effectiveStats,
-      abilities: [subTypeAbility, ...subfactionRuleAbilities, ...upgradeAbilities, ...wargearGrantedAbilities, ...(unitDef.abilities ?? [])],
+      abilities: [subTypeAbility, ...subfactionRuleAbilities, ...upgradeAbilities, ...wargearGrantedAbilities, ...giftAbilities, ...(unitDef.abilities ?? [])],
     };
   }
 
@@ -542,6 +569,7 @@ export function ArmyBuilder() {
         selectedWargear: source.selectedWargear.map(w => ({ ...w })),
         selectedUpgrades: source.selectedUpgrades ? { ...source.selectedUpgrades } : undefined,
         selectedPsychicPowers: source.selectedPsychicPowers ? [...source.selectedPsychicPowers] : undefined,
+        selectedGiftsOfChaos: source.selectedGiftsOfChaos ? [...source.selectedGiftsOfChaos] : undefined,
       };
       return { ...prev, units: [...prev.units, clone] };
     });
@@ -605,14 +633,19 @@ export function ArmyBuilder() {
     setWarband(prev => {
       const updatedUnits = [...prev.units];
       const unit = { ...updatedUnits[unitIndex] };
-      const existing = unit.selectedWargear.findIndex(w => w.id === item.id);
+      // Inject subfaction keyword grants (e.g. Raven Guard + Jump Pack → DEEP STRIKE)
+      const sfGrants = currentSubFaction?.wargearKeywordGrants?.[item.id] ?? [];
+      const effectiveItem: SelectedWargear = sfGrants.length > 0
+        ? { ...item, grantsKeywords: [...(item.grantsKeywords ?? []), ...sfGrants] }
+        : item;
+      const existing = unit.selectedWargear.findIndex(w => w.id === effectiveItem.id);
       let newWargear: SelectedWargear[];
       if (existing >= 0) {
-        newWargear = unit.selectedWargear.map((w, i) => (i === existing ? item : w));
+        newWargear = unit.selectedWargear.map((w, i) => (i === existing ? effectiveItem : w));
       } else {
-        newWargear = [...unit.selectedWargear, item];
+        newWargear = [...unit.selectedWargear, effectiveItem];
         // Auto-add bonus weapon if the equipped item grants one (e.g. Astartes Bike → Twin Boltgun)
-        const gearDef = lookupWargear(item.id);
+        const gearDef = lookupWargear(effectiveItem.id);
         if (gearDef?.grantsBonusWeapon) {
           const bonusWeapon = lookupWeapon(gearDef.grantsBonusWeapon);
           if (bonusWeapon && !newWargear.some(w => w.id === bonusWeapon.id)) {
@@ -625,7 +658,7 @@ export function ArmyBuilder() {
               quantity: 1,
               isDefault: true,
               grantsKeywords: bonusWeapon.grantsKeywords ?? [],
-              associatedWithId: item.id,
+              associatedWithId: effectiveItem.id,
             }];
           }
         }
@@ -633,13 +666,23 @@ export function ArmyBuilder() {
       const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
       const calcs = recalcUnitCosts(unit, newWargear, unitDef);
       const psychicCredits = (unit.selectedPsychicPowers ?? []).filter(p => (p.costCurrency ?? 'credits') === 'credits').reduce((s, p) => s + p.cost, 0);
+      const giftCredits0 = (unit.selectedGiftsOfChaos ?? []).reduce((s, g) => s + g.cost, 0);
       const upgradeCreditCost = (unitDef?.upgrades ?? []).reduce((sum, upg) => {
         return sum + ((unit.selectedUpgrades ?? {})[upg.id] ?? 0) * upg.cost;
       }, 0);
+      // Recompute live keywords: unitDef base + subtype + wargear grants + upgrade grants
+      const baseKw = unitDef?.keywords ?? [];
+      const subKw = unit.appliedSubType?.grantedKeywords ?? [];
+      const wgKw = newWargear.flatMap(w => w.grantsKeywords ?? []);
+      const upgKw = Object.entries(unit.selectedUpgrades ?? {})
+        .filter(([, cnt]) => cnt > 0)
+        .flatMap(([id]) => unitDef?.upgrades?.find(u => u.id === id)?.grantedKeywords ?? []);
+      const newKeywords = [...new Set([...baseKw, ...subKw, ...wgKw, ...upgKw])];
       updatedUnits[unitIndex] = {
         ...unit,
         selectedWargear: newWargear,
-        totalCost:      calcs.totalCost + psychicCredits + upgradeCreditCost,
+        keywords:       newKeywords,
+        totalCost:      calcs.totalCost + psychicCredits + giftCredits0 + upgradeCreditCost,
         totalGloryCost: calcs.totalGloryCost,
       };
       return { ...prev, units: updatedUnits };
@@ -662,13 +705,23 @@ export function ArmyBuilder() {
       const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
       const calcs = recalcUnitCosts(unit, newWargear, unitDef);
       const psychicCredits = (unit.selectedPsychicPowers ?? []).filter(p => (p.costCurrency ?? 'credits') === 'credits').reduce((s, p) => s + p.cost, 0);
+      const giftCredits1 = (unit.selectedGiftsOfChaos ?? []).reduce((s, g) => s + g.cost, 0);
       const upgradeCreditCost = (unitDef?.upgrades ?? []).reduce((sum, upg) => {
         return sum + ((unit.selectedUpgrades ?? {})[upg.id] ?? 0) * upg.cost;
       }, 0);
+      // Recompute live keywords after wargear removal
+      const baseKw = unitDef?.keywords ?? [];
+      const subKw = unit.appliedSubType?.grantedKeywords ?? [];
+      const wgKw = newWargear.flatMap(w => w.grantsKeywords ?? []);
+      const upgKw = Object.entries(unit.selectedUpgrades ?? {})
+        .filter(([, cnt]) => cnt > 0)
+        .flatMap(([id]) => unitDef?.upgrades?.find(u => u.id === id)?.grantedKeywords ?? []);
+      const newKeywords = [...new Set([...baseKw, ...subKw, ...wgKw, ...upgKw])];
       updatedUnits[unitIndex] = {
         ...unit,
         selectedWargear: newWargear,
-        totalCost:      calcs.totalCost + psychicCredits + upgradeCreditCost,
+        keywords:       newKeywords,
+        totalCost:      calcs.totalCost + psychicCredits + giftCredits1 + upgradeCreditCost,
         totalGloryCost: calcs.totalGloryCost,
       };
       return { ...prev, units: updatedUnits };
@@ -743,7 +796,49 @@ export function ArmyBuilder() {
         ...unit,
         selectedUpgrades: newUpgrades,
         keywords: newKeywords,
-        totalCost: calcs.totalCost + psychicCredits + upgradeCreditCost,
+        totalCost: calcs.totalCost + psychicCredits + (unit.selectedGiftsOfChaos ?? []).reduce((s, g) => s + g.cost, 0) + upgradeCreditCost,
+      };
+      return { ...prev, units: updatedUnits };
+    });
+  };
+
+  /** Add a Gift of Chaos to the unit at `unitIndex`. */
+  const handleAddGift = (unitIndex: number, gift: SelectedGiftOfChaos) => {
+    setWarband(prev => {
+      const updatedUnits = [...prev.units];
+      const unit = { ...updatedUnits[unitIndex] };
+      const existing = (unit.selectedGiftsOfChaos ?? []).find(g => g.id === gift.id);
+      if (existing) return prev;
+      const newGifts = [...(unit.selectedGiftsOfChaos ?? []), gift];
+      const giftCredits = newGifts.reduce((s, g) => s + g.cost, 0);
+      const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
+      const calcs = recalcUnitCosts(unit, unit.selectedWargear, unitDef);
+      const psychicCredits = (unit.selectedPsychicPowers ?? []).filter(p => (p.costCurrency ?? 'credits') === 'credits').reduce((s, p) => s + p.cost, 0);
+      const upgradeCreditCost = (unitDef?.upgrades ?? []).reduce((sum, upg) => sum + ((unit.selectedUpgrades ?? {})[upg.id] ?? 0) * upg.cost, 0);
+      updatedUnits[unitIndex] = {
+        ...unit,
+        selectedGiftsOfChaos: newGifts,
+        totalCost: calcs.totalCost + psychicCredits + giftCredits + upgradeCreditCost,
+      };
+      return { ...prev, units: updatedUnits };
+    });
+  };
+
+  /** Remove a Gift of Chaos (by id) from the unit at `unitIndex`. */
+  const handleRemoveGift = (unitIndex: number, giftId: string) => {
+    setWarband(prev => {
+      const updatedUnits = [...prev.units];
+      const unit = { ...updatedUnits[unitIndex] };
+      const newGifts = (unit.selectedGiftsOfChaos ?? []).filter(g => g.id !== giftId);
+      const giftCredits = newGifts.reduce((s, g) => s + g.cost, 0);
+      const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
+      const calcs = recalcUnitCosts(unit, unit.selectedWargear, unitDef);
+      const psychicCredits = (unit.selectedPsychicPowers ?? []).filter(p => (p.costCurrency ?? 'credits') === 'credits').reduce((s, p) => s + p.cost, 0);
+      const upgradeCreditCost = (unitDef?.upgrades ?? []).reduce((sum, upg) => sum + ((unit.selectedUpgrades ?? {})[upg.id] ?? 0) * upg.cost, 0);
+      updatedUnits[unitIndex] = {
+        ...unit,
+        selectedGiftsOfChaos: newGifts,
+        totalCost: calcs.totalCost + psychicCredits + giftCredits + upgradeCreditCost,
       };
       return { ...prev, units: updatedUnits };
     });
@@ -760,10 +855,11 @@ export function ArmyBuilder() {
       const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
       const calcs = recalcUnitCosts(unit, unit.selectedWargear, unitDef);
       const upgradeCreditCost = (unitDef?.upgrades ?? []).reduce((sum, upg) => sum + ((unit.selectedUpgrades ?? {})[upg.id] ?? 0) * upg.cost, 0);
+      const giftCredits3 = (unit.selectedGiftsOfChaos ?? []).reduce((s, g) => s + g.cost, 0);
       updatedUnits[unitIndex] = {
         ...unit,
         selectedPsychicPowers: newPowers,
-        totalCost:      calcs.totalCost + psychicCredits + upgradeCreditCost,
+        totalCost:      calcs.totalCost + psychicCredits + giftCredits3 + upgradeCreditCost,
         totalGloryCost: calcs.totalGloryCost + psychicGlory,
       };
       return { ...prev, units: updatedUnits };
@@ -826,6 +922,41 @@ export function ArmyBuilder() {
                   </div>
                 )}
               </>
+            );
+          })()}
+
+          {/* Patron selection */}
+          {getPatronsForFaction(selectedFaction).length > 0 && (
+            <div className="form-group">
+              <label htmlFor="patron-select">Patron:</label>
+              <select
+                id="patron-select"
+                value={warband.patron ?? ''}
+                onChange={e => setWarband(prev => ({ ...prev, patron: e.target.value || undefined }))}
+              >
+                <option value="">— None selected —</option>
+                {getPatronsForFaction(selectedFaction).map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          {warband.patron && (() => {
+            const p = getPatronById(warband.patron!, selectedFaction);
+            if (!p) return null;
+            const visibleAbilities = filterAbilitiesForSubfaction(p.abilities, currentSubFaction?.name);
+            return (
+              <div className="patron-info-panel">
+                <div className="patron-info-header">⚜ Patron: {p.name}</div>
+                <p className="patron-info-desc">{p.description}</p>
+                <ul className="patron-info-skills">
+                  {visibleAbilities.map((a, i) => (
+                    <li key={i}>
+                      <PatronAbilityChip ability={a} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
             );
           })()}
 
@@ -1011,7 +1142,7 @@ export function ArmyBuilder() {
                             <strong>Cost:</strong> {unit.baseCost}{' '}
                             {unit.costCurrency === 'glory' ? 'Glory' : 'Credits'}/model
                           </p>
-                          <p><strong>Limit:</strong> {unit.minCount}-{unit.maxCount}</p>
+                          <p><strong>Limit:</strong> {unit.maxCount >= 99 ? 'N/A' : `${unit.minCount}–${unit.maxCount}`}</p>
                           <p className="keywords">
                             <KeywordList keywords={unit.keywords} hide={new Set()} />
                           </p>
@@ -1068,6 +1199,14 @@ export function ArmyBuilder() {
                           ? `${unit.totalGloryCost} Glory`
                           : `${unit.totalCost} Credits`}
                       </span>
+                      {/* Psyker validation: warn if unit has PSYKER X (X≥1) but no powers selected */}
+                      {factionHasPsychicDisciplines(selectedFaction) &&
+                        unit.keywords.some(k => { const m = k.match(/^PSYKER (\d+)$/); return m != null && parseInt(m[1]) >= 1; }) &&
+                        (unit.selectedPsychicPowers ?? []).length === 0 && (
+                        <span className="psyker-warning-badge" title="This psyker must have at least one psychic power selected.">
+                          ⚠ Needs Power
+                        </span>
+                      )}
                       {isEliteEligible(unit) && (
                         <button
                           className="btn-elite-xp"
@@ -1082,7 +1221,7 @@ export function ArmyBuilder() {
                         title={`View ${unit.name} details`}
                         onClick={() => {
                           const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
-                          if (unitDef) { setInfoUnit(buildResolvedUnit(unitDef, unit)); setInfoWargear(unit.selectedWargear); setInfoSelectedUpgrades(unit.selectedUpgrades ?? {}); setInfoPsychicPowers(unit.selectedPsychicPowers ?? []); setInfoWarbandUnit(unit); }
+                          if (unitDef) { setInfoUnit(buildResolvedUnit(unitDef, unit)); setInfoWargear(unit.selectedWargear); setInfoSelectedUpgrades(unit.selectedUpgrades ?? {}); setInfoPsychicPowers(unit.selectedPsychicPowers ?? []); setInfoGiftsOfChaos(unit.selectedGiftsOfChaos ?? []); setInfoWarbandUnit(unit); }
                         }}
                       >👁</button>
                     </div>
@@ -1147,6 +1286,15 @@ export function ArmyBuilder() {
                           title="Open psychic powers panel"
                         >
                           🔮 Psychic
+                        </button>
+                      )}
+                      {selectedFaction === 'chaos_cult' && (
+                        <button
+                          className="btn-mutations"
+                          onClick={() => setMutationUnitIdx(idx)}
+                          title="Open Gifts of Chaos mutations panel"
+                        >
+                          ☠ Mutations
                         </button>
                       )}
                       {(() => {
@@ -1455,8 +1603,9 @@ export function ArmyBuilder() {
           selectedWargear={infoWargear}
           selectedUpgrades={infoSelectedUpgrades}
           selectedPsychicPowers={infoPsychicPowers}
+          selectedGiftsOfChaos={infoGiftsOfChaos}
           warbandUnit={infoWarbandUnit ?? undefined}
-          onClose={() => { setInfoUnit(null); setInfoWargear(undefined); setInfoSelectedUpgrades({}); setInfoPsychicPowers([]); setInfoWarbandUnit(null); }}
+          onClose={() => { setInfoUnit(null); setInfoWargear(undefined); setInfoSelectedUpgrades({}); setInfoPsychicPowers([]); setInfoGiftsOfChaos([]); setInfoWarbandUnit(null); }}
         />
       )}
 
@@ -1530,6 +1679,7 @@ export function ArmyBuilder() {
             selectedUpgrades={unit.selectedUpgrades ?? {}}
             warbandUpgradeCounts={warbandUpgradeCounts}
             totalWarbandPoints={calculateWarbandPoints(warband)}
+            upgradeMaxCountOverrides={unitMaxCountOverrides}
             onSet={(upgradeId, count) => handleSetUpgrade(upgradeUnitIdx, upgradeId, count)}
             onClose={() => setUpgradeUnitIdx(null)}
           />
@@ -1556,6 +1706,26 @@ export function ArmyBuilder() {
               });
             }}
             onClose={() => setEliteProgressionIdx(null)}
+          />
+        );
+      })()}
+
+      {/* Gifts of Chaos mutations panel (Chaos Cult only) */}
+      {mutationUnitIdx !== null && (() => {
+        const unit = warband.units[mutationUnitIdx];
+        const isChaosSpawn = unit.unitId === 'cc_chaos_spawn';
+        const isElite = unit.unitType === 'elite' || (unit.keywords ?? []).includes('ELITE') || !!unit.isPromoted;
+        const maxGifts = (isChaosSpawn || isElite) ? 4 : 2;
+        return (
+          <MutationsPanel
+            key={`mutations-${unit.id}`}
+            unitName={unit.name}
+            gifts={GIFTS_OF_CHAOS}
+            selectedGifts={unit.selectedGiftsOfChaos ?? []}
+            maxGifts={maxGifts}
+            onAdd={(gift) => handleAddGift(mutationUnitIdx, gift)}
+            onRemove={(id) => handleRemoveGift(mutationUnitIdx, id)}
+            onClose={() => setMutationUnitIdx(null)}
           />
         );
       })()}

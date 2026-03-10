@@ -333,6 +333,29 @@
   transform: scale(0.97);
 }
 
+/* ── "Mutations" button in unit cards (Chaos Cult) ────────────────────────── */
+.btn-mutations {
+  background: linear-gradient(135deg, #0a2200, #3a6030);
+  border: 1px solid #4a7c3f;
+  color: #c8e6c0;
+  border-radius: 6px;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.btn-mutations:hover {
+  background: linear-gradient(135deg, #1a4010, #5a9c4f);
+  border-color: #7dba6e;
+}
+
+.btn-mutations:active {
+  transform: scale(0.97);
+}
+
 /* ── Psychic power tags in wargear summary ────────────────────────────────── */
 .psychic-tag {
   display: inline-flex;

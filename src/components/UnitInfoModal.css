@@ -427,6 +427,98 @@
   line-height: 1.5;
 }
 
+/* ── Mutations / Gifts of Chaos section ────────────────────────────── */
+
+.unit-mutations-section {
+  background: linear-gradient(135deg, #2e0a0a 0%, #1c1010 100%);
+  border: 1px solid #7a1a1a;
+  border-radius: 6px;
+  padding: 0.75rem;
+}
+
+.unit-mutations-section-title {
+  color: #e84040 !important;
+  text-shadow: 0 0 8px rgba(200, 30, 30, 0.4);
+}
+
+.unit-mutations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.unit-mutation-card {
+  background: rgba(160, 20, 20, 0.12);
+  border: 1px solid rgba(200, 60, 60, 0.3);
+  border-radius: 5px;
+  padding: 0.5rem 0.65rem;
+}
+
+.unit-mutation-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.unit-mutation-card-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #e88080;
+}
+
+.unit-mutation-card-meta {
+  font-size: 0.75rem;
+  color: #a06060;
+  white-space: nowrap;
+}
+
+.unit-mutation-stat-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.25rem;
+}
+
+.unit-mutation-stat-badge {
+  background: rgba(200, 50, 50, 0.2);
+  border: 1px solid rgba(200, 80, 80, 0.45);
+  color: #f08080;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.unit-mutation-kw-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.2rem;
+}
+
+.unit-mutation-kw-label {
+  font-size: 0.72rem;
+  color: #a07070;
+  font-weight: 600;
+}
+
+.unit-mutation-kw-chip {
+  font-size: 0.7rem !important;
+  padding: 0.1rem 0.4rem !important;
+  opacity: 0.9;
+}
+
+.unit-mutation-card-desc {
+  margin: 0.3rem 0 0;
+  color: #c09090;
+  font-size: 0.83rem;
+  line-height: 1.5;
+}
+
 /* ── Elite Progression section ─────────────────────────────────────── */
 
 .unit-elite-progression-section {

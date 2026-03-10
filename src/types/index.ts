@@ -391,6 +391,8 @@ export interface WarbandUnit {
   selectedWargear: SelectedWargear[];
   /** Psychic powers selected for this unit, keyed by disciplineId */
   selectedPsychicPowers?: SelectedPsychicPower[];
+  /** Gifts of Chaos (mutations) selected for this unit — Chaos Cult only */
+  selectedGiftsOfChaos?: SelectedGiftOfChaos[];
   totalCost: number;      // total credits spent on this unit (0 if glory unit)
   totalGloryCost: number; // total glory spent on this unit (0 if credits unit)
   keywords: string[];
@@ -449,6 +451,38 @@ export interface PsychicDiscipline {
   name: string;
   factionIds: string[]; // factions that have access to this discipline
   powers: PsychicPower[];
+}
+
+// ---------------------------------------------------------------------------
+// Gifts of Chaos (Chaos Cult mutations)
+// ---------------------------------------------------------------------------
+
+export interface GiftOfChaos {
+  id: string;
+  /** D66 dice result label, e.g. "11-12" or "54" */
+  diceResult: string;
+  name: string;
+  description: string;
+  /** Credit cost when purchased during a one-off battle (default: 10) */
+  cost: number;
+  costCurrency?: 'credits' | 'glory'; // defaults to 'credits'
+  /** Keywords granted to the bearer when this mutation is active */
+  grantedKeywords?: string[];
+  /** Stat modifiers applied to the bearer while this mutation is active */
+  statModifiers?: {
+    movement?: number;
+    rangedSkill?: number;
+    meleeSkill?: number;
+    armourSave?: number;
+  };
+}
+
+export interface SelectedGiftOfChaos {
+  id: string;
+  name: string;
+  diceResult: string;
+  cost: number;
+  costCurrency?: 'credits' | 'glory';
 }
 
 export interface SelectedWargear {
@@ -535,4 +569,19 @@ export interface GameRules {
   maxElites: number;
   minTroops: number;
   maxTroops: number;
+}
+
+/** State shared between ArmyBuilder (desktop) and MobileApp (mobile/tablet)
+ *  so that resizing the window never resets the current warband build. */
+export interface SharedWarbandProps {
+  selectedFaction: string;
+  setSelectedFaction: (v: string) => void;
+  selectedSubFaction: string;
+  setSelectedSubFaction: (v: string) => void;
+  pointLimit: number;
+  setPointLimit: (v: number) => void;
+  gloryLimit: number;
+  setGloryLimit: (v: number) => void;
+  warband: Warband;
+  setWarband: (v: Warband | ((prev: Warband) => Warband)) => void;
 }

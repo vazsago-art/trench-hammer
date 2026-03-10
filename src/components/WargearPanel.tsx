@@ -207,10 +207,10 @@ export function WargearPanel({
    * or null if it can be added.
    */
   function getAddBlockReason(item: Weapon | WargearOption): string | null {
-    // Block exact duplicates of default wargear (e.g. buying Power Armour when it's already included).
-    // A *different* item in the same slot (e.g. Heavy Armour replacing default Power Armour) is allowed —
-    // it will mark the default as replaced and swap it out.
-    if (unreplacedDefaults.some(d => d.id === item.id)) {
+    // Block adding any item that is part of this unit's default (included) equipment,
+    // regardless of whether it has been "replaced" by another slot item. The default
+    // item is always part of the unit – you cannot buy a second copy for extra cost.
+    if (defaultItems.some(d => d.id === item.id)) {
       return `${item.name} is already included in this unit's default equipment.`;
     }
     // For all other slot / hand conflicts, only count purchased items (not defaults that would be replaced).
@@ -389,29 +389,34 @@ export function WargearPanel({
                     return (
                       <div
                         key={item.id}
-                        className={`wargear-item ${existing ? 'wg-active' : ''} ${isBlocked ? 'wg-blocked' : ''}`}
+                        className={`wargear-item ${existing ? 'wg-active' : ''} ${isBlocked ? 'wg-blocked' : ''} ${factionSpecificIds.has(item.id) ? 'wg-variant-item' : ''}`}
                         title={isBlocked ? blockReason ?? undefined : undefined}
                       >
-                        <div className="wg-item-name">
-                          {item.name}
-                          {factionSpecificIds.has(item.id) && (
-                            <span className="wg-badge badge-faction" title="Faction-specific item">FACTION</span>
-                          )}
+                        {/* Variant ribbon — top-right corner banner for faction-specific items */}
+                        {factionSpecificIds.has(item.id) && (
+                          <div className="wg-variant-ribbon">VARIANT</div>
+                        )}
+                        <div className="wg-item-header">
+                          <span className="wg-item-name">{item.name}</span>
                           <button
                             className="btn-wg-info"
                             title={`View ${item.name} details`}
                             onClick={e => { e.stopPropagation(); setInfoItem({ item, catType: cat.type }); }}
                           >👁</button>
-                          {/* Handedness badge */}
-                          {cat.type === 'weapon' && (() => {
-                            const kws = item.keywords;
-                            if (kws.includes('TWO-HANDED'))   return <span className="wg-badge badge-two">2H</span>;
-                            if (kws.includes('PISTOL') || (item as Weapon).type === 'thrown' || kws.includes('THROWN'))
-                              return <span className="wg-badge badge-one">1H</span>;
-                            if (kws.includes('MAIN HAND ONLY')) return <span className="wg-badge badge-main">MH</span>;
-                            return <span className="wg-badge badge-one">1H</span>;
-                          })()}
                         </div>
+                        {/* Handedness badge row */}
+                        {cat.type === 'weapon' && (
+                          <div className="wg-item-badges">
+                            {(() => {
+                              const kws = item.keywords;
+                              if (kws.includes('TWO-HANDED'))   return <span className="wg-badge badge-two">2H</span>;
+                              if (kws.includes('PISTOL') || (item as Weapon).type === 'thrown' || kws.includes('THROWN'))
+                                return <span className="wg-badge badge-one">1H</span>;
+                              if (kws.includes('MAIN HAND ONLY')) return <span className="wg-badge badge-main">MH</span>;
+                              return <span className="wg-badge badge-one">1H</span>;
+                            })()}
+                          </div>
+                        )}
                         <div className="wg-item-keywords">
                           <KeywordList
                             keywords={item.keywords.filter(k => !['TWO-HANDED', 'ONE-HANDED', 'THROWN', 'PISTOL'].includes(k)).slice(0, 3)}

@@ -1,0 +1,85 @@
+/* ── PatronAbilityChip: clickable patron skill names with description popup ── */
+
+.pa-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  position: static; /* popup uses position:fixed */
+}
+
+/* Skill name button */
+.pa-chip__btn {
+  all: unset;
+  cursor: pointer;
+  color: #c8dde8;
+  font-weight: 600;
+  font-size: inherit;
+  text-decoration: underline dotted rgba(200, 221, 232, 0.45);
+  text-underline-offset: 2px;
+  transition: color 0.12s, text-decoration-color 0.12s;
+}
+
+.pa-chip__btn:hover,
+.pa-chip__btn:focus-visible,
+.pa-chip--open .pa-chip__btn {
+  color: #c8a96e;
+  text-decoration-color: #c8a96e;
+  outline: none;
+}
+
+/* Condition/restriction badge */
+.pa-chip__condition {
+  display: inline-block;
+  font-size: 0.72em;
+  font-weight: 600;
+  color: #f0a500;
+  background: rgba(240, 165, 0, 0.12);
+  border: 1px solid rgba(240, 165, 0, 0.3);
+  border-radius: 3px;
+  padding: 0 0.35em;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+/* ── Floating popup (same fixed-position pattern as KeywordChip) ── */
+.pa-chip__popup {
+  position: fixed;
+  transform: translateX(-50%) translateY(-100%) translateY(-10px);
+  z-index: 9999;
+
+  background: #16202c;
+  border: 1.5px solid rgba(200, 165, 40, 0.55);
+  border-radius: 7px;
+  padding: 0.6rem 0.8rem;
+  width: 260px;
+  max-width: min(280px, 82vw);
+  box-shadow:
+    0 6px 24px rgba(0, 0, 0, 0.75),
+    0 0 0 1px rgba(200, 165, 40, 0.1);
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  pointer-events: auto;
+
+  animation: pa-popup-in 0.12s ease-out both;
+}
+
+@keyframes pa-popup-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(calc(-100% - 4px)); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(calc(-100% - 10px)); }
+}
+
+.pa-chip__popup-name {
+  color: #c8a96e;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.pa-chip__popup-desc {
+  color: #b0bec5;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}

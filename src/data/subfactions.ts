@@ -39,6 +39,12 @@ export interface SubFaction {
   psychicDisciplineId?: string;
   /** Dark Pacts special rule is disabled for this warband variant */
   noDarkPacts?: boolean;
+  /**
+   * Per-unit maxCount overrides for this subfaction.
+   * When set, the unit's maxCount is capped to the specified value.
+   * E.g. Black Templars caps aa_vanguard to 1.
+   */
+  unitMaxCountOverrides?: Record<string, number>;
   /** Unit IDs from this faction's roster that cannot be recruited in this subfaction */
   bannedUnitIds?: string[];
   /** Additional units from other factions or special sources available in this subfaction */
@@ -71,12 +77,14 @@ export interface SubFaction {
     unitIds: string[];
     /** Additional credit cost per model (stacks with autoMark if applicable) */
     costModifier?: number;
-    /** Keywords to add at recruitment */
+    /** Keywords to add at recruitment (also stored on first ability grantsKeywords for upgrade persistence) */
     addKeywords?: string[];
     /** Movement stat delta (+1 = faster, -1 = slower) */
     movementDelta?: number;
     /** Ranged Skill stat delta (e.g. Gal Vorbak +1 Ranged Skill). Embedded on first addAbilities item's statModifiers. */
     rangedSkillDelta?: number;
+    /** Melee Skill stat delta (e.g. Catachan +1 Melee Skill). Embedded on first addAbilities item's statModifiers. */
+    meleeSkillDelta?: number;
     /**
      * Abilities shown as locked wargear-style items in the WargearPanel.
      * Use for warband special rules: Blood Surge, Contagion, Beacon of Rage, etc.
@@ -102,6 +110,12 @@ export interface SubFaction {
       };
     };
   }>;
+  /**
+   * Extra keywords granted when specific wargear items are equipped.
+   * Maps wargear item ID → array of keywords to add (e.g. Raven Guard + jump_pack → DEEP STRIKE).
+   * These are injected into the SelectedWargear grantsKeywords at equip time.
+   */
+  wargearKeywordGrants?: Record<string, string[]>;
 }
 
 export interface FactionSubFactions {
@@ -665,6 +679,7 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     name: 'Black Templars',
     description: 'Zealous crusaders who hate psykers and charge without hesitation.',
     bannedUnitIds: ['aa_librarian'],
+    unitMaxCountOverrides: { aa_vanguard: 1 },
     rules: [
       'Templar Vows: replaces And They Shall Know No Fear. At battle start choose one Vow: Suffer Not the Unclean to Live / Uphold the Honour of the Emperor / Abhor the Witch Destroy the Witch / Accept Any Challenge No Matter the Odds.',
       'Sword Brethren: can upgrade 2 additional Astartes to Bladeguards; max 1 Vanguard.',
@@ -675,6 +690,8 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     id: 'blood_angels',
     name: 'Blood Angels',
     description: 'Noble warriors cursed with the Red Thirst and the Black Rage, fighting with unmatched ferocity.',
+    psychicDisciplineId: 'sanguinary',
+    unitMaxCountOverrides: { aa_vanguard: 1 },
     rules: [
       'The Red Thirst: replaces And They Shall Know No Fear. During a Charge activation, all non-Dreadnought ASTARTES models have +1 INJURY DICE in melee against targets with BLOOD MARKERS.',
       'The Black Rage: cannot upgrade models to Primaris at death or Scar. Instead, models can fall to the Black Rage, becoming Death Company with new rules.',
@@ -686,6 +703,8 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     id: 'dark_angels',
     name: 'Dark Angels',
     description: 'Secretive Unforgiven who hunt Fallen with Deathwing Terminators and Ravenwing bikers.',
+    psychicDisciplineId: 'interromancy',
+    unitMaxCountOverrides: { aa_vanguard: 1 },
     rules: [
       'The Unforgiven: do NOT benefit from And They Shall Know No Fear.',
       'Deathwing: can recruit up to 3 Terminators (4 in 1200+ credit warbands), and purchase up to 2 suits of Terminator Armour for Elite models.',
@@ -701,6 +720,7 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     name: 'Deathwatch',
     description: 'Multi-chapter xenos hunters armed with exotic Special Issue Ammunition.',
     bannedUnitIds: ['aa_scout_marine'],
+    psychicDisciplineId: 'xenopurge',
     rules: [
       'Special Issue Ammunition: replaces And They Shall Know No Fear. Non-Dreadnought ASTARTES can equip up to two AMMUNITION types.',
       '8 ammo types: Derevenant Shells, Dragonfire Bolts, Hellfire Rounds, Inertial Fusion Bolts, Kraken Bolts, Metal Storm Shells, Tempest Bolts, Thermic Acceleration Rounds.',
@@ -714,6 +734,20 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     name: 'Grey Knights',
     description: 'The secret daemon-hunters of the Imperium, every battle-brother a powerful psyker.',
     bannedUnitIds: ['aa_scout_marine'],
+    psychicDisciplineId: 'dominus',
+    autoModifications: [
+      {
+        // Brotherhood of Psykers: all non-PSYKER ASTARTES gain PSYKER 1
+        unitIds: ['aa_captain', 'aa_apothecary', 'aa_chaplain', 'aa_space_marine', 'aa_terminator'],
+        addKeywords: ['PSYKER 1'],
+        addAbilities: [{
+          id: 'gk_brotherhood_of_psykers',
+          name: 'Brotherhood of Psykers',
+          description: 'Replaces And They Shall Know No Fear. This model gains PSYKER 1 — it can attempt to use Psychic powers and Deny the Witch.',
+          cost: 0,
+        }],
+      },
+    ],
     rules: [
       'Brotherhood of Psykers: replaces And They Shall Know No Fear. ASTARTES without PSYKER gain PSYKER 1.',
       'Daemonic Nemesis: extensive campaign system for hunting daemons.',
@@ -726,6 +760,8 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     id: 'imperial_fists',
     name: 'Imperial Fists',
     description: 'Master builders and siege specialists, their armour impervious.',
+    psychicDisciplineId: 'geokinesis',
+    unitMaxCountOverrides: { aa_vanguard: 1 },
     rules: [
       'Architects of War: replaces And They Shall Know No Fear. -1 to Armour for your ASTARTES models has IMPERVIOUS.',
       'Legacy of Dorn: unique campaign system.',
@@ -750,6 +786,19 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     name: 'Legion of the Damned',
     description: 'Ghostly warriors who materialise to aid embattled defenders and then vanish.',
     bannedUnitIds: ['aa_terminator', 'aa_dreadnought'],
+    autoModifications: [
+      {
+        // Burning Specters: all recruitable ASTARTES have NEGATE FEAR and NEGATE FIRE (Terminators/Dreadnoughts are banned)
+        unitIds: ['aa_captain', 'aa_apothecary', 'aa_chaplain', 'aa_librarian', 'aa_space_marine', 'aa_scout_marine'],
+        addKeywords: ['NEGATE FEAR', 'NEGATE FIRE'],
+        addAbilities: [{
+          id: 'lotd_burning_specters',
+          name: 'Burning Specters',
+          description: 'Replaces And They Shall Know No Fear. This model has NEGATE FEAR (ignores the FEAR Keyword effect) and NEGATE FIRE (ignores the FIRE Keyword effect).',
+          cost: 0,
+        }],
+      },
+    ],
     rules: [
       'Apparitions: replaces And They Shall Know No Fear. Up to half of non-VEHICLE ASTARTES gain DEEP STRIKE at battle start.',
       'Eternal: special rules for the undying Legionnaires.',
@@ -762,9 +811,34 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     id: 'raven_guard',
     name: 'Raven Guard',
     description: 'Masters of stealth who strike from the shadows with jump pack-equipped warriors.',
+    psychicDisciplineId: 'umbramancy',
+    unitMaxCountOverrides: { aa_devastator: 1, aa_assault_marine: 4 },
+    wargearKeywordGrants: { 'jump_pack': ['DEEP STRIKE'] },
+    autoModifications: [
+      {
+        // Surgical Strikes: all non-VEHICLE ASTARTES — gain DEEP STRIKE when equipped with a Jump Pack
+        unitIds: ['aa_captain', 'aa_apothecary', 'aa_chaplain', 'aa_librarian', 'aa_space_marine', 'aa_scout_marine'],
+        addAbilities: [{
+          id: 'rg_surgical_strikes',
+          name: 'Surgical Strikes',
+          description: 'Replaces And They Shall Know No Fear. While equipped with a Jump Pack, this model gains the DEEP STRIKE Keyword and can be deployed using the Surgical Strike (Deep Strike) ability.',
+          cost: 0,
+        }],
+      },
+      {
+        // On Darkened Wings: force org rule — 2 extra Assault Marines allowed, max 1 Devastator
+        unitIds: ['aa_space_marine'],
+        addAbilities: [{
+          id: 'rg_on_darkened_wings',
+          name: 'On Darkened Wings',
+          description: 'You can upgrade 2 additional Astartes to Assault Marines (beyond the normal limit), but you can upgrade only 1 Astartes to a Devastator.',
+          cost: 0,
+        }],
+      },
+    ],
     rules: [
       'Surgical Strikes: replaces And They Shall Know No Fear. ASTARTES with Jump Packs gain DEEP STRIKE.',
-      'On Darkened Wings: additional jump pack rules.',
+      'On Darkened Wings: can upgrade 2 additional Astartes to Assault Marines, but only 1 can be a Devastator.',
       'Uses the Umbramancy Psychic Discipline (chapter-specific powers).',
     ],
   },
@@ -773,6 +847,19 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     name: 'Salamanders',
     description: 'Fire-worshippers immune to flame who specialise in melta and flamer weapons.',
     psychicDisciplineId: 'pyromancy',
+    autoModifications: [
+      {
+        // Promethean Cult: all ASTARTES have NEGATE FIRE
+        unitIds: ['aa_captain', 'aa_apothecary', 'aa_chaplain', 'aa_librarian', 'aa_space_marine', 'aa_terminator', 'aa_dreadnought', 'aa_scout_marine'],
+        addKeywords: ['NEGATE FIRE'],
+        addAbilities: [{
+          id: 'sal_promethean_cult',
+          name: 'Promethean Cult',
+          description: 'Replaces And They Shall Know No Fear. This model has NEGATE FIRE — it ignores all effects of the FIRE Keyword on weapons and hazards.',
+          cost: 0,
+        }],
+      },
+    ],
     rules: [
       'Promethean Cult: replaces And They Shall Know No Fear. All ASTARTES have NEGATE FIRE.',
       'Land-Bound: cannot upgrade any Astartes to Assault Troopers.',
@@ -785,6 +872,8 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     name: 'Space Wolves',
     description: 'Fierce warriors of Fenris who fight alongside wolves and use the Tempestas discipline.',
     bannedUnitIds: ['aa_scout_marine'],
+    psychicDisciplineId: 'tempestas',
+    unitMaxCountOverrides: { aa_vanguard: 0, aa_assault_marine: 0, aa_bladeguard: 0 },
     rules: [
       'Sagas: replaces And They Shall Know No Fear. Whenever a model scores a Glorious Deed or takes an enemy ELITE Out of Action, it has +1 DICE to all attacks until end of battle.',
       'Wolf Priest: unique Elite model.',
@@ -798,6 +887,7 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     id: 'white_scars',
     name: 'White Scars',
     description: 'Swift cavalry warriors who prize their bike squadrons above all.',
+    psychicDisciplineId: 'stormspeaking',
     rules: [
       'Devastating Charge: replaces And They Shall Know No Fear. Astartes Bikes that successfully Charge give one enemy a BLOOD MARKER.',
       'Biker Phalanx: can purchase up to 6 Astartes Bikes.',
@@ -950,6 +1040,20 @@ const ASTRA_MILITARUM_SUBFACTIONS: SubFaction[] = [
     description: 'Brutal jungle warriors with unmatched melee skill and guerrilla expertise.',
     requiredPatron: 'Lord General Militant',
     bannedUnitIds: ['am_conscript', 'am_ratling_marksman'],
+    autoModifications: [
+      {
+        // Big Muscles: Guardsmen, Veterans, and Heavy Weapons Squads have +1 Melee Skill (+5 credits each)
+        unitIds: ['am_guardsman', 'am_veteran_guardsman', 'am_heavy_weapons_squad'],
+        costModifier: 5,
+        meleeSkillDelta: 1,
+        addAbilities: [{
+          id: 'cat_big_muscles',
+          name: 'Big Muscles (Catachan)',
+          description: '+1 Melee Skill (+5 credits). Catachan fighters are renowned for their raw physical power in close quarters.',
+          cost: 0,
+        }],
+      },
+    ],
     rules: [
       'Big Muscles: Primaris Psykers, Guardsmen, Veteran Guardsmen, and Heavy Weapons Squads have +1 Melee Skill (+5 credits each). Cannot recruit Conscripts.',
       'Trap Setting: up to 3 Guardsmen can be upgraded to Trappers (+10 credits) with the Mine Layer ability.',

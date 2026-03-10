@@ -1,6 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
    TRENCH HAMMER — MOBILE APP STYLES
    Dark navy theme, touch-first, bottom tab nav
+   Also used as "tablet" layout for screens 769px – 1200px
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── CSS custom properties ─────────────────────────────────────── */
@@ -236,6 +237,62 @@
   padding-right: 34px;
 }
 
+/* ── Patron inline info panel (mobile) ─────────────────────── */
+.m-patron-info-panel {
+  margin: 0.4rem 0 0.6rem;
+  padding: 0.65rem 0.8rem;
+  background: rgba(180, 140, 0, 0.1);
+  border: 1px solid rgba(200, 165, 40, 0.35);
+  border-radius: 8px;
+  font-size: 0.82em;
+}
+
+.m-patron-info-header {
+  color: #c8a96e;
+  font-weight: 700;
+  font-size: 0.9em;
+  margin-bottom: 0.35rem;
+  letter-spacing: 0.02em;
+}
+
+.m-patron-info-desc {
+  color: #c8a96e;
+  font-style: italic;
+  margin: 0 0 0.4rem;
+  line-height: 1.45;
+}
+
+.m-patron-info-skills {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #b0bec5;
+  list-style: disc;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.m-patron-info-skills li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  line-height: 1.35;
+}
+
+.m-patron-skill-name {
+  color: #c8dde8;
+}
+
+.m-patron-skill-condition {
+  font-size: 0.7rem;
+  color: #f0a500;
+  background: rgba(240, 165, 0, 0.1);
+  border: 1px solid rgba(240, 165, 0, 0.28);
+  border-radius: 3px;
+  padding: 0 0.3rem;
+  white-space: nowrap;
+}
+
 .mfield-row {
   display: flex;
   gap: 10px;
@@ -272,7 +329,8 @@
 .mbtn-ghost    { background: var(--m-navy3);  color: var(--m-teal-lt); border: 1px solid var(--m-border); }
 .mbtn-info     { background: #1a3a4a;          color: var(--m-teal-lt); border: 1px solid #1e4f62; }
 .mbtn-gear     { background: #1e2d42;          color: #c4b0f5;          border: 1px solid #2e3e58; }
-.mbtn-psychic  { background: #2d0a4e;          color: #c39bd3;          border: 1px solid #6c3483; }
+.mbtn-psychic   { background: #2d0a4e;          color: #c39bd3;          border: 1px solid #6c3483; }
+.mbtn-mutations { background: #0a2200;          color: #86efac;          border: 1px solid #3a6030; }
 .mbtn-danger   { background: #3d1010;          color: var(--m-red-lt);  border: 1px solid #6b1e1e; }
 .mbtn-save     { background: #044f5e;          color: #67e8f9; }
 .mbtn-load     { background: #16412b;          color: #6ee7a0; }
@@ -391,6 +449,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.munit-psyker-warn {
+  flex-shrink: 0;
+  color: #ffd43b;
+  font-size: 0.85rem;
+  line-height: 1;
 }
 
 .munit-header-right {
@@ -1258,4 +1323,143 @@
   letter-spacing: 0.06em;
   color: #5eead4;
   font-family: 'Courier New', monospace;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TABLET OVERRIDES  (769px – 1200px)
+   When the desktop breakpoint is raised to 1200px, the MobileApp
+   is rendered in this range too. These rules make the tab-based
+   layout feel comfortable at larger widths instead of stretching
+   a phone-sized UI across the screen.
+   ═══════════════════════════════════════════════════════════════ */
+@media (min-width: 769px) {
+  /* Widen the overall shell to a centred column */
+  .mapp {
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    /* keep the fixed bars full-width but content centred */
+  }
+
+  /* Top bar and bottom nav max-width matches */
+  .mapp-topbar,
+  .mapp-tabnav {
+    max-width: 900px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: 100%;
+    border-radius: 0;
+  }
+
+  /* Progress bar also centred */
+  .mapp-progress-track {
+    max-width: 900px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+  }
+
+  /* More breathing room in content */
+  .mapp-content {
+    padding: 16px 24px 12px;
+  }
+
+  /* Bigger base font for tab content */
+  .mapp-tab {
+    gap: 14px;
+  }
+
+  /* Cards get a bit more padding */
+  .mcard {
+    padding: 18px 20px;
+    border-radius: 14px;
+    gap: 10px;
+  }
+
+  .mcard-title {
+    font-size: 0.85rem;
+  }
+
+  .mcard-desc {
+    font-size: 0.9rem;
+  }
+
+  /* Form fields */
+  .mfield-input,
+  .mfield-select {
+    font-size: 1rem;
+    padding: 10px 12px;
+  }
+
+  .mfield-label {
+    font-size: 0.8rem;
+  }
+
+  /* Top bar text */
+  .mapp-topbar-name {
+    font-size: 1.1rem;
+  }
+
+  .mapp-topbar-faction {
+    font-size: 0.78rem;
+  }
+
+  .mapp-credit-badge {
+    font-size: 0.95rem;
+  }
+
+  /* Tab nav labels bigger */
+  .mtab-icon  { font-size: 1.25rem; }
+  .mtab-label { font-size: 0.7rem; }
+
+  /* Unit cards wider / more readable */
+  .m-unit-card {
+    padding: 14px 16px;
+  }
+
+  .m-unit-name {
+    font-size: 1rem;
+  }
+
+  .m-unit-type-badge {
+    font-size: 0.72rem;
+    padding: 2px 10px;
+  }
+
+  /* Bottom sheet wider */
+  .msheet {
+    max-height: 80vh;
+    border-radius: 18px 18px 0 0;
+  }
+
+  /* Stats grid more spacious */
+  .mstat-grid {
+    gap: 10px;
+  }
+
+  .mstat-label { font-size: 0.7rem; }
+  .mstat-value { font-size: 1.15rem; }
+
+  /* Validation errors */
+  .mvalid-error,
+  .mvalid-warn  { font-size: 0.9rem; }
+}
+
+@media (min-width: 1024px) {
+  /* At near-desktop widths, bump max-width a bit more */
+  .mapp,
+  .mapp-topbar,
+  .mapp-tabnav,
+  .mapp-progress-track {
+    max-width: 1100px;
+  }
+
+  .mapp-content {
+    padding: 20px 32px 16px;
+  }
+
+  .mcard {
+    padding: 20px 24px;
+  }
 }

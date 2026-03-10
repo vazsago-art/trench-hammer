@@ -5,10 +5,13 @@ import { getFactionById } from '../data/factions_complete.js';
 import { allWeapons } from '../data/weapons.js';
 import { allEquipment } from '../data/equipment.js';
 import { lookupPsychicPower } from '../data/psychicDisciplines.js';
+import { GIFTS_OF_CHAOS } from '../data/gifts_of_chaos.js';
 import { lookupWargear } from '../data/wargearSlotValidation.js';
 import { ALL_MERCENARIES } from '../data/mercenaries.js';
 import { expandKeywords } from '../data/keywordGlossary.js';
 import { isEliteEligible, SKILL_TABLE_LABELS } from '../data/campaignProgression.js';
+import { getPatronById, filterAbilitiesForSubfaction } from '../data/patrons.js';
+import { getSubFactionById } from '../data/subfactions.js';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
@@ -164,6 +167,16 @@ function drawCover(doc: jsPDF, warband: Warband): number {
   ink(doc, C_TEAL);
   doc.text(safe(factionDisplay), ML, y + 1);
   y += 6;
+
+  // Patron name (if selected)
+  const patron = warband.patron ? getPatronById(warband.patron, warband.faction) : undefined;
+  if (patron) {
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    ink(doc, [180, 140, 60]);
+    doc.text(safe(`⚜ Patron: ${patron.name}`), ML, y + 1);
+    y += 5;
+  }
 
   // Thin separator
   stroke(doc, C_TEAL);
@@ -558,6 +571,50 @@ function drawUnitCard(
     y = tableY(doc) + 4;
   }
 
+  // ── Mutations (Gifts of Chaos) ────────────────────────────────────
+  const giftsOfChaos = wbu.selectedGiftsOfChaos ?? [];
+  if (giftsOfChaos.length > 0) {
+    y = guard(doc, y, 14);
+    y = sectionHeader(doc, 'Mutations (Gifts of Chaos)', y);
+    const giftRows = giftsOfChaos.map(g => {
+      const full = GIFTS_OF_CHAOS.find(x => x.id === g.id);
+      const costStr = g.costCurrency === 'glory' ? `${g.cost} G` : `${g.cost} Cr`;
+      const statParts: string[] = [];
+      if (full?.statModifiers?.movement)    statParts.push(`+${full.statModifiers.movement}" Mov`);
+      if (full?.statModifiers?.rangedSkill) statParts.push(`+${full.statModifiers.rangedSkill} RS`);
+      if (full?.statModifiers?.meleeSkill)  statParts.push(`+${full.statModifiers.meleeSkill} MS`);
+      if (full?.statModifiers?.armourSave)  statParts.push(`${(full.statModifiers.armourSave ?? 0) >= 0 ? '+' : ''}${full.statModifiers.armourSave} AS`);
+      const kwStr = (full?.grantedKeywords ?? []).join(', ');
+      const effectParts: string[] = [];
+      if (statParts.length) effectParts.push(statParts.join(', '));
+      if (kwStr) effectParts.push(`Grants: ${kwStr}`);
+      if (full?.description) effectParts.push(safe(full.description));
+      return [
+        safe(g.name),
+        safe(g.diceResult),
+        costStr,
+        effectParts.join('  |  '),
+      ];
+    });
+    autoTable(doc, {
+      startY: y,
+      margin: { left: ML, right: ML },
+      tableWidth: CW,
+      head: [['Mutation', 'D66', 'Cost', 'Effect']],
+      body: giftRows,
+      styles: { fontSize: 7.5, cellPadding: 1.8, overflow: 'linebreak' },
+      headStyles: { fillColor: [80, 20, 20] as RGB, textColor: C_WHITE, fontStyle: 'bold', fontSize: 7.5 },
+      alternateRowStyles: { fillColor: [252, 230, 230] as RGB },
+      columnStyles: {
+        0: { cellWidth: 30, fontStyle: 'bold', textColor: [180, 50, 50] as RGB },
+        1: { cellWidth: 16, halign: 'center' },
+        2: { cellWidth: 14, halign: 'center' },
+        3: { cellWidth: 'auto' },
+      },
+    });
+    y = tableY(doc) + 4;
+  }
+
   // ── Elite Progression ──────────────────────────────────────────
   if (isEliteEligible(wbu)) {
     y = guard(doc, y, 14);
@@ -833,6 +890,97 @@ export async function exportWarbandToPDF(warband: Warband): Promise<void> {
 
   // Draw cover + summary
   let y = drawCover(doc, warband);
+
+  // ── Patron Details section ────────────────────────────────────────────
+  const patronFull = warband.patron ? getPatronById(warband.patron, warband.faction) : undefined;
+  if (patronFull) {
+    y = guard(doc, y, 20);
+    // Section header
+    rect(doc, ML, y, CW, 7, C_AMBER);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    ink(doc, C_WHITE);
+    doc.text(safe('  PATRON: ' + patronFull.name.toUpperCase()), ML + 2, y + 5);
+    y += 9;
+
+    // Patron description
+    y = guard(doc, y, 10);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    ink(doc, C_MUTED);
+    const patronDescLines = doc.splitTextToSize(safe(patronFull.description), CW - 2);
+    doc.text(patronDescLines, ML + 1, y + 4);
+    y += patronDescLines.length * 4 + 5;
+
+    // Abilities table
+    const visibleAbilities = filterAbilitiesForSubfaction(patronFull.abilities, warband.subfactionName);
+    if (visibleAbilities.length > 0) {
+      y = guard(doc, y, 10);
+      autoTable(doc, {
+        startY: y,
+        margin: { left: ML, right: ML },
+        tableWidth: CW,
+        head: [['Patron Ability', 'Condition', 'Effect']],
+        body: visibleAbilities.map(a => [
+          safe(a.name),
+          a.condition ? safe(a.condition) : '',
+          safe(a.description),
+        ]),
+        styles: { fontSize: 7.5, cellPadding: 2.2, overflow: 'linebreak' },
+        headStyles: { fillColor: [102, 50, 8] as RGB, textColor: C_WHITE, fontStyle: 'bold', fontSize: 7.5 },
+        alternateRowStyles: { fillColor: C_ALTROW as RGB },
+        columnStyles: {
+          0: { cellWidth: 42, fontStyle: 'bold', textColor: [200, 130, 30] as RGB },
+          1: { cellWidth: 28, fontStyle: 'italic', textColor: C_MUTED as RGB },
+          2: { cellWidth: 'auto' },
+        },
+      });
+      y = tableY(doc) + 6;
+    }
+  }
+
+  // ── Subfaction / Faction Rules section ───────────────────────────────
+  if (warband.subfaction && warband.subfaction !== 'no_variant') {
+    const sfData = getSubFactionById(warband.faction, warband.subfaction);
+    if (sfData && sfData.rules.length > 0) {
+      y = guard(doc, y, 20);
+      // Section header
+      rect(doc, ML, y, CW, 7, C_SECTION);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      ink(doc, C_WHITE);
+      doc.text(safe('  FACTION RULES: ' + sfData.name.toUpperCase()), ML + 2, y + 5);
+      y += 9;
+
+      // Subfaction description
+      if (sfData.description) {
+        y = guard(doc, y, 8);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'italic');
+        ink(doc, C_MUTED);
+        const sfDescLines = doc.splitTextToSize(safe(sfData.description), CW - 2);
+        doc.text(sfDescLines, ML + 1, y + 4);
+        y += sfDescLines.length * 4 + 5;
+      }
+
+      // Rules as numbered table
+      y = guard(doc, y, 10);
+      autoTable(doc, {
+        startY: y,
+        margin: { left: ML, right: ML },
+        tableWidth: CW,
+        body: sfData.rules.map((r, i) => [safe(String(i + 1) + '.'), safe(r)]),
+        styles: { fontSize: 7.5, cellPadding: 2.2, overflow: 'linebreak' },
+        alternateRowStyles: { fillColor: C_ALTROW as RGB },
+        columnStyles: {
+          0: { cellWidth: 8, fontStyle: 'bold', textColor: C_TEAL as RGB },
+          1: { cellWidth: 'auto' },
+        },
+        theme: 'plain',
+      });
+      y = tableY(doc) + 6;
+    }
+  }
 
   // Group by elite first, then troop
   const sortedUnits = [...warband.units].sort((a, b) => {

@@ -22,6 +22,11 @@ interface UpgradePanelProps {
   warbandUpgradeCounts: Record<string, number>;
   /** Total warband credit spend — ≥1200 unlocks the maxCountLarge higher limit */
   totalWarbandPoints: number;
+  /**
+   * Subfaction overrides for upgrade maxCount (keyed by upgradeId).
+   * When present, these override the upgrade's own maxCount value.
+   */
+  upgradeMaxCountOverrides?: Record<string, number>;
   onSet: (upgradeId: string, count: number) => void;
   onClose: () => void;
 }
@@ -33,6 +38,7 @@ export function UpgradePanel({
   selectedUpgrades,
   warbandUpgradeCounts,
   totalWarbandPoints,
+  upgradeMaxCountOverrides,
   onSet,
   onClose,
 }: UpgradePanelProps) {
@@ -100,9 +106,12 @@ export function UpgradePanel({
             const isSelected = stackable
               ? (selectedUpgrades[upg.id] ?? 0) > 0
               : classUpgradeId === upg.id;
-            const maxAllowed = isLargeWarband && upg.maxCountLarge != null
-              ? upg.maxCountLarge
-              : upg.maxCount;
+            const subfactionMax = upgradeMaxCountOverrides?.[upg.id];
+            const maxAllowed = subfactionMax != null
+              ? subfactionMax
+              : isLargeWarband && upg.maxCountLarge != null
+                ? upg.maxCountLarge
+                : upg.maxCount;
             const takenByOthers = (warbandUpgradeCounts[upg.id] ?? 0) - (isSelected ? 1 : 0);
             const canSelect = takenByOthers < maxAllowed;
             const slotsLeft = maxAllowed - takenByOthers;

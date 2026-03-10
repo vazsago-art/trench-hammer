@@ -1,6 +1,7 @@
-import { UnitOption, WarbandUnit, SelectedWargear, Weapon, WargearOption, UnitUpgrade, SelectedPsychicPower } from '../types/index.js';
+import { UnitOption, WarbandUnit, SelectedWargear, Weapon, WargearOption, UnitUpgrade, SelectedPsychicPower, SelectedGiftOfChaos } from '../types/index.js';
 import { lookupWeapon, lookupWargear } from '../data/wargearSlotValidation.js';
 import { lookupPsychicPower } from '../data/psychicDisciplines.js';
+import { GIFTS_OF_CHAOS } from '../data/gifts_of_chaos.js';
 import { KeywordChip, KeywordList } from './KeywordChip.js';
 import { SKILL_TABLE_LABELS } from '../data/campaignProgression.js';
 import { isEliteEligible } from '../data/campaignProgression.js';
@@ -18,6 +19,8 @@ interface UnitInfoModalProps {
   selectedUpgrades?: Record<string, number>;
   /** Psychic powers selected for this warband unit. */
   selectedPsychicPowers?: SelectedPsychicPower[];
+  /** Mutations (Gifts of Chaos) selected for this warband unit. */
+  selectedGiftsOfChaos?: SelectedGiftOfChaos[];
   /** The live WarbandUnit (when viewing a recruited unit) — used to show XP/progression. */
   warbandUnit?: WarbandUnit;
   onClose: () => void;
@@ -90,7 +93,7 @@ function isWeapon(item: Weapon | WargearOption): item is Weapon {
 
 // ── Component ────────────────────────────────────────────────────────────────
 
-export function UnitInfoModal({ unit, selectedWargear, selectedUpgrades, selectedPsychicPowers, warbandUnit, onClose }: UnitInfoModalProps) {
+export function UnitInfoModal({ unit, selectedWargear, selectedUpgrades, selectedPsychicPowers, selectedGiftsOfChaos, warbandUnit, onClose }: UnitInfoModalProps) {
   const isSelectedMode = selectedWargear !== undefined;
 
   // Split equipped wargear into weapons vs battlekit
@@ -365,6 +368,51 @@ export function UnitInfoModal({ unit, selectedWargear, selectedUpgrades, selecte
                           </div>
                           <p className="unit-psychic-card-desc">{full.description}</p>
                         </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* ── Mutations / Gifts of Chaos ────────────────────────────── */}
+          {selectedGiftsOfChaos && selectedGiftsOfChaos.length > 0 && (
+            <section className="unit-info-section unit-mutations-section">
+              <h3 className="unit-info-section-title unit-mutations-section-title">☣ Mutations</h3>
+              <div className="unit-mutations-list">
+                {selectedGiftsOfChaos.map(g => {
+                  const full = GIFTS_OF_CHAOS.find(x => x.id === g.id);
+                  const statLines: string[] = [];
+                  if (full?.statModifiers?.movement)    statLines.push(`+${full.statModifiers.movement}" Movement`);
+                  if (full?.statModifiers?.rangedSkill) statLines.push(`+${full.statModifiers.rangedSkill} Ranged Skill`);
+                  if (full?.statModifiers?.meleeSkill)  statLines.push(`+${full.statModifiers.meleeSkill} Melee Skill`);
+                  if (full?.statModifiers?.armourSave)  statLines.push(`${full.statModifiers.armourSave > 0 ? '+' : ''}${full.statModifiers.armourSave} Armour Save`);
+                  return (
+                    <div key={g.id} className="unit-mutation-card">
+                      <div className="unit-mutation-card-header">
+                        <span className="unit-mutation-card-name">{g.name}</span>
+                        <span className="unit-mutation-card-meta">
+                          D66: {g.diceResult} · +{g.cost}{g.costCurrency === 'glory' ? ' Glory' : ' Cr'}
+                        </span>
+                      </div>
+                      {statLines.length > 0 && (
+                        <div className="unit-mutation-stat-badges">
+                          {statLines.map(s => (
+                            <span key={s} className="unit-mutation-stat-badge">{s}</span>
+                          ))}
+                        </div>
+                      )}
+                      {(full?.grantedKeywords?.length ?? 0) > 0 && (
+                        <div className="unit-mutation-kw-row">
+                          <span className="unit-mutation-kw-label">Grants:</span>
+                          {full!.grantedKeywords!.map(kw => (
+                            <KeywordChip key={kw} keyword={kw} className="unit-mutation-kw-chip" />
+                          ))}
+                        </div>
+                      )}
+                      {full?.description && (
+                        <p className="unit-mutation-card-desc">{full.description}</p>
                       )}
                     </div>
                   );
