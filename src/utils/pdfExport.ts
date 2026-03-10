@@ -375,11 +375,18 @@ function drawUnitCard(
   y += kwH + 3;
 
   // ── Default Battlekit ─────────────────────────────────────────────────
-  if (unitOption.defaultWargear.length > 0) {
+  // Filter out any default items that have been replaced by a same-slot selected item
+  const visibleDefaultWargear = unitOption.defaultWargear.filter(item => {
+    const defSlot = (item as { slot?: string }).slot;
+    if (defSlot && wbu.selectedWargear.some(sw => lookupWargear(sw.id)?.slot === defSlot)) return false;
+    if (wbu.selectedWargear.some(sw => sw.replacesDefaultId === item.id)) return false;
+    return true;
+  });
+  if (visibleDefaultWargear.length > 0) {
     y = guard(doc, y, 14);
     y = sectionHeader(doc, 'Default Battlekit', y);
 
-    const kitRows = unitOption.defaultWargear.map(item => {
+    const kitRows = visibleDefaultWargear.map(item => {
       const isWeapon = (item as {type?: string}).type === 'ranged'
                     || (item as {type?: string}).type === 'melee'
                     || (item as {type?: string}).type === 'thrown'

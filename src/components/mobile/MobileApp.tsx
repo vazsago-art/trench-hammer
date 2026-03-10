@@ -1062,18 +1062,19 @@ export function MobileApp({
                           if (defItems.length === 0) return null;
                           return (
                             <div className="munit-wargear-list">
-                              {defItems.map(item => {
-                                const slot = (item as WargearOption).slot;
-                                const replaced = slot
-                                  ? unit.selectedWargear.some(sw => lookupWargear(sw.id)?.slot === slot)
-                                  : false;
-                                return (
-                                  <span key={item.id} className={`mwg-tag mwg-tag-default${replaced ? ' mwg-tag-replaced' : ''}`}>
-                                    {replaced ? '🔄' : '🔒'} {item.name}
-                                    <span className="mwg-cost mwg-included-label">{replaced ? 'Replaced' : 'Included'}</span>
-                                  </span>
-                                );
-                              })}
+                              {defItems
+                            .filter(item => {
+                              const slot = (item as WargearOption).slot;
+                              if (slot && unit.selectedWargear.some(sw => lookupWargear(sw.id)?.slot === slot)) return false;
+                              if (unit.selectedWargear.some(sw => sw.replacesDefaultId === item.id)) return false;
+                              return true;
+                            })
+                            .map(item => (
+                              <span key={item.id} className="mwg-tag mwg-tag-default">
+                                🔒 {item.name}
+                                <span className="mwg-cost mwg-included-label">Included</span>
+                              </span>
+                            ))}
                             </div>
                           );
                         })()}

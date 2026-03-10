@@ -1355,11 +1355,20 @@ export function ArmyBuilder({
                       if (defItems.length === 0 && selItems.length === 0 && psychicItems.length === 0) return null;
                       return (
                         <div className="unit-wargear-summary">
-                          {defItems.map(item => (
-                            <span key={item.id} className="wargear-tag wargear-tag-default">
-                              🔒 {item.name}
-                            </span>
-                          ))}
+                          {defItems
+                            .filter(item => {
+                              // Hide default items that have been replaced by a same-slot selected item
+                              const defSlot = (item as WargearOption).slot ?? lookupWargear(item.id)?.slot;
+                              if (defSlot && selItems.some(sel =>
+                                (sel.slot ?? lookupWargear(sel.id)?.slot) === defSlot)) return false;
+                              if (selItems.some(sel => sel.replacesDefaultId === item.id)) return false;
+                              return true;
+                            })
+                            .map(item => (
+                              <span key={item.id} className="wargear-tag wargear-tag-default">
+                                🔒 {item.name}
+                              </span>
+                            ))}
                           {selItems.filter(w => w.isSubfactionRule).map(w => (
                             <span key={w.id} className="wargear-tag wargear-tag-rule" title={w.name}>
                               ⚡ {w.name}

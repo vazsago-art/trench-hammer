@@ -244,16 +244,15 @@ export function WargearPanel({
         )}
 
         {/* ── Included (default) wargear ─────────────────────────── */}
-        {defaultItems.length > 0 && (
+        {defaultItems.filter(item => !isDefaultReplaced(item)).length > 0 && (
           <div className="wargear-included">
             <h3>Included Equipment</h3>
             <div className="wargear-selected-list">
-              {defaultItems.map(item => {
-                const replaced = isDefaultReplaced(item);
+              {defaultItems.filter(item => !isDefaultReplaced(item)).map(item => {
                 const rawItem = rawDefaultWargear.find(r => r.id === item.id);
                 return (
-                  <div key={item.id} className={`wargear-selected-item wg-default-item${replaced ? ' wg-replaced' : ''}`}>
-                    <span className="wg-default-lock">{replaced ? '🔄' : '🔒'}</span>
+                  <div key={item.id} className="wargear-selected-item wg-default-item">
+                    <span className="wg-default-lock">🔒</span>
                     <span className="wg-name">{item.name}</span>
                     {rawItem && (
                       <button
@@ -262,9 +261,7 @@ export function WargearPanel({
                         onClick={() => setInfoItem({ item: rawItem, catType: rawItem.type as 'weapon' | 'armor' | 'equipment' })}
                       >👁</button>
                     )}
-                    {replaced
-                      ? <span className="wg-replaced-label">Replaced</span>
-                      : <span className="wg-included-label">Included</span>}
+                    <span className="wg-included-label">Included</span>
                   </div>
                 );
               })}
