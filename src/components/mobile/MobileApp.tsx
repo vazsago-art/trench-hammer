@@ -1064,9 +1064,14 @@ export function MobileApp({
                             <div className="munit-wargear-list">
                               {defItems
                             .filter(item => {
+                              // 1. Slot-based replacement
                               const slot = (item as WargearOption).slot;
                               if (slot && unit.selectedWargear.some(sw => lookupWargear(sw.id)?.slot === slot)) return false;
+                              // 2. Explicit replacesDefaultId
                               if (unit.selectedWargear.some(sw => sw.replacesDefaultId === item.id)) return false;
+                              // 3. weaponReplacementRules (e.g. adding any melee weapon replaces default claws/fists)
+                              const wrRule = mUnitDef?.weaponReplacementRules?.find(r => r.replacedDefaultId === item.id);
+                              if (wrRule && unit.selectedWargear.some(sw => lookupWeapon(sw.id)?.type === wrRule.whenAddingWeaponType)) return false;
                               return true;
                             })
                             .map(item => (

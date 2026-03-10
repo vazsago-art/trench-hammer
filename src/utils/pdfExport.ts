@@ -6,7 +6,7 @@ import { allWeapons } from '../data/weapons.js';
 import { allEquipment } from '../data/equipment.js';
 import { lookupPsychicPower } from '../data/psychicDisciplines.js';
 import { GIFTS_OF_CHAOS } from '../data/gifts_of_chaos.js';
-import { lookupWargear } from '../data/wargearSlotValidation.js';
+import { lookupWargear, lookupWeapon } from '../data/wargearSlotValidation.js';
 import { ALL_MERCENARIES } from '../data/mercenaries.js';
 import { expandKeywords } from '../data/keywordGlossary.js';
 import { isEliteEligible, SKILL_TABLE_LABELS } from '../data/campaignProgression.js';
@@ -375,11 +375,16 @@ function drawUnitCard(
   y += kwH + 3;
 
   // ── Default Battlekit ─────────────────────────────────────────────────
-  // Filter out any default items that have been replaced by a same-slot selected item
+  // Filter out any default items that have been replaced
   const visibleDefaultWargear = unitOption.defaultWargear.filter(item => {
+    // 1. Slot-based replacement
     const defSlot = (item as { slot?: string }).slot;
     if (defSlot && wbu.selectedWargear.some(sw => lookupWargear(sw.id)?.slot === defSlot)) return false;
+    // 2. Explicit replacesDefaultId
     if (wbu.selectedWargear.some(sw => sw.replacesDefaultId === item.id)) return false;
+    // 3. weaponReplacementRules (e.g. adding any melee weapon replaces default claws/fists)
+    const wrRule = unitOption.weaponReplacementRules?.find(r => r.replacedDefaultId === item.id);
+    if (wrRule && wbu.selectedWargear.some(sw => lookupWeapon(sw.id)?.type === wrRule.whenAddingWeaponType)) return false;
     return true;
   });
   if (visibleDefaultWargear.length > 0) {
