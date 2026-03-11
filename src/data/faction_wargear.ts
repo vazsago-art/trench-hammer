@@ -793,7 +793,8 @@ export const FACTION_WARGEAR: Record<string, string[]> = {
 
   // === CHAOS ===
   heretic_astartes:      [...CHAOS_ALL, ...HA_VARIANT_IDS],
-  chaos_cult:            [...CHAOS_ALL, ...CHAOS_CULT_IDS],
+  // grenadier_gauntlet is Ogryn-only in Chaos Cult — gated via UNIT_WARGEAR_OVERRIDES for cc_chaos_ogryn.
+  chaos_cult:            [...CHAOS_ALL.filter(id => id !== 'grenadier_gauntlet'), ...CHAOS_CULT_IDS],
   chaos_daemons:         [...DAEMON_BASIC, ...CHAOS_DAEMON_IDS, ...CHAOS_DAEMONS_WEAPON_IDS],
   the_vermintide:        [...GANGER, ...VERMINTIDE_IDS],
 
@@ -821,6 +822,8 @@ export const FACTION_WARGEAR: Record<string, string[]> = {
 // ---------------------------------------------------------------------------
 
 export const UNIT_WARGEAR_OVERRIDES: Record<string, string[]> = {
+  // Chaos Cult Ogryn — can access grenadier_gauntlet (gated from other Chaos Cult models)
+  cc_chaos_ogryn: [...CHAOS_ALL, 'grenadier_gauntlet', ...CHAOS_CULT_IDS],
   // Space Marine Terminators
   aa_terminator: [
     'storm_bolter', 'combi_bolter', 'heavy_bolter', 'autocannon', 'lascannon',

@@ -190,15 +190,34 @@ export function WargearPanel({
   const fwHeavyMelee  = factionAllowedWeapons.filter(w => w.type === 'melee' && w.keywords.includes('HEAVY'));
   const fwSpecMelee   = factionAllowedWeapons.filter(w => w.type === 'melee' && !w.keywords.includes('HEAVY'));
 
+  // Collect all IDs already covered by faction-specific weapon arrays so we can
+  // deduplicate them from the shared category arrays.  This prevents weapons like
+  // warp_claws / demon_weapon / fell_dagger from appearing twice (once in the
+  // shared Special Melee list and once in the faction-specific fwSpecMelee list).
+  const fwAllIds = new Set<string>([
+    ...fwPistol, ...fwHeavyRanged, ...fwSpecRanged, ...fwThrown,
+    ...fwHeavyMelee, ...fwSpecMelee,
+  ].map(w => w.id));
+
+  // Whether this model has a PSYKER keyword — used to gate PSYCHIC weapons/items.
+  const modelIsPsyker = (modelKeywords ?? []).some(k => /^PSYKER\b/i.test(k));
+
+  // Filter out items whose own keywords include PSYCHIC when the model is not a Psyker.
+  // This gates force weapons, daemon weapons, fell daggers, etc. to psyker-capable models.
+  function filterPsychic<T extends { keywords: string[] }>(items: T[]): T[] {
+    if (modelIsPsyker) return items;
+    return items.filter(item => !item.keywords.some(k => k.toUpperCase() === 'PSYCHIC'));
+  }
+
   const CATEGORIES: Category[] = [
-    { label: 'Basic Ranged',      items: sharedBasicRangedWeapons,                            type: 'weapon' },
-    { label: 'Pistols',           items: [...sharedPistols, ...fwPistol],                     type: 'weapon' },
-    { label: 'Special Ranged',    items: [...sharedSpecialRangedWeapons, ...fwSpecRanged],    type: 'weapon' },
-    { label: 'Heavy Ranged',      items: [...sharedHeavyRangedWeapons, ...fwHeavyRanged],     type: 'weapon' },
-    { label: 'Thrown / Grenades', items: [...sharedThrownWeapons, ...fwThrown],               type: 'weapon' },
-    { label: 'Basic Melee',       items: sharedBasicMeleeWeapons,                             type: 'weapon' },
-    { label: 'Special Melee',     items: [...sharedSpecialMeleeWeapons, ...fwSpecMelee],      type: 'weapon' },
-    { label: 'Heavy Melee',       items: [...sharedHeavyMeleeWeapons, ...fwHeavyMelee],       type: 'weapon' },
+    { label: 'Basic Ranged',      items: sharedBasicRangedWeapons,                                                                 type: 'weapon' },
+    { label: 'Pistols',           items: [...sharedPistols.filter(w => !fwAllIds.has(w.id)), ...fwPistol],                         type: 'weapon' },
+    { label: 'Special Ranged',    items: [...sharedSpecialRangedWeapons.filter(w => !fwAllIds.has(w.id)), ...fwSpecRanged],         type: 'weapon' },
+    { label: 'Heavy Ranged',      items: [...sharedHeavyRangedWeapons.filter(w => !fwAllIds.has(w.id)), ...fwHeavyRanged],         type: 'weapon' },
+    { label: 'Thrown / Grenades', items: [...sharedThrownWeapons.filter(w => !fwAllIds.has(w.id)), ...fwThrown],                   type: 'weapon' },
+    { label: 'Basic Melee',       items: sharedBasicMeleeWeapons,                                                                  type: 'weapon' },
+    { label: 'Special Melee',     items: filterPsychic([...sharedSpecialMeleeWeapons.filter(w => !fwAllIds.has(w.id)), ...fwSpecMelee]), type: 'weapon' },
+    { label: 'Heavy Melee',       items: [...sharedHeavyMeleeWeapons.filter(w => !fwAllIds.has(w.id)), ...fwHeavyMelee],           type: 'weapon' },
     { label: 'Armour',            items: mergedArmour,  type: 'armor' },
     { label: 'Equipment',         items: mergedEquip,   type: 'equipment' },
   ];

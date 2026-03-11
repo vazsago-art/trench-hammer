@@ -87,6 +87,29 @@
   text-overflow: ellipsis;
 }
 
+.mapp-topbar-faction-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.mapp-topbar-variant {
+  font-size: 0.65rem;
+  color: var(--m-amber, #e8b04a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.9;
+}
+.mapp-topbar-variant::before {
+  content: '·';
+  margin-right: 4px;
+  color: var(--m-teal-lt);
+  opacity: 0.5;
+}
+
 .mapp-topbar-right {
   display: flex;
   align-items: center;

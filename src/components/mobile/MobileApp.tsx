@@ -805,7 +805,12 @@ export function MobileApp({
       <header className="mapp-topbar">
         <div className="mapp-topbar-left">
           <span className="mapp-topbar-name">{warband.name}</span>
-          <span className="mapp-topbar-faction">{currentFaction?.name ?? selectedFaction}</span>
+          <div className="mapp-topbar-faction-row">
+            <span className="mapp-topbar-faction">{currentFaction?.name ?? selectedFaction}</span>
+            {currentSubFaction && selectedSubFaction !== 'no_variant' && (
+              <span className="mapp-topbar-variant">{currentSubFaction.name}</span>
+            )}
+          </div>
         </div>
         <div className="mapp-topbar-right">
           <span className={`mapp-credit-badge ${isOverLimit ? 'over' : ''}`}>
