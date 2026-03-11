@@ -53,16 +53,22 @@ export function validateWarband(warband: Warband): ValidationResult {
     });
   }
 
-  // Check glory limit (only when gloryLimit > 0)
-  if (warband.gloryLimit > 0) {
-    const totalGlory = calculateWarbandGlory(warband);
-    if (totalGlory > warband.gloryLimit) {
-      errors.push({
-        code: 'GLORY_EXCEEDED',
-        message: `Warband exceeds glory limit: ${totalGlory} / ${warband.gloryLimit} Glory`,
-        severity: 'error',
-      });
-    }
+  // Check glory limit.
+  // gloryLimit = 0  → glory spending is completely disabled; any glory spent is an error.
+  // gloryLimit > 0  → enforce the cap.
+  const totalGlory = calculateWarbandGlory(warband);
+  if (warband.gloryLimit === 0 && totalGlory > 0) {
+    errors.push({
+      code: 'GLORY_EXCEEDED',
+      message: `Warband is spending ${totalGlory} Glory but Glory Limit is set to 0 (disabled)`,
+      severity: 'error',
+    });
+  } else if (warband.gloryLimit > 0 && totalGlory > warband.gloryLimit) {
+    errors.push({
+      code: 'GLORY_EXCEEDED',
+      message: `Warband exceeds glory limit: ${totalGlory} / ${warband.gloryLimit} Glory`,
+      severity: 'error',
+    });
   }
 
   // Check minimum models

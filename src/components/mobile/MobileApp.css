@@ -134,7 +134,6 @@
   white-space: nowrap;
 }
 .mapp-glory-badge.over  { color: var(--m-red-lt); }
-.mapp-glory-badge.warn  { color: var(--m-amber, #e8b04a); }
 
 .mapp-model-badge {
   font-size: 0.72rem;
