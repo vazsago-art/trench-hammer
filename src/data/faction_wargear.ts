@@ -224,9 +224,53 @@ const HA_VARIANT_IDS: string[] = [
   'axe_of_dismemberment_we', 'blood_harpoon_we', 'heavy_chain_weapon_we', 'twin_chain_blades_we',
   // HA Heavy Melee (Helbrute purchasable weapons)
   'helbrute_hammer_ha', 'power_scourge_ha',
-  // HA Special Melee — Raptor-only purchase
+  // HA Special Melee — Raptor-only purchase (shown only to Raptor-upgraded models via getAllowedWargearIds)
   'warp_claws',
 ];
+
+/** Items always available to every HA variant regardless of subfaction selection */
+const HA_SHARED_IDS: string[] = [
+  'combat_helmet_ha', 'icon_of_vengeance_ha', 'toxin_grenades_ha',
+  'helbrute_hammer_ha', 'power_scourge_ha',
+];
+
+/** Per-subfaction variant-specific wargear for Heretic Astartes.
+ *  When a subfaction is active, only that subfaction's items (plus HA_SHARED_IDS)
+ *  are shown instead of the full HA_VARIANT_IDS pool. */
+const HA_SUBFACTION_WARGEAR: Record<string, string[]> = {
+  alpha_legion:     [...HA_SHARED_IDS, 'throwing_power_knives_al', 'shroud_bombs_al'],
+  death_guard:      [...HA_SHARED_IDS,
+    'poison_vents_dg', 'mischievous_nurgling_dg',
+    'blight_grenades_dg', 'blight_launcher_dg', 'corrupted_staff_dg', 'cursed_plague_bell_dg',
+    'great_plague_blade_dg', 'heavy_blight_launcher_dg', 'heavy_plague_spewer_dg',
+    'plague_blade_dg', 'plague_spewer_dg', 'plaguespurt_gauntlet_dg',
+  ],
+  emperors_children: [...HA_SHARED_IDS,
+    'sonic_shriekers_ec',
+    'blastmaster_ec', 'blissblade_ec', 'phoenix_power_spear_ec', 'rapture_lash_ec',
+    'screamer_pistol_ec', 'sonic_blaster_ec', 'twin_screamer_pistols_ec',
+  ],
+  iron_warriors:    [...HA_SHARED_IDS,
+    'cyberteknika_cranial_iw', 'cyberteknika_ocular_iw', 'cyberteknika_sindexterous_iw',
+    'cyberteknika_motive_iw', 'cyberteknika_torsonic_iw', 'cyberteknika_vascular_iw',
+    'shrapnel_bolter_iw', 'shrapnel_cannon_iw', 'shrapnel_pistol_iw',
+  ],
+  night_lords:      [...HA_SHARED_IDS,
+    'chain_snare_nl', 'comms_jammer_nl', 'grisly_trophy_nl', 'ventrilokar_vox_nl',
+    'terrorchem_vials_nl',
+  ],
+  thousand_sons:    [...HA_SHARED_IDS,
+    'disc_of_tzeentch_ts',
+    'inferno_boltgun_ts', 'inferno_bolt_pistol_ts', 'inferno_combi_bolter_ts',
+    'force_stave_ts', 'power_claw_ts', 'soulreaper_cannon_ts',
+  ],
+  world_eaters:     [...HA_SHARED_IDS,
+    'axe_of_dismemberment_we', 'blood_harpoon_we', 'heavy_chain_weapon_we', 'twin_chain_blades_we',
+  ],
+  word_bearers:     [...HA_SHARED_IDS],
+  renegade_space_marines: [...HA_SHARED_IDS],
+  no_variant:       [...HA_SHARED_IDS],
+};
 
 const CHAOS_DAEMON_IDS: string[] = [
   'chaos_icon_daemons', 'icon_of_vengeance_daemons', 'musical_instrument_daemons',
@@ -891,10 +935,46 @@ export const UNIT_WARGEAR_OVERRIDES: Record<string, string[]> = {
  * Get the list of allowed wargear IDs for a given unit within a faction.
  * Unit overrides take precedence; otherwise returns the faction default.
  * Returns undefined when no mapping exists (permissive fallback).
+ *
+ * @param subfactionId  Optional active subfaction ID — used to restrict HA variant wargear
+ *                      to only the active subfaction's specific items.
+ * @param selectedUpgrades  Optional map of upgrade IDs → count for the unit instance.
+ *                          Used to gate Raptor-only equipment (warp_claws, jump_pack)
+ *                          behind the ha_csm_raptor upgrade.
  */
-export function getAllowedWargearIds(factionId: string, unitId: string): string[] | undefined {
+export function getAllowedWargearIds(
+  factionId: string,
+  unitId: string,
+  subfactionId?: string,
+  selectedUpgrades?: Record<string, number>,
+): string[] | undefined {
+  // Unit-specific overrides take precedence over faction defaults
   if (UNIT_WARGEAR_OVERRIDES[unitId]) {
     return UNIT_WARGEAR_OVERRIDES[unitId];
   }
-  return FACTION_WARGEAR[factionId];
+
+  let baseIds = FACTION_WARGEAR[factionId];
+  if (!baseIds) return undefined;
+
+  // ── Heretic Astartes: subfaction-aware variant gear + Raptor gating ──
+  if (factionId === 'heretic_astartes' && subfactionId) {
+    const hasRaptor = !!(selectedUpgrades && (selectedUpgrades['ha_csm_raptor'] ?? 0) > 0);
+    // Pick only the active subfaction's variant gear (falls back to full pool if unknown subfaction)
+    const variantIds = HA_SUBFACTION_WARGEAR[subfactionId] ?? HA_VARIANT_IDS;
+    // Build allowed list: base CHAOS_ALL + subfaction variant IDs + Raptor-gated items
+    let ids: string[] = [...CHAOS_ALL, ...variantIds];
+    if (hasRaptor) {
+      ids = [...ids, 'warp_claws'];
+    } else {
+      // Remove jump_pack for CSM models without Raptor upgrade (Raptor upgrade description:
+      // "Can be equipped with Jump Packs")
+      if (unitId === 'ha_chaos_space_marine') {
+        ids = ids.filter(id => id !== 'jump_pack');
+      }
+    }
+    // Deduplicate while preserving order
+    return Array.from(new Set(ids));
+  }
+
+  return baseIds;
 }

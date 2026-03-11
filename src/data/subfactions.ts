@@ -1043,10 +1043,11 @@ const ASTRA_MILITARUM_SUBFACTIONS: SubFaction[] = [
     description: 'Brutal jungle warriors with unmatched melee skill and guerrilla expertise.',
     requiredPatron: 'Lord General Militant',
     bannedUnitIds: ['am_conscript', 'am_ratling_marksman'],
+    unitMaxCountOverrides: { am_commissar: 1, am_ogryn: 1 },
     autoModifications: [
       {
-        // Big Muscles: Guardsmen, Veterans, and Heavy Weapons Squads have +1 Melee Skill (+5 credits each)
-        unitIds: ['am_guardsman', 'am_veteran_guardsman', 'am_heavy_weapons_squad'],
+        // Big Muscles: Primaris Psykers, Guardsmen, Veterans, and Heavy Weapons Squads have +1 Melee Skill (+5 credits each)
+        unitIds: ['am_primaris_psyker', 'am_guardsman', 'am_veteran_guardsman', 'am_heavy_weapons_squad'],
         costModifier: 5,
         meleeSkillDelta: 1,
         addAbilities: [{
@@ -1113,6 +1114,44 @@ const ASTRA_MILITARUM_SUBFACTIONS: SubFaction[] = [
     requiredPatron: 'Chaos Warlord or Chaos Undivided (Shared Patron)',
     psychicDisciplineId: 'hereticus',
     bannedUnitIds: ['am_commissar', 'am_conscript'],
+    unitMaxCountOverrides: { am_ogryn: 1, am_ratling_marksman: 1, am_primaris_psyker: 2 },
+    extraUnits: [
+      {
+        id: 'tg_enforcer', name: 'Enforcer', baseCost: 65, minCount: 0, maxCount: 1,
+        stats: { movement: 6, rangedSkill: 1, meleeSkill: 1, armourSave: 0, toughness: 'NORMAL' },
+        keywords: ['ELITE', 'MILITARUM', 'STRONG'],
+        faction: 'astra_militarum', unitType: 'elite',
+        description: 'Traitor Guard only (0-1 Elite). A brutal overseer who inspires allies through violence. Grueling Disciplinarian: can attack friendly models within 1"; when it causes a friendly to take BLOOD MARKERS or be taken OOA, one other friendly within 12" activates next with +1 DICE on all Success Rolls (and +1 INJURY DICE if OOA).',
+        abilities: [{
+          id: 'tg_grueling_disciplinarian',
+          name: 'Grueling Disciplinarian',
+          type: 'action' as const,
+          description: 'The Enforcer can attack friendly models within 1" of it. Whenever it causes a friendly model to take 1 or more BLOOD MARKERS or takes a friendly model Out of Action, you can choose one other friendly model within 12" that has not yet activated this Turn. That model activates next with +1 DICE to all Success Rolls (and +1 INJURY DICE with all attacks if the friendly was taken Out of Action).',
+        }],
+        defaultWargear: [], availableWargear: [],
+      },
+      {
+        id: 'tg_gor', name: 'Gor', baseCost: 45, minCount: 0, maxCount: 3,
+        stats: { movement: 6, rangedSkill: 0, meleeSkill: 1, armourSave: 0, toughness: 'NORMAL' },
+        keywords: ['BEASTMEN', 'LIMITED POTENTIAL', 'MILITARUM'],
+        faction: 'astra_militarum', unitType: 'troop',
+        description: 'Traitor Guard only (0-3 Troops). Beastmen fighters. Choose a Mutation when recruiting: Bloodgor (KHORNE, 2D6 charge), Fellgor (free melee attack when OOA), Pestigor (NURGLE, Down→Minor Hit, -1" move), Slaangor (SLAANESH, move 3" on first BLOOD MARKER each turn), Tzaangor (+1 Ranged, SKIRMISHER, TZEENTCH).',
+        defaultWargear: [], availableWargear: [],
+      },
+    ],
+    autoModifications: [
+      {
+        // Rogue Psykers: Primaris Psykers become PSYKER 2, gain PERILOUS keyword
+        unitIds: ['am_primaris_psyker'],
+        addKeywords: ['PSYKER 2', 'PERILOUS'],
+        addAbilities: [{
+          id: 'tg_power_unleashed',
+          name: 'Rogue Psyker — Power Unleashed',
+          description: 'This model is known as a Rogue Psyker. It has PSYKER 2 instead of PSYKER 1 and PERILOUS ±2 with all psychic powers. Uses the Hereticus Discipline instead of the Psykana Discipline.',
+          cost: 0,
+        }],
+      },
+    ],
     rules: [
       'Traitors: counts as a Chaos Warband. Patron must be Chaos Warlord or Chaos Undivided.',
       'Rule of Force: no Commissars or Conscripts; can recruit 1 Enforcer as an Elite.',

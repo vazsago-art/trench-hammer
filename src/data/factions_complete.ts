@@ -201,6 +201,12 @@ export const am_guardsman: UnitOption = {
   faction: 'astra_militarum', unitType: 'troop',
   description: 'Disciplined soldier of the Imperial Guard.',
   defaultWargear: [], availableWargear: [],
+  upgrades: [
+    { id: 'am_catachan_trapper', name: 'Catachan Trapper', cost: 10, maxCount: 3,
+      requiredSubfactionId: 'catachan_jungle_fighters',
+      grantedKeywords: ['NEGATE MINED'],
+      description: 'Catachan only. Up to 3 Guardsmen can be upgraded to Trappers (+10 credits). Gains the Mine Layer ability and NEGATE MINED keyword.' },
+  ],
 };
 export const am_veteran_guardsman: UnitOption = {
   id: 'am_veteran_guardsman', name: 'Veteran Guardsman', baseCost: 40, minCount: 0, maxCount: 5,
@@ -211,8 +217,17 @@ export const am_veteran_guardsman: UnitOption = {
   defaultWargear: [], availableWargear: [],
   upgrades: [
     { id: 'am_drop_trooper', name: 'Drop Trooper', cost: 10, maxCount: 99,
+      forbiddenSubfactionIds: ['catachan_jungle_fighters'],
       grantedKeywords: ['DEEP STRIKE'],
       description: 'Up to half the Veteran Guardsmen (rounded up) can be upgraded to Drop Troopers. Gains DEEP STRIKE, no falling injuries, +1 DICE on Diving Charges, and cannot go Down from a failed Diving Charge.' },
+    { id: 'am_catachan_hunter', name: 'Catachan Hunter', cost: 10, maxCount: 99,
+      requiredSubfactionId: 'catachan_jungle_fighters',
+      grantedKeywords: ['INFILTRATOR', 'STEALTH'],
+      description: 'Catachan only. Up to half the Veteran Guardsmen (rounded up) can be upgraded to Hunters instead of Drop Troopers (+10 credits). Gains INFILTRATOR and STEALTH keywords.' },
+    { id: 'am_catachan_sergeant', name: 'Catachan Sergeant', cost: 0, maxCount: 2,
+      requiredSubfactionId: 'catachan_jungle_fighters',
+      grantedKeywords: ['ELITE'],
+      description: 'Catachan only. Up to 2 Veteran Guardsmen can be Sergeants gaining the ELITE keyword. Sergeants do not count toward the Veteran Guardsman recruitment maximum.' },
   ],
 };
 export const am_ratling_marksman: UnitOption = {

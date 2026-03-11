@@ -894,10 +894,21 @@ export const FACTION_PATRONS: Record<string, Patron[]> = {
 
 };
 
+// ── Subfaction patron overrides ─────────────────────────────────────────────
+// Used when a subfaction requires a completely different patron pool than its base faction.
+// E.g. Traitor Guard uses astra_militarum faction but needs Chaos patrons.
+const SUBFACTION_PATRON_OVERRIDES: Record<string, Patron[]> = {
+  traitor_guard: [CHAOS_WARLORD, CHAOS_UNDIVIDED],
+};
+
 // ── Helper functions used by UI components ─────────────────────────────────
 
-/** Returns the list of available Patrons for a given faction key. */
-export function getPatronsForFaction(factionId: string): Patron[] {
+/** Returns the list of available Patrons for a given faction key.
+ *  Pass subfactionId to get the override patron list for subfactions like Traitor Guard. */
+export function getPatronsForFaction(factionId: string, subfactionId?: string): Patron[] {
+  if (subfactionId && SUBFACTION_PATRON_OVERRIDES[subfactionId]) {
+    return SUBFACTION_PATRON_OVERRIDES[subfactionId];
+  }
   return FACTION_PATRONS[factionId] ?? [];
 }
 
@@ -907,7 +918,13 @@ export function getPatronsForFaction(factionId: string): Patron[] {
  */
 export function getPatronById(patronId: string, factionId?: string): Patron | undefined {
   if (factionId) {
-    return (FACTION_PATRONS[factionId] ?? []).find(p => p.id === patronId);
+    const inFaction = (FACTION_PATRONS[factionId] ?? []).find(p => p.id === patronId);
+    if (inFaction) return inFaction;
+    // Also check subfaction overrides (e.g. Traitor Guard chaos patrons in an AM faction)
+    for (const overridePatrons of Object.values(SUBFACTION_PATRON_OVERRIDES)) {
+      const found = overridePatrons.find(p => p.id === patronId);
+      if (found) return found;
+    }
   }
   for (const patrons of Object.values(FACTION_PATRONS)) {
     const found = patrons.find(p => p.id === patronId);

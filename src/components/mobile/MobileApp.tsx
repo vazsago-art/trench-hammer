@@ -892,7 +892,7 @@ export function MobileApp({
               {/* View Rules button - removed; info shown inline */}
 
               {/* Patron select */}
-              {getPatronsForFaction(selectedFaction).length > 0 && (
+              {getPatronsForFaction(selectedFaction, selectedSubFaction).length > 0 && (
                 <>
                   <label className="mfield-label">Patron</label>
                   <select
@@ -901,7 +901,7 @@ export function MobileApp({
                     onChange={e => setWarband(prev => ({ ...prev, patron: e.target.value || undefined }))}
                   >
                     <option value="">— None selected —</option>
-                    {getPatronsForFaction(selectedFaction).map(p => (
+                    {getPatronsForFaction(selectedFaction, selectedSubFaction).map(p => (
                       <option key={p.id} value={p.id}>{p.name}</option>
                     ))}
                   </select>
@@ -1181,7 +1181,15 @@ export function MobileApp({
                             <button className="mbtn mbtn-psychic mbtn-sm" onClick={() => setPsychicUnitIdx(idx)}>🔮 Psychic</button>
                           )}
                           {selectedFaction === 'chaos_cult' && (
-                            <button className="mbtn mbtn-mutations mbtn-sm" onClick={() => setMutationUnitIdx(idx)}>☠ Mutations</button>
+                            <button
+                              className="mbtn mbtn-mutations mbtn-sm"
+                              onClick={() => setMutationUnitIdx(idx)}
+                              title={(unit.selectedGiftsOfChaos?.length ?? 0) > 0
+                                ? `Mutations: ${unit.selectedGiftsOfChaos!.map(g => g.name).join(', ')}`
+                                : 'Open Gifts of Chaos mutations panel'}
+                            >
+                              ☠ Mutations{(unit.selectedGiftsOfChaos?.length ?? 0) > 0 ? ` (${unit.selectedGiftsOfChaos!.length})` : ''}
+                            </button>
                           )}
                           {isEliteEligible(unit) && (
                             <button className="mbtn mbtn-sm btn-elite-xp" onClick={() => setEliteProgressionIdx(idx)}>★ XP: {unit.xp ?? 0}</button>
@@ -1667,7 +1675,7 @@ export function MobileApp({
 
       {wargearUnitIdx !== null && (() => {
         const unit = warband.units[wargearUnitIdx];
-        const allowedIds = getAllowedWargearIds(selectedFaction, unit.unitId);
+        const allowedIds = getAllowedWargearIds(selectedFaction, unit.unitId, selectedSubFaction, unit.selectedUpgrades ?? {});
         const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
         const defaultItems: SelectedWargear[] = (unitDef?.defaultWargear ?? []).map(item => ({
           id: item.id,

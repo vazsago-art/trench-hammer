@@ -954,7 +954,7 @@ export function ArmyBuilder({
           })()}
 
           {/* Patron selection */}
-          {getPatronsForFaction(selectedFaction).length > 0 && (
+          {getPatronsForFaction(selectedFaction, selectedSubFaction).length > 0 && (
             <div className="form-group">
               <label htmlFor="patron-select">Patron:</label>
               <select
@@ -963,7 +963,7 @@ export function ArmyBuilder({
                 onChange={e => setWarband(prev => ({ ...prev, patron: e.target.value || undefined }))}
               >
                 <option value="">— None selected —</option>
-                {getPatronsForFaction(selectedFaction).map(p => (
+                {getPatronsForFaction(selectedFaction, selectedSubFaction).map(p => (
                   <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </select>
@@ -1320,9 +1320,11 @@ export function ArmyBuilder({
                         <button
                           className="btn-mutations"
                           onClick={() => setMutationUnitIdx(idx)}
-                          title="Open Gifts of Chaos mutations panel"
+                          title={(unit.selectedGiftsOfChaos?.length ?? 0) > 0
+                            ? `Mutations: ${unit.selectedGiftsOfChaos!.map(g => g.name).join(', ')}`
+                            : 'Open Gifts of Chaos mutations panel'}
                         >
-                          ☠ Mutations
+                          ☠ Mutations{(unit.selectedGiftsOfChaos?.length ?? 0) > 0 ? ` (${unit.selectedGiftsOfChaos!.length})` : ''}
                         </button>
                       )}
                       {(() => {
@@ -1674,7 +1676,7 @@ export function ArmyBuilder({
       {wargearUnitIdx !== null && (() => {
         const unit = warband.units[wargearUnitIdx];
         const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
-        const allowedIds = getAllowedWargearIds(selectedFaction, unit.unitId);
+        const allowedIds = getAllowedWargearIds(selectedFaction, unit.unitId, selectedSubFaction, unit.selectedUpgrades ?? {});
         // Build the locked "included" list from the unit's defaultWargear
         const defaultItems: SelectedWargear[] = (unitDef?.defaultWargear ?? []).map(item => ({
           id: item.id,
