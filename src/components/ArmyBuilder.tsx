@@ -1182,7 +1182,7 @@ export function ArmyBuilder({
                               disabled={atLimit}
                               title={atLimit ? `Limit reached (${unit.maxCount})` : undefined}
                             >
-                              {atLimit ? `Limit (${currentCount}/${unit.maxCount})` : `Add Unit (${currentCount}/${unit.maxCount})`}
+                              {(() => { const cap = unit.maxCount >= 99 ? '∞' : unit.maxCount; return atLimit ? `Limit (${currentCount}/${cap})` : `Add Unit (${currentCount}/${cap})`; })()}
                             </button>
                           );
                         })()}
