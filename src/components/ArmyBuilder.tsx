@@ -447,6 +447,12 @@ export function ArmyBuilder({
       return sum + (resolved?.statModifiers?.rangedSkill ?? sw.statModifiers?.rangedSkill ?? 0);
     }, 0);
 
+    // Sum any melee skill bonuses from wargear (e.g. Big Muscles automod +1 Melee Skill)
+    const wargearMeleeSkillBonus = warbandUnit.selectedWargear.reduce((sum, sw) => {
+      const resolved = lookupWargear(sw.id);
+      return sum + (resolved?.statModifiers?.meleeSkill ?? sw.statModifiers?.meleeSkill ?? 0);
+    }, 0);
+
     // Aggregate stat modifiers from active upgrades (e.g. Battle Sister Mortisanctus +1M/-1R)
     const upgradeMods = (unitDef.upgrades ?? [])
       .filter(upg => ((warbandUnit.selectedUpgrades ?? {})[upg.id] ?? 0) > 0)
@@ -477,7 +483,7 @@ export function ArmyBuilder({
         ? wargearMovementOverride + (giftMods.movement ?? 0)
         : unitDef.stats.movement    + (mods.movement    ?? 0) + wargearMovementBonus + (upgradeMods.movement ?? 0) + (giftMods.movement ?? 0),
       rangedSkill: unitDef.stats.rangedSkill + (mods.rangedSkill ?? 0) + wargearRangedSkillBonus + (upgradeMods.rangedSkill ?? 0) + (giftMods.rangedSkill ?? 0),
-      meleeSkill:  unitDef.stats.meleeSkill  + (mods.meleeSkill  ?? 0) + (upgradeMods.meleeSkill ?? 0) + (giftMods.meleeSkill ?? 0),
+      meleeSkill:  unitDef.stats.meleeSkill  + (mods.meleeSkill  ?? 0) + wargearMeleeSkillBonus + (upgradeMods.meleeSkill ?? 0) + (giftMods.meleeSkill ?? 0),
       armourSave:  effectiveArmourSave + (upgradeMods.armourSave ?? 0) + (giftMods.armourSave ?? 0),
       toughness:   mods.toughness ?? unitDef.stats.toughness,
     };

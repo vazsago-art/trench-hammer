@@ -634,12 +634,18 @@ export function MobileApp({
       return sum + (resolved?.statModifiers?.rangedSkill ?? sw.statModifiers?.rangedSkill ?? 0);
     }, 0);
 
+    // Sum any melee skill bonuses from wargear (e.g. Big Muscles automod +1 Melee Skill)
+    const wargearMeleeSkillBonus = wbu.selectedWargear.reduce((sum, sw) => {
+      const resolved = lookupWargear(sw.id);
+      return sum + (resolved?.statModifiers?.meleeSkill ?? sw.statModifiers?.meleeSkill ?? 0);
+    }, 0);
+
     const effectiveStats = {
       movement:    wargearMovementOverride != null
         ? wargearMovementOverride
         : unitDef.stats.movement + (m.movement ?? 0) + wargearMovementBonus,
       rangedSkill: unitDef.stats.rangedSkill + (m.rangedSkill ?? 0) + wargearRangedSkillBonus,
-      meleeSkill:  unitDef.stats.meleeSkill  + (m.meleeSkill  ?? 0),
+      meleeSkill:  unitDef.stats.meleeSkill  + (m.meleeSkill  ?? 0) + wargearMeleeSkillBonus,
       armourSave:  effectiveArmourSave,
       toughness:   m.toughness ?? unitDef.stats.toughness,
     };

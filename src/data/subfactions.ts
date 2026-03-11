@@ -1043,7 +1043,7 @@ const ASTRA_MILITARUM_SUBFACTIONS: SubFaction[] = [
     description: 'Brutal jungle warriors with unmatched melee skill and guerrilla expertise.',
     requiredPatron: 'Lord General Militant',
     bannedUnitIds: ['am_conscript', 'am_ratling_marksman'],
-    unitMaxCountOverrides: { am_commissar: 1, am_ogryn: 1 },
+    unitMaxCountOverrides: { am_commissar: 1, am_ogryn: 1, am_veteran_guardsman: 7 },
     autoModifications: [
       {
         // Big Muscles: Primaris Psykers, Guardsmen, Veterans, and Heavy Weapons Squads have +1 Melee Skill (+5 credits each)
@@ -1073,6 +1073,7 @@ const ASTRA_MILITARUM_SUBFACTIONS: SubFaction[] = [
     description: 'Grim trench warfare specialists who gladly die for the Emperor.',
     requiredPatron: 'Lord General Militant',
     bannedUnitIds: ['am_ratling_marksman', 'am_ogryn'],
+    unitMaxCountOverrides: { am_heavy_weapons_squad: 4 },
     rules: [
       'Born to Die: +1 DICE to all Morale tests.',
       'Entrenched: can recruit up to 4 Heavy Weapons Squads and take up to 2 Mortars.',
