@@ -795,7 +795,10 @@ export function MobileApp({
   // ── Credit pct bar helper ─────────────────────────────────────────────
   const creditPct = Math.min(100, Math.round((totalPoints / pointLimit) * 100));
   const isOverLimit = totalPoints > pointLimit;
-  const validErrors = (validation.errors ?? []).length + (validation.warnings ?? []).length;
+  const isOverGloryLimit = gloryLimit > 0 && totalGlory > gloryLimit;
+  const gloryUntracked   = gloryLimit === 0 && totalGlory > 0;
+  const validErrors = (validation.errors ?? []).length + (validation.warnings ?? []).length
+    + (gloryUntracked ? 1 : 0);
 
   // ── Render ─────────────────────────────────────────────────────────────
   return (
@@ -817,6 +820,13 @@ export function MobileApp({
             {totalPoints}<span className="mapp-credit-sep">/</span>{pointLimit}
             <span className="mapp-credit-label"> Cr</span>
           </span>
+          {(totalGlory > 0 || gloryLimit > 0) && (
+            <span className={`mapp-glory-badge ${isOverGloryLimit ? 'over' : gloryUntracked ? 'warn' : ''}`}>
+              {gloryLimit > 0
+                ? <>{totalGlory}<span className="mapp-credit-sep">/</span>{gloryLimit}<span className="mapp-credit-label"> Gl</span></>
+                : <>{totalGlory}<span className="mapp-credit-label"> Gl</span></>}
+            </span>
+          )}
           {totalModels > 0 && (
             <span className="mapp-model-badge">{totalModels} models</span>
           )}
@@ -1421,6 +1431,9 @@ export function MobileApp({
                   {(validation.warnings ?? []).map((w, i) => (
                     <div key={i} className="mvalid-warn">⚠ {w.message}</div>
                   ))}
+                  {gloryUntracked && (
+                    <div className="mvalid-warn">⚠ Spending {totalGlory} Glory but no Glory Limit is set — set a Glory Limit (≠1) to enforce it.</div>
+                  )}
                 </>
               )}
             </div>

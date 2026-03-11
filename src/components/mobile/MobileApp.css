@@ -127,6 +127,15 @@
 .mapp-credit-sep  { opacity: 0.5; margin: 0 1px; }
 .mapp-credit-label { font-size: 0.72rem; font-weight: 400; opacity: 0.8; }
 
+.mapp-glory-badge {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--m-teal-lt);
+  white-space: nowrap;
+}
+.mapp-glory-badge.over  { color: var(--m-red-lt); }
+.mapp-glory-badge.warn  { color: var(--m-amber, #e8b04a); }
+
 .mapp-model-badge {
   font-size: 0.72rem;
   background: var(--m-navy3);
