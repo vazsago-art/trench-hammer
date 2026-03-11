@@ -939,6 +939,9 @@ export function ArmyBuilder({
                 {activeSF && (selectedSubFaction !== 'no_variant' || (getSubFactions(selectedFaction)?.required ?? false)) && (
                   <div className="subfaction-rules">
                     <div className="subfaction-desc">{activeSF.description}</div>
+                    {activeSF.quote && (
+                      <blockquote className="subfaction-quote">{activeSF.quote}</blockquote>
+                    )}
                     <ul className="subfaction-rule-list">
                       {activeSF.rules.map((r, i) => (
                         <li key={i}>{r}</li>

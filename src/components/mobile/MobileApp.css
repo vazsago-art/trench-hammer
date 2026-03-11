@@ -972,6 +972,19 @@
   line-height: 1.35;
 }
 
+.msubfaction-quote {
+  margin: 0.35rem 0 0.5rem;
+  padding: 0.3rem 0.65rem;
+  border-left: 3px solid #e040fb;
+  background: rgba(224, 64, 251, 0.08);
+  border-radius: 0 4px 4px 0;
+  color: #e040fb;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 0.83em;
+  letter-spacing: 0.06em;
+}
+
 .msubfaction-rule-list {
   margin: 0;
   padding-left: 1.1rem;

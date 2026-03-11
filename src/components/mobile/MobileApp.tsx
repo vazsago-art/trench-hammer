@@ -853,6 +853,9 @@ export function MobileApp({
                     {activeSF && (selectedSubFaction !== 'no_variant' || (getSubFactions(selectedFaction)?.required ?? false)) && (
                       <div className="msubfaction-rules">
                         <div className="msubfaction-desc">{activeSF.description}</div>
+                        {activeSF.quote && (
+                          <blockquote className="msubfaction-quote">{activeSF.quote}</blockquote>
+                        )}
                         <ul className="msubfaction-rule-list">
                           {activeSF.rules.map((r, i) => (
                             <li key={i}>{r}</li>

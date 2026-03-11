@@ -845,6 +845,19 @@
   margin-bottom: 0.45rem;
 }
 
+.subfaction-quote {
+  margin: 0.4rem 0 0.6rem;
+  padding: 0.35rem 0.75rem;
+  border-left: 3px solid #e040fb;
+  background: rgba(224, 64, 251, 0.08);
+  border-radius: 0 4px 4px 0;
+  color: #e040fb;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 0.88em;
+  letter-spacing: 0.06em;
+}
+
 .subfaction-rule-list {
   margin: 0;
   padding-left: 1.1rem;

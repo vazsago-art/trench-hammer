@@ -116,6 +116,8 @@ export interface SubFaction {
    * These are injected into the SelectedWargear grantsKeywords at equip time.
    */
   wargearKeywordGrants?: Record<string, string[]>;
+  /** Optional flavour quote displayed prominently in the subfaction rules panel */
+  quote?: string;
 }
 
 export interface FactionSubFactions {
@@ -378,6 +380,7 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
     id: 'thousand_sons',
     name: 'Thousand Sons',
     description: 'Sorcerers of Tzeentch and their enthralled Rubric Marines marching to the will of Magnus.',
+    quote: 'MAGNUS DID NOTHING WRONG.',
     noDarkPacts: true,
     requiredPatron: 'Tzeentch (Shared Patron)',
     // Exalted: cannot include Chaos Lords, Dark Apostles, Warpsmiths, Raptors, or Possessed.
