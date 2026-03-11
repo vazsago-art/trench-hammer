@@ -955,6 +955,40 @@
   justify-content: center;
 }
 
+/* ── Mobile Faction Special Rules ────────────────────────────── */
+.mfaction-rules {
+  margin: 0.4rem 0 0.5rem;
+  padding: 0.55rem 0.7rem;
+  background: rgba(30, 60, 100, 0.15);
+  border: 1px solid rgba(70, 130, 180, 0.35);
+  border-radius: 8px;
+  font-size: 0.8em;
+}
+
+.mfaction-rules-title {
+  color: #7eb8e8;
+  font-weight: 700;
+  font-size: 0.9em;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+}
+
+.mfaction-rules-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #9e9e9e;
+}
+
+.mfaction-rules-list li {
+  margin-bottom: 0.25rem;
+  line-height: 1.35;
+}
+
+.mfaction-rules-list strong {
+  color: #90caf9;
+}
+
 /* ── Mobile Subfaction / Warband Variant ──────────────────────── */
 .msubfaction-rules {
   margin: 0.4rem 0 0.5rem;

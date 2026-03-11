@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { Warband, WarbandUnit, UnitOption, UnitSubType, SelectedWargear, WargearOption, SelectedPsychicPower, SelectedGiftOfChaos, UnitUpgrade, WarbandMercenary, Mercenary, MercenaryStats, SharedWarbandProps } from '../../types/index.js';
 import { getFactionById, allFactions } from '../../data/factions_complete.js';
 import {
@@ -22,6 +22,7 @@ import { UnitSubTypeModal } from '../UnitSubTypeModal.js';
 import { SavedArmiesModal } from '../SavedArmiesModal.js';
 import { getDisciplinesForFaction, factionHasPsychicDisciplines } from '../../data/psychicDisciplines.js';
 import { factionHasSubFactions, getSubFactions, getSubFactionById, getDefaultSubFactionId } from '../../data/subfactions.js';
+import { getFactionRules } from '../../data/factionRules.js';
 import MercenaryPanel from '../MercenaryPanel.js';
 import { MercenaryInfoModal } from '../MercenaryInfoModal.js';
 import { ALL_MERCENARIES } from '../../data/mercenaries.js';
@@ -30,6 +31,14 @@ import { isEliteEligible } from '../../data/campaignProgression.js';
 import { getPatronsForFaction, getPatronById, filterAbilitiesForSubfaction } from '../../data/patrons.js';
 import { PatronAbilityChip } from '../PatronAbilityChip.js';
 import './MobileApp.css';
+
+/** Renders **bold** markdown markers as JSX <strong> elements. */
+function renderFormattedText(text: string): ReactNode {
+  const parts = text.split(/\*\*(.*?)\*\*/g);
+  return parts.map((part, i) =>
+    i % 2 === 1 ? <strong key={i}>{part}</strong> : part
+  );
+}
 
 type Tab = 'build' | 'army' | 'validate' | 'export';
 
@@ -839,6 +848,20 @@ export function MobileApp({
                   <option key={f.id} value={f.id}>{f.name}</option>
                 ))}
               </select>
+              {(() => {
+                const factionRules = getFactionRules(selectedFaction);
+                if (!factionRules) return null;
+                return (
+                  <div className="mfaction-rules">
+                    <div className="mfaction-rules-title">{factionRules.title}</div>
+                    <ul className="mfaction-rules-list">
+                      {factionRules.rules.map((rule, i) => (
+                        <li key={i}>{renderFormattedText(rule)}</li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })()}
               {factionHasSubFactions(selectedFaction) && (() => {
                 const sfData = getSubFactions(selectedFaction);
                 const activeSF = sfData?.subFactions.find(sf => sf.id === selectedSubFaction);
