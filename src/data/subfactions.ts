@@ -756,7 +756,7 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     name: 'Grey Knights',
     description: 'The secret daemon-hunters of the Imperium, every battle-brother a powerful psyker.',
     bannedUnitIds: ['aa_scout_marine'],
-    psychicDisciplineId: 'dominus',
+    psychicDisciplineIds: ['dominus', 'sanctus'],
     autoModifications: [
       {
         // Brotherhood of Psykers: all non-PSYKER ASTARTES gain PSYKER 1
@@ -1472,6 +1472,7 @@ const AELDARI_SUBFACTIONS: SubFaction[] = [
     name: 'Ynnari',
     description: "Followers of Ynnead who draw strength from the death of all, combining Aeldari, Drukhari, and Harlequins.",
     requiredPatron: 'Ynnead, the Whispering God',
+    psychicDisciplineId: 'revenant',
     bannedUnitIds: ['ael_haemonculus', 'ael_wrack', 'ael_grotesque', 'hq_solitaire', 'ael_mandrake'],
     extraUnits: [
       yn_dr_archon,

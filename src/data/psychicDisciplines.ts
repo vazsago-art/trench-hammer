@@ -1139,7 +1139,7 @@ export const discipline_psykana: PsychicDiscipline = {
 export const discipline_runes_of_battle: PsychicDiscipline = {
   id: 'runes_of_battle',
   name: 'Runes of Battle Discipline',
-  factionIds: ['aeldari', 'harlequins'],
+  factionIds: ['aeldari'],
   powers: [
     {
       id: 'conceal_reveal',
@@ -1412,6 +1412,79 @@ export const discipline_phantasmancy: PsychicDiscipline = {
       target: 'Self or One Ally',
       timing: 'Immediate',
       description: '-1 DICE, 6", Self or One Ally. Remove the target from the table, then place it anywhere at least 8" away from all enemies.',
+    },
+  ],
+};
+
+// ============================================================================
+// AELDARI SUBFACTION DISCIPLINES (Ynnari / Revenant)
+// ============================================================================
+
+export const discipline_revenant: PsychicDiscipline = {
+  id: 'revenant',
+  name: 'Revenant Discipline',
+  factionIds: ['aeldari'],
+  powers: [
+    {
+      id: 'gaze_of_ynnead',
+      name: 'Gaze of Ynnead',
+      cost: 3,
+      costCurrency: 'glory',
+      powerType: 'Attack',
+      range: '18"',
+      target: 'One Enemy',
+      timing: 'Immediate',
+      description: '18", treats a Down result as Out of Action (even if the target would normally replace Down with another result), PSYCHIC, RISKY',
+    },
+    {
+      id: 'storm_of_whispers',
+      name: 'Storm of Whispers',
+      cost: 10,
+      powerType: 'Attack',
+      range: '6"',
+      target: 'Each Enemy',
+      timing: 'Immediate',
+      description: '6", Each Enemy, Immediate. Each target must roll on the Injury table.',
+    },
+    {
+      id: 'word_of_the_phoenix',
+      name: 'Word of the Phoenix',
+      cost: 10,
+      powerType: 'Effect',
+      range: '18"',
+      target: 'Self or One Ally',
+      timing: 'Immediate',
+      description: '-1 DICE, 18", Self or One Ally, Immediate. Remove D3 BLOOD MARKERS from the target.',
+    },
+    {
+      id: 'unbind_souls',
+      name: 'Unbind Souls',
+      cost: 5,
+      powerType: 'Effect',
+      range: '18"',
+      target: 'One Enemy',
+      timing: 'End of Turn',
+      description: '18", One Enemy, End of Turn. Melee attacks have +1 INJURY DICE against the target.',
+    },
+    {
+      id: 'shield_of_ynnead',
+      name: 'Shield of Ynnead',
+      cost: 5,
+      powerType: 'Effect',
+      range: 'No Range',
+      target: 'Self and nearby allies',
+      timing: 'Next Activation',
+      description: 'No Range, Self. The caster and each friendly model within 3" of it treat Down results as Minor Hits (does not affect Down results that replace Out of Action via TOUGH Keyword).',
+    },
+    {
+      id: 'ancestors_grace',
+      name: "Ancestor's Grace",
+      cost: 7,
+      powerType: 'Effect',
+      range: '18"',
+      target: 'Self or One Ally',
+      timing: 'Target Activation',
+      description: '18", Self or One Ally, Target Activation. The target has +1 DICE to Hit with all attacks and +1 DICE to all Dash Success Rolls.',
     },
   ],
 };
@@ -1833,7 +1906,7 @@ export const discipline_dominus: PsychicDiscipline = {
       range: '12"',
       target: 'One Enemy',
       timing: 'End of Turn',
-      description: '12", One Enemy. Injury rolls against the target caused by PSYCHIC attacks have +1 DICE.',
+      description: '12", One Enemy. Injury rolls against the target caused by PSYCHIC attacks or Success Rolls have +1 DICE.',
     },
     {
       id: 'sanctuary',
@@ -1940,10 +2013,10 @@ export const discipline_sanctus: PsychicDiscipline = {
       name: 'Ethereal Castigation',
       cost: 10,
       powerType: 'Effect',
-      range: 'Close',
+      range: 'No Range',
       target: 'One Ally',
       timing: 'Immediate',
-      description: '-1 DICE, One Ally. The target can immediately make a single ranged attack.',
+      description: '-1 DICE, No Range, One Ally. The target can immediately make a single ranged attack.',
     },
   ],
 };
@@ -2655,9 +2728,9 @@ export const discipline_stormspeaking: PsychicDiscipline = {
 export const FACTION_DISCIPLINES: Record<string, PsychicDiscipline[]> = {
   // Imperial
   adeptus_astartes: [discipline_librarius],
-  grey_knights: [discipline_librarius, discipline_dominus, discipline_sanctus],
+  grey_knights: [discipline_dominus, discipline_sanctus],
   astra_militarum: [discipline_psykana],
-  the_inquisition: [discipline_biomancy, discipline_divination, discipline_telepathy, discipline_telekinesis, discipline_pyromancy, discipline_dominus, discipline_sanctus],
+  the_inquisition: [discipline_biomancy, discipline_divination, discipline_telepathy, discipline_telekinesis, discipline_pyromancy, discipline_technomancy, discipline_dominus, discipline_sanctus, discipline_xenopurge],
   adeptus_mechanicus: [discipline_technomancy],
   rogue_trader: [discipline_divination],
   // Chaos
@@ -2666,11 +2739,12 @@ export const FACTION_DISCIPLINES: Record<string, PsychicDiscipline[]> = {
   chaos_daemons: [discipline_soulstain, discipline_warprot, discipline_tzeentch],
   // Xenos
   aeldari: [discipline_runes_of_battle, discipline_runes_of_fate, discipline_runes_of_fortune],
-  harlequins: [discipline_phantasmancy, discipline_runes_of_battle],
+  harlequins: [discipline_phantasmancy],
   genestealer_cults: [discipline_broodmind],
   leagues_of_votann: [discipline_skeinwrought],
   slanni: [discipline_celestial, discipline_primal],
   tyranids: [discipline_tyranids_psychic],
+  the_vermintide: [discipline_ruin],
 };
 
 /** Get all disciplines available to a faction */
@@ -2694,6 +2768,8 @@ const SUBFACTION_OVERRIDE_DISCIPLINES: PsychicDiscipline[] = [
   discipline_umbramancy,
   discipline_tempestas,
   discipline_stormspeaking,
+  // Aeldari subfaction disciplines
+  discipline_revenant,
 ];
 
 function _registerDisciplines() {
