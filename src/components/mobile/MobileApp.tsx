@@ -1782,7 +1782,7 @@ export function MobileApp({
         const activeSF = selectedSubFaction && selectedSubFaction !== 'no_variant'
           ? getSubFactionById(selectedFaction, selectedSubFaction)
           : null;
-        const disciplines = getDisciplinesForFaction(selectedFaction, activeSF?.psychicDisciplineId);
+        const disciplines = getDisciplinesForFaction(selectedFaction, activeSF?.psychicDisciplineIds ?? activeSF?.psychicDisciplineId);
         if (disciplines.length === 0) return null;
         return (
           <PsychicPanel

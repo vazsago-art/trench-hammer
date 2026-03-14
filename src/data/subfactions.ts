@@ -37,6 +37,12 @@ export interface SubFaction {
    * discipline instead of the parent faction's default discipline.
    */
   psychicDisciplineId?: string;
+  /**
+   * Multiple psychic discipline overrides.  When set, models in this sub-faction
+   * have access to ALL listed disciplines (e.g. Thousand Sons: Change + Vengeance + Heretic Astartes).
+   * Takes precedence over psychicDisciplineId when both are present.
+   */
+  psychicDisciplineIds?: string[];
   /** Dark Pacts special rule is disabled for this warband variant */
   noDarkPacts?: boolean;
   /**
@@ -425,6 +431,7 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'Psychic Sorcerers may choose from Change Discipline, Vengeance Discipline, or Heretic Astartes Discipline.',
       'Optionally form a Changehost, recruiting Chaos Daemons troops.',
     ],
+    psychicDisciplineIds: ['change_discipline', 'vengeance_discipline', 'heretic_astartes_discipline'],
   },
   {
     id: 'word_bearers',

@@ -562,6 +562,148 @@ export const discipline_heretic_astartes: PsychicDiscipline = {
 };
 
 // ============================================================================
+// THOUSAND SONS PSYCHIC DISCIPLINES
+// ============================================================================
+
+export const discipline_change: PsychicDiscipline = {
+  id: 'change_discipline',
+  name: 'Discipline of Change',
+  factionIds: ['heretic_astartes'],
+  powers: [
+    {
+      id: 'baleful_devolution',
+      name: 'Baleful Devolution',
+      cost: 3,
+      powerType: 'Effect',
+      range: '12"',
+      target: 'One Enemy',
+      timing: 'Immediate',
+      description: '12", One Enemy. The target gains 1 STUN MARKER, or D3 STUN MARKERS on a Critical Success.',
+    },
+    {
+      id: 'cacodaemonic_curse',
+      name: 'Cacodaemonic Curse',
+      cost: 5,
+      powerType: 'Effect',
+      range: '24"',
+      target: 'One Enemy',
+      timing: 'Target Activation',
+      description: '24", One Enemy, Target Activation. The target has -1 INJURY DICE with all ranged attacks it makes.',
+    },
+    {
+      id: 'doombolt',
+      name: 'Doombolt',
+      cost: 10,
+      powerType: 'Attack',
+      range: '24"',
+      target: 'One Enemy',
+      timing: 'Immediate',
+      description: '24", +1 INJURY DICE, PSYCHIC, RISKY.',
+    },
+    {
+      id: 'pyric_flux',
+      name: 'Pyric Flux',
+      cost: 10,
+      powerType: 'Effect',
+      range: '12"',
+      target: 'Self or One TZEENTCH Ally',
+      timing: 'Target Activation',
+      description: '12", Self or One TZEENTCH Ally, Target Activation. The target\'s ranged weapons and psychic power attacks have the FIRE Keyword.',
+    },
+    {
+      id: 'temporal_manipulation',
+      name: 'Temporal Manipulation',
+      cost: 5,
+      powerType: 'Effect',
+      range: '6"',
+      target: 'Self or One Ally',
+      timing: 'Immediate',
+      description: '-1 DICE, 6", Self or One Ally. Remove D3 BLOOD MARKERS from the chosen model.',
+    },
+    {
+      id: 'tzeentchs_firestorm',
+      name: "Tzeentch's Firestorm",
+      cost: 2,
+      costCurrency: 'glory',
+      powerType: 'Attack',
+      range: '24"',
+      target: 'One Enemy',
+      timing: 'Immediate',
+      description: '24", BLAST 5", FIRE, PSYCHIC, RISKY.',
+    },
+  ],
+};
+
+export const discipline_vengeance: PsychicDiscipline = {
+  id: 'vengeance_discipline',
+  name: 'Discipline of Vengeance',
+  factionIds: ['heretic_astartes'],
+  powers: [
+    {
+      id: 'infernal_gateway',
+      name: 'Infernal Gateway',
+      cost: 10,
+      powerType: 'Attack',
+      range: '24"',
+      target: 'Nearest Enemy',
+      timing: 'Immediate',
+      description: '24", +1 INJURY DICE, BLAST 3", CRITICAL, PSYCHIC, RISKY. This attack can target only the nearest enemy, but does not require line of sight.',
+    },
+    {
+      id: 'swelled_by_the_warp',
+      name: 'Swelled By The Warp',
+      cost: 5,
+      powerType: 'Effect',
+      range: '12"',
+      target: 'Self or One Ally',
+      timing: 'Target Activation',
+      description: '12", Self or One Ally, Target Activation. The target has +1 INJURY DICE with melee attacks.',
+    },
+    {
+      id: 'temporal_surge',
+      name: 'Temporal Surge',
+      cost: 5,
+      powerType: 'Effect',
+      range: '6"',
+      target: 'Self or One Ally',
+      timing: 'Immediate',
+      description: '-1 DICE, 6", Self or One Ally, Immediate. The target can immediately move up to its movement speed. This movement can bring it into or out of close combat, but allows enemies to attack it if it leaves close combat as if it Retreated.',
+    },
+    {
+      id: 'empyric_guidance',
+      name: 'Empyric Guidance',
+      cost: 7,
+      powerType: 'Effect',
+      range: '12"',
+      target: 'Self or One Ally',
+      timing: 'Target Activation',
+      description: '12", Self or One Ally, Target Activation. The target adds 6" to the range of all non-PSYCHIC ranged weapons it has, or 12" if that weapon already had a range of 18" or higher.',
+    },
+    {
+      id: 'psychic_stalk',
+      name: 'Psychic Stalk',
+      cost: 5,
+      powerType: 'Effect',
+      range: '12"',
+      target: 'One Enemy',
+      timing: 'Immediate',
+      description: '12", One Enemy, Immediate. The caster makes a single ranged attack against the target with a melee weapon it is wielding (range 12"). This attack automatically hits, and is a Critical Hit if the Success Roll was a Critical Success. Counts as a Shoot Action.',
+    },
+    {
+      id: 'desecration_of_worlds',
+      name: 'Desecration Of Worlds',
+      cost: 2,
+      costCurrency: 'glory',
+      powerType: 'Effect',
+      range: '24"',
+      target: 'One Point',
+      timing: 'End of Turn',
+      description: '24", Point, End of Turn. Place a Desecration marker on the battlefield at the target point. The ground within 3" of the marker has DIFFICULT TERRAIN and DANGEROUS TERRAIN. Remove the marker at end of Turn. On a failure, the caster must roll on the Injury table.',
+    },
+  ],
+};
+
+// ============================================================================
 // CHAOS DAEMON PSYCHIC DISCIPLINES (per deity)
 // ============================================================================
 
@@ -2537,6 +2679,10 @@ const ALL_DISCIPLINES: Record<string, PsychicDiscipline> = {};
 
 /** Extra disciplines (e.g. subfaction overrides) registered separately from FACTION_DISCIPLINES */
 const SUBFACTION_OVERRIDE_DISCIPLINES: PsychicDiscipline[] = [
+  // Thousand Sons
+  discipline_change,
+  discipline_vengeance,
+  // Heretic Astartes subfaction overrides
   discipline_contagion,
   discipline_excess,
   discipline_malefic,
@@ -2563,17 +2709,21 @@ _registerDisciplines();
 
 /**
  * Returns the psychic disciplines available for a faction.
- * When `subfactionDisciplineOverrideId` is supplied (a subfaction has its own
- * psychic discipline), that discipline replaces the faction's default list.
- * If the override ID is not found in the registry, the faction default is used.
+ * When `subfactionDisciplineOverrideIds` is supplied (a subfaction has its own
+ * psychic discipline(s)), those disciplines replace the faction's default list.
+ * Accepts either a single ID string or an array of IDs.
+ * If none of the override IDs are found in the registry, the faction default is used.
  */
 export function getDisciplinesForFaction(
   factionId: string,
-  subfactionDisciplineOverrideId?: string,
+  subfactionDisciplineOverrideIds?: string | string[],
 ): PsychicDiscipline[] {
-  if (subfactionDisciplineOverrideId) {
-    const override = ALL_DISCIPLINES[subfactionDisciplineOverrideId];
-    if (override) return [override];
+  if (subfactionDisciplineOverrideIds) {
+    const ids = Array.isArray(subfactionDisciplineOverrideIds)
+      ? subfactionDisciplineOverrideIds
+      : [subfactionDisciplineOverrideIds];
+    const overrides = ids.map(id => ALL_DISCIPLINES[id]).filter((d): d is PsychicDiscipline => !!d);
+    if (overrides.length > 0) return overrides;
   }
   return FACTION_DISCIPLINES[factionId] ?? [];
 }
