@@ -733,8 +733,8 @@ const IMPERIAL_SPACE_MARINE: Mercenary[] = [
     ],
     abilities: [
       { name: 'Black Carapace', description: 'Down results from ranged attacks become Minor Hits instead.' },
-      { name: 'Omni-Scrambler', description: 'As an Action (Risky +1 DICE): prevent one enemy from activating for D3 activations.' },
-      { name: 'Plant Explosives', description: 'As an Action: mine a piece of terrain within 8" of this model.' },
+      { name: 'Omni-Scrambler', description: 'As an Action with a Risky Success Roll, choose one enemy the Primaris Minelayer can see within 12" that has not activated this Turn. Your opponent cannot activate that model until they have activated D3 other models, or until it is the last left to activate this Turn.' },
+      { name: 'Plant Explosives', description: 'As an Action with a Success Roll with +2 DICE, the Primaris Minelayer can mine a piece of terrain they alone are touching, no bigger than 8" x 8" (an 8" section of trench, a wall, a tree, a building etc). If successful, the terrain piece is now MINED.' },
     ],
   },
   {

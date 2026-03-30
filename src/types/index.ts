@@ -26,6 +26,15 @@ export interface Weapon {
   description?: string;
   /** Keywords this weapon grants to the equipped model */
   grantsKeywords?: string[];
+  /**
+   * Keyword-based restriction conditions that a model must satisfy to equip this item.
+   * Each entry is either:
+   *   - A keyword string: model must have that keyword (e.g. 'VEHICLE', 'KROOT', 'ELITE')
+   *   - 'NOT:<keyword>': model must NOT have that keyword (e.g. 'NOT:VEHICLE')
+   * All entries must be satisfied (AND logic). For Elite-only: ['ELITE'].
+   * For Elite Battlesuit Only: ['ELITE', 'VEHICLE'].
+   */
+  restrictedTo?: string[];
 }
 
 /**
@@ -83,6 +92,14 @@ export interface WargearOption {
    * Each entry is a plain {name, description} object displayed in the unit's ability list.
    */
   grantsAbilities?: Array<{ name: string; description: string }>;
+  /**
+   * Keyword-based restriction conditions that a model must satisfy to equip this item.
+   * Each entry is either:
+   *   - A keyword string: model must have that keyword (e.g. 'VEHICLE', 'KROOT', 'ELITE')
+   *   - 'NOT:<keyword>': model must NOT have that keyword (e.g. 'NOT:VEHICLE', 'NOT:STEALTH')
+   * All entries must be satisfied (AND logic).
+   */
+  restrictedTo?: string[];
 }
 
 export interface ModelStats {
@@ -128,6 +145,8 @@ export interface UnitUpgrade {
   maxCountLarge?: number;
   /** Keywords the model gains when upgraded */
   grantedKeywords?: string[];
+  /** Keywords for the upgrade itself (e.g. 'MARK') to categorize it in the UI/Logic */
+  keywords?: string[];
   /** Stat changes applied to the model when this upgrade is active (e.g. +1 Melee Skill) */
   statModifiers?: Partial<ModelStats>;
   /**
@@ -140,6 +159,16 @@ export interface UnitUpgrade {
    * Use for upgrades banned by specific subfactions (e.g. Raptor banned for Death Guard and World Eaters).
    */
   forbiddenSubfactionIds?: string[];
+  /**
+   * If set, this upgrade is only visible/selectable if the unit already has the specified upgrade ID selected.
+   * Use for nested upgrades (e.g. Night Lords: Raptor -> Depredator).
+   */
+  requiredUpgradeId?: string;
+  /**
+   * List of other upgrade IDs that cannot be selected if this one is active.
+   * Use for mutually exclusive upgrades (e.g. Depredator vs Warp Talon).
+   */
+  conflictsWithUpgradeIds?: string[];
 }
 
 /**
@@ -166,6 +195,8 @@ export interface UnitOption {
   maxCountLarge?: number;
   stats: ModelStats;
   keywords: string[]; // e.g., [IMPERIUM], [ASTARTES], [LEADER], etc.
+  /** Recommended base size for this unit's model(s), e.g. '32mm', '25-28mm', '50mm'. */
+  baseSize?: string;
   defaultWargear: (Weapon | WargearOption)[];
   availableWargear: (Weapon | WargearOption)[];
   abilities?: Ability[];
@@ -334,6 +365,8 @@ export interface Warband {
   subfaction?: string;
   /** Display name of the chosen sub-faction (e.g. "Death Guard"). */
   subfactionName?: string;
+  /** Optional warband variant sub-mode is active (e.g. Changehost, Daemonkin, Tallyband, Carnival of Excess). */
+  variantOptionEnabled?: boolean;
   patron?: string;
   pointLimit: number;  // Credits limit
   gloryLimit: number;  // Glory limit (0 = no cap on mercenary glory)
@@ -385,6 +418,8 @@ export interface WarbandUnit {
   id: string;
   unitId: string;
   name: string;
+  /** Optional player-assigned custom name for this model (e.g. "Brother Brutus"). Shown in place of the type name; type name shown as a small subtitle. */
+  customName?: string;
   count: number; // How many models in this unit
   baseCostPerModel: number;
   costCurrency: 'credits' | 'glory'; // currency for baseCostPerModel

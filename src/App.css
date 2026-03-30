@@ -6,3 +6,27 @@
   overflow: hidden;
 }
 
+/* ── Session-restored toast ─────────────────────────── */
+.draft-toast {
+  position: fixed;
+  bottom: 1.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111e11;
+  border: 1px solid #3a7a3a;
+  color: #7ec87e;
+  padding: 0.5rem 1.3rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  z-index: 9999;
+  pointer-events: none;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.5);
+  animation: draft-toast-in 0.25s ease;
+}
+@keyframes draft-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+

@@ -6,6 +6,8 @@ interface WargearInfoModalProps {
   item: Weapon | WargearOption;
   /** Category type so we know how to render it */
   catType: 'weapon' | 'armor' | 'equipment';
+  costOverride?: number;
+  costCurrencyOverride?: 'credits' | 'glory';
   onClose: () => void;
 }
 
@@ -28,15 +30,17 @@ function weaponRangeLabel(w: Weapon): string {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export function WargearInfoModal({ item, catType, onClose }: WargearInfoModalProps) {
+export function WargearInfoModal({ item, catType, costOverride, costCurrencyOverride, onClose }: WargearInfoModalProps) {
   const isWeapon = catType === 'weapon';
   const weapon   = isWeapon ? (item as Weapon) : null;
   const gear     = !isWeapon ? (item as WargearOption) : null;
+  const effectiveCost = costOverride ?? item.cost;
+  const effectiveCostCurrency = costCurrencyOverride ?? (item as any).costCurrency;
 
   const costLabel =
-    (item as any).costCurrency === 'glory'
-      ? `${item.cost} Glory`
-      : `${item.cost} Credits`;
+    effectiveCostCurrency === 'glory'
+      ? `${effectiveCost} Glory`
+      : `${effectiveCost} Credits`;
 
   return (
     <div className="wginfo-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>

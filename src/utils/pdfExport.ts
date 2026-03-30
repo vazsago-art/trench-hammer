@@ -89,9 +89,7 @@ function tableY(doc: jsPDF): number {
 
 // ── Base size helper (matches UnitInfoModal logic) ──────────────────────
 function baseSize(unit: UnitOption): string {
-  if (unit.keywords.includes('VEHICLE')) return 'Large';
-  if (unit.keywords.includes('LARGE'))   return '40mm';
-  return '32mm';
+  return unit.baseSize ?? '32mm';
 }
 
 // ── Stat formatting ───────────────────────────────────────────────────────
@@ -353,7 +351,7 @@ function drawUnitCard(
     doc.setFontSize(7.5);
     doc.setFont('helvetica', 'bold');
     ink(doc, C_AMBER);
-    doc.text(`[${safe(wbu.appliedSubType.name.toUpperCase())}]`, ML + 5, stY + 4.5);
+    doc.text(`SELECTED OPTION: ${safe(wbu.appliedSubType.name.toUpperCase())}`, ML + 5, stY + 4.5);
     doc.setFontSize(7.5);
     doc.setFont('helvetica', 'normal');
     ink(doc, C_BODY);

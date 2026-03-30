@@ -41,7 +41,12 @@ export function SavedArmiesModal({ onLoad, onClose }: Props) {
                   <li key={wb.id} className="sam-item">
                     <div className="sam-item-info">
                       <span className="sam-item-name">{wb.name}</span>
-                      <span className="sam-item-faction">{wb.faction.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</span>
+                      <div className="sam-item-tags">
+                        <span className="sam-item-faction">{wb.faction.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</span>
+                        {wb.subfactionName && (
+                          <span className="sam-item-variant">{wb.subfactionName}</span>
+                        )}
+                      </div>
                       <div className="sam-item-stats">
                         <span className="sam-stat">{totalCredits} / {wb.pointLimit} Credits</span>
                         {(wb.gloryLimit > 0 || totalGlory > 0) && (

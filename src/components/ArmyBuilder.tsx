@@ -46,8 +46,19 @@ export function ArmyBuilder({
 
   const currentFaction = getFactionById(selectedFaction);
   const currentSubFaction = getSubFactionById(selectedFaction, selectedSubFaction);
-  const bannedUnitIdsSet = new Set<string>(currentSubFaction?.bannedUnitIds ?? []);
-  const unitMaxCountOverrides = currentSubFaction?.unitMaxCountOverrides ?? {};
+  // Variant option (e.g. Changehost, Daemonkin, Tallyband, Carnival of Excess): merge extra bans/overrides/units when active
+  const variantCfg = warband.variantOptionEnabled ? currentSubFaction?.variantOption : undefined;
+  const bannedUnitIdsSet = new Set<string>([
+    ...(currentSubFaction?.bannedUnitIds ?? []),
+    ...(variantCfg?.bannedUnitIds ?? []),
+  ]);
+  const unitMaxCountOverrides: Record<string, number> = {
+    ...(currentSubFaction?.unitMaxCountOverrides ?? {}),
+    ...(variantCfg?.unitMaxCountOverrides ?? {}),
+  };
+  const upgradeMaxCountOverrides: Record<string, number> = {
+    ...(currentSubFaction?.upgradeMaxCountOverrides ?? {}),
+  };
   const allAvailableUnits: UnitOption[] = [
     ...(currentFaction?.units.filter(u => !bannedUnitIdsSet.has(u.id)).map(u =>
       unitMaxCountOverrides[u.id] !== undefined
@@ -55,6 +66,7 @@ export function ArmyBuilder({
         : u
     ) ?? []),
     ...(currentSubFaction?.extraUnits ?? []),
+    ...(variantCfg?.extraUnits ?? []),
   ];
   const validation = validateWarband(warband);
   const totalPoints = calculateWarbandPoints(warband);
@@ -69,12 +81,31 @@ export function ArmyBuilder({
   /** Index of the unit whose upgrade panel is open (null = panel closed) */
   const [upgradeUnitIdx, setUpgradeUnitIdx] = useState<number | null>(null);
 
+  // ── Custom unit naming ─────────────────────────────────────────────────
+  const [renamingUnitId, setRenamingUnitId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+  const startRename  = (unitId: string, current: string) => { setRenamingUnitId(unitId); setRenameValue(current); };
+  const cancelRename = () => setRenamingUnitId(null);
+  const commitRename = (unitId: string) => {
+    const trimmed = renameValue.trim();
+    setWarband(prev => {
+      const i = prev.units.findIndex(u => u.id === unitId);
+      if (i < 0) return prev;
+      const updated = [...prev.units];
+      updated[i] = { ...updated[i], customName: trimmed || undefined };
+      return { ...prev, units: updated };
+    });
+    setRenamingUnitId(null);
+  };
+
   /**
    * Unit info modal state.
    * infoUnit  – the UnitOption being shown.
    * infoWargear – if defined, modal shows selected mode (equipped wargear + rules).
    */
   const [infoUnit, setInfoUnit] = useState<UnitOption | null>(null);
+  /** Original (unresolved) unit definition – used to compute stat deltas in the modal. */
+  const [infoBaseUnit, setInfoBaseUnit] = useState<UnitOption | null>(null);
   const [infoWargear, setInfoWargear] = useState<SelectedWargear[] | undefined>(undefined);
   const [infoSelectedUpgrades, setInfoSelectedUpgrades] = useState<Record<string, number>>({});
   const [infoPsychicPowers, setInfoPsychicPowers] = useState<SelectedPsychicPower[]>([]);
@@ -236,6 +267,7 @@ export function ArmyBuilder({
       ...prev,
       subfaction: newSubFactionId === 'no_variant' ? undefined : newSubFactionId,
       subfactionName: newSubFactionId === 'no_variant' ? undefined : (sf?.name ?? undefined),
+      variantOptionEnabled: undefined, // reset variant option when switching subfaction
       units: [], // Clear units when changing subfaction
       mercenaries: [], // Clear mercenaries when changing subfaction
     }));
@@ -273,13 +305,13 @@ export function ArmyBuilder({
     const currency = unit.costCurrency ?? 'credits';
     const costMod = subType?.creditCostModifier ?? 0;
     const extraKeywords = subType?.grantedKeywords ?? [];
-    const displayName = subType ? subType.name : unit.name;
 
     // Auto-apply mark for warband variants (e.g. World Eaters → Mark of Khorne)
     const autoMark = currentSubFaction?.autoMark;
     const shouldApplyMark = !!(autoMark && autoMark.eligibleUnitIds.includes(unit.id));
-    // Auto-mark cost is added to baseCostPerModel so it scales correctly with unit count
-    const markCostBonus = shouldApplyMark ? autoMark!.costOverride : 0;
+    // Auto-mark cost is handled as an enforced upgrade rather than base cost, so user sees it selected
+    // const markCostBonus = shouldApplyMark ? autoMark!.costOverride : 0;
+    const markCostBonus = 0;
 
     // Auto-apply warband modifications (Butcher's Nails, Contagion, Rubric Marines, Jakhals, Eightbound…)
     const matchingMods = (currentSubFaction?.autoModifications ?? []).filter(mod =>
@@ -355,31 +387,25 @@ export function ArmyBuilder({
     }
 
     const effectiveCost = unit.baseCost + costMod + markCostBonus + modCostBonus;
-    // Auto-mark wargear entry shown as a locked item (cost: 0 — already in baseCostPerModel)
-    const autoMarkWargear: SelectedWargear[] = shouldApplyMark ? [{
-      id: autoMark!.markId,
-      name: autoMark!.markName,
-      cost: 0,
-      costCurrency: 'credits' as const,
-      type: 'equipment' as const,
-      slot: 'mark' as const,
-      quantity: 1,
-      isDefault: true,
-      grantsKeywords: autoMark!.grantedKeywords,
-    }] : [];
-    const autoMarkKeywords = shouldApplyMark ? autoMark!.grantedKeywords : [];
+    const initialUpgradeCost = shouldApplyMark ? (autoMark!.costOverride) : 0;
+    
+    // Auto-mark is now handled as a selected upgrade
+    const initialUpgrades: Record<string, number> = shouldApplyMark ? { [autoMark!.markId]: 1 } : {};
+    // const autoMarkUpgDef = MARKS_OF_CHAOS_UPGRADES.find(u => u.id === autoMark?.markId);
+    // const autoMarkWargear... (Removed)
 
     const newUnit = {
       id: `unit-${Date.now()}`,
       unitId: unit.id,
-      name: displayName,
+      name: unit.name,
       count: 1,
       baseCostPerModel: effectiveCost,
       costCurrency: currency,
-      selectedWargear: [...autoMarkWargear, ...modWargear],
-      totalCost: currency === 'credits' ? effectiveCost : 0,
-      totalGloryCost: currency === 'glory' ? effectiveCost : 0,
-      keywords: [...new Set([...unit.keywords, ...extraKeywords, ...autoMarkKeywords, ...modKeywords])],
+      selectedWargear: [...modWargear],
+      selectedUpgrades: initialUpgrades,
+      totalCost: currency === 'credits' ? effectiveCost + initialUpgradeCost : 0,
+      totalGloryCost: currency === 'glory' ? effectiveCost + initialUpgradeCost : 0,
+      keywords: [...new Set([...unit.keywords, ...extraKeywords, ...(shouldApplyMark ? autoMark!.grantedKeywords : []), ...modKeywords])],
       unitType: unit.unitType,
       selectedSubType: subType?.id,
       subTypeName: subType?.name,
@@ -554,7 +580,6 @@ export function ArmyBuilder({
     };
     return {
       ...unitDef,
-      name:     warbandUnit.subTypeName ?? unitDef.name,
       baseCost: warbandUnit.baseCostPerModel,
       keywords: resolvedKeywords,
       stats:    effectiveStats,
@@ -575,9 +600,30 @@ export function ArmyBuilder({
     }));
   };
 
+  const getWarbandWeaponCounts = (units: Warband['units']): Record<string, number> => {
+    const counts: Record<string, number> = {};
+    for (const u of units) {
+      for (const sw of u.selectedWargear) {
+        if (sw.type !== 'weapon' || sw.isDefault) continue;
+        counts[sw.id] = (counts[sw.id] ?? 0) + sw.quantity;
+      }
+    }
+    return counts;
+  };
+
   const handleCloneUnit = (unitIndex: number) => {
     setWarband(prev => {
       const source = prev.units[unitIndex];
+      const counts = getWarbandWeaponCounts(prev.units);
+      for (const sw of source.selectedWargear) {
+        if (sw.type !== 'weapon' || sw.isDefault) continue;
+        const weapon = lookupWeapon(sw.id);
+        const limit = currentSubFaction?.wargearLimitOverrides?.[sw.id] ?? weapon?.limit;
+        if (limit !== undefined && (counts[sw.id] ?? 0) + sw.quantity > limit) {
+          flashMsg(`Cannot clone: ${sw.name} is limited to ${limit} per warband.`, false);
+          return prev;
+        }
+      }
       const clone = {
         ...source,
         id: `unit-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -650,9 +696,12 @@ export function ArmyBuilder({
       const unit = { ...updatedUnits[unitIndex] };
       // Inject subfaction keyword grants (e.g. Raven Guard + Jump Pack → DEEP STRIKE)
       const sfGrants = currentSubFaction?.wargearKeywordGrants?.[item.id] ?? [];
-      const effectiveItem: SelectedWargear = sfGrants.length > 0
-        ? { ...item, grantsKeywords: [...(item.grantsKeywords ?? []), ...sfGrants] }
-        : item;
+      const sfCost = currentSubFaction?.wargearCostOverrides?.[item.id];
+      const effectiveItem: SelectedWargear = {
+        ...item,
+        ...(sfCost ? { cost: sfCost.cost, costCurrency: sfCost.costCurrency ?? 'credits' as const } : {}),
+        ...(sfGrants.length > 0 ? { grantsKeywords: [...(item.grantsKeywords ?? []), ...sfGrants] } : {}),
+      };
       const existing = unit.selectedWargear.findIndex(w => w.id === effectiveItem.id);
       let newWargear: SelectedWargear[];
       if (existing >= 0) {
@@ -776,26 +825,61 @@ export function ArmyBuilder({
       // Upgrades with maxCount >= 10 are "stackable" stat boosts (e.g. Primaris) that
       // can coexist with a class upgrade. Upgrades with maxCount < 10 are mutually exclusive
       // class upgrades (e.g. Assault Marine, Bladeguard) — only one may be active at a time.
-      const isStackable = (upgrade?.maxCount ?? 1) >= 10;
+      // Marks of Chaos (keyword 'MARK') are also stackable in the sense that they don't block class upgrades,
+      // but they are mutually exclusive with other Marks (handled by their own logic or naturally if they are the only MARKs).
+      // Nested upgrades with requiredUpgradeId (e.g. Night Lords sub-upgrades) are stackable with base class.
+      const checkStackable = (upg: { maxCount?: number, keywords?: string[], requiredUpgradeId?: string }) => 
+        ((upg?.maxCount ?? 1) >= 10) || (upg?.keywords?.includes('MARK') ?? false) || !!upg?.requiredUpgradeId;
+      const isStackable = upgrade ? checkStackable(upgrade) : false;
       let newUpgrades: Record<string, number>;
       if (isStackable) {
         // Keep everything; only update this one upgrade
         newUpgrades = { ...(unit.selectedUpgrades ?? {}) };
-        if (count > 0) newUpgrades[upgradeId] = 1;
-        else delete newUpgrades[upgradeId];
+        if (count > 0) {
+          // If it's a MARK, remove other MARKs first (mutual exclusivity among Marks)
+          if (upgrade?.keywords?.includes('MARK')) {
+             for (const [id] of Object.entries(newUpgrades)) {
+               const other = unitDef?.upgrades?.find(u => u.id === id);
+               if (other?.keywords?.includes('MARK')) delete newUpgrades[id];
+             }
+          }
+          // If it has specific conflicts (mutually exclusive options like Depredator vs Warp Talon)
+          if (upgrade?.conflictsWithUpgradeIds) {
+             for (const conflictId of upgrade.conflictsWithUpgradeIds) {
+               delete newUpgrades[conflictId];
+             }
+          }
+          newUpgrades[upgradeId] = count;
+        }
+        else {
+           delete newUpgrades[upgradeId];
+           // Also remove any upgrades that require THIS upgrade
+           for (const [id] of Object.entries(newUpgrades)) {
+             const dependent = unitDef?.upgrades?.find(u => u.id === id);
+             if (dependent?.requiredUpgradeId === upgradeId) delete newUpgrades[id];
+           }
+        }
       } else {
-        // Clear other exclusive (non-stackable) upgrades, but preserve stackable ones
+        // Clear other exclusive (non-stackable) upgrades, but preserve stackable/nested ones
         newUpgrades = {};
         for (const [id, cnt] of Object.entries(unit.selectedUpgrades ?? {})) {
           const existingUpg = unitDef?.upgrades?.find(u => u.id === id);
-          if (existingUpg && existingUpg.maxCount >= 10) {
-            newUpgrades[id] = cnt; // preserve stackable
+          if (existingUpg && checkStackable(existingUpg)) {
+             const reqId = existingUpg.requiredUpgradeId;
+             const reqUpg = reqId ? unitDef?.upgrades?.find(u => u.id === reqId) : null;
+             // Parent is valid if it's the one being added, or if it's stackable and thus preserved
+             const isParentStaying = !reqId || (reqId === upgradeId && count > 0) || (reqUpg && checkStackable(reqUpg));
+             if (isParentStaying) {
+               newUpgrades[id] = cnt;
+             }
           }
         }
-        if (count > 0) newUpgrades[upgradeId] = 1;
+        if (count > 0) newUpgrades[upgradeId] = count;
       }
       const upgradeCreditCost = (unitDef?.upgrades ?? []).reduce((sum, upg) => {
-        return sum + (newUpgrades[upg.id] ?? 0) * upg.cost;
+        const isAuto = currentSubFaction?.autoMark?.markId === upg.id && currentSubFaction?.autoMark?.eligibleUnitIds.includes(unit.id);
+        const cost = isAuto ? (currentSubFaction?.autoMark?.costOverride ?? upg.cost) : upg.cost;
+        return sum + (newUpgrades[upg.id] ?? 0) * cost;
       }, 0);
       const calcs = recalcUnitCosts(unit, unit.selectedWargear, unitDef);
       const psychicCredits = (unit.selectedPsychicPowers ?? []).filter(p => (p.costCurrency ?? 'credits') === 'credits').reduce((s, p) => s + p.cost, 0);
@@ -955,6 +1039,28 @@ export function ArmyBuilder({
                     </ul>
                   </div>
                 )}
+                {activeSF?.variantOption && (
+                  <div className="changehost-section">
+                    <label className="changehost-label">
+                      <input
+                        type="checkbox"
+                        checked={warband.variantOptionEnabled ?? false}
+                        onChange={e => setWarband(prev => ({
+                          ...prev,
+                          variantOptionEnabled: e.target.checked || undefined,
+                        }))}
+                      />
+                      <strong>{activeSF.variantOption.label}</strong>
+                    </label>
+                    {warband.variantOptionEnabled && (
+                      <ul className="changehost-rule-list">
+                        {activeSF.variantOption.rules.map((r, i) => (
+                          <li key={i}>{r}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
               </>
             );
           })()}
@@ -1034,11 +1140,12 @@ export function ArmyBuilder({
 
           <div className="summary">
             <h3>Summary</h3>
-            {warband.subfactionName && (
-              <div className="summary-subfaction">
+            <div className="summary-faction-row">
+              <span className="faction-badge">{currentFaction?.name ?? warband.faction}</span>
+              {warband.subfactionName && (
                 <span className="subfaction-badge">{warband.subfactionName}</span>
-              </div>
-            )}
+              )}
+            </div>
             <div className="summary-row">
               <span>Credits:</span>
               <span className={totalPoints > pointLimit ? 'error' : 'success'}>
@@ -1168,7 +1275,7 @@ export function ArmyBuilder({
                           <button
                             className="btn-unit-info"
                             title={`View ${unit.name} details`}
-                            onClick={() => { setInfoUnit(unit); setInfoWargear(undefined); setInfoWarbandUnit(null); }}
+                            onClick={() => { setInfoUnit(unit); setInfoBaseUnit(unit); setInfoWargear(undefined); setInfoWarbandUnit(null); }}
                           >👁</button>
                         </div>
                         <div className="unit-info">
@@ -1227,7 +1334,35 @@ export function ArmyBuilder({
                   .map(({ unit, idx }) => (
                   <div key={unit.id} className="selected-unit">
                     <div className="unit-header">
-                      <h4>{unit.name}</h4>
+                      {renamingUnitId === unit.id ? (
+                        <div className="unit-rename-row">
+                          <input
+                            className="unit-rename-input"
+                            autoFocus
+                            value={renameValue}
+                            onChange={e => setRenameValue(e.target.value)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter') commitRename(unit.id);
+                              if (e.key === 'Escape') cancelRename();
+                            }}
+                            onBlur={() => commitRename(unit.id)}
+                            placeholder={unit.name}
+                            maxLength={40}
+                          />
+                          <button className="btn-rename-confirm" title="Confirm name" onMouseDown={e => e.preventDefault()} onClick={() => commitRename(unit.id)}>✓</button>
+                          <button className="btn-rename-cancel" title="Cancel" onMouseDown={e => e.preventDefault()} onClick={cancelRename}>✕</button>
+                        </div>
+                      ) : (
+                        <div className="unit-name-block">
+                          <h4>{unit.customName ?? unit.name}</h4>
+                          {unit.customName && <span className="unit-typename">{unit.name}</span>}
+                          <button
+                            className="btn-rename-trigger"
+                            title="Rename this model"
+                            onClick={() => startRename(unit.id, unit.customName ?? '')}
+                          >✏</button>
+                        </div>
+                      )}
                       <span className="unit-cost">
                         {(unit.costCurrency ?? 'credits') === 'glory'
                           ? `${unit.totalGloryCost} Glory`
@@ -1255,7 +1390,7 @@ export function ArmyBuilder({
                         title={`View ${unit.name} details`}
                         onClick={() => {
                           const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
-                          if (unitDef) { setInfoUnit(buildResolvedUnit(unitDef, unit)); setInfoWargear(unit.selectedWargear); setInfoSelectedUpgrades(unit.selectedUpgrades ?? {}); setInfoPsychicPowers(unit.selectedPsychicPowers ?? []); setInfoGiftsOfChaos(unit.selectedGiftsOfChaos ?? []); setInfoWarbandUnit(unit); }
+                          if (unitDef) { setInfoUnit(buildResolvedUnit(unitDef, unit)); setInfoBaseUnit(unitDef); setInfoWargear(unit.selectedWargear); setInfoSelectedUpgrades(unit.selectedUpgrades ?? {}); setInfoPsychicPowers(unit.selectedPsychicPowers ?? []); setInfoGiftsOfChaos(unit.selectedGiftsOfChaos ?? []); setInfoWarbandUnit(unit); }
                         }}
                       >👁</button>
                     </div>
@@ -1660,12 +1795,13 @@ export function ArmyBuilder({
       {infoUnit && (
         <UnitInfoModal
           unit={infoUnit}
+          baseUnit={infoBaseUnit ?? undefined}
           selectedWargear={infoWargear}
           selectedUpgrades={infoSelectedUpgrades}
           selectedPsychicPowers={infoPsychicPowers}
           selectedGiftsOfChaos={infoGiftsOfChaos}
           warbandUnit={infoWarbandUnit ?? undefined}
-          onClose={() => { setInfoUnit(null); setInfoWargear(undefined); setInfoSelectedUpgrades({}); setInfoPsychicPowers([]); setInfoGiftsOfChaos([]); setInfoWarbandUnit(null); }}
+          onClose={() => { setInfoUnit(null); setInfoBaseUnit(null); setInfoWargear(undefined); setInfoSelectedUpgrades({}); setInfoPsychicPowers([]); setInfoGiftsOfChaos([]); setInfoWarbandUnit(null); }}
         />
       )}
 
@@ -1709,6 +1845,9 @@ export function ArmyBuilder({
             weaponReplacementRules={unitDef?.weaponReplacementRules}
             cannotEquip={unitDef?.cannotEquip}
             rawDefaultWargear={unitDef?.defaultWargear ?? []}
+            wargearCostOverrides={currentSubFaction?.wargearCostOverrides}
+            warbandWeaponCounts={getWarbandWeaponCounts(warband.units)}
+            wargearLimitOverrides={currentSubFaction?.wargearLimitOverrides}
           />
         );
       })()}
@@ -1739,7 +1878,7 @@ export function ArmyBuilder({
             selectedUpgrades={unit.selectedUpgrades ?? {}}
             warbandUpgradeCounts={warbandUpgradeCounts}
             totalWarbandPoints={calculateWarbandPoints(warband)}
-            upgradeMaxCountOverrides={unitMaxCountOverrides}
+            upgradeMaxCountOverrides={upgradeMaxCountOverrides}
             onSet={(upgradeId, count) => handleSetUpgrade(upgradeUnitIdx, upgradeId, count)}
             onClose={() => setUpgradeUnitIdx(null)}
           />

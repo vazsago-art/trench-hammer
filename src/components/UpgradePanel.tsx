@@ -45,8 +45,10 @@ export function UpgradePanel({
   const isLargeWarband = totalWarbandPoints >= 1200;
 
   // Stackable upgrades (maxCount >= 10, e.g. Primaris) are independent of class upgrades.
+  // Marks of Chaos (keyword 'MARK') are also stackable vs class upgrades (but exclusive among themselves).
+  // Nested upgrades (with requiredUpgradeId) are stackable with their parent.
   // Class upgrades (maxCount < 10) are mutually exclusive with each other.
-  const isStackable = (upg: UnitUpgrade) => upg.maxCount >= 10;
+  const isStackable = (upg: UnitUpgrade) => upg.maxCount >= 10 || (upg.keywords?.includes('MARK') ?? false) || !!upg.requiredUpgradeId;
   const classUpgradeId = Object.entries(selectedUpgrades).find(([id, cnt]) => {
     if (cnt <= 0) return false;
     const upg = upgrades.find(u => u.id === id);
@@ -101,90 +103,17 @@ export function UpgradePanel({
               )}
             </>
           )}
-          {upgrades.map(upg => {
-            const stackable = isStackable(upg);
-            const isSelected = stackable
-              ? (selectedUpgrades[upg.id] ?? 0) > 0
-              : classUpgradeId === upg.id;
-            const subfactionMax = upgradeMaxCountOverrides?.[upg.id];
-            const maxAllowed = subfactionMax != null
-              ? subfactionMax
-              : isLargeWarband && upg.maxCountLarge != null
-                ? upg.maxCountLarge
-                : upg.maxCount;
-            const takenByOthers = (warbandUpgradeCounts[upg.id] ?? 0) - (isSelected ? 1 : 0);
-            const canSelect = takenByOthers < maxAllowed;
-            const slotsLeft = maxAllowed - takenByOthers;
 
-            return (
-              <div
-                key={upg.id}
-                className={[
-                  'upgrade-card',
-                  isSelected ? 'upgrade-card-selected' : '',
-                  !canSelect && !isSelected ? 'upgrade-card-full' : '',
-                ].join(' ').trim()}
-              >
-                <div className="upgrade-card-header">
-                  <div className="upgrade-name">
-                    {isSelected && <span className="upgrade-selected-dot" title="Active upgrade">●</span>}
-                    {upg.name}
-                  </div>
-                  <div className="upgrade-cost">
-                    {upg.cost === 0 ? 'Free' : `+${upg.cost} Credits`}
-                  </div>
-                </div>
-
-                {upg.grantedKeywords && upg.grantedKeywords.length > 0 && (
-                  <div className="upgrade-keywords">
-                    <span className="upgrade-kw-label">Grants:</span>
-                    {upg.grantedKeywords.map(kw => (
-                      <KeywordChip key={kw} keyword={kw} className="upgrade-kw-chip" />
-                    ))}
-                  </div>
-                )}
-
-                <div className="upgrade-description">{upg.description}</div>
-
-                <div className="upgrade-footer">
-                  <div className="upgrade-limit">
-                    {takenByOthers}/{maxAllowed} units upgraded
-                    {isLargeWarband && upg.maxCountLarge != null && ` (1200+ Cr)`}
-                    {!canSelect && !isSelected && (
-                      <span className="upgrade-full-label"> · Warband full</span>
-                    )}
-                    {canSelect && !isSelected && slotsLeft > 0 && (
-                      <span className="upgrade-slots-left"> · {slotsLeft} slot{slotsLeft !== 1 ? 's' : ''} left</span>
-                    )}
-                  </div>
-                  <div className="upgrade-action-row">
-                    {isSelected ? (
-                      <button
-                        className="upgrade-btn-action upgrade-btn-remove"
-                        onClick={() => onSet(upg.id, 0)}
-                      >
-                        ✕ Remove
-                      </button>
-                    ) : (
-                      <button
-                        className="upgrade-btn-action upgrade-btn-select"
-                        disabled={!canSelect}
-                        onClick={() => {
-                          // For class upgrades: deselect the current class upgrade first,
-                          // but leave any stackable upgrades untouched.
-                          // For stackable upgrades: just toggle independently.
-                          if (!stackable && classUpgradeId) onSet(classUpgradeId, 0);
-                          onSet(upg.id, 1);
-                        }}
-                      >
-                        ⬆ Select
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {renderUpgrades(upgrades.filter(u => !u.keywords?.includes('MARK') && !u.requiredUpgradeId), false)}
+          
+          {upgrades.some(u => u.keywords?.includes('MARK')) && (
+            <>
+              <h3 className="upgrade-section-title" style={{ marginTop: '1.5rem', marginBottom: '0.5rem', color: '#ffd700', borderBottom: '1px solid #444', paddingBottom: '0.25rem' }}>
+                Marks of Chaos
+              </h3>
+              {renderUpgrades(upgrades.filter(u => u.keywords?.includes('MARK')), false)}
+            </>
+          )}
         </div>
 
         <div className="upgrade-panel-footer">
@@ -193,4 +122,127 @@ export function UpgradePanel({
       </div>
     </div>
   );
+
+  function renderUpgrades(list: UnitUpgrade[], isChild: boolean) {
+    return list.map(upg => {
+      const stackable = isStackable(upg);
+      const isSelected = stackable
+        ? (selectedUpgrades[upg.id] ?? 0) > 0
+        : classUpgradeId === upg.id;
+      const subfactionMax = upgradeMaxCountOverrides?.[upg.id];
+      const maxAllowed = subfactionMax != null
+        ? subfactionMax
+        : isLargeWarband && upg.maxCountLarge != null
+          ? upg.maxCountLarge
+          : upg.maxCount;
+      const takenByOthers = (warbandUpgradeCounts[upg.id] ?? 0) - (isSelected ? 1 : 0);
+      const slotsLeft = maxAllowed - takenByOthers;
+      
+      // Parent constraint logic for nested upgrades
+      const parentId = upg.requiredUpgradeId;
+      const isParentSelected = !parentId || (selectedUpgrades[parentId] ?? 0) > 0;
+      const canSelect = takenByOthers < maxAllowed && isParentSelected;
+
+      // Children of this upgrade
+      const children = upgrades.filter(c => c.requiredUpgradeId === upg.id);
+
+      return (
+        <div key={upg.id} style={isChild ? { marginLeft: '2rem', borderLeft: '2px solid #444', paddingLeft: '0.5rem' } : undefined}>
+          <div
+            className={[
+              'upgrade-card',
+              isSelected ? 'upgrade-card-selected' : '',
+              !canSelect && !isSelected ? 'upgrade-card-full' : '',
+            ].join(' ').trim()}
+            style={!isParentSelected ? { opacity: 0.6, pointerEvents: 'none' } : undefined}
+          >
+            <div className="upgrade-card-header">
+              <div className="upgrade-name">
+                {isSelected && <span className="upgrade-selected-dot" title="Active upgrade">●</span>}
+                {upg.name}
+              </div>
+              <div className="upgrade-cost">
+                {upg.cost === 0 ? 'Free' : `+${upg.cost} Credits`}
+              </div>
+            </div>
+
+            {upg.grantedKeywords && upg.grantedKeywords.length > 0 && (
+              <div className="upgrade-keywords">
+                <span className="upgrade-kw-label">Grants:</span>
+                {upg.grantedKeywords.map(kw => (
+                  <KeywordChip key={kw} keyword={kw} className="upgrade-kw-chip" />
+                ))}
+              </div>
+            )}
+
+            <div className="upgrade-description">{upg.description}</div>
+            
+            {!isParentSelected && parentId && (
+               <div className="upgrade-req-warning" style={{ color: '#ff6b6b', fontSize: '0.85rem', marginTop: '4px' }}>
+                 ⚠ Requires parent upgrade selection
+               </div>
+            )}
+
+            <div className="upgrade-footer">
+              <div className="upgrade-limit">
+                {takenByOthers}/{maxAllowed} units upgraded
+                {isLargeWarband && upg.maxCountLarge != null && ` (1200+ Cr)`}
+                {!canSelect && !isSelected && isParentSelected && (
+                  <span className="upgrade-full-label"> · Warband full</span>
+                )}
+                {canSelect && !isSelected && slotsLeft > 0 && (
+                  <span className="upgrade-slots-left"> · {slotsLeft} slot{slotsLeft !== 1 ? 's' : ''} left</span>
+                )}
+              </div>
+              <div className="upgrade-action-row">
+                {isSelected ? (
+                  <button
+                    className="upgrade-btn-action upgrade-btn-remove"
+                    onClick={() => onSet(upg.id, 0)}
+                  >
+                    ✕ Remove
+                  </button>
+                ) : (
+                  <button
+                    className="upgrade-btn-action upgrade-btn-select"
+                    disabled={!canSelect}
+                    onClick={() => {
+                      // Handle MARK mutual exclusivity (max 1 MARK per model)
+                      if (upg.keywords?.includes('MARK')) {
+                        const existingMarkId = upgrades.find(u => 
+                          u.keywords?.includes('MARK') && (selectedUpgrades[u.id] ?? 0) > 0
+                        )?.id;
+                        if (existingMarkId && existingMarkId !== upg.id) {
+                          onSet(existingMarkId, 0);
+                        }
+                      }
+                      
+                      // Handle mutual exclusivity defined in conflictsWithUpgradeIds
+                      if (upg.conflictsWithUpgradeIds) {
+                        for (const conflictId of upg.conflictsWithUpgradeIds) {
+                          if ((selectedUpgrades[conflictId] ?? 0) > 0) {
+                             onSet(conflictId, 0);
+                          }
+                        }
+                      }
+
+                      // For class upgrades: deselect the current class upgrade first,
+                      // but leave any stackable upgrades untouched.
+                      // For stackable upgrades: just toggle independently.
+                      if (!stackable && classUpgradeId) onSet(classUpgradeId, 0);
+                      onSet(upg.id, 1);
+                    }}
+                  >
+                    ⬆ Select
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+          {/* Render Children Recursively */}
+          {children.length > 0 && renderUpgrades(children, true)}
+        </div>
+      );
+    });
+  }
 }

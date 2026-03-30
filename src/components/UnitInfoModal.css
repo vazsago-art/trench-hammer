@@ -11,6 +11,33 @@
   overflow-y: auto;
 }
 
+/* ── Stat delta badges (Profile table) ──────────────────────────────────── */
+.stat-delta {
+  margin-left: 0.25em;
+  font-size: 0.78em;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border-radius: 3px;
+  padding: 0 3px;
+}
+/* positive delta = green (movement +, skills +, armour negative is better) */
+.stat-delta--pos {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.12);
+}
+/* negative delta = amber/orange (movement -, skills -, armour positive is worse) */
+.stat-delta--neg {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.12);
+}
+
+/* Movement type label (Infantry / Flying / Vehicle) */
+.stat-type {
+  margin-left: 1px;
+  opacity: 0.7;
+  font-size: 0.85em;
+}
+
 /* ── Panel ───────────────────────────────────────────────────────────────── */
 .unit-info-panel {
   background: #1e1e2e;

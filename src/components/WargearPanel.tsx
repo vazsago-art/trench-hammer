@@ -57,6 +57,11 @@ interface WargearPanelProps {
   /** Original full Weapon/WargearOption objects from unit.defaultWargear — used to
    *  power the eye-icon info modal on included equipment rows. */
   rawDefaultWargear?: (Weapon | WargearOption)[];
+  wargearCostOverrides?: Record<string, { cost: number; costCurrency?: 'credits' | 'glory' }>;
+  /** Current warband-wide purchased weapon counts by weapon ID (excludes default/included items). */
+  warbandWeaponCounts?: Record<string, number>;
+  /** Optional subfaction limit overrides by weapon ID (warband-wide). */
+  wargearLimitOverrides?: Record<string, number>;
   onAdd: (item: SelectedItem) => void;
   onRemove: (id: string) => void;
   onClose: () => void;
@@ -87,6 +92,9 @@ export function WargearPanel({
   weaponReplacementRules,
   cannotEquip,
   rawDefaultWargear = [],
+  wargearCostOverrides,
+  warbandWeaponCounts,
+  wargearLimitOverrides,
 }: WargearPanelProps) {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [infoItem, setInfoItem] = useState<{ item: Weapon | WargearOption; catType: 'weapon' | 'armor' | 'equipment' } | null>(null);
@@ -94,6 +102,24 @@ export function WargearPanel({
 
   const selectedMap = new Map(selectedItems.map(s => [s.id, s]));
   const allowedSet = allowedIds ? new Set(allowedIds) : null;
+
+  function getEffectiveCost(item: Weapon | WargearOption | SelectedItem): number {
+    return wargearCostOverrides?.[item.id]?.cost ?? item.cost;
+  }
+
+  function getEffectiveCostCurrency(item: Weapon | WargearOption | SelectedItem): 'credits' | 'glory' | undefined {
+    return wargearCostOverrides?.[item.id]?.costCurrency ?? item.costCurrency;
+  }
+
+  function getEffectiveLimit(itemId: string): number | undefined {
+    const weapon = lookupWeapon(itemId);
+    if (!weapon) return undefined;
+    return wargearLimitOverrides?.[itemId] ?? weapon.limit;
+  }
+
+  // Marks of Chaos are handled by the Upgrades panel — never show in equipment display
+  const displayDefaultItems  = defaultItems.filter(item => (item as any).slot !== 'mark');
+  const displaySelectedItems = selectedItems.filter(item => (item as any).slot !== 'mark');
 
   // Determine which default items have been replaced by a selected item in the same slot
   // OR by equipping a weapon of a matching type per weaponReplacementRules.
@@ -199,27 +225,46 @@ export function WargearPanel({
     ...fwHeavyMelee, ...fwSpecMelee,
   ].map(w => w.id));
 
-  // Whether this model has a PSYKER keyword — used to gate PSYCHIC weapons/items.
-  const modelIsPsyker = (modelKeywords ?? []).some(k => /^PSYKER\b/i.test(k));
+  // Whether this model has a PSYKER keyword — informational only.
+  // Psyker-only weapons are now gated via restrictedTo: ['PSYKER'] on each weapon,
+  // which filterRestricted() handles across all categories.
 
-  // Filter out items whose own keywords include PSYCHIC when the model is not a Psyker.
-  // This gates force weapons, daemon weapons, fell daggers, etc. to psyker-capable models.
-  function filterPsychic<T extends { keywords: string[] }>(items: T[]): T[] {
-    if (modelIsPsyker) return items;
-    return items.filter(item => !item.keywords.some(k => k.toUpperCase() === 'PSYCHIC'));
+  // Filter out items that have restrictedTo conditions the model does not satisfy.
+  // Each restrictedTo entry supports:
+  //   'KEYWORD'       – model must have this keyword (AND between array items)
+  //   'NOT:KEYWORD'   – model must NOT have this keyword
+  //   'KW1|KW2'       – model must have at least one of the listed keywords (OR group)
+  const kws = (modelKeywords ?? []).map(k => k.toUpperCase());
+  // Check if model has a keyword, using prefix matching so e.g. 'PSYKER' matches 'PSYKER 1', 'PSYKER 3'
+  const hasKw = (cond: string) => kws.some(k => k === cond || k.startsWith(cond + ' '));
+  function filterRestricted<T extends { restrictedTo?: string[] }>(items: T[]): T[] {
+    return items.filter(item => {
+      if (!item.restrictedTo || item.restrictedTo.length === 0) return true;
+      return item.restrictedTo.every(cond => {
+        if (cond.startsWith('NOT:')) {
+          const forbidden = cond.slice(4).toUpperCase();
+          return !hasKw(forbidden);
+        }
+        // OR group: 'KW1|KW2' – passes if model has any of the listed keywords
+        if (cond.includes('|')) {
+          return cond.toUpperCase().split('|').some(k => hasKw(k.trim()));
+        }
+        return hasKw(cond.toUpperCase());
+      });
+    });
   }
 
   const CATEGORIES: Category[] = [
-    { label: 'Basic Ranged',      items: sharedBasicRangedWeapons,                                                                 type: 'weapon' },
-    { label: 'Pistols',           items: [...sharedPistols.filter(w => !fwAllIds.has(w.id)), ...fwPistol],                         type: 'weapon' },
-    { label: 'Special Ranged',    items: [...sharedSpecialRangedWeapons.filter(w => !fwAllIds.has(w.id)), ...fwSpecRanged],         type: 'weapon' },
-    { label: 'Heavy Ranged',      items: [...sharedHeavyRangedWeapons.filter(w => !fwAllIds.has(w.id)), ...fwHeavyRanged],         type: 'weapon' },
-    { label: 'Thrown / Grenades', items: [...sharedThrownWeapons.filter(w => !fwAllIds.has(w.id)), ...fwThrown],                   type: 'weapon' },
-    { label: 'Basic Melee',       items: sharedBasicMeleeWeapons,                                                                  type: 'weapon' },
-    { label: 'Special Melee',     items: filterPsychic([...sharedSpecialMeleeWeapons.filter(w => !fwAllIds.has(w.id)), ...fwSpecMelee]), type: 'weapon' },
-    { label: 'Heavy Melee',       items: [...sharedHeavyMeleeWeapons.filter(w => !fwAllIds.has(w.id)), ...fwHeavyMelee],           type: 'weapon' },
-    { label: 'Armour',            items: mergedArmour,  type: 'armor' },
-    { label: 'Equipment',         items: mergedEquip,   type: 'equipment' },
+    { label: 'Basic Ranged',      items: filterRestricted(sharedBasicRangedWeapons),                                                                 type: 'weapon' },
+    { label: 'Pistols',           items: filterRestricted([...sharedPistols.filter(w => !fwAllIds.has(w.id)), ...fwPistol]),                         type: 'weapon' },
+    { label: 'Special Ranged',    items: filterRestricted([...sharedSpecialRangedWeapons.filter(w => !fwAllIds.has(w.id)), ...fwSpecRanged]),         type: 'weapon' },
+    { label: 'Heavy Ranged',      items: filterRestricted([...sharedHeavyRangedWeapons.filter(w => !fwAllIds.has(w.id)), ...fwHeavyRanged]),         type: 'weapon' },
+    { label: 'Thrown / Grenades', items: filterRestricted([...sharedThrownWeapons.filter(w => !fwAllIds.has(w.id)), ...fwThrown]),                   type: 'weapon' },
+    { label: 'Basic Melee',       items: filterRestricted(sharedBasicMeleeWeapons),                                                                  type: 'weapon' },
+    { label: 'Special Melee',     items: filterRestricted([...sharedSpecialMeleeWeapons.filter(w => !fwAllIds.has(w.id)), ...fwSpecMelee]), type: 'weapon' },
+    { label: 'Heavy Melee',       items: filterRestricted([...sharedHeavyMeleeWeapons.filter(w => !fwAllIds.has(w.id)), ...fwHeavyMelee]),           type: 'weapon' },
+    { label: 'Armour',            items: filterRestricted(mergedArmour),  type: 'armor' },
+    { label: 'Equipment',         items: filterRestricted(mergedEquip),   type: 'equipment' },
   ];
   /**
    * Returns the error message if adding this item is not allowed,
@@ -232,6 +277,15 @@ export function WargearPanel({
     if (defaultItems.some(d => d.id === item.id)) {
       return `${item.name} is already included in this unit's default equipment.`;
     }
+    // Warband-wide weapon limit (LIMIT: N in battlekit)
+    if ((item as Weapon).type && lookupWeapon(item.id)) {
+      const limit = getEffectiveLimit(item.id);
+      const globalCount = warbandWeaponCounts?.[item.id] ?? 0;
+      if (limit !== undefined && globalCount >= limit) {
+        return `${item.name} is limited to ${limit} per warband.`;
+      }
+    }
+
     // For all other slot / hand conflicts, only count purchased items (not defaults that would be replaced).
     const errors = validateAddWargear(selectedItems, item.id, modelKeywords);
     if (errors.length === 0) return null;
@@ -263,11 +317,11 @@ export function WargearPanel({
         )}
 
         {/* ── Included (default) wargear ─────────────────────────── */}
-        {defaultItems.filter(item => !isDefaultReplaced(item)).length > 0 && (
+        {displayDefaultItems.filter(item => !isDefaultReplaced(item)).length > 0 && (
           <div className="wargear-included">
             <h3>Included Equipment</h3>
             <div className="wargear-selected-list">
-              {defaultItems.filter(item => !isDefaultReplaced(item)).map(item => {
+              {displayDefaultItems.filter(item => !isDefaultReplaced(item)).map(item => {
                 const rawItem = rawDefaultWargear.find(r => r.id === item.id);
                 return (
                   <div key={item.id} className="wargear-selected-item wg-default-item">
@@ -313,11 +367,11 @@ export function WargearPanel({
           </div>
         </div>}
 
-        {selectedItems.length > 0 && (
+        {displaySelectedItems.length > 0 && (
           <div className="wargear-selected">
             <h3>Selected Wargear</h3>
             <div className="wargear-selected-list">
-              {selectedItems.map(item => {
+              {displaySelectedItems.map(item => {
                 const rawItem = lookupWeapon(item.id) ?? lookupWargear(item.id);
                 return (
                 <div key={item.id} className={`wargear-selected-item${item.isDefault ? ' wg-auto-applied' : ''}`}>
@@ -348,8 +402,9 @@ export function WargearPanel({
                         }}>−</button>
                         <button
                           disabled={(() => {
-                            const w = lookupWeapon(item.id);
-                            if (w?.limit !== undefined && item.quantity >= w.limit) return true;
+                            const limit = getEffectiveLimit(item.id);
+                            const globalCount = warbandWeaponCounts?.[item.id] ?? 0;
+                            if (limit !== undefined && globalCount >= limit) return true;
                             return validateAddWargear(selectedItems, item.id, modelKeywords).length > 0;
                           })()}
                           onClick={() => onAdd({ ...item, quantity: item.quantity + 1 })}
@@ -445,7 +500,7 @@ export function WargearPanel({
                         )}
                         <div className="wg-item-footer">
                           <span className="wg-item-cost">
-                            {item.cost} {(item as any).costCurrency === 'glory' ? 'Glory' : 'Credits'}
+                            {getEffectiveCost(item)} {getEffectiveCostCurrency(item) === 'glory' ? 'Glory' : 'Credits'}
                           </span>
                           {existing ? (
                             <div className="wg-item-controls">
@@ -459,8 +514,9 @@ export function WargearPanel({
                               <span>{existing.quantity}</span>
                               <button
                                 disabled={(() => {
-                                  const w = lookupWeapon(item.id);
-                                  if (w?.limit !== undefined && existing.quantity >= w.limit) return true;
+                                  const limit = getEffectiveLimit(item.id);
+                                  const globalCount = warbandWeaponCounts?.[item.id] ?? 0;
+                                  if (limit !== undefined && globalCount >= limit) return true;
                                   return validateAddWargear(selectedItems, item.id, modelKeywords).length > 0;
                                 })()}
                                 onClick={() => onAdd({ ...existing, quantity: existing.quantity + 1 })}
@@ -473,8 +529,8 @@ export function WargearPanel({
                               onClick={() => !isBlocked && onAdd({
                                 id: item.id,
                                 name: item.name,
-                                cost: item.cost,
-                                costCurrency: (item as any).costCurrency,
+                                cost: getEffectiveCost(item),
+                                costCurrency: getEffectiveCostCurrency(item),
                                 type: cat.type,
                                 quantity: 1,
                                 grantsKeywords: (item as any).grantsKeywords,
@@ -500,6 +556,8 @@ export function WargearPanel({
       <WargearInfoModal
         item={infoItem.item}
         catType={infoItem.catType}
+        costOverride={wargearCostOverrides?.[infoItem.item.id]?.cost}
+        costCurrencyOverride={wargearCostOverrides?.[infoItem.item.id]?.costCurrency}
         onClose={() => setInfoItem(null)}
       />
     )}

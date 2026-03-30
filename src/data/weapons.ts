@@ -716,7 +716,6 @@ export const sharedThrownWeapons: Weapon[] = [
     type: 'thrown',
     range: 8,
     cost: 7,
-    limit: 1,
     keywords: ['ASSAULT', 'BLAST 2"', 'IGNORE COVER', 'IGNORE LONG RANGE', 'SHRAPNEL', 'THROWN'],
     description: '8" ASSAULT, BLAST 2", SHRAPNEL, THROWN.'
   },
@@ -893,7 +892,8 @@ export const sharedSpecialMeleeWeapons: Weapon[] = [
     cost: 3,
     isMainHandOnly: true,
     keywords: ['+1 INJURY DICE vs DAEMON/PSYKER', 'PSYCHIC', 'HELD', 'MAIN HAND ONLY'],
-    description: 'Melee, +1 INJURY DICE vs DAEMON/PSYKER, PSYCHIC, HELD, MAIN HAND ONLY. Psyker Only.'
+    description: 'Melee, +1 INJURY DICE vs DAEMON/PSYKER, PSYCHIC, HELD, MAIN HAND ONLY. Psyker Only.',
+    restrictedTo: ['PSYKER'],
   },
   {
     id: 'force_staff',
@@ -902,7 +902,8 @@ export const sharedSpecialMeleeWeapons: Weapon[] = [
     cost: 10,
     handedness: 'two-handed',
     keywords: ['BLOCK', 'CUMBERSOME', 'PSYCHIC', 'HELD', 'TWO-HANDED'],
-    description: 'Strike: Melee +1 INJURY DICE vs DAEMON/PSYKER. Smite: 18". BLOCK, CUMBERSOME, PSYCHIC, HELD, TWO-HANDED. Psyker Only.'
+    description: 'Strike: Melee +1 INJURY DICE vs DAEMON/PSYKER. Smite: 18". BLOCK, CUMBERSOME, PSYCHIC, HELD, TWO-HANDED. Psyker Only.',
+    restrictedTo: ['PSYKER'],
   },
   {
     id: 'force_weapon',
@@ -911,7 +912,8 @@ export const sharedSpecialMeleeWeapons: Weapon[] = [
     cost: 15,
     isMainHandOnly: true,
     keywords: ['+1 INJURY DICE', 'PSYCHIC', 'HELD', 'MAIN HAND ONLY'],
-    description: 'Melee, +1 INJURY DICE (+1 more vs DAEMON/PSYKER), PSYCHIC, HELD, MAIN HAND ONLY. Elite Psyker Only.'
+    description: 'Melee, +1 INJURY DICE (+1 more vs DAEMON/PSYKER), PSYCHIC, HELD, MAIN HAND ONLY. Elite Psyker Only.',
+    restrictedTo: ['ELITE', 'PSYKER'],
   },
   {
     id: 'goad_lance',
@@ -1084,7 +1086,8 @@ export const sharedSpecialMeleeWeapons: Weapon[] = [
     limit: 1,
     isMainHandOnly: true,
     keywords: ['+2 INJURY DICE', 'PSYCHIC', 'MAIN HAND ONLY'],
-    description: 'Melee, +2 INJURY DICE, PSYCHIC, MAIN HAND ONLY. Elite Only, LIMIT: 1.'
+    description: 'Melee, +2 INJURY DICE, PSYCHIC, MAIN HAND ONLY. Elite Only, LIMIT: 1.',
+    restrictedTo: ['ELITE'],
   },
   {
     id: 'fell_dagger',
@@ -1094,6 +1097,7 @@ export const sharedSpecialMeleeWeapons: Weapon[] = [
     limit: 1,
     keywords: ['PSYCHIC', 'RISKY'],
     description: 'Melee, PSYCHIC, RISKY. Remove 1 BLOOD MARKER from wielder on a hit that causes BLOOD MARKERS or OOA result. Elite Psyker Only. LIMIT: 1.',
+    restrictedTo: ['ELITE', 'PSYKER'],
   },
   {
     id: 'warp_claws',
@@ -1157,7 +1161,8 @@ export const sharedSpecialMeleeWeapons: Weapon[] = [
     type: 'melee',
     cost: 5,
     keywords: ['+1 INJURY DICE', 'INFECTION MARKERS', 'PSYCHIC', 'HELD'],
-    description: 'Melee, +1 INJURY DICE against DAEMON or PSYKER, INFECTION MARKERS, PSYCHIC, HELD. Psyker Only. (Death Guard Only)'
+    description: 'Melee, +1 INJURY DICE against DAEMON or PSYKER, INFECTION MARKERS, PSYCHIC, HELD. Psyker Only. (Death Guard Only)',
+    restrictedTo: ['PSYKER'],
   },
   {
     id: 'cursed_plague_bell_dg',
@@ -1177,7 +1182,8 @@ export const sharedSpecialMeleeWeapons: Weapon[] = [
     limit: 1,
     handedness: 'two-handed',
     keywords: ['+1 INJURY DICE', 'CRITICAL', 'ARMOUR PIERCING 2', 'INFECTION MARKERS', 'HEAVY', 'TWO-HANDED'],
-    description: 'Melee, +1 INJURY DICE, CRITICAL, ARMOUR PIERCING 2, INFECTION MARKERS, HEAVY, TWO-HANDED. LIMIT: 1. Elite or Terminator Only. (Death Guard Only)'
+    description: 'Melee, +1 INJURY DICE, CRITICAL, ARMOUR PIERCING 2, INFECTION MARKERS, HEAVY, TWO-HANDED. LIMIT: 1. Elite or Terminator Only. (Death Guard Only)',
+    restrictedTo: ['ELITE|VEHICLE'],
   },
   {
     id: 'heavy_blight_launcher_dg',
@@ -1224,7 +1230,8 @@ export const sharedSpecialMeleeWeapons: Weapon[] = [
     type: 'ranged',
     cost: 10,
     keywords: ['FLAMETHROWER', 'IGNORE ARMOUR', '-1 INJURY DICE', 'GAS'],
-    description: '6", FLAMETHROWER, IGNORE ARMOUR, -1 INJURY DICE, GAS. Terminator Armour Only. (Death Guard Only)'
+    description: '6", FLAMETHROWER, IGNORE ARMOUR, -1 INJURY DICE, GAS. Terminator Armour Only. (Death Guard Only)',
+    restrictedTo: ['VEHICLE'],
   },
   // ── Heretic Astartes Variant Battlekit: Emperor's Children ────────────────
   {
@@ -1364,7 +1371,8 @@ export const sharedSpecialMeleeWeapons: Weapon[] = [
     type: 'melee',
     cost: 20,
     keywords: ['+1 INJURY DICE', 'PSYCHIC', 'HELD'],
-    description: 'Melee, +1 INJURY DICE, +1 INJURY DICE against DAEMON or PSYKER, PSYCHIC, HELD. Elite Psyker Only. (Thousand Sons Only)'
+    description: 'Melee, +1 INJURY DICE, +1 INJURY DICE against DAEMON or PSYKER, PSYCHIC, HELD. Elite Psyker Only. (Thousand Sons Only)',
+    restrictedTo: ['ELITE', 'PSYKER'],
   },
   {
     id: 'power_claw_ts',
@@ -1373,7 +1381,8 @@ export const sharedSpecialMeleeWeapons: Weapon[] = [
     cost: 15,
     limit: 1,
     keywords: ['+1 INJURY DICE', 'HEAVY', 'ARMOUR PIERCING 2'],
-    description: 'Melee, +1 INJURY DICE, HEAVY, ARMOUR PIERCING 2. LIMIT: 1. Sekhetar Robot Only. (Thousand Sons Only)'
+    description: 'Melee, +1 INJURY DICE, HEAVY, ARMOUR PIERCING 2. LIMIT: 1. Sekhetar Robot Only. (Thousand Sons Only)',
+    restrictedTo: ['ARTIFICIAL'],
   },
   {
     id: 'soulreaper_cannon_ts',
@@ -1384,6 +1393,28 @@ export const sharedSpecialMeleeWeapons: Weapon[] = [
     handedness: 'two-handed',
     keywords: ['AUTOMATIC 3', 'RELOAD', 'HEAVY', 'TWO-HANDED'],
     description: '24", AUTOMATIC 3, RELOAD, HEAVY, TWO-HANDED. LIMIT: 1. (Thousand Sons Only)'
+  },
+  {
+    id: 'meltagun_ts',
+    name: 'Meltagun',
+    type: 'ranged',
+    range: 12,
+    cost: 40,
+    limit: 1,
+    keywords: ['+1 INJURY DICE', 'IGNORE ARMOUR', 'RISKY'],
+    description: '12" +1 INJURY DICE, IGNORE ARMOUR, RISKY. LIMIT: 1. Sekhetar Robot Only. (Thousand Sons Only)',
+    restrictedTo: ['ARTIFICIAL'],
+  },
+  {
+    id: 'hand_flamer_ts',
+    name: 'Hand Flamer',
+    type: 'ranged',
+    range: 6,
+    cost: 20,
+    limit: 2,
+    keywords: ['FLAMETHROWER', 'IGNORE ARMOUR', '-2 INJURY DICE', 'FIRE', 'PISTOL'],
+    description: '6" FLAMETHROWER, IGNORE ARMOUR, -2 INJURY DICE, FIRE, PISTOL. LIMIT: 2. Elite Only. (Thousand Sons Only)',
+    restrictedTo: ['ELITE'],
   },
   // ── Heretic Astartes Variant Battlekit: World Eaters ─────────────────────
   {
@@ -1684,6 +1715,7 @@ export const necronsRangedWeapons: Weapon[] = [
     isMainHandOnly: true,
     keywords: ['FLAMETHROWER', 'IGNORE ARMOUR', '-1 INJURY DICE', 'FIRE', 'PISTOL', 'MAIN HAND ONLY'],
     description: '6" FLAMETHROWER, IGNORE ARMOUR, -1 INJURY DICE, FIRE, PISTOL, MAIN HAND ONLY. Loses FLAMETHROWER in melee. Elite Only, LIMIT: 2.',
+    restrictedTo: ['ELITE'],
   },
   {
     id: 'particle_caster',
@@ -1828,6 +1860,7 @@ export const necronsMeleeWeapons: Weapon[] = [
     handedness: 'two-handed',
     keywords: ['+2 INJURY MODIFIER', 'TWO-HANDED'],
     description: 'Melee, +2 INJURY MODIFIER, TWO-HANDED. Elite Only, LIMIT: 1.',
+    restrictedTo: ['ELITE'],
   },
   {
     id: 'mace_nec',
@@ -1854,6 +1887,7 @@ export const necronsMeleeWeapons: Weapon[] = [
     isMainHandOnly: true,
     keywords: ['MAIN HAND ONLY'],
     description: 'Melee, MAIN HAND ONLY. If target has armour from any source other than a shield, you may set one injury die to 6 before rolling. Elite or Lychguard Only, LIMIT: 1.',
+    restrictedTo: ['ELITE'],
   },
   {
     id: 'warscythe',
@@ -1864,6 +1898,7 @@ export const necronsMeleeWeapons: Weapon[] = [
     handedness: 'two-handed',
     keywords: ['+1 INJURY DICE', 'CUMBERSOME', 'TWO-HANDED'],
     description: 'Melee, +1 INJURY DICE, CUMBERSOME, TWO-HANDED. If target has armour from any source other than a shield, you may set one injury die to 6 before rolling. Elite or Lychguard Only, LIMIT: 1.',
+    restrictedTo: ['ELITE'],
   },
   // Necron Staffs (HELD, Strike + Lance mode)
   {
@@ -1875,6 +1910,7 @@ export const necronsMeleeWeapons: Weapon[] = [
     isMainHandOnly: true,
     keywords: ['CRITICAL', 'MAIN HAND ONLY', 'HELD'],
     description: 'HELD. Strike: Melee, CRITICAL, MAIN HAND ONLY. Abyssal Lance: 18" BLAST 2", CRITICAL. Elite Only, LIMIT: 1.',
+    restrictedTo: ['ELITE'],
   },
   {
     id: 'aeonstave',
@@ -1885,6 +1921,7 @@ export const necronsMeleeWeapons: Weapon[] = [
     isMainHandOnly: true,
     keywords: ['MAIN HAND ONLY', 'HELD'],
     description: "HELD. Strike: Melee, MAIN HAND ONLY (on hit, target must succeed at a Success Roll or suffer 1 extra BLOOD MARKER). Entropic Lance: 18\" (same BLOOD MARKER effect). Elite Only, LIMIT: 1.",
+    restrictedTo: ['ELITE'],
   },
   {
     id: 'eldritch_lance',
@@ -1895,6 +1932,7 @@ export const necronsMeleeWeapons: Weapon[] = [
     isMainHandOnly: true,
     keywords: ['IGNORE ARMOUR', 'MAIN HAND ONLY', 'HELD'],
     description: 'HELD. Strike: Melee, IGNORE ARMOUR, MAIN HAND ONLY. Annihilating Lance: 18" IGNORE ARMOUR. Elite Only, LIMIT: 1.',
+    restrictedTo: ['ELITE'],
   },
   {
     id: 'rod_of_covenant',
@@ -1905,6 +1943,7 @@ export const necronsMeleeWeapons: Weapon[] = [
     isMainHandOnly: true,
     keywords: ['ARMOUR PIERCING 1', 'MAIN HAND ONLY', 'HELD'],
     description: 'HELD. Strike: Melee, ARMOUR PIERCING 1, MAIN HAND ONLY. Abyssal Lance: 12" ARMOUR PIERCING 2. Non-Cryptek Elite or Lychguard Only, LIMIT: 2.',
+    restrictedTo: ['ELITE'],
   },
   {
     id: 'staff_of_light_nec',
@@ -1914,6 +1953,7 @@ export const necronsMeleeWeapons: Weapon[] = [
     isMainHandOnly: true,
     keywords: ['MAIN HAND ONLY', 'HELD'],
     description: 'HELD. Strike: Melee, MAIN HAND ONLY. Solar Lance: 18". Elite Only.',
+    restrictedTo: ['ELITE'],
   },
   {
     id: 'tremorstave',
@@ -1924,6 +1964,7 @@ export const necronsMeleeWeapons: Weapon[] = [
     isMainHandOnly: true,
     keywords: ['+1 INJURY MODIFIER', 'MAIN HAND ONLY', 'HELD'],
     description: 'HELD. Strike: Melee, +1 INJURY MODIFIER, MAIN HAND ONLY. Earthquake: 18" +1 INJURY MODIFIER. Elite Only, LIMIT: 1.',
+    restrictedTo: ['ELITE'],
   },
   {
     id: 'voltaic_staff',
@@ -1934,6 +1975,7 @@ export const necronsMeleeWeapons: Weapon[] = [
     isMainHandOnly: true,
     keywords: ['STUN', 'MAIN HAND ONLY', 'HELD'],
     description: 'HELD. Strike: Melee, STUN, MAIN HAND ONLY. Lightning Bolt: 18" STUN. Elite Only, LIMIT: 1.',
+    restrictedTo: ['ELITE'],
   },
   // Destroyer Cult Exclusive Melee
   {
@@ -2164,7 +2206,7 @@ export const chaosCultWeapons: Weapon[] = [
     cost: 45,
     limit: 1,
     keywords: ['HELD', 'FIRE', 'CUMBERSOME'],
-    description: 'HELD. Strike: Melee, FIRE, CUMBERSOME. Flame: 6" FLAMETHROWER, +1 INJURY DICE, IGNORE ARMOUR, FIRE. As Action: heal ally within 6" (remove 1 or 3 BM on critical). LIMIT: 1. (Chaos Disciple Only)',
+    description: 'HELD. Strike: Melee, FIRE, CUMBERSOME. Flame: 6" FLAMETHROWER, +1 INJURY DICE, IGNORE ARMOUR, FIRE. As an Action with a Success Roll: heal self or ally within 6" (remove 1 BM, or 3 BM on critical success). LIMIT: 1. (Chaos Disciple Only)',
   },
 ];
 
@@ -2528,6 +2570,7 @@ export const vermintideWeapons: Weapon[] = [
     limit: 1,
     keywords: ['PSYCHIC', 'RISKY'],
     description: 'Melee, PSYCHIC, RISKY. Remove 1 BLOOD MARKER on a hit that causes BM or OOA. LIMIT: 1. (Psyker Only)',
+    restrictedTo: ['PSYKER'],
   },
   {
     id: 'warpstone_staff_ver',
@@ -2538,6 +2581,7 @@ export const vermintideWeapons: Weapon[] = [
     limit: 1,
     keywords: ['+1 INJURY DICE', 'PSYCHIC', 'RISKY', '+1 INJURY DICE vs DAEMON/PSYKER'],
     description: 'Melee, +1 INJURY DICE, PSYCHIC, RISKY. Additional +1 INJURY DICE against DAEMON or PSYKER. 2 Glory, LIMIT: 1. (Psyker Only)',
+    restrictedTo: ['PSYKER'],
   },
   {
     id: 'woe_stave_ver',
@@ -3128,13 +3172,13 @@ export const drukahriWeapons: Weapon[] = [
   { id: 'heat_lance_drukhari', name: 'Heat Lance', type: 'ranged', cost: 90, limit: 1, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'FIRE', 'IGNORE ARMOUR', 'HEAVY', 'RISKY', 'TWO-HANDED'], description: '18", +1 INJURY DICE, FIRE, IGNORE ARMOUR, HEAVY, RISKY, TWO-HANDED. 3 Glory. LIMIT: 1.' },
   { id: 'splinter_cannon_drukhari', name: 'Splinter Cannon', type: 'ranged', cost: 45, limit: 2, handedness: 'two-handed', keywords: ['AUTOMATIC 2', 'HEAVY', 'SHRAPNEL', 'TWO-HANDED'], description: '36", AUTOMATIC 2, HEAVY, SHRAPNEL, TWO-HANDED. LIMIT: 2.' },
   // Melee
-  { id: 'agoniser_drukhari', name: 'Agoniser', type: 'melee', cost: 15, isMainHandOnly: true, keywords: ['CRITICAL', 'ARMOUR PIERCING 1', 'MAIN HAND ONLY'], description: 'Melee, CRITICAL, ARMOUR PIERCING 1, MAIN HAND ONLY. Elite, Wych, or Reaver Only.' },
+  { id: 'agoniser_drukhari', name: 'Agoniser', type: 'melee', cost: 15, isMainHandOnly: true, keywords: ['CRITICAL', 'ARMOUR PIERCING 1', 'MAIN HAND ONLY'], description: 'Melee, CRITICAL, ARMOUR PIERCING 1, MAIN HAND ONLY. Elite, Wych, or Reaver Only.', restrictedTo: ['ELITE'] },
   { id: 'chain_flail_drukhari', name: 'Chain Flail', type: 'melee', cost: 10, handedness: 'two-handed', keywords: ['+1 INJURY MODIFIER', 'HEAVY', 'TWO-HANDED'], description: 'Melee, +1 INJURY MODIFIER, HEAVY, TWO-HANDED.' },
-  { id: 'demiklaives_drukhari', name: 'Demiklaives', type: 'melee', cost: 20, handedness: 'two-handed', keywords: ['CRITICAL', 'TWO-HANDED'], description: 'Melee, CRITICAL, TWO-HANDED. Single Blade: +1 INJURY DICE. Dual Blades: CLEAVE 2. Elite or Incubus Only.' },
+  { id: 'demiklaives_drukhari', name: 'Demiklaives', type: 'melee', cost: 20, handedness: 'two-handed', keywords: ['CRITICAL', 'TWO-HANDED'], description: 'Melee, CRITICAL, TWO-HANDED. Single Blade: +1 INJURY DICE. Dual Blades: CLEAVE 2. Elite or Incubus Only.', restrictedTo: ['ELITE'] },
   { id: 'hekatarii_blade_drukhari', name: 'Hekatarii Blade', type: 'melee', cost: 3, keywords: [], description: 'Melee.' },
   { id: 'hellglaive_drukhari', name: 'Hellglaive', type: 'melee', cost: 25, limit: 2, handedness: 'two-handed', keywords: ['HELD', 'BLOCK', 'TWO-HANDED'], description: 'HELD, BLOCK, TWO-HANDED, Shield Combo. Strike: Melee. Shoot: 24", SHRAPNEL. LIMIT: 2.' },
   { id: 'huskblade_drukhari', name: 'Huskblade', type: 'melee', cost: 90, limit: 1, handedness: 'two-handed', keywords: ['+2 INJURY DICE', 'CRITICAL', 'TWO-HANDED'], description: 'Melee, +2 INJURY DICE, CRITICAL, TWO-HANDED. 3 Glory. LIMIT: 1. Archon Only.' },
-  { id: 'klaive_drukhari', name: 'Klaive', type: 'melee', cost: 15, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'CRITICAL', 'CUMBERSOME', 'TWO-HANDED'], description: 'Melee, +1 INJURY DICE, CRITICAL, CUMBERSOME, TWO-HANDED. Elite or Incubus Only.' },
+  { id: 'klaive_drukhari', name: 'Klaive', type: 'melee', cost: 15, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'CRITICAL', 'CUMBERSOME', 'TWO-HANDED'], description: 'Melee, +1 INJURY DICE, CRITICAL, CUMBERSOME, TWO-HANDED. Elite or Incubus Only.', restrictedTo: ['ELITE'] },
   { id: 'macro_scalpel_drukhari', name: 'Macro-Scalpel', type: 'melee', cost: 30, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'TWO-HANDED'], description: 'Melee, +1 INJURY DICE, TWO-HANDED. Causes 1 additional BLOOD MARKER if it causes any. Haemonculus Only.' },
   { id: 'scissorhand_drukhari', name: 'Scissorhand', type: 'melee', cost: 20, isMainHandOnly: true, keywords: ['MAIN HAND ONLY'], description: 'Melee, MAIN HAND ONLY. Causes 1 additional BLOOD MARKER if it causes any. Haemonculus or Wrack Only.' },
   { id: 'spirit_leech_tentacles_drukhari', name: 'Spirit-Leech Tentacles', type: 'melee', cost: 12, handedness: 'two-handed', keywords: ['CLEAVE 2', 'TWO-HANDED', 'HEAVY'], description: 'Melee, CLEAVE 2, TWO-HANDED, HEAVY. Enemies cannot Retreat from the wielder. Cronos Only.' },
@@ -3152,23 +3196,23 @@ export const drukahriWeapons: Weapon[] = [
 // ============================================================================
 export const aeldariWeapons: Weapon[] = [
   // Ranged
-  { id: 'avenger_shuriken_catapult', name: 'Avenger Shuriken Catapult', type: 'ranged', cost: 35, limit: 2, handedness: 'two-handed', keywords: ['AUTOMATIC 2', 'ASSAULT', 'ARMOUR PIERCING 1 on Critical Hit', 'TWO-HANDED'], description: '18", AUTOMATIC 2, ASSAULT, ARMOUR PIERCING 1 on Critical Hit, TWO-HANDED. LIMIT: 2. Elite or Dire Avenger Only.' },
+  { id: 'avenger_shuriken_catapult', name: 'Avenger Shuriken Catapult', type: 'ranged', cost: 35, limit: 2, handedness: 'two-handed', keywords: ['AUTOMATIC 2', 'ASSAULT', 'ARMOUR PIERCING 1 on Critical Hit', 'TWO-HANDED'], description: '18", AUTOMATIC 2, ASSAULT, ARMOUR PIERCING 1 on Critical Hit, TWO-HANDED. LIMIT: 2. Elite or Dire Avenger Only.', restrictedTo: ['ELITE'] },
   { id: 'cloudsweeper_aeldari', name: 'Cloudsweeper', type: 'ranged', cost: 35, limit: 1, handedness: 'two-handed', keywords: ['AUTOMATIC 2', 'ASSAULT', 'CRITICAL', 'TWO-HANDED'], description: '24", AUTOMATIC 2, ASSAULT, CRITICAL, TWO-HANDED. LIMIT: 1. Swooping Hawk Only.' },
-  { id: 'death_spinner_aeldari', name: 'Death Spinner', type: 'ranged', cost: 20, limit: 2, handedness: 'two-handed', keywords: ['BLAST 2"', 'ARMOUR PIERCING 1', 'TWO-HANDED'], description: '12", BLAST 2", ARMOUR PIERCING 1, TWO-HANDED. LIMIT: 2. Elite or Warp Spider Only.' },
-  { id: 'dragon_fusion_gun', name: 'Dragon Fusion Gun', type: 'ranged', cost: 35, limit: 1, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'IGNORE ARMOUR', 'TWO-HANDED'], description: '12", +1 INJURY DICE, IGNORE ARMOUR, TWO-HANDED. LIMIT: 1. Elite or Fire Dragon Only.' },
+  { id: 'death_spinner_aeldari', name: 'Death Spinner', type: 'ranged', cost: 20, limit: 2, handedness: 'two-handed', keywords: ['BLAST 2"', 'ARMOUR PIERCING 1', 'TWO-HANDED'], description: '12", BLAST 2", ARMOUR PIERCING 1, TWO-HANDED. LIMIT: 2. Elite or Warp Spider Only.', restrictedTo: ['ELITE'] },
+  { id: 'dragon_fusion_gun', name: 'Dragon Fusion Gun', type: 'ranged', cost: 35, limit: 1, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'IGNORE ARMOUR', 'TWO-HANDED'], description: '12", +1 INJURY DICE, IGNORE ARMOUR, TWO-HANDED. LIMIT: 1. Elite or Fire Dragon Only.', restrictedTo: ['ELITE'] },
   { id: 'dragons_breath_flamer', name: "Dragon's Breath Flamer", type: 'ranged', cost: 55, limit: 1, handedness: 'two-handed', keywords: ['AUTOMATIC 2', '-1 INJURY DICE', 'FLAMETHROWER', 'IGNORE ARMOUR', 'FIRE', 'TWO-HANDED'], description: '10", AUTOMATIC 2, -1 INJURY DICE, FLAMETHROWER, IGNORE ARMOUR, FIRE, TWO-HANDED. LIMIT: 1. Fire Dragon Only.' },
-  { id: 'firepike_aeldari', name: 'Firepike', type: 'ranged', cost: 40, limit: 1, handedness: 'two-handed', keywords: ['FLAMETHROWER', 'IGNORE ARMOUR', '-1 INJURY DICE', 'FIRE', 'TWO-HANDED'], description: '16", FLAMETHROWER, IGNORE ARMOUR, -1 INJURY DICE, FIRE, TWO-HANDED. LIMIT: 1. Elite or Fire Dragon Only.' },
+  { id: 'firepike_aeldari', name: 'Firepike', type: 'ranged', cost: 40, limit: 1, handedness: 'two-handed', keywords: ['FLAMETHROWER', 'IGNORE ARMOUR', '-1 INJURY DICE', 'FIRE', 'TWO-HANDED'], description: '16", FLAMETHROWER, IGNORE ARMOUR, -1 INJURY DICE, FIRE, TWO-HANDED. LIMIT: 1. Elite or Fire Dragon Only.', restrictedTo: ['ELITE'] },
   { id: 'hawks_talon', name: "Hawk's Talon", type: 'ranged', cost: 40, limit: 1, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'CRITICAL', 'ARMOUR PIERCING 1', 'TWO-HANDED'], description: '24", +1 INJURY DICE, CRITICAL, ARMOUR PIERCING 1, TWO-HANDED. LIMIT: 1. Swooping Hawk Only.' },
-  { id: 'lasblaster_aeldari', name: 'Lasblaster', type: 'ranged', cost: 30, limit: 2, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'CRITICAL', 'TWO-HANDED'], description: '24", +1 INJURY DICE, CRITICAL, TWO-HANDED. LIMIT: 2. Elite or Swooping Hawk Only.' },
+  { id: 'lasblaster_aeldari', name: 'Lasblaster', type: 'ranged', cost: 30, limit: 2, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'CRITICAL', 'TWO-HANDED'], description: '24", +1 INJURY DICE, CRITICAL, TWO-HANDED. LIMIT: 2. Elite or Swooping Hawk Only.', restrictedTo: ['ELITE'] },
   { id: 'long_rifle_aeldari', name: 'Long Rifle', type: 'ranged', cost: 40, limit: 2, handedness: 'two-handed', keywords: ['+1 DICE', 'CRITICAL', 'TWO-HANDED'], description: '48", +1 DICE, CRITICAL, TWO-HANDED. LIMIT: 2.' },
   { id: 'shuriken_catapult', name: 'Shuriken Catapult', type: 'ranged', cost: 10, handedness: 'two-handed', keywords: ['ARMOUR PIERCING 1 on Critical Hit', 'TWO-HANDED'], description: '18", ARMOUR PIERCING 1 on Critical Hit, TWO-HANDED.' },
   { id: 'shuriken_rifle', name: 'Shuriken Rifle', type: 'ranged', cost: 12, handedness: 'two-handed', keywords: ['ARMOUR PIERCING 1 on Critical Hit', 'TWO-HANDED'], description: '24", ARMOUR PIERCING 1 on Critical Hit, TWO-HANDED.' },
   { id: 'spinneret_rifle', name: 'Spinneret Rifle', type: 'ranged', cost: 20, limit: 1, handedness: 'two-handed', keywords: ['IGNORE ARMOUR', 'TWO-HANDED'], description: '18", IGNORE ARMOUR, TWO-HANDED. LIMIT: 1. Warp Spider Only.' },
   // Pistols
-  { id: 'death_weavers', name: 'Death Weavers', type: 'ranged', cost: 20, keywords: ['BLAST 2"', 'ARMOUR PIERCING 1', 'PISTOL'], description: '6", BLAST 2", ARMOUR PIERCING 1, PISTOL. Comes as a pair; attack with each on Shoot. Elite or Warp Spider Only.' },
-  { id: 'dragon_fusion_pistol', name: 'Dragon Fusion Pistol', type: 'ranged', cost: 30, keywords: ['IGNORE ARMOUR', 'RISKY', 'PISTOL'], description: '6", IGNORE ARMOUR, RISKY, PISTOL. 1 Glory. Elite or Fire Dragon Only.' },
+  { id: 'death_weavers', name: 'Death Weavers', type: 'ranged', cost: 20, keywords: ['BLAST 2"', 'ARMOUR PIERCING 1', 'PISTOL'], description: '6", BLAST 2", ARMOUR PIERCING 1, PISTOL. Comes as a pair; attack with each on Shoot. Elite or Warp Spider Only.', restrictedTo: ['ELITE'] },
+  { id: 'dragon_fusion_pistol', name: 'Dragon Fusion Pistol', type: 'ranged', cost: 30, keywords: ['IGNORE ARMOUR', 'RISKY', 'PISTOL'], description: '6", IGNORE ARMOUR, RISKY, PISTOL. 1 Glory. Elite or Fire Dragon Only.', restrictedTo: ['ELITE'] },
   { id: 'shuriken_pistol', name: 'Shuriken Pistol', type: 'ranged', cost: 7, keywords: ['ARMOUR PIERCING 1 on Critical Hit', 'PISTOL'], description: '12", ARMOUR PIERCING 1 on Critical Hit, PISTOL.' },
-  { id: 'sunpistol_aeldari', name: 'Sunpistol', type: 'ranged', cost: 12, keywords: ['ASSAULT', 'CRITICAL', 'PISTOL'], description: '12", ASSAULT, CRITICAL, PISTOL. Elite or Swooping Hawk Only.' },
+  { id: 'sunpistol_aeldari', name: 'Sunpistol', type: 'ranged', cost: 12, keywords: ['ASSAULT', 'CRITICAL', 'PISTOL'], description: '12", ASSAULT, CRITICAL, PISTOL. Elite or Swooping Hawk Only.', restrictedTo: ['ELITE'] },
   { id: 'twin_shuriken_pistols', name: 'Twin Shuriken Pistols', type: 'ranged', cost: 12, limit: 2, handedness: 'two-handed', keywords: ['+1 DICE', 'ARMOUR PIERCING 1 on Critical Hit', 'CUMBERSOME', 'TWO-HANDED', 'PISTOL'], description: '12", +1 DICE, ARMOUR PIERCING 1 on Critical Hit, CUMBERSOME, TWO-HANDED, PISTOL. LIMIT: 2.' },
   // Heavy Ranged
   { id: 'bright_lance_aeldari', name: 'Bright Lance', type: 'ranged', cost: 35, limit: 1, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'HEAVY', 'TWO-HANDED'], description: '36", +1 INJURY DICE, HEAVY, TWO-HANDED. LIMIT: 1.' },
@@ -3181,22 +3225,22 @@ export const aeldariWeapons: Weapon[] = [
   { id: 'twin_shuriken_catapult', name: 'Twin Shuriken Catapult', type: 'ranged', cost: 15, handedness: 'two-handed', keywords: ['+1 DICE', 'HEAVY', 'ARMOUR PIERCING 1 on Critical Hit', 'TWO-HANDED'], description: '18", +1 DICE, HEAVY, ARMOUR PIERCING 1 on Critical Hit, TWO-HANDED.' },
   { id: 'wraithcannon', name: 'Wraithcannon', type: 'ranged', cost: 30, handedness: 'two-handed', keywords: ['+2 INJURY DICE', 'HEAVY', 'TWO-HANDED'], description: '18", +2 INJURY DICE, HEAVY, TWO-HANDED. Wraith Only.' },
   // Melee
-  { id: 'banshee_blade', name: 'Banshee Blade', type: 'melee', cost: 23, keywords: ['+1 INJURY DICE', 'CRITICAL'], description: 'Melee, +1 INJURY DICE, CRITICAL. Elite or Howling Banshee Only.' },
+  { id: 'banshee_blade', name: 'Banshee Blade', type: 'melee', cost: 23, keywords: ['+1 INJURY DICE', 'CRITICAL'], description: 'Melee, +1 INJURY DICE, CRITICAL. Elite or Howling Banshee Only.', restrictedTo: ['ELITE'] },
   { id: 'biting_blade', name: 'Biting Blade', type: 'melee', cost: 25, limit: 1, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'CRITICAL', 'RISKY', 'SHRAPNEL', 'TWO-HANDED'], description: 'Melee, +1 INJURY DICE, CRITICAL, RISKY, SHRAPNEL, TWO-HANDED. LIMIT: 1. Striking Scorpion Only.' },
   { id: 'diresword', name: 'Diresword', type: 'melee', cost: 20, limit: 1, isMainHandOnly: true, keywords: ['IGNORE ARMOUR', 'MAIN HAND ONLY'], description: 'Melee, IGNORE ARMOUR, MAIN HAND ONLY. LIMIT: 1. Dire Avenger Only.' },
   { id: 'ghost_blade_aeldari', name: 'Ghost Blade', type: 'melee', cost: 15, keywords: ['+1 INJURY DICE', 'HEAVY'], description: 'Melee, +1 INJURY DICE, HEAVY. Wraith Only.' },
   { id: 'mirrorswords', name: 'Mirrorswords', type: 'melee', cost: 12, limit: 1, handedness: 'two-handed', keywords: ['CRITICAL', 'ARMOUR PIERCING 2', 'IGNORE OFF-HAND', 'TWO-HANDED'], description: 'Melee, CRITICAL, ARMOUR PIERCING 2, IGNORE OFF-HAND. Comes as a pair. LIMIT: 1. Howling Banshee Only.' },
-  { id: 'mist_staff', name: 'Mist Staff', type: 'melee', cost: 20, isMainHandOnly: true, keywords: ['+1 INJURY DICE', 'PSYCHIC', 'HELD', 'MAIN HAND ONLY'], description: 'Melee, +1 INJURY DICE, PSYCHIC, HELD, MAIN HAND ONLY. Psyker Only.' },
-  { id: 'power_blade_aeldari', name: 'Power Blade', type: 'melee', cost: 15, limit: 3, isMainHandOnly: true, keywords: ['CRITICAL', 'ARMOUR PIERCING 2', 'MAIN HAND ONLY'], description: 'Melee, CRITICAL, ARMOUR PIERCING 2, MAIN HAND ONLY. LIMIT: 3. Elite Only.' },
-  { id: 'power_glaive_aeldari', name: 'Power Glaive', type: 'melee', cost: 20, limit: 2, handedness: 'two-handed', keywords: ['BLOCK', 'ARMOUR PIERCING 2', 'TWO-HANDED'], description: 'Melee, BLOCK, ARMOUR PIERCING 2, TWO-HANDED, Shield Combo. LIMIT: 2. Elite Only.' },
-  { id: 'scorpion_chainsword', name: 'Scorpion Chainsword', type: 'melee', cost: 10, limit: 2, isMainHandOnly: true, keywords: ['CRITICAL', 'RISKY', 'SHRAPNEL', 'MAIN HAND ONLY'], description: 'Melee, CRITICAL, RISKY, SHRAPNEL, MAIN HAND ONLY. LIMIT: 2. Elite or Striking Scorpion Only.' },
-  { id: 'witchblade', name: 'Witchblade', type: 'melee', cost: 15, limit: 3, isMainHandOnly: true, keywords: ['+1 INJURY DICE', 'PSYCHIC', 'HELD', 'MAIN HAND ONLY'], description: 'Melee, +1 INJURY DICE, +1 INJURY DICE vs DAEMON/PSYKER, PSYCHIC, HELD, MAIN HAND ONLY. LIMIT: 3. Psyker Only.' },
-  { id: 'witch_staff', name: 'Witch Staff', type: 'melee', cost: 3, isMainHandOnly: true, keywords: ['PSYCHIC', 'HELD', 'MAIN HAND ONLY'], description: 'Melee, +1 INJURY DICE vs DAEMON/PSYKER, PSYCHIC, HELD, MAIN HAND ONLY. Psyker Only.' },
+  { id: 'mist_staff', name: 'Mist Staff', type: 'melee', cost: 20, isMainHandOnly: true, keywords: ['+1 INJURY DICE', 'PSYCHIC', 'HELD', 'MAIN HAND ONLY'], description: 'Melee, +1 INJURY DICE, PSYCHIC, HELD, MAIN HAND ONLY. Psyker Only.', restrictedTo: ['PSYKER'] },
+  { id: 'power_blade_aeldari', name: 'Power Blade', type: 'melee', cost: 15, limit: 3, isMainHandOnly: true, keywords: ['CRITICAL', 'ARMOUR PIERCING 2', 'MAIN HAND ONLY'], description: 'Melee, CRITICAL, ARMOUR PIERCING 2, MAIN HAND ONLY. LIMIT: 3. Elite Only.', restrictedTo: ['ELITE'] },
+  { id: 'power_glaive_aeldari', name: 'Power Glaive', type: 'melee', cost: 20, limit: 2, handedness: 'two-handed', keywords: ['BLOCK', 'ARMOUR PIERCING 2', 'TWO-HANDED'], description: 'Melee, BLOCK, ARMOUR PIERCING 2, TWO-HANDED, Shield Combo. LIMIT: 2. Elite Only.', restrictedTo: ['ELITE'] },
+  { id: 'scorpion_chainsword', name: 'Scorpion Chainsword', type: 'melee', cost: 10, limit: 2, isMainHandOnly: true, keywords: ['CRITICAL', 'RISKY', 'SHRAPNEL', 'MAIN HAND ONLY'], description: 'Melee, CRITICAL, RISKY, SHRAPNEL, MAIN HAND ONLY. LIMIT: 2. Elite or Striking Scorpion Only.', restrictedTo: ['ELITE'] },
+  { id: 'witchblade', name: 'Witchblade', type: 'melee', cost: 15, limit: 3, isMainHandOnly: true, keywords: ['+1 INJURY DICE', 'PSYCHIC', 'HELD', 'MAIN HAND ONLY'], description: 'Melee, +1 INJURY DICE, +1 INJURY DICE vs DAEMON/PSYKER, PSYCHIC, HELD, MAIN HAND ONLY. LIMIT: 3. Psyker Only.', restrictedTo: ['PSYKER'] },
+  { id: 'witch_staff', name: 'Witch Staff', type: 'melee', cost: 3, isMainHandOnly: true, keywords: ['PSYCHIC', 'HELD', 'MAIN HAND ONLY'], description: 'Melee, +1 INJURY DICE vs DAEMON/PSYKER, PSYCHIC, HELD, MAIN HAND ONLY. Psyker Only.', restrictedTo: ['PSYKER'] },
   // Combined
   { id: 'laser_lance', name: 'Laser Lance', type: 'melee', cost: 12, limit: 2, handedness: 'two-handed', keywords: ['TWO-HANDED', 'HELD'], description: 'TWO-HANDED, HELD, Shield Combo. Strike: Melee, +1 INJURY DICE if Charged. Shoot: 6", IGNORE LONG RANGE, ASSAULT. LIMIT: 2.' },
-  { id: 'paired_chainsabres', name: 'Paired Chainsabres', type: 'melee', cost: 40, limit: 1, keywords: ['HELD'], description: 'Comes as pair, HELD. Strike: Melee, IGNORE OFF-HAND, CRITICAL, RISKY, SHRAPNEL. Shoot: 12", ARMOUR PIERCING 1 on Critical Hit. LIMIT: 1. Elite or Striking Scorpion Only.' },
+  { id: 'paired_chainsabres', name: 'Paired Chainsabres', type: 'melee', cost: 40, limit: 1, keywords: ['HELD'], description: 'Comes as pair, HELD. Strike: Melee, IGNORE OFF-HAND, CRITICAL, RISKY, SHRAPNEL. Shoot: 12", ARMOUR PIERCING 1 on Critical Hit. LIMIT: 1. Elite or Striking Scorpion Only.', restrictedTo: ['ELITE'] },
   { id: 'scorpions_claw', name: "Scorpion's Claw", type: 'melee', cost: 25, limit: 1, keywords: ['HELD'], description: 'HELD. Strike: Melee, ARMOUR PIERCING 2. Shoot: 12", ASSAULT, ARMOUR PIERCING 1 on Critical Hit. LIMIT: 1. Striking Scorpion Only.' },
-  { id: 'singing_spear', name: 'Singing Spear', type: 'melee', cost: 25, handedness: 'two-handed', keywords: ['PSYCHIC', 'TWO-HANDED', 'HELD'], description: 'PSYCHIC, TWO-HANDED, HELD, Shield Combo. Strike: Melee. Throw: 12", +1 INJURY DICE, ASSAULT. Psyker Only.' },
+  { id: 'singing_spear', name: 'Singing Spear', type: 'melee', cost: 25, handedness: 'two-handed', keywords: ['PSYCHIC', 'TWO-HANDED', 'HELD'], description: 'PSYCHIC, TWO-HANDED, HELD, Shield Combo. Strike: Melee. Throw: 12", +1 INJURY DICE, ASSAULT. Psyker Only.', restrictedTo: ['PSYKER'] },
   { id: 'star_lance', name: 'Star Lance', type: 'melee', cost: 20, limit: 2, handedness: 'two-handed', keywords: ['TWO-HANDED', 'HELD'], description: 'TWO-HANDED, HELD, Shield Combo. Strike: Melee, ARMOUR PIERCING 1, +1 INJURY DICE if Charged. Shoot: 6", IGNORE LONG RANGE, +1 INJURY DICE, ASSAULT. LIMIT: 2. Shining Spear Only.' },
   // Thrown
   { id: 'haywire_grenades_aeldari', name: 'Haywire Grenades', type: 'ranged', cost: 12, limit: 2, keywords: ['IGNORE ARMOUR', '-1 INJURY DICE', 'ASSAULT', 'BLAST 3"', 'IGNORE COVER', 'IGNORE LONG RANGE', 'STUN', 'THROWN'], description: '8", IGNORE ARMOUR, -1 INJURY DICE non-ARTIFICIAL/VEHICLE, ASSAULT, BLAST 3", IGNORE COVER, IGNORE LONG RANGE, STUN, THROWN. LIMIT: 2.' },
@@ -3241,8 +3285,8 @@ export const harlequinsWeapons: Weapon[] = [
 export const tyranidsWeapons: Weapon[] = [
   // Melee
   { id: 'chitinous_claw', name: 'Chitinous Claw', type: 'melee', cost: 3, keywords: [], description: 'Melee.' },
-  { id: 'piercing_claw', name: 'Piercing Claw', type: 'melee', cost: 15, limit: 4, keywords: ['CRITICAL', 'ARMOUR PIERCING 1'], description: 'Melee, CRITICAL, ARMOUR PIERCING 1. LIMIT: 4. Elite or Tyranid Warrior Only.' },
-  { id: 'rending_claw', name: 'Rending Claw', type: 'melee', cost: 15, limit: 2, keywords: ['ARMOUR PIERCING 2'], description: 'Melee, ARMOUR PIERCING 2. LIMIT: 2. Elite or Ravener Only.' },
+  { id: 'piercing_claw', name: 'Piercing Claw', type: 'melee', cost: 15, limit: 4, keywords: ['CRITICAL', 'ARMOUR PIERCING 1'], description: 'Melee, CRITICAL, ARMOUR PIERCING 1. LIMIT: 4. Elite or Tyranid Warrior Only.', restrictedTo: ['ELITE'] },
+  { id: 'rending_claw', name: 'Rending Claw', type: 'melee', cost: 15, limit: 2, keywords: ['ARMOUR PIERCING 2'], description: 'Melee, ARMOUR PIERCING 2. LIMIT: 2. Elite or Ravener Only.', restrictedTo: ['ELITE'] },
   { id: 'scything_talon', name: 'Scything Talon', type: 'melee', cost: 4, keywords: ['CRITICAL'], description: 'Melee, CRITICAL.' },
   { id: 'toxic_scythe', name: 'Toxic Scythe', type: 'melee', cost: 7, limit: 2, keywords: ['INFECTION MARKERS', 'CRITICAL'], description: 'Melee, INFECTION MARKERS, CRITICAL. LIMIT: 2. Ravener Only.' },
   // Heavy Melee
@@ -3250,7 +3294,7 @@ export const tyranidsWeapons: Weapon[] = [
   { id: 'bonesword_tyranid', name: 'Bonesword', type: 'melee', cost: 15, isMainHandOnly: true, keywords: ['+1 INJURY DICE', 'CRITICAL', 'HEAVY', 'MAIN HAND ONLY'], description: 'Melee, +1 INJURY DICE, CRITICAL, HEAVY, MAIN HAND ONLY.' },
   { id: 'crushing_claw', name: 'Crushing Claw', type: 'melee', cost: 15, keywords: ['+1 INJURY MODIFIER', 'HEAVY'], description: 'Melee, +1 INJURY MODIFIER, HEAVY.' },
   { id: 'lash_whip_tyranid', name: 'Lash Whip', type: 'melee', cost: 10, keywords: ['BLOCK', 'HEAVY', 'WHIP 3"'], description: 'Melee, BLOCK, HEAVY, WHIP 3". Max 1 per model.' },
-  { id: 'slayer_sabre', name: 'Slayer Sabre', type: 'melee', cost: 30, limit: 1, isMainHandOnly: true, keywords: ['+1 INJURY DICE', 'CRITICAL', 'FIRE', 'HEAVY', 'MAIN HAND ONLY'], description: 'Melee, +1 INJURY DICE, CRITICAL, FIRE, HEAVY, MAIN HAND ONLY. 1 Glory. LIMIT: 1. Elite Only.' },
+  { id: 'slayer_sabre', name: 'Slayer Sabre', type: 'melee', cost: 30, limit: 1, isMainHandOnly: true, keywords: ['+1 INJURY DICE', 'CRITICAL', 'FIRE', 'HEAVY', 'MAIN HAND ONLY'], description: 'Melee, +1 INJURY DICE, CRITICAL, FIRE, HEAVY, MAIN HAND ONLY. 1 Glory. LIMIT: 1. Elite Only.', restrictedTo: ['ELITE'] },
   // Ranged
   { id: 'devourer', name: 'Devourer', type: 'ranged', cost: 5, handedness: 'two-handed', keywords: ['TWO-HANDED'], description: '18", TWO-HANDED.' },
   { id: 'fleshborer', name: 'Fleshborer', type: 'ranged', cost: 10, handedness: 'two-handed', keywords: ['ASSAULT', 'TWO-HANDED'], description: '18", ASSAULT, TWO-HANDED.' },
@@ -3268,7 +3312,7 @@ export const tyranidsWeapons: Weapon[] = [
   { id: 'miasma_cannon', name: 'Miasma Cannon', type: 'ranged', cost: 180, limit: 1, handedness: 'two-handed', keywords: ['IGNORE ARMOUR', 'BLAST 3"', 'GAS', 'TWO-HANDED'], description: '36", IGNORE ARMOUR, BLAST 3", GAS, TWO-HANDED. 6 Glory. LIMIT: 1.' },
   { id: 'shockcannon', name: 'Shockcannon', type: 'ranged', cost: 60, limit: 1, keywords: ['IGNORE ARMOUR', 'HEAVY', 'STUN'], description: '24", IGNORE ARMOUR, HEAVY, STUN. 2 Glory. LIMIT: 1.' },
   { id: 'strangethorn_cannon', name: 'Strangethorn Cannon', type: 'ranged', cost: 40, limit: 1, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'BLAST 2"', 'HEAVY', 'STUN', 'TWO-HANDED'], description: '36", +1 INJURY DICE, BLAST 2", HEAVY, STUN, TWO-HANDED. LIMIT: 1.' },
-  { id: 'toxinjector_harpoon', name: 'Toxinjector Harpoon', type: 'ranged', cost: 90, limit: 1, handedness: 'two-handed', keywords: ['IGNORE COVER', 'IGNORE LONG RANGE', 'SHRAPNEL', 'TWO-HANDED'], description: '10", TWO-HANDED, IGNORE COVER, IGNORE LONG RANGE, SHRAPNEL. 3 Glory. LIMIT: 1. Elite Only. Causes no injury but BLOOD MARKER; pulls non-LARGE target to wielder.' },
+  { id: 'toxinjector_harpoon', name: 'Toxinjector Harpoon', type: 'ranged', cost: 90, limit: 1, handedness: 'two-handed', keywords: ['IGNORE COVER', 'IGNORE LONG RANGE', 'SHRAPNEL', 'TWO-HANDED'], description: '10", TWO-HANDED, IGNORE COVER, IGNORE LONG RANGE, SHRAPNEL. 3 Glory. LIMIT: 1. Elite Only. Causes no injury but BLOOD MARKER; pulls non-LARGE target to wielder.', restrictedTo: ['ELITE'] },
   { id: 'venom_cannon', name: 'Venom Cannon', type: 'ranged', cost: 25, limit: 1, handedness: 'two-handed', keywords: ['BLAST 2"', 'HEAVY', 'ARMOUR PIERCING 2', 'TWO-HANDED'], description: '24", BLAST 2", HEAVY, ARMOUR PIERCING 2, TWO-HANDED. LIMIT: 1.' },
   // Thrown
   { id: 'blinding_venom', name: 'Blinding Venom', type: 'ranged', cost: 5, keywords: ['GAS', 'THROWN'], description: 'Melee, GAS, THROWN. Gargoyle Only. Causes no injury but BLOOD MARKER; target cannot attack models that Retreat from it until end of Turn.' },
@@ -3288,60 +3332,65 @@ export const tyranidsWeapons: Weapon[] = [
 // ============================================================================
 export const tauEmpireWeapons: Weapon[] = [
   // Ranged
-  { id: 'dart_bow_tau', name: 'Dart Bow', type: 'ranged', cost: 12, handedness: 'two-handed', keywords: ['CRITICAL', 'TWO-HANDED'], description: '24", CRITICAL, TWO-HANDED. Attacks can use Melee Skill. Kroot Only.' },
-  { id: 'dvorgite_skinner', name: 'Dvorgite Skinner', type: 'ranged', cost: 30, limit: 1, handedness: 'two-handed', keywords: ['FLAMETHROWER', 'IGNORE ARMOUR', 'GAS', 'TWO-HANDED'], description: '8", FLAMETHROWER, IGNORE ARMOUR, GAS, TWO-HANDED. LIMIT: 1. Kroot Only.' },
+  { id: 'dart_bow_tau', name: 'Dart Bow', type: 'ranged', cost: 12, handedness: 'two-handed', keywords: ['CRITICAL', 'TWO-HANDED'], description: '24", CRITICAL, TWO-HANDED. Attacks can use Melee Skill. Kroot Only.', restrictedTo: ['KROOT'] },
+  { id: 'dvorgite_skinner', name: 'Dvorgite Skinner', type: 'ranged', cost: 30, limit: 1, handedness: 'two-handed', keywords: ['FLAMETHROWER', 'IGNORE ARMOUR', 'GAS', 'TWO-HANDED'], description: '8", FLAMETHROWER, IGNORE ARMOUR, GAS, TWO-HANDED. LIMIT: 1. Kroot Only.', restrictedTo: ['KROOT'] },
   { id: 'ion_rifle_tau', name: 'Ion Rifle', type: 'ranged', cost: 25, limit: 1, keywords: ['+1 INJURY DICE'], description: '30", +1 INJURY DICE. Standard/Overload profiles. LIMIT: 1.' },
-  { id: 'kroot_carbine', name: 'Kroot Carbine', type: 'ranged', cost: 10, handedness: 'two-handed', keywords: ['ASSAULT', 'TWO-HANDED'], description: '18", ASSAULT, TWO-HANDED. Bayonet Lug. Kroot Only.' },
-  { id: 'kroot_rifle', name: 'Kroot Rifle', type: 'ranged', cost: 5, handedness: 'two-handed', keywords: ['TWO-HANDED'], description: '24", TWO-HANDED. Bayonet Lug. Kroot Only.' },
-  { id: 'kroot_shaper_rifle', name: 'Kroot Shaper Rifle', type: 'ranged', cost: 10, handedness: 'two-handed', keywords: ['ARMOUR PIERCING 1', 'TWO-HANDED'], description: '24", ARMOUR PIERCING 1, TWO-HANDED. Bayonet Lug. Kroot Only.' },
-  { id: 'kroot_scattergun', name: 'Kroot Scattergun', type: 'ranged', cost: 10, handedness: 'two-handed', keywords: ['+1 DICE', 'SHOTGUN', 'TWO-HANDED'], description: '12", +1 DICE, SHOTGUN, TWO-HANDED. Bayonet Lug. Kroot Only.' },
+  { id: 'kroot_carbine', name: 'Kroot Carbine', type: 'ranged', cost: 10, handedness: 'two-handed', keywords: ['ASSAULT', 'TWO-HANDED'], description: '18", ASSAULT, TWO-HANDED. Bayonet Lug. Kroot Only.', restrictedTo: ['KROOT'] },
+  { id: 'kroot_rifle', name: 'Kroot Rifle', type: 'ranged', cost: 5, handedness: 'two-handed', keywords: ['TWO-HANDED'], description: '24", TWO-HANDED. Bayonet Lug. Kroot Only.', restrictedTo: ['KROOT'] },
+  { id: 'kroot_shaper_rifle', name: 'Kroot Shaper Rifle', type: 'ranged', cost: 10, handedness: 'two-handed', keywords: ['ARMOUR PIERCING 1', 'TWO-HANDED'], description: '24", ARMOUR PIERCING 1, TWO-HANDED. Bayonet Lug. Kroot Only.', restrictedTo: ['KROOT'] },
+  { id: 'kroot_scattergun', name: 'Kroot Scattergun', type: 'ranged', cost: 10, handedness: 'two-handed', keywords: ['+1 DICE', 'SHOTGUN', 'TWO-HANDED'], description: '12", +1 DICE, SHOTGUN, TWO-HANDED. Bayonet Lug. Kroot Only.', restrictedTo: ['KROOT'] },
   { id: 'pulse_blaster', name: 'Pulse Blaster', type: 'ranged', cost: 15, limit: 2, handedness: 'two-handed', keywords: ['ASSAULT', 'TWO-HANDED'], description: '10", ASSAULT, TWO-HANDED. Can take two Shoot Actions per Activation. LIMIT: 2.' },
   { id: 'pulse_carbine', name: 'Pulse Carbine', type: 'ranged', cost: 12, handedness: 'two-handed', keywords: ['ASSAULT', 'TWO-HANDED'], description: '20", ASSAULT, TWO-HANDED.' },
   { id: 'pulse_rifle', name: 'Pulse Rifle', type: 'ranged', cost: 10, handedness: 'two-handed', keywords: ['TWO-HANDED'], description: '30", TWO-HANDED.' },
   { id: 'rail_rifle_tau', name: 'Rail Rifle', type: 'ranged', cost: 40, limit: 1, handedness: 'two-handed', keywords: ['IGNORE ARMOUR', 'CRITICAL', 'TWO-HANDED'], description: '30", IGNORE ARMOUR, CRITICAL, TWO-HANDED. LIMIT: 1.' },
   { id: 'semi_automatic_gl', name: 'Semi-Automatic GL', type: 'ranged', cost: 40, limit: 1, handedness: 'two-handed', keywords: ['IGNORE COVER', 'BLAST 2"', 'TWO-HANDED'], description: '18", IGNORE COVER, BLAST 2", TWO-HANDED. EMP: IGNORE ARMOUR, -1 INJURY DICE, BLAST 3", STUN. Fusion: ARMOUR PIERCING 2. LIMIT: 1.' },
-  { id: 'tanglebomb_launcher', name: 'Tanglebomb Launcher', type: 'ranged', cost: 10, limit: 2, handedness: 'two-handed', keywords: ['IGNORE ARMOUR', '+2 INJURY DICE', 'STUN MARKERS', 'NONLETHAL', 'BLAST 2"', 'STUN', 'TWO-HANDED'], description: '24", IGNORE ARMOUR, +2 INJURY DICE, STUN MARKERS, NONLETHAL, BLAST 2", STUN, TWO-HANDED. LIMIT: 2. Kroot Only.' },
+  { id: 'tanglebomb_launcher', name: 'Tanglebomb Launcher', type: 'ranged', cost: 10, limit: 2, handedness: 'two-handed', keywords: ['IGNORE ARMOUR', '+2 INJURY DICE', 'STUN MARKERS', 'NONLETHAL', 'BLAST 2"', 'STUN', 'TWO-HANDED'], description: '24", IGNORE ARMOUR, +2 INJURY DICE, STUN MARKERS, NONLETHAL, BLAST 2", STUN, TWO-HANDED. LIMIT: 2. Kroot Only.', restrictedTo: ['KROOT'] },
   // Pistols
-  { id: 'kroot_pistol', name: 'Kroot Pistol', type: 'ranged', cost: 5, keywords: ['PISTOL'], description: '12", PISTOL. Kroot Only.' },
+  { id: 'kroot_pistol', name: 'Kroot Pistol', type: 'ranged', cost: 5, keywords: ['PISTOL'], description: '12", PISTOL. Kroot Only.', restrictedTo: ['KROOT'] },
   { id: 'pulse_pistol', name: 'Pulse Pistol', type: 'ranged', cost: 10, keywords: ['PISTOL'], description: '16", PISTOL.' },
   { id: 'twin_pulse_pistols', name: 'Twin Pulse Pistols', type: 'ranged', cost: 15, limit: 2, handedness: 'two-handed', keywords: ['+1 DICE', 'CUMBERSOME', 'TWO-HANDED', 'PISTOL'], description: '16", +1 DICE, CUMBERSOME, TWO-HANDED, PISTOL. LIMIT: 2.' },
   // Heavy Ranged
-  { id: 'londaxi_tribalest', name: 'Londaxi Tribalest', type: 'ranged', cost: 35, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'HEAVY', 'ARMOUR PIERCING 1', 'TWO-HANDED'], description: '18", +1 INJURY DICE, HEAVY, ARMOUR PIERCING 1, TWO-HANDED. Kroot Only.' },
-  { id: 'repeater_cannon_tau', name: 'Repeater Cannon', type: 'ranged', cost: 45, limit: 1, handedness: 'two-handed', keywords: ['AUTOMATIC 2', 'ASSAULT', 'HEAVY', 'TWO-HANDED'], description: '36", AUTOMATIC 2, ASSAULT, HEAVY, TWO-HANDED. LIMIT: 1. Kroot Only.' },
-  { id: 'tanglecannon', name: 'Tanglecannon', type: 'ranged', cost: 15, limit: 1, handedness: 'two-handed', keywords: ['IGNORE ARMOUR', '+2 INJURY DICE', 'STUN MARKERS', 'NONLETHAL', 'BLAST 3"', 'HEAVY', 'STUN', 'TWO-HANDED'], description: '36", IGNORE ARMOUR, +2 INJURY DICE, STUN MARKERS, NONLETHAL, BLAST 3", HEAVY, STUN, TWO-HANDED. LIMIT: 1. Kroot Only.' },
+  { id: 'londaxi_tribalest', name: 'Londaxi Tribalest', type: 'ranged', cost: 35, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'HEAVY', 'ARMOUR PIERCING 1', 'TWO-HANDED'], description: '18", +1 INJURY DICE, HEAVY, ARMOUR PIERCING 1, TWO-HANDED. Kroot Only.', restrictedTo: ['KROOT'] },
+  { id: 'repeater_cannon_tau', name: 'Repeater Cannon', type: 'ranged', cost: 45, limit: 1, handedness: 'two-handed', keywords: ['AUTOMATIC 2', 'ASSAULT', 'HEAVY', 'TWO-HANDED'], description: '36", AUTOMATIC 2, ASSAULT, HEAVY, TWO-HANDED. LIMIT: 1. Kroot Only.', restrictedTo: ['KROOT'] },
+  { id: 'tanglecannon', name: 'Tanglecannon', type: 'ranged', cost: 15, limit: 1, handedness: 'two-handed', keywords: ['IGNORE ARMOUR', '+2 INJURY DICE', 'STUN MARKERS', 'NONLETHAL', 'BLAST 3"', 'HEAVY', 'STUN', 'TWO-HANDED'], description: '36", IGNORE ARMOUR, +2 INJURY DICE, STUN MARKERS, NONLETHAL, BLAST 3", HEAVY, STUN, TWO-HANDED. LIMIT: 1. Kroot Only.', restrictedTo: ['KROOT'] },
   // Battlesuit Weapons
-  { id: 'battlesuit_blade', name: 'Battlesuit Blade', type: 'melee', cost: 15, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'CRITICAL', 'CUMBERSOME', 'TWO-HANDED'], description: 'Melee, +1 INJURY DICE, CRITICAL, CUMBERSOME, TWO-HANDED. Battlesuit Only.' },
-  { id: 'burst_cannon_tau', name: 'Burst Cannon', type: 'ranged', cost: 15, keywords: ['+1 DICE'], description: '18", +1 DICE. Recon Drone or Battlesuit Only.' },
-  { id: 'cyclic_ion_blaster', name: 'Cyclic Ion Blaster', type: 'ranged', cost: 90, handedness: 'two-handed', keywords: ['AUTOMATIC 2', '+1 INJURY DICE'], description: '18", AUTOMATIC 2, +1 INJURY DICE. 3 Glory. Standard/Overload profiles. Battlesuit Only.' },
-  { id: 'fragmentation_projector', name: 'Fragmentation Projector', type: 'ranged', cost: 35, keywords: ['IGNORE COVER', 'BLAST 3"', 'SHRAPNEL'], description: '24", IGNORE COVER, BLAST 3", SHRAPNEL. Battlesuit Only.' },
-  { id: 'fusion_blaster_tau', name: 'Fusion Blaster', type: 'ranged', cost: 40, limit: 2, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'IGNORE ARMOUR', 'TWO-HANDED'], description: '12", +1 INJURY DICE, IGNORE ARMOUR, TWO-HANDED. LIMIT: 2. Battlesuit Only.' },
-  { id: 'he_fusion_blaster', name: 'HE Fusion Blaster', type: 'ranged', cost: 150, limit: 1, handedness: 'two-handed', keywords: ['+2 INJURY DICE', 'IGNORE ARMOUR', 'TWO-HANDED'], description: '18", +2 INJURY DICE, IGNORE ARMOUR, TWO-HANDED. 5 Glory. LIMIT: 1. Elite Battlesuit Only.' },
-  { id: 'hi_plasma_rifle', name: 'HI Plasma Rifle', type: 'ranged', cost: 60, limit: 1, keywords: ['+1 INJURY MODIFIER', 'ARMOUR PIERCING 1'], description: '18", +1 INJURY MODIFIER, ARMOUR PIERCING 1. 2 Glory. LIMIT: 1. Elite Battlesuit Only.' },
-  { id: 'ho_burst_cannon', name: 'HO Burst Cannon', type: 'ranged', cost: 90, limit: 1, keywords: ['AUTOMATIC 2', '+1 DICE'], description: '18", AUTOMATIC 2, +1 DICE. 3 Glory. LIMIT: 1. Elite Battlesuit Only.' },
-  { id: 'missile_pod_tau', name: 'Missile Pod', type: 'ranged', cost: 20, keywords: ['IGNORE COVER'], description: '30", IGNORE COVER. Missile Drone or Battlesuit Only.' },
-  { id: 'plasma_rifle_tau', name: 'Plasma Rifle', type: 'ranged', cost: 35, keywords: ['+1 INJURY MODIFIER', 'ARMOUR PIERCING 1'], description: '18", +1 INJURY MODIFIER, ARMOUR PIERCING 1. Battlesuit Only.' },
-  { id: 'smart_missile_system', name: 'Smart Missile System', type: 'ranged', cost: 25, keywords: ['IGNORE COVER', 'IGNORE LONG RANGE'], description: '30", IGNORE COVER, IGNORE LONG RANGE. Battlesuit Only.' },
-  { id: 'tau_flamer', name: "T'au Flamer", type: 'ranged', cost: 30, limit: 2, keywords: ['FLAMETHROWER', 'IGNORE ARMOUR', '-1 INJURY DICE', 'FIRE'], description: '8", FLAMETHROWER, IGNORE ARMOUR, -1 INJURY DICE, FIRE. LIMIT: 2. Battlesuit Only.' },
-  { id: 'twin_burst_cannon', name: 'Twin Burst Cannon', type: 'ranged', cost: 60, limit: 1, handedness: 'two-handed', keywords: ['AUTOMATIC 2', '+1 DICE', 'TWO-HANDED'], description: '18", AUTOMATIC 2, +1 DICE, TWO-HANDED. 2 Glory. LIMIT: 1. Battlesuit Only.' },
+  { id: 'battlesuit_blade', name: 'Battlesuit Blade', type: 'melee', cost: 15, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'CRITICAL', 'CUMBERSOME', 'TWO-HANDED'], description: 'Melee, +1 INJURY DICE, CRITICAL, CUMBERSOME, TWO-HANDED. Battlesuit Only.', restrictedTo: ['VEHICLE'] },
+  { id: 'burst_cannon_tau', name: 'Burst Cannon', type: 'ranged', cost: 15, keywords: ['+1 DICE'], description: '18", +1 DICE. Recon Drone or Battlesuit Only.', restrictedTo: ['VEHICLE'] },
+  { id: 'cyclic_ion_blaster', name: 'Cyclic Ion Blaster', type: 'ranged', cost: 90, handedness: 'two-handed', keywords: ['AUTOMATIC 2', '+1 INJURY DICE'], description: '18", AUTOMATIC 2, +1 INJURY DICE. 3 Glory. Standard/Overload profiles. Battlesuit Only.', restrictedTo: ['VEHICLE'] },
+  { id: 'fragmentation_projector', name: 'Fragmentation Projector', type: 'ranged', cost: 35, keywords: ['IGNORE COVER', 'BLAST 3"', 'SHRAPNEL'], description: '24", IGNORE COVER, BLAST 3", SHRAPNEL. Battlesuit Only.', restrictedTo: ['VEHICLE'] },
+  { id: 'fusion_blaster_tau', name: 'Fusion Blaster', type: 'ranged', cost: 40, limit: 2, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'IGNORE ARMOUR', 'TWO-HANDED'], description: '12", +1 INJURY DICE, IGNORE ARMOUR, TWO-HANDED. LIMIT: 2. Battlesuit Only.', restrictedTo: ['VEHICLE'] },
+  { id: 'he_fusion_blaster', name: 'HE Fusion Blaster', type: 'ranged', cost: 150, limit: 1, handedness: 'two-handed', keywords: ['+2 INJURY DICE', 'IGNORE ARMOUR', 'TWO-HANDED'], description: '18", +2 INJURY DICE, IGNORE ARMOUR, TWO-HANDED. 5 Glory. LIMIT: 1. Elite Battlesuit Only.', restrictedTo: ['ELITE', 'VEHICLE'] },
+  { id: 'hi_plasma_rifle', name: 'HI Plasma Rifle', type: 'ranged', cost: 60, limit: 1, keywords: ['+1 INJURY MODIFIER', 'ARMOUR PIERCING 1'], description: '18", +1 INJURY MODIFIER, ARMOUR PIERCING 1. 2 Glory. LIMIT: 1. Elite Battlesuit Only.', restrictedTo: ['ELITE', 'VEHICLE'] },
+  { id: 'ho_burst_cannon', name: 'HO Burst Cannon', type: 'ranged', cost: 90, limit: 1, keywords: ['AUTOMATIC 2', '+1 DICE'], description: '18", AUTOMATIC 2, +1 DICE. 3 Glory. LIMIT: 1. Elite Battlesuit Only.', restrictedTo: ['ELITE', 'VEHICLE'] },
+  { id: 'missile_pod_tau', name: 'Missile Pod', type: 'ranged', cost: 20, keywords: ['IGNORE COVER'], description: '30", IGNORE COVER. Missile Drone or Battlesuit Only.', restrictedTo: ['VEHICLE'] },
+  { id: 'plasma_rifle_tau', name: 'Plasma Rifle', type: 'ranged', cost: 35, keywords: ['+1 INJURY MODIFIER', 'ARMOUR PIERCING 1'], description: '18", +1 INJURY MODIFIER, ARMOUR PIERCING 1. Battlesuit Only.', restrictedTo: ['VEHICLE'] },
+  { id: 'smart_missile_system', name: 'Smart Missile System', type: 'ranged', cost: 25, keywords: ['IGNORE COVER', 'IGNORE LONG RANGE'], description: '30", IGNORE COVER, IGNORE LONG RANGE. Battlesuit Only.', restrictedTo: ['VEHICLE'] },
+  { id: 'tau_flamer', name: "T'au Flamer", type: 'ranged', cost: 30, limit: 2, keywords: ['FLAMETHROWER', 'IGNORE ARMOUR', '-1 INJURY DICE', 'FIRE'], description: '8", FLAMETHROWER, IGNORE ARMOUR, -1 INJURY DICE, FIRE. LIMIT: 2. Battlesuit Only.', restrictedTo: ['VEHICLE'] },
+  { id: 'twin_burst_cannon', name: 'Twin Burst Cannon', type: 'ranged', cost: 60, limit: 1, handedness: 'two-handed', keywords: ['AUTOMATIC 2', '+1 DICE', 'TWO-HANDED'], description: '18", AUTOMATIC 2, +1 DICE, TWO-HANDED. 2 Glory. LIMIT: 1. Battlesuit Only.', restrictedTo: ['VEHICLE'] },
   // Heavy Battlesuit Weapons
-  { id: 'heavy_burst_cannon', name: 'Heavy Burst Cannon', type: 'ranged', cost: 50, handedness: 'two-handed', keywords: ['AUTOMATIC 2', '+1 INJURY DICE', 'HEAVY', 'TWO-HANDED'], description: '36", AUTOMATIC 2, +1 INJURY DICE, HEAVY, TWO-HANDED. Battlesuit Only.' },
-  { id: 'heavy_rail_rifle', name: 'Heavy Rail Rifle', type: 'ranged', cost: 90, limit: 1, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'IGNORE ARMOUR', 'RELOAD', 'CRITICAL', 'HEAVY', 'TWO-HANDED'], description: '48", +1 INJURY DICE, IGNORE ARMOUR, RELOAD, CRITICAL, HEAVY, TWO-HANDED. 3 Glory. LIMIT: 1. Battlesuit Only.' },
-  { id: 'high_yield_missile_pods', name: 'High-Yield Missile Pods', type: 'ranged', cost: 40, handedness: 'two-handed', keywords: ['AUTOMATIC 2', 'IGNORE COVER', 'HEAVY', 'TWO-HANDED'], description: '30", AUTOMATIC 2, IGNORE COVER, HEAVY, TWO-HANDED. Battlesuit Only.' },
-  { id: 'seeker_missile', name: 'Seeker Missile', type: 'ranged', cost: 35, handedness: 'two-handed', keywords: ['DEADLY', 'IGNORE COVER', 'IGNORE LONG RANGE', 'CONSUMABLE', 'HEAVY', 'TWO-HANDED'], description: '48", DEADLY, IGNORE COVER, IGNORE LONG RANGE, CONSUMABLE, HEAVY, TWO-HANDED. Can only be used once per battle. Battlesuit Only.' },
-  { id: 'twin_plasma_rifle_tau', name: 'Twin Plasma Rifle', type: 'ranged', cost: 35, handedness: 'two-handed', keywords: ['+1 DICE', '+1 INJURY MODIFIER', 'HEAVY', 'ARMOUR PIERCING 1', 'TWO-HANDED'], description: '18", +1 DICE, +1 INJURY MODIFIER, HEAVY, ARMOUR PIERCING 1, TWO-HANDED. Battlesuit Only.' },
-  { id: 'twin_smart_missile_system', name: 'Twin Smart Missile System', type: 'ranged', cost: 35, handedness: 'two-handed', keywords: ['+1 DICE', 'IGNORE COVER', 'IGNORE LONG RANGE', 'HEAVY', 'TWO-HANDED'], description: '30", +1 DICE, IGNORE COVER, IGNORE LONG RANGE, HEAVY, TWO-HANDED. Battlesuit Only.' },
+  { id: 'heavy_burst_cannon', name: 'Heavy Burst Cannon', type: 'ranged', cost: 50, handedness: 'two-handed', keywords: ['AUTOMATIC 2', '+1 INJURY DICE', 'HEAVY', 'TWO-HANDED'], description: '36", AUTOMATIC 2, +1 INJURY DICE, HEAVY, TWO-HANDED. Battlesuit Only.', restrictedTo: ['VEHICLE'] },
+  { id: 'heavy_rail_rifle', name: 'Heavy Rail Rifle', type: 'ranged', cost: 90, limit: 1, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'IGNORE ARMOUR', 'RELOAD', 'CRITICAL', 'HEAVY', 'TWO-HANDED'], description: '48", +1 INJURY DICE, IGNORE ARMOUR, RELOAD, CRITICAL, HEAVY, TWO-HANDED. 3 Glory. LIMIT: 1. Battlesuit Only.', restrictedTo: ['VEHICLE'] },
+  { id: 'high_yield_missile_pods', name: 'High-Yield Missile Pods', type: 'ranged', cost: 40, handedness: 'two-handed', keywords: ['AUTOMATIC 2', 'IGNORE COVER', 'HEAVY', 'TWO-HANDED'], description: '30", AUTOMATIC 2, IGNORE COVER, HEAVY, TWO-HANDED. Battlesuit Only.', restrictedTo: ['VEHICLE'] },
+  { id: 'seeker_missile', name: 'Seeker Missile', type: 'ranged', cost: 35, handedness: 'two-handed', keywords: ['DEADLY', 'IGNORE COVER', 'IGNORE LONG RANGE', 'CONSUMABLE', 'HEAVY', 'TWO-HANDED'], description: '48", DEADLY, IGNORE COVER, IGNORE LONG RANGE, CONSUMABLE, HEAVY, TWO-HANDED. Can only be used once per battle. Battlesuit Only.', restrictedTo: ['VEHICLE'] },
+  { id: 'twin_plasma_rifle_tau', name: 'Twin Plasma Rifle', type: 'ranged', cost: 35, handedness: 'two-handed', keywords: ['+1 DICE', '+1 INJURY MODIFIER', 'HEAVY', 'ARMOUR PIERCING 1', 'TWO-HANDED'], description: '18", +1 DICE, +1 INJURY MODIFIER, HEAVY, ARMOUR PIERCING 1, TWO-HANDED. Battlesuit Only.', restrictedTo: ['VEHICLE'] },
+  { id: 'twin_smart_missile_system', name: 'Twin Smart Missile System', type: 'ranged', cost: 35, handedness: 'two-handed', keywords: ['+1 DICE', 'IGNORE COVER', 'IGNORE LONG RANGE', 'HEAVY', 'TWO-HANDED'], description: '30", +1 DICE, IGNORE COVER, IGNORE LONG RANGE, HEAVY, TWO-HANDED. Battlesuit Only.', restrictedTo: ['VEHICLE'] },
   // Melee
   { id: 'bladestave_tau', name: 'Bladestave', type: 'melee', cost: 5, limit: 3, handedness: 'two-handed', keywords: ['CRITICAL', 'CUMBERSOME', 'TWO-HANDED'], description: 'Melee, CRITICAL, CUMBERSOME, TWO-HANDED. Enemies cannot Retreat from close combat. LIMIT: 3.' },
-  { id: 'equalizer_tau', name: 'Equalizer', type: 'melee', cost: 25, limit: 1, isMainHandOnly: true, keywords: ['IGNORE ARMOUR', 'MAIN HAND ONLY'], description: 'Melee, IGNORE ARMOUR, MAIN HAND ONLY. LIMIT: 1. Ethereal Only.' },
-  { id: 'honor_blade_tau', name: 'Honor Blade', type: 'melee', cost: 15, isMainHandOnly: true, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'CUMBERSOME', 'TWO-HANDED', 'MAIN HAND ONLY'], description: 'Melee, +1 INJURY DICE, CUMBERSOME, TWO-HANDED, MAIN HAND ONLY. Elite Only.' },
-  { id: 'kroot_bayonet', name: 'Kroot Bayonet', type: 'melee', cost: 3, keywords: ['CRITICAL'], description: 'Melee, CRITICAL. Kroot Only. Counts as Bayonet for Bayonet Lug.' },
+  { id: 'equalizer_tau', name: 'Equalizer', type: 'melee', cost: 25, limit: 1, isMainHandOnly: true, keywords: ['IGNORE ARMOUR', 'MAIN HAND ONLY'], description: 'Melee, IGNORE ARMOUR, MAIN HAND ONLY. LIMIT: 1. Ethereal Only.', restrictedTo: ['LEADER'] },
+  { id: 'honor_blade_tau', name: 'Honor Blade', type: 'melee', cost: 15, isMainHandOnly: true, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'CUMBERSOME', 'TWO-HANDED', 'MAIN HAND ONLY'], description: 'Melee, +1 INJURY DICE, CUMBERSOME, TWO-HANDED, MAIN HAND ONLY. Elite Only.', restrictedTo: ['ELITE'] },
+  { id: 'kroot_bayonet', name: 'Kroot Bayonet', type: 'melee', cost: 3, keywords: ['CRITICAL'], description: 'Melee, CRITICAL. Kroot Only. Counts as Bayonet for Bayonet Lug.', restrictedTo: ['KROOT'] },
   { id: 'short_blade_tau', name: 'Short Blade', type: 'melee', cost: 3, keywords: [], description: 'Melee.' },
   // Thrown
-  { id: 'blast_javelin_tau', name: 'Blast Javelin', type: 'ranged', cost: 15, limit: 1, keywords: ['ASSAULT', '+1 INJURY DICE', 'IGNORE ARMOUR', 'PISTOL', 'THROWN', 'CONSUMABLE'], description: '18", ASSAULT, +1 INJURY DICE, IGNORE ARMOUR, PISTOL, THROWN, CONSUMABLE. LIMIT: 1. Kroot Only.' },
+  { id: 'blast_javelin_tau', name: 'Blast Javelin', type: 'ranged', cost: 15, limit: 1, keywords: ['ASSAULT', '+1 INJURY DICE', 'IGNORE ARMOUR', 'PISTOL', 'THROWN', 'CONSUMABLE'], description: '18", ASSAULT, +1 INJURY DICE, IGNORE ARMOUR, PISTOL, THROWN, CONSUMABLE. LIMIT: 1. Kroot Only.', restrictedTo: ['KROOT'] },
   { id: 'emp_grenades_tau', name: 'EMP Grenades', type: 'ranged', cost: 12, limit: 2, keywords: ['IGNORE ARMOUR', '-1 INJURY DICE', 'ASSAULT', 'BLAST 3"', 'IGNORE COVER', 'IGNORE LONG RANGE', 'STUN', 'THROWN'], description: '8", IGNORE ARMOUR, -1 INJURY DICE non-ARTIFICIAL/VEHICLE, ASSAULT, BLAST 3", IGNORE COVER, IGNORE LONG RANGE, STUN, THROWN. LIMIT: 2.' },
-  { id: 'hunting_javelins', name: 'Hunting Javelins', type: 'ranged', cost: 15, keywords: ['ASSAULT', 'PISTOL', 'THROWN'], description: '18", ASSAULT, PISTOL, THROWN. +1 INJURY DICE in melee if Charged this Activation. Kroot Only.' },
+  { id: 'hunting_javelins', name: 'Hunting Javelins', type: 'ranged', cost: 15, keywords: ['ASSAULT', 'PISTOL', 'THROWN'], description: '18", ASSAULT, PISTOL, THROWN. +1 INJURY DICE in melee if Charged this Activation. Kroot Only.', restrictedTo: ['KROOT'] },
   { id: 'photon_grenades', name: 'Photon Grenades', type: 'ranged', cost: 10, keywords: ['ASSAULT', 'BLAST 3"', 'IGNORE COVER', 'IGNORE LONG RANGE', 'STUN', 'THROWN'], description: '8", ASSAULT, BLAST 3", IGNORE COVER, IGNORE LONG RANGE, STUN, THROWN. Causes no injury but STUN MARKER. Target cannot attack models that Retreat until end of Turn.' },
-  { id: 'tri_blades_tau', name: 'Tri-Blades', type: 'ranged', cost: 5, keywords: ['IGNORE LONG RANGE', 'ASSAULT', 'THROWN'], description: '12", IGNORE LONG RANGE, ASSAULT, THROWN. Kroot Only.' },
+  { id: 'tri_blades_tau', name: 'Tri-Blades', type: 'ranged', cost: 5, keywords: ['IGNORE LONG RANGE', 'ASSAULT', 'THROWN'], description: '12", IGNORE LONG RANGE, ASSAULT, THROWN. Kroot Only.', restrictedTo: ['KROOT'] },
+  // Campaign Shop Weapons
+  { id: 'ka_chak_tarr', name: "Ka'chak'tarr", type: 'ranged', cost: 90, limit: 1, handedness: 'two-handed', keywords: ['AUTOMATIC 2', 'IGNORE COVER', 'ASSAULT', 'ARMOUR PIERCING 1', 'TWO-HANDED'], description: '24", AUTOMATIC 2, IGNORE COVER, ASSAULT, ARMOUR PIERCING 1, TWO-HANDED. Enemies cannot change the target of attacks made with this weapon. 3 Glory. LIMIT: 1. Kroot Only.', restrictedTo: ['KROOT'] },
+  { id: 'kindled_blade_tau', name: 'Kindled Blade', type: 'melee', cost: 90, limit: 1, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'CUMBERSOME', 'TWO-HANDED'], description: 'Melee, +1 INJURY DICE, CUMBERSOME, TWO-HANDED. Friendly non-ARTIFICIAL, non-VEHICLE, non-KROOT T\'au models within 9" of the bearer have +1 DICE to Hit with all attacks. 3 Glory. LIMIT: 1. Elite Only.', restrictedTo: ['ELITE'] },
+  { id: 'krep_chak', name: "Krep'chak", type: 'melee', cost: 90, limit: 1, keywords: ['CLEAVE 2', 'CRITICAL'], description: "Melee, CLEAVE 2, CRITICAL. The first time the equipped model takes an enemy Out of Action in melee during each battle, this weapon gains +1 INJURY DICE and ARMOUR PIERCING 1 until the end of the battle. 3 Glory. LIMIT: 1. Kroot Only.", restrictedTo: ['KROOT'] },
+  { id: 'onager_gauntlet_tau', name: 'Onager Gauntlet', type: 'melee', cost: 60, limit: 1, handedness: 'two-handed', keywords: ['+1 INJURY MODIFIER', 'IGNORE ARMOUR', 'CUMBERSOME', 'HEAVY', 'TWO-HANDED'], description: 'Melee, +1 INJURY MODIFIER, IGNORE ARMOUR, CUMBERSOME, HEAVY, TWO-HANDED. 2 Glory. LIMIT: 1. Battlesuit Only.', restrictedTo: ['VEHICLE'] },
 ];
 
 // ============================================================================
@@ -3373,7 +3422,7 @@ export const slanniWeapons: Weapon[] = [
   // Melee
   { id: 'astromancers_staff', name: "Astromancer's Staff", type: 'melee', cost: 90, keywords: ['PSYCHIC', 'HELD'], description: 'Melee, PSYCHIC, HELD. 3 Glory. Starpriest Only. Allies within 3" always Charge max distance; enemies charging bearer/allies within 3" do not add D6.' },
   { id: 'glaive_slanni', name: 'Glaive', type: 'melee', cost: 7, handedness: 'two-handed', keywords: ['BLOCK', 'TWO-HANDED'], description: 'Melee, BLOCK, TWO-HANDED, Shield Combo.' },
-  { id: 'mage_staff', name: 'Mage Staff', type: 'melee', cost: 5, isMainHandOnly: true, keywords: ['+1 DICE', 'PSYCHIC', 'HELD', 'MAIN HAND ONLY'], description: 'Melee, +1 DICE, +1 INJURY DICE vs DAEMON/PSYKER, PSYCHIC, HELD, MAIN HAND ONLY. Psyker Only.' },
+  { id: 'mage_staff', name: 'Mage Staff', type: 'melee', cost: 5, isMainHandOnly: true, keywords: ['+1 DICE', 'PSYCHIC', 'HELD', 'MAIN HAND ONLY'], description: 'Melee, +1 DICE, +1 INJURY DICE vs DAEMON/PSYKER, PSYCHIC, HELD, MAIN HAND ONLY. Psyker Only.', restrictedTo: ['PSYKER'] },
   // Heavy Melee
   { id: 'celestite_warmace', name: 'Celestite Warmace', type: 'melee', cost: 25, limit: 1, handedness: 'two-handed', keywords: ['+1 INJURY MODIFIER', 'HEAVY', 'TWO-HANDED'], description: 'Melee, +1 INJURY MODIFIER, HEAVY, IGNORE ARMOUR on Critical Hit, TWO-HANDED. LIMIT: 1.' },
   { id: 'gravity_fist', name: 'Gravity Fist', type: 'melee', cost: 15, limit: 2, keywords: ['+1 INJURY MODIFIER', 'HEAVY', 'STUN'], description: 'Melee, +1 INJURY MODIFIER, HEAVY, STUN. LIMIT: 2.' },
@@ -3404,9 +3453,9 @@ export const orksWeapons: Weapon[] = [
   { id: 'rokkit_pistol', name: 'Rokkit Pistol', type: 'ranged', cost: 5, keywords: ['HEAVY', 'RISKY', 'ARMOUR PIERCING 1', 'PISTOL'], description: '12", HEAVY, RISKY, ARMOUR PIERCING 1, PISTOL.' },
   { id: 'shokka_pistol', name: 'Shokka Pistol', type: 'ranged', cost: 5, keywords: ['ASSAULT', 'HEAVY', 'PISTOL', 'RISKY', 'STUN'], description: '12", ASSAULT, HEAVY, PISTOL, RISKY, STUN. Mek or Big Mek Only.' },
   { id: 'slugga', name: 'Slugga', type: 'ranged', cost: 3, keywords: ['ASSAULT', 'RISKY', 'PISTOL'], description: '12", ASSAULT, RISKY, PISTOL.' },
-  { id: 'twin_slugga', name: 'Twin Slugga', type: 'ranged', cost: 15, limit: 2, keywords: ['AUTOMATIC 2', 'ASSAULT', 'HEAVY', 'RISKY', 'PISTOL'], description: '12", AUTOMATIC 2, ASSAULT, HEAVY, RISKY, PISTOL. LIMIT: 2. Elite Only.' },
+  { id: 'twin_slugga', name: 'Twin Slugga', type: 'ranged', cost: 15, limit: 2, keywords: ['AUTOMATIC 2', 'ASSAULT', 'HEAVY', 'RISKY', 'PISTOL'], description: '12", AUTOMATIC 2, ASSAULT, HEAVY, RISKY, PISTOL. LIMIT: 2. Elite Only.', restrictedTo: ['ELITE'] },
   // Heavy Ranged
-  { id: 'big_shoota', name: 'Big Shoota', type: 'ranged', cost: 35, handedness: 'two-handed', keywords: ['AUTOMATIC 3', 'HEAVY', 'RELOAD', 'RISKY', 'TWO-HANDED'], description: '36", AUTOMATIC 3, HEAVY, RELOAD, RISKY, TWO-HANDED. Elite Only.' },
+  { id: 'big_shoota', name: 'Big Shoota', type: 'ranged', cost: 35, handedness: 'two-handed', keywords: ['AUTOMATIC 3', 'HEAVY', 'RELOAD', 'RISKY', 'TWO-HANDED'], description: '36", AUTOMATIC 3, HEAVY, RELOAD, RISKY, TWO-HANDED. Elite Only.', restrictedTo: ['ELITE'] },
   { id: 'deffgun', name: 'Deffgun', type: 'ranged', cost: 60, limit: 1, handedness: 'two-handed', keywords: ['AUTOMATIC 2', '+1 INJURY DICE', 'HEAVY', 'RISKY', 'TWO-HANDED'], description: '36", AUTOMATIC 2, +1 INJURY DICE, HEAVY, RISKY, TWO-HANDED. 2 Glory. LIMIT: 1.' },
   { id: 'kombi_weapon_orks', name: 'Kombi-Weapon', type: 'ranged', cost: 30, limit: 3, keywords: ['AUTOMATIC 2', 'ASSAULT', 'CRITICAL', 'HEAVY', 'RISKY'], description: '24", AUTOMATIC 2, ASSAULT, CRITICAL, HEAVY, RISKY. LIMIT: 3.' },
   { id: 'kustom_mega_blasta', name: 'Kustom Mega-Blasta', type: 'ranged', cost: 20, limit: 1, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'HEAVY', 'ARMOUR PIERCING 2', 'RISKY', 'TWO-HANDED'], description: '24", +1 INJURY DICE, HEAVY, ARMOUR PIERCING 2, RISKY, TWO-HANDED. Self-hit on miss. LIMIT: 1. Mek or Big Mek Only.' },
@@ -3426,7 +3475,7 @@ export const orksWeapons: Weapon[] = [
   { id: 'lil_stikka', name: "Lil' Stikka", type: 'melee', cost: 3, keywords: [], description: 'Melee.' },
   { id: 'power_snappa', name: 'Power Snappa', type: 'melee', cost: 15, limit: 2, keywords: ['CRITICAL', 'ARMOUR PIERCING 1', 'RISKY'], description: 'Melee, CRITICAL, ARMOUR PIERCING 1, RISKY. LIMIT: 2.' },
   { id: 'twin_choppas', name: 'Twin Choppas', type: 'melee', cost: 12, handedness: 'two-handed', keywords: ['CRITICAL', 'IGNORE OFF-HAND', 'TWO-HANDED'], description: 'Melee, CRITICAL, IGNORE OFF-HAND. Comes as a pair. Elite or Kommando Only.' },
-  { id: 'weirdboy_staff', name: 'Weirdboy Staff', type: 'melee', cost: 5, isMainHandOnly: true, keywords: ['+1 DICE', '+1 INJURY DICE vs DAEMON/PSYKER', 'PSYCHIC', 'HELD', 'MAIN HAND ONLY'], description: 'Melee, +1 DICE, +1 INJURY DICE vs DAEMON/PSYKER, PSYCHIC, HELD, MAIN HAND ONLY. Psyker Only.' },
+  { id: 'weirdboy_staff', name: 'Weirdboy Staff', type: 'melee', cost: 5, isMainHandOnly: true, keywords: ['+1 DICE', '+1 INJURY DICE vs DAEMON/PSYKER', 'PSYCHIC', 'HELD', 'MAIN HAND ONLY'], description: 'Melee, +1 DICE, +1 INJURY DICE vs DAEMON/PSYKER, PSYCHIC, HELD, MAIN HAND ONLY. Psyker Only.', restrictedTo: ['PSYKER'] },
   // Heavy Melee
   { id: 'big_choppa', name: 'Big Choppa', type: 'melee', cost: 12, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'CRITICAL', 'HEAVY', 'TWO-HANDED'], description: 'Melee, +1 INJURY DICE, CRITICAL, HEAVY, TWO-HANDED.' },
   { id: 'drilla_orks', name: 'Drilla', type: 'melee', cost: 40, limit: 1, handedness: 'two-handed', keywords: ['-1 DICE', '+1 INJURY MODIFIER', 'IGNORE ARMOUR', 'HEAVY', 'RISKY', 'TWO-HANDED'], description: 'Melee, -1 DICE, +1 INJURY MODIFIER, IGNORE ARMOUR, HEAVY, RISKY, TWO-HANDED. LIMIT: 1.' },
@@ -3436,7 +3485,7 @@ export const orksWeapons: Weapon[] = [
   { id: 'smash_hammer_orks', name: 'Smash Hammer', type: 'melee', cost: 10, handedness: 'two-handed', keywords: ['+1 INJURY MODIFIER', 'HEAVY', 'TWO-HANDED'], description: 'Melee, +1 INJURY MODIFIER, HEAVY, TWO-HANDED.' },
   { id: 'power_stabba', name: 'Power Stabba', type: 'melee', cost: 15, limit: 1, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'HEAVY', 'ARMOUR PIERCING 1', 'TWO-HANDED'], description: 'Melee, +1 INJURY DICE, HEAVY, ARMOUR PIERCING 1, TWO-HANDED. LIMIT: 1.' },
   { id: 'tankhammer', name: 'Tankhammer', type: 'melee', cost: 25, limit: 2, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'IGNORE ARMOUR', 'HEAVY', 'TWO-HANDED'], description: 'Melee, +1 INJURY DICE, IGNORE ARMOUR, HEAVY, TWO-HANDED. On a hit, wielder suffers 1 BLOOD MARKER. LIMIT: 2.' },
-  { id: 'twin_killsaw', name: 'Twin Killsaw', type: 'melee', cost: 50, limit: 1, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'IGNORE ARMOUR', 'HEAVY', 'RISKY', 'TWO-HANDED'], description: 'Melee, +1 INJURY DICE, IGNORE ARMOUR, HEAVY, RISKY, TWO-HANDED. LIMIT: 1. Elite Only.' },
+  { id: 'twin_killsaw', name: 'Twin Killsaw', type: 'melee', cost: 50, limit: 1, handedness: 'two-handed', keywords: ['+1 INJURY DICE', 'IGNORE ARMOUR', 'HEAVY', 'RISKY', 'TWO-HANDED'], description: 'Melee, +1 INJURY DICE, IGNORE ARMOUR, HEAVY, RISKY, TWO-HANDED. LIMIT: 1. Elite Only.', restrictedTo: ['ELITE'] },
   { id: 'uge_choppa', name: "'Uge Choppa", type: 'melee', cost: 50, limit: 1, handedness: 'two-handed', keywords: ['DEADLY', 'CRITICAL', 'HEAVY', 'TWO-HANDED'], description: "Melee, DEADLY, CRITICAL, HEAVY, TWO-HANDED. LIMIT: 1. Warboss Only." },
   // Thrown
   { id: 'firey_stikkbombs', name: 'Firey Stikkbombs', type: 'ranged', cost: 10, limit: 2, keywords: ['IGNORE ARMOUR on Critical', 'ASSAULT', 'FIRE', 'IGNORE COVER', 'IGNORE LONG RANGE', 'RISKY', 'THROWN'], description: '8", IGNORE ARMOUR on Critical, ASSAULT, FIRE, IGNORE COVER, IGNORE LONG RANGE, RISKY, THROWN. LIMIT: 2.' },
@@ -3464,7 +3513,7 @@ export const chaosDaemonsWeapons: Weapon[] = [
   { id: 'marotter', name: 'Marotter', type: 'melee', cost: 5, limit: 2, keywords: ['GAS'], description: 'Melee, GAS. LIMIT: 2. Elite Only. Plague Legion.' },
   { id: 'plaguesword', name: 'Plaguesword', type: 'melee', cost: 5, handedness: 'two-handed', keywords: ['INFECTION MARKERS', 'TWO-HANDED'], description: 'Melee, INFECTION MARKERS, TWO-HANDED. Plague Legion.' },
   // Scintillating Legion
-  { id: 'herald_staff', name: 'Herald Staff', type: 'melee', cost: 10, isMainHandOnly: true, keywords: ['+1 INJURY MODIFIER', 'PSYCHIC', 'HELD'], description: 'Melee, +1 INJURY MODIFIER, PSYCHIC, HELD. Psyker Only. Scintillating Legion.' },
+  { id: 'herald_staff', name: 'Herald Staff', type: 'melee', cost: 10, isMainHandOnly: true, keywords: ['+1 INJURY MODIFIER', 'PSYCHIC', 'HELD'], description: 'Melee, +1 INJURY MODIFIER, PSYCHIC, HELD. Psyker Only. Scintillating Legion.', restrictedTo: ['PSYKER'] },
   { id: 'ritual_dagger', name: 'Ritual Dagger', type: 'melee', cost: 23, limit: 1, keywords: ['+2 INJURY MODIFIER', 'CRITICAL'], description: '+2 INJURY MODIFIER, CRITICAL. LIMIT: 1. Elite Only. Scintillating Legion.' },
   { id: 'soul_eater_stave', name: 'Soul-Eater Stave', type: 'melee', cost: 30, limit: 1, isMainHandOnly: true, keywords: ['+1 INJURY DICE vs DAEMON/PSYKER', 'PSYCHIC', 'HELD'], description: 'Melee, +1 INJURY DICE vs DAEMON/PSYKER, PSYCHIC, HELD. 1 Glory. LIMIT: 1. Psyker Only. Remove BLOOD MARKER when taking enemy OOA with PSYCHIC. Scintillating Legion.' },
 ];
@@ -3557,7 +3606,8 @@ export const adeptusAstartesVariantWeapons: Weapon[] = [
     cost: 15,
     handedness: 'two-handed',
     keywords: ['VICIOUS 11', 'CRITICAL', 'PSYCHIC', 'TWO-HANDED'],
-    description: '24" VICIOUS 11, +1 INJURY DICE against DAEMON or PSYKER, CRITICAL, PSYCHIC, TWO-HANDED. Psyker Only. (Grey Knights only)'
+    description: '24" VICIOUS 11, +1 INJURY DICE against DAEMON or PSYKER, CRITICAL, PSYCHIC, TWO-HANDED. Psyker Only. (Grey Knights only)',
+    restrictedTo: ['PSYKER'],
   },
   {
     id: 'psilencer',
@@ -3568,7 +3618,8 @@ export const adeptusAstartesVariantWeapons: Weapon[] = [
     limit: 2,
     handedness: 'two-handed',
     keywords: ['AUTOMATIC 2', 'ASSAULT', 'PSYCHIC', 'TWO-HANDED'],
-    description: '24" AUTOMATIC 2, ASSAULT, PSYCHIC, TWO-HANDED. LIMIT: 2. Psyker Only. (Grey Knights only)'
+    description: '24" AUTOMATIC 2, ASSAULT, PSYCHIC, TWO-HANDED. LIMIT: 2. Psyker Only. (Grey Knights only)',
+    restrictedTo: ['PSYKER'],
   },
   {
     id: 'heavy_psycannon',
@@ -3578,7 +3629,8 @@ export const adeptusAstartesVariantWeapons: Weapon[] = [
     cost: 45,
     handedness: 'two-handed',
     keywords: ['VICIOUS 11', '+1 INJURY DICE', 'CRITICAL', 'HEAVY', 'PSYCHIC', 'TWO-HANDED'],
-    description: '24" VICIOUS 11, +1 INJURY DICE, +1 INJURY DICE vs DAEMON/PSYKER, CRITICAL, HEAVY, PSYCHIC, TWO-HANDED. Psyker Only. (Grey Knights only)'
+    description: '24" VICIOUS 11, +1 INJURY DICE, +1 INJURY DICE vs DAEMON/PSYKER, CRITICAL, HEAVY, PSYCHIC, TWO-HANDED. Psyker Only. (Grey Knights only)',
+    restrictedTo: ['PSYKER'],
   },
   {
     id: 'heavy_force_weapon_gk',
@@ -3588,7 +3640,8 @@ export const adeptusAstartesVariantWeapons: Weapon[] = [
     limit: 2,
     handedness: 'two-handed',
     keywords: ['+2 INJURY DICE', 'HEAVY', 'PSYCHIC', 'TWO-HANDED', 'HELD'],
-    description: 'Melee +2 INJURY DICE, +1 INJURY DICE vs DAEMON/PSYKER, HEAVY, PSYCHIC, TWO-HANDED, HELD. LIMIT: 2. Psyker Only. (Grey Knights only)'
+    description: 'Melee +2 INJURY DICE, +1 INJURY DICE vs DAEMON/PSYKER, HEAVY, PSYCHIC, TWO-HANDED, HELD. LIMIT: 2. Psyker Only. (Grey Knights only)',
+    restrictedTo: ['PSYKER'],
   },
   {
     id: 'nemesis_force_weapon_gk',
@@ -3764,6 +3817,7 @@ export const factionSpecificWeaponIds = new Set<string>([
   'terrorchem_vials_nl',
   'inferno_boltgun_ts', 'inferno_bolt_pistol_ts', 'inferno_combi_bolter_ts',
   'force_stave_ts', 'power_claw_ts', 'soulreaper_cannon_ts',
+  'meltagun_ts', 'hand_flamer_ts',
   'axe_of_dismemberment_we', 'blood_harpoon_we', 'heavy_chain_weapon_we',
   // Chaos Cult
   'burning_censer_cc',

@@ -1,6 +1,7 @@
 import { useRef, useState, type ReactNode } from 'react';
 import { Warband, WarbandUnit, UnitOption, UnitSubType, SelectedWargear, WargearOption, SelectedPsychicPower, SelectedGiftOfChaos, UnitUpgrade, WarbandMercenary, Mercenary, MercenaryStats, SharedWarbandProps } from '../../types/index.js';
 import { getFactionById, allFactions } from '../../data/factions_complete.js';
+import { MARKS_OF_CHAOS_UPGRADES } from '../../data/equipment.js';
 import {
   calculateWarbandPoints,
   calculateWarbandGlory,
@@ -52,8 +53,19 @@ export function MobileApp({
 
   const currentFaction = getFactionById(selectedFaction);
   const currentSubFaction = getSubFactionById(selectedFaction, selectedSubFaction);
-  const bannedUnitIdsSet = new Set<string>(currentSubFaction?.bannedUnitIds ?? []);
-  const unitMaxCountOverrides = currentSubFaction?.unitMaxCountOverrides ?? {};
+  // Variant option (e.g. Changehost, Daemonkin, Tallyband, Carnival of Excess): merge extra bans/overrides/units when active
+  const variantCfg = warband.variantOptionEnabled ? currentSubFaction?.variantOption : undefined;
+  const bannedUnitIdsSet = new Set<string>([
+    ...(currentSubFaction?.bannedUnitIds ?? []),
+    ...(variantCfg?.bannedUnitIds ?? []),
+  ]);
+  const unitMaxCountOverrides: Record<string, number> = {
+    ...(currentSubFaction?.unitMaxCountOverrides ?? {}),
+    ...(variantCfg?.unitMaxCountOverrides ?? {}),
+  };
+  const upgradeMaxCountOverrides: Record<string, number> = {
+    ...(currentSubFaction?.upgradeMaxCountOverrides ?? {}),
+  };
   const allAvailableUnits: UnitOption[] = [
     ...(currentFaction?.units.filter(u => !bannedUnitIdsSet.has(u.id)).map(u =>
       unitMaxCountOverrides[u.id] !== undefined
@@ -61,6 +73,7 @@ export function MobileApp({
         : u
     ) ?? []),
     ...(currentSubFaction?.extraUnits ?? []),
+    ...(variantCfg?.extraUnits ?? []),
   ];
   const validation     = validateWarband(warband);
   const totalPoints    = calculateWarbandPoints(warband);
@@ -73,6 +86,22 @@ export function MobileApp({
   const [psychicUnitIdx, setPsychicUnitIdx]     = useState<number | null>(null);
   const [mutationUnitIdx, setMutationUnitIdx]   = useState<number | null>(null);
   const [upgradeUnitIdx, setUpgradeUnitIdx]     = useState<number | null>(null);
+  // ── Custom unit naming ────────────────────────────────────────────────
+  const [renamingUnitId, setRenamingUnitId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+  const startRename  = (unitId: string, current: string) => { setRenamingUnitId(unitId); setRenameValue(current); };
+  const cancelRename = () => setRenamingUnitId(null);
+  const commitRename = (unitId: string) => {
+    const trimmed = renameValue.trim();
+    setWarband(prev => {
+      const i = prev.units.findIndex(u => u.id === unitId);
+      if (i < 0) return prev;
+      const updated = [...prev.units];
+      updated[i] = { ...updated[i], customName: trimmed || undefined };
+      return { ...prev, units: updated };
+    });
+    setRenamingUnitId(null);
+  };
   const [infoUnit, setInfoUnit]                 = useState<UnitOption | null>(null);
   const [infoWargear, setInfoWargear]           = useState<SelectedWargear[] | undefined>(undefined);
   const [infoSelectedUpgrades, setInfoSelectedUpgrades] = useState<Record<string, number>>({});
@@ -176,6 +205,7 @@ export function MobileApp({
       ...prev,
       subfaction: newSubFactionId === 'no_variant' ? undefined : newSubFactionId,
       subfactionName: newSubFactionId === 'no_variant' ? undefined : (sf?.name ?? undefined),
+      variantOptionEnabled: undefined, // reset variant option when switching subfaction
       units: [],
       mercenaries: [],
     }));
@@ -205,7 +235,6 @@ export function MobileApp({
   const commitAddUnit = (unit: UnitOption, subType: UnitSubType | null) => {
     const currency    = unit.costCurrency ?? 'credits';
     const costMod     = subType?.creditCostModifier ?? 0;
-    const displayName = subType ? subType.name : unit.name;
 
     // Auto-apply mark for warband variants (e.g. World Eaters → Mark of Khorne)
     const autoMark = currentSubFaction?.autoMark;
@@ -281,6 +310,7 @@ export function MobileApp({
     }
 
     const effectiveCost = unit.baseCost + costMod + markCostBonus + modCostBonus;
+    const autoMarkUpgDef = MARKS_OF_CHAOS_UPGRADES.find(u => u.id === autoMark?.markId);
     const autoMarkWargear: SelectedWargear[] = shouldApplyMark ? [{
       id: autoMark!.markId,
       name: autoMark!.markName,
@@ -290,6 +320,8 @@ export function MobileApp({
       slot: 'mark' as const,
       quantity: 1,
       isDefault: true,
+      isSubfactionRule: true,
+      description: autoMarkUpgDef?.description ?? `Automatic subfaction mark. Grants: ${autoMark!.grantedKeywords.join(', ')}.`,
       grantsKeywords: autoMark!.grantedKeywords,
     }] : [];
     const autoMarkKeywords = shouldApplyMark ? autoMark!.grantedKeywords : [];
@@ -297,7 +329,7 @@ export function MobileApp({
     const newUnit = {
       id: `unit-${Date.now()}`,
       unitId: unit.id,
-      name: displayName,
+      name: unit.name,
       count: 1,
       baseCostPerModel: effectiveCost,
       costCurrency: currency,
@@ -324,6 +356,42 @@ export function MobileApp({
 
   const handleRemoveUnit = (unitIndex: number) => {
     setWarband(prev => ({ ...prev, units: prev.units.filter((_, i) => i !== unitIndex) }));
+  };
+
+  const getWarbandWeaponCounts = (units: Warband['units']): Record<string, number> => {
+    const counts: Record<string, number> = {};
+    for (const u of units) {
+      for (const sw of u.selectedWargear) {
+        if (sw.type !== 'weapon' || sw.isDefault) continue;
+        counts[sw.id] = (counts[sw.id] ?? 0) + sw.quantity;
+      }
+    }
+    return counts;
+  };
+
+  const handleCloneUnit = (unitIndex: number) => {
+    setWarband(prev => {
+      const source = prev.units[unitIndex];
+      const counts = getWarbandWeaponCounts(prev.units);
+      for (const sw of source.selectedWargear) {
+        if (sw.type !== 'weapon' || sw.isDefault) continue;
+        const weapon = lookupWeapon(sw.id);
+        const limit = currentSubFaction?.wargearLimitOverrides?.[sw.id] ?? weapon?.limit;
+        if (limit !== undefined && (counts[sw.id] ?? 0) + sw.quantity > limit) {
+          flashMsg(`Cannot clone: ${sw.name} is limited to ${limit} per warband.`, false);
+          return prev;
+        }
+      }
+      const clone = {
+        ...source,
+        id: `unit-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        selectedWargear: source.selectedWargear.map(w => ({ ...w })),
+        selectedUpgrades: source.selectedUpgrades ? { ...source.selectedUpgrades } : undefined,
+        selectedPsychicPowers: source.selectedPsychicPowers ? [...source.selectedPsychicPowers] : undefined,
+        selectedGiftsOfChaos: source.selectedGiftsOfChaos ? [...source.selectedGiftsOfChaos] : undefined,
+      };
+      return { ...prev, units: [...prev.units, clone] };
+    });
   };
 
   const handleChangeUnitCount = (unitIndex: number, newCount: number) => {
@@ -380,9 +448,12 @@ export function MobileApp({
       const u = { ...units[unitIndex] };
       // Inject subfaction keyword grants (e.g. Raven Guard + Jump Pack → DEEP STRIKE)
       const sfGrants = currentSubFaction?.wargearKeywordGrants?.[item.id] ?? [];
-      const effectiveItem: SelectedWargear = sfGrants.length > 0
-        ? { ...item, grantsKeywords: [...(item.grantsKeywords ?? []), ...sfGrants] }
-        : item;
+      const sfCost = currentSubFaction?.wargearCostOverrides?.[item.id];
+      const effectiveItem: SelectedWargear = {
+        ...item,
+        ...(sfCost ? { cost: sfCost.cost, costCurrency: sfCost.costCurrency ?? 'credits' as const } : {}),
+        ...(sfGrants.length > 0 ? { grantsKeywords: [...(item.grantsKeywords ?? []), ...sfGrants] } : {}),
+      };
       const existing = u.selectedWargear.findIndex(w => w.id === effectiveItem.id);
       let newWg = existing >= 0
         ? u.selectedWargear.map((w, i) => (i === existing ? effectiveItem : w))
@@ -545,25 +616,62 @@ export function MobileApp({
       // Upgrades with maxCount >= 10 are "stackable" stat boosts (e.g. Primaris) that
       // can coexist with a class upgrade. Upgrades with maxCount < 10 are mutually exclusive
       // class upgrades (e.g. Assault Marine, Bladeguard) — only one may be active at a time.
-      const isStackable = (upgrade?.maxCount ?? 1) >= 10;
+      // Marks of Chaos (keyword 'MARK') are also stackable in the sense that they don't block class upgrades,
+      // but they are mutually exclusive with other Marks (handled by their own logic or naturally if they are the only MARKs).
+      // Nested upgrades with requiredUpgradeId (e.g. Night Lords sub-upgrades) are stackable with base class.
+      const checkStackable = (upg: { maxCount?: number, keywords?: string[], requiredUpgradeId?: string }) => 
+        ((upg?.maxCount ?? 1) >= 10) || (upg?.keywords?.includes('MARK') ?? false) || !!upg?.requiredUpgradeId;
+      const isStackable = upgrade ? checkStackable(upgrade) : false;
       let newUpgrades: Record<string, number>;
       if (isStackable) {
         // Keep everything; only update this one upgrade
         newUpgrades = { ...(u.selectedUpgrades ?? {}) };
-        if (count > 0) newUpgrades[upgradeId] = 1;
-        else delete newUpgrades[upgradeId];
+        if (count > 0) {
+          // If it's a MARK, remove other MARKs first (mutual exclusivity among Marks)
+          if (upgrade?.keywords?.includes('MARK')) {
+             for (const [id] of Object.entries(newUpgrades)) {
+               const other = unitDef?.upgrades?.find(uDef => uDef.id === id);
+               if (other?.keywords?.includes('MARK')) delete newUpgrades[id];
+             }
+          }
+          // If it has specific conflicts (mutually exclusive options like Depredator vs Warp Talon)
+          if (upgrade?.conflictsWithUpgradeIds) {
+             for (const conflictId of upgrade.conflictsWithUpgradeIds) {
+               delete newUpgrades[conflictId];
+             }
+          }
+          newUpgrades[upgradeId] = count;
+        }
+        else {
+           delete newUpgrades[upgradeId];
+           // Also remove any upgrades that require THIS upgrade
+           for (const [id] of Object.entries(newUpgrades)) {
+             const dependent = unitDef?.upgrades?.find(uDef => uDef.id === id);
+             if (dependent?.requiredUpgradeId === upgradeId) delete newUpgrades[id];
+           }
+        }
       } else {
-        // Clear other exclusive (non-stackable) upgrades, but preserve stackable ones
+        // Clear other exclusive (non-stackable) upgrades, but preserve stackable/nested ones
         newUpgrades = {};
         for (const [id, cnt] of Object.entries(u.selectedUpgrades ?? {})) {
           const existingUpg = unitDef?.upgrades?.find(upg => upg.id === id);
-          if (existingUpg && existingUpg.maxCount >= 10) {
-            newUpgrades[id] = cnt; // preserve stackable
+          if (existingUpg && checkStackable(existingUpg)) {
+             const reqId = existingUpg.requiredUpgradeId;
+             const reqUpg = reqId ? unitDef?.upgrades?.find(upg => upg.id === reqId) : null;
+             // Parent is valid if it's the one being added, or if it's stackable and thus preserved
+             const isParentStaying = !reqId || (reqId === upgradeId && count > 0) || (reqUpg && checkStackable(reqUpg));
+             if (isParentStaying) {
+               newUpgrades[id] = cnt;
+             }
           }
         }
-        if (count > 0) newUpgrades[upgradeId] = 1;
+        if (count > 0) newUpgrades[upgradeId] = count;
       }
-      const upgradeCreditCost = (unitDef?.upgrades ?? []).reduce((sum, upg) => sum + (newUpgrades[upg.id] ?? 0) * upg.cost, 0);
+      const upgradeCreditCost = (unitDef?.upgrades ?? []).reduce((sum, upg) => {
+        const isAuto = currentSubFaction?.autoMark?.markId === upg.id && currentSubFaction?.autoMark?.eligibleUnitIds.includes(u.id);
+        const cost = isAuto ? (currentSubFaction?.autoMark?.costOverride ?? upg.cost) : upg.cost;
+        return sum + (newUpgrades[upg.id] ?? 0) * cost;
+      }, 0);
       const calc = recalcUnitCosts(u, u.selectedWargear, unitDef);
       const psychicCredits = (u.selectedPsychicPowers ?? []).filter(p => (p.costCurrency ?? 'credits') === 'credits').reduce((s, p) => s + p.cost, 0);
       // Recompute live keywords from ALL active upgrades
@@ -730,7 +838,6 @@ export function MobileApp({
 
     return {
       ...unitDef,
-      name:     wbu.subTypeName ?? unitDef.name,
       baseCost: wbu.baseCostPerModel,
       keywords: resolvedKeywords,
       stats:    effectiveStatsWithGifts,
@@ -905,6 +1012,28 @@ export function MobileApp({
                         </ul>
                       </div>
                     )}
+                    {activeSF?.variantOption && (
+                      <div className="mchangehost-section">
+                        <label className="mchangehost-label">
+                          <input
+                            type="checkbox"
+                            checked={warband.variantOptionEnabled ?? false}
+                            onChange={e => setWarband(prev => ({
+                              ...prev,
+                              variantOptionEnabled: e.target.checked || undefined,
+                            }))}
+                          />
+                          <strong>{activeSF.variantOption.label}</strong>
+                        </label>
+                        {warband.variantOptionEnabled && (
+                          <ul className="mchangehost-rule-list">
+                            {activeSF.variantOption.rules.map((r, i) => (
+                              <li key={i}>{r}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    )}
                   </>
                 );
               })()}
@@ -1026,7 +1155,7 @@ export function MobileApp({
                         <span className={`munit-type-badge ${unit.unitType}`}>
                           {unit.unitType === 'elite' ? 'ELITE' : 'TROOP'}
                         </span>
-                        <span className="munit-name">{unit.name}</span>
+                        <span className="munit-name">{unit.customName ?? unit.name}</span>
                         {!loadout.isValid && <span className="munit-warn-dot" title="Wargear issues">!</span>}
                         {/* Psyker validation: warn if unit has PSYKER X (X≥1) but no powers selected */}
                         {factionHasPsychicDisciplines(selectedFaction) &&
@@ -1055,6 +1184,36 @@ export function MobileApp({
                             <span className="munit-subtype-name">{unit.appliedSubType.name}</span>
                           </div>
                         )}
+
+                        {/* Custom model name editor */}
+                        <div className="munit-rename-section">
+                          {renamingUnitId === unit.id ? (
+                            <div className="munit-rename-row">
+                              <input
+                                className="munit-rename-input"
+                                autoFocus
+                                value={renameValue}
+                                onChange={e => setRenameValue(e.target.value)}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter') commitRename(unit.id);
+                                  if (e.key === 'Escape') cancelRename();
+                                }}
+                                onBlur={() => commitRename(unit.id)}
+                                placeholder={unit.name}
+                                maxLength={40}
+                              />
+                              <button className="mbtn-rename-confirm" title="Confirm" onMouseDown={e => e.preventDefault()} onClick={() => commitRename(unit.id)}>✓</button>
+                              <button className="mbtn-rename-cancel" title="Cancel" onMouseDown={e => e.preventDefault()} onClick={cancelRename}>✕</button>
+                            </div>
+                          ) : (
+                            <button
+                              className="mbtn-rename-trigger"
+                              onClick={() => startRename(unit.id, unit.customName ?? '')}
+                            >
+                              ✏ {unit.customName ? `"${unit.customName}"` : 'Name this model'}
+                            </button>
+                          )}
+                        </div>
 
                         {/* Keywords */}
                         <div className="munit-keywords">
@@ -1213,6 +1372,19 @@ export function MobileApp({
                           {isEliteEligible(unit) && (
                             <button className="mbtn mbtn-sm btn-elite-xp" onClick={() => setEliteProgressionIdx(idx)}>★ XP: {unit.xp ?? 0}</button>
                           )}
+                          {(() => {
+                            const unitDef4 = allAvailableUnits.find(u => u.id === unit.unitId);
+                            const currentCount = warband.units.filter(u => u.unitId === unit.unitId).length;
+                            const atMax = !!unitDef4 && currentCount >= unitDef4.maxCount;
+                            return (
+                              <button
+                                className="mbtn mbtn-sm"
+                                title={atMax ? `Limit reached (${currentCount}/${unitDef4?.maxCount})` : 'Clone unit with all configuration'}
+                                disabled={atMax}
+                                onClick={() => handleCloneUnit(idx)}
+                              >⧉ Clone</button>
+                            );
+                          })()}
                           <button className="mbtn mbtn-danger mbtn-sm" onClick={() => handleRemoveUnit(idx)}>✕ Remove</button>
                         </div>
                       </div>
@@ -1721,6 +1893,9 @@ export function MobileApp({
             weaponReplacementRules={unitDef?.weaponReplacementRules}
             cannotEquip={unitDef?.cannotEquip}
             rawDefaultWargear={unitDef?.defaultWargear ?? []}
+            wargearCostOverrides={currentSubFaction?.wargearCostOverrides}
+            warbandWeaponCounts={getWarbandWeaponCounts(warband.units)}
+            wargearLimitOverrides={currentSubFaction?.wargearLimitOverrides}
           />
         );
       })()}
@@ -1751,7 +1926,7 @@ export function MobileApp({
             selectedUpgrades={unit.selectedUpgrades ?? {}}
             warbandUpgradeCounts={warbandUpgradeCounts}
             totalWarbandPoints={totalPoints}
-            upgradeMaxCountOverrides={unitMaxCountOverrides}
+            upgradeMaxCountOverrides={upgradeMaxCountOverrides}
             onSet={(upgradeId, count) => handleSetUpgrade(upgradeUnitIdx, upgradeId, count)}
             onClose={() => setUpgradeUnitIdx(null)}
           />

@@ -518,6 +518,80 @@
   flex: 1;
 }
 
+/* ── Unit rename widget ── */
+.unit-name-block {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 0;
+}
+.unit-name-block h4 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.unit-typename {
+  font-size: 0.72em;
+  color: #8a8aa0;
+  font-style: italic;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-rename-trigger {
+  background: transparent;
+  border: none;
+  color: #a0916a;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0 0.2rem;
+  flex-shrink: 0;
+  opacity: 0.45;
+  transition: opacity 0.15s, color 0.15s;
+  line-height: 1;
+}
+.btn-rename-trigger:hover { opacity: 1; color: #f4c96e; }
+.unit-rename-row {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex: 1;
+}
+.unit-rename-input {
+  flex: 1;
+  background: #0e0e1a;
+  border: 1px solid #4a7a8a;
+  border-radius: 4px;
+  color: #e0e0f0;
+  padding: 0.25rem 0.5rem;
+  font-size: 1em;
+  font-family: inherit;
+  outline: none;
+}
+.unit-rename-input:focus { border-color: #6abfd4; box-shadow: 0 0 0 2px rgba(106,191,212,0.18); }
+.unit-rename-input::placeholder { color: #55556a; }
+.btn-rename-confirm,
+.btn-rename-cancel {
+  background: #1a1a2e;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.btn-rename-confirm { border: 1px solid #3a6e3a; color: #7ec87e; }
+.btn-rename-confirm:hover { background: #2a4a2a; }
+.btn-rename-cancel  { border: 1px solid #6e3a3a; color: #c87e7e; }
+.btn-rename-cancel:hover  { background: #4a2a2a; }
+
 .psyker-warning-badge {
   background: #3a1a00;
   border: 1px solid #f59e42;
@@ -869,8 +943,65 @@
   line-height: 1.35;
 }
 
+/* ── Changehost sub-mode toggle ──────────────────────────────── */
+.changehost-section {
+  margin: 0.4rem 0 0.6rem;
+  padding: 0.55rem 0.75rem;
+  background: rgba(50, 20, 80, 0.25);
+  border: 1px solid rgba(160, 100, 220, 0.4);
+  border-radius: 6px;
+  font-size: 0.82em;
+}
+
+.changehost-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: #ce93d8;
+}
+
+.changehost-label input[type='checkbox'] {
+  width: 1em;
+  height: 1em;
+  accent-color: #ab47bc;
+  cursor: pointer;
+}
+
+.changehost-rule-list {
+  margin: 0.4rem 0 0;
+  padding-left: 1.1rem;
+  color: #b39ddb;
+}
+
+.changehost-rule-list li {
+  margin-bottom: 0.22rem;
+  line-height: 1.35;
+}
+
 .summary-subfaction {
   margin-bottom: 0.5rem;
+}
+
+.summary-faction-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.faction-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  background: rgba(0, 80, 140, 0.25);
+  border: 1px solid rgba(0, 180, 219, 0.45);
+  border-radius: 4px;
+  color: #80d8f0;
+  font-size: 0.8em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .subfaction-badge {

@@ -112,10 +112,36 @@
   text-overflow: ellipsis;
 }
 
+.sam-item-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
 .sam-item-faction {
-  font-size: 0.8rem;
-  color: #00b4db;
-  font-style: italic;
+  font-size: 0.75rem;
+  color: #80d8f0;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(0, 80, 140, 0.25);
+  border: 1px solid rgba(0, 180, 219, 0.4);
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+}
+
+.sam-item-variant {
+  font-size: 0.75rem;
+  color: #ef9a9a;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(139, 0, 0, 0.2);
+  border: 1px solid rgba(180, 60, 60, 0.45);
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
 }
 
 .sam-item-stats {

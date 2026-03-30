@@ -26,6 +26,10 @@ export function exportWarbandAsText(warband: Warband, pointLimit: number, gloryL
     text += `   Count: ${unit.count} model(s)\n`;
     text += `   Base Cost: ${unit.baseCostPerModel} ${currency === 'glory' ? 'Glory' : 'Credits'}/model\n`;
     text += `   Unit Total: ${unitTotal}\n`;
+    if (unit.appliedSubType) {
+      text += `   Selected Option: ${unit.appliedSubType.name}\n`;
+      text += `      ${unit.appliedSubType.description}\n`;
+    }
     if (unit.selectedWargear.length > 0) {
       text += `   Wargear:\n`;
       unit.selectedWargear.forEach(w => {

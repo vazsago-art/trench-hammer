@@ -11,8 +11,8 @@
  *  - T'au Auxiliary Cadre subfaction → also gets Imperial + Outlaw pools
  *  - Dark Mechanicum (AdMech variant) → Chaos alignment
  *  - Traitor Guard (AM variant)       → Chaos alignment
- *  - Renegade Space Marines (AA)      → Outlaw alignment
- *  - Night Lords (HA)                 → Outlaw alignment
+ *  - Renegade Space Marines (AA)      → Outlaw alignment (replaces Imperial)
+ *  - Night Lords (HA)                 → Chaos + Outlaw pools (optionally count as Outlaw)
  */
 import { Mercenary, WarbandAlignment } from '../types/index';
 import { ALL_MERCENARIES } from './mercenaries';
@@ -65,8 +65,7 @@ const SUBFACTION_ALIGNMENT_OVERRIDE: Record<string, WarbandAlignment> = {
   'adeptus_mechanicus:dark_mechanicum': 'chaos',
   'astra_militarum:traitor_guard': 'chaos',
   'necromunda_gang:corpsegrinder_cult': 'chaos',
-  // Outlaw overrides within nominally Chaos factions
-  'heretic_astartes:night_lords': 'outlaw',
+  // Outlaw overrides within nominally Imperial factions
   'adeptus_astartes:renegade_space_marines': 'outlaw',
   // Necromunda Imperial gangs
   'necromunda_gang:palanite_enforcers': 'imperial',
@@ -89,6 +88,9 @@ const ALSO_IMPERIAL_SUBFACTIONS = new Set([
  */
 const ALSO_OUTLAW_SUBFACTIONS = new Set([
   't_au_empire:auxiliary_cadre',
+  // Night Lords can optionally count as an Outlaw warband instead of Chaos,
+  // so they have access to both chaos and outlaw mercenary pools.
+  'heretic_astartes:night_lords',
 ]);
 
 // ---------------------------------------------------------------------------

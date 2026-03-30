@@ -10,6 +10,12 @@ import './UnitInfoModal.css';
 interface UnitInfoModalProps {
   unit: UnitOption;
   /**
+   * The original (unresolved) unit definition with base stats.
+   * When provided alongside selectedWargear, the Profile table shows
+   * base stats and equipment-derived adjustments separately.
+   */
+  baseUnit?: UnitOption;
+  /**
    * When provided the modal is in "selected" mode: shows equipped wargear
    * tables and inline keyword definitions at the bottom.
    * When undefined, shows the bare unit card without wargear.
@@ -28,45 +34,15 @@ interface UnitInfoModalProps {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function movementLabel(unit: UnitOption): string {
-  // All units in this game use the Infantry movement table regardless of VEHICLE keyword.
-  // VEHICLE/FLYING keywords affect cover and targeting, not the movement type name.
-  const isFlying = unit.keywords.includes('FLYING');
-  return `${unit.stats.movement}"/${isFlying ? 'Flying' : 'Infantry'}`;
-}
-
-function armourLabel(save?: number): string {
-  if (!save || save === 0) return '—';
-  return `${save}`;
-}
-
-/**
- * For "selected mode" info display: compute the effective armour save
- * by summing wargear statModifiers from the selectedWargear list
- * on top of the unit's already-resolved stats.
- * NOTE: unit.stats is already the resolved stats (from buildResolvedUnit),
- * so this label is just a display pass-through.
- */
-function effectiveArmourLabel(unit: UnitOption, selectedWargear: SelectedWargear[] | undefined): string {
-  const base = unit.stats.armourSave ?? 0;
-  if (!selectedWargear || selectedWargear.length === 0) return armourLabel(base);
-  // Check if any selected armour items contribute stat modifiers
-  let extraFromSelected = 0;
-  for (const sw of selectedWargear) {
-    const gear = lookupWargear(sw.id);
-    if (gear?.slot === 'shield' && (gear as WargearOption & { statModifiers?: { armourSave?: number } }).statModifiers?.armourSave) {
-      extraFromSelected += (gear as WargearOption & { statModifiers?: { armourSave?: number } }).statModifiers!.armourSave!;
-    }
-  }
-  const effective = base + extraFromSelected;
-  if (effective === 0) return '—';
-  return `${effective}`;
+/** Returns the movement type label (Infantry / Flying / Vehicle) based on resolved keywords. */
+function movementType(resolvedKeywords: string[]): string {
+  if (resolvedKeywords.includes('FLYING')) return 'Flying';
+  if (resolvedKeywords.includes('VEHICLE')) return 'Vehicle';
+  return 'Infantry';
 }
 
 function baseSize(unit: UnitOption): string {
-  if (unit.keywords.includes('VEHICLE')) return 'Large base';
-  if (unit.keywords.includes('LARGE')) return '40mm';
-  return '32mm';
+  return unit.baseSize ?? '32mm';
 }
 
 /** Human-readable weapon type column (matches the spec example). */
@@ -93,8 +69,18 @@ function isWeapon(item: Weapon | WargearOption): item is Weapon {
 
 // ── Component ────────────────────────────────────────────────────────────────
 
-export function UnitInfoModal({ unit, selectedWargear, selectedUpgrades, selectedPsychicPowers, selectedGiftsOfChaos, warbandUnit, onClose }: UnitInfoModalProps) {
+export function UnitInfoModal({ unit, baseUnit, selectedWargear, selectedUpgrades, selectedPsychicPowers, selectedGiftsOfChaos, warbandUnit, onClose }: UnitInfoModalProps) {
   const isSelectedMode = selectedWargear !== undefined;
+
+  // Compute stat deltas (effective – base) for display in the Profile table.
+  // Only shown when a baseUnit is provided and the stats actually differ.
+  const base = baseUnit?.stats ?? unit.stats;
+  const eff = unit.stats;
+  const movDelta = eff.movement    - base.movement;
+  const rngDelta = eff.rangedSkill - base.rangedSkill;
+  const mleDelta = eff.meleeSkill  - base.meleeSkill;
+  const armDelta = (eff.armourSave ?? 0) - (base.armourSave ?? 0);
+  const mType    = movementType(unit.keywords);
 
   // Split equipped wargear into weapons vs battlekit
   const equippedWeapons: Array<{ sw: SelectedWargear; w: Weapon }> = [];
@@ -149,7 +135,7 @@ export function UnitInfoModal({ unit, selectedWargear, selectedUpgrades, selecte
           {subTypeAbility && (
             <section className="unit-info-section unit-subtype-section">
               <h3 className="unit-info-section-title unit-subtype-title">
-                ⚔ Unit Type: {subTypeAbility.name}
+                Selected Option: {subTypeAbility.name}
               </h3>
               <p className="unit-subtype-rules">{subTypeAbility.description}</p>
             </section>
@@ -173,10 +159,40 @@ export function UnitInfoModal({ unit, selectedWargear, selectedUpgrades, selecte
                 <tbody>
                   <tr>
                     <td><strong>{unit.name}</strong></td>
-                    <td>{movementLabel(unit)}</td>
-                    <td>+{unit.stats.rangedSkill}</td>
-                    <td>+{unit.stats.meleeSkill}</td>
-                    <td>{isSelectedMode ? effectiveArmourLabel(unit, selectedWargear) : armourLabel(unit.stats.armourSave)}</td>
+                    <td>
+                      {base.movement}"
+                      {movDelta !== 0 && (
+                        <span className={`stat-delta ${movDelta > 0 ? 'stat-delta--pos' : 'stat-delta--neg'}`}>
+                          {movDelta > 0 ? `(+${movDelta}")` : `(−${Math.abs(movDelta)}")`}
+                        </span>
+                      )}
+                      <span className="stat-type">/{mType}</span>
+                    </td>
+                    <td>
+                      {base.rangedSkill >= 0 ? `+${base.rangedSkill}` : `${base.rangedSkill}`}
+                      {rngDelta !== 0 && (
+                        <span className={`stat-delta ${rngDelta > 0 ? 'stat-delta--pos' : 'stat-delta--neg'}`}>
+                          {rngDelta > 0 ? `(+${rngDelta})` : `(−${Math.abs(rngDelta)})`}
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      {base.meleeSkill >= 0 ? `+${base.meleeSkill}` : `${base.meleeSkill}`}
+                      {mleDelta !== 0 && (
+                        <span className={`stat-delta ${mleDelta > 0 ? 'stat-delta--pos' : 'stat-delta--neg'}`}>
+                          {mleDelta > 0 ? `(+${mleDelta})` : `(−${Math.abs(mleDelta)})`}
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      {/* Show 0 explicitly when there's a delta, otherwise — for no armour */}
+                      {(base.armourSave ?? 0) !== 0 || armDelta !== 0 ? (base.armourSave ?? 0) : '—'}
+                      {armDelta !== 0 && (
+                        <span className={`stat-delta ${armDelta < 0 ? 'stat-delta--pos' : 'stat-delta--neg'}`}>
+                          {armDelta < 0 ? `(${armDelta})` : `(+${armDelta})`}
+                        </span>
+                      )}
+                    </td>
                     <td>{baseSize(unit)}</td>
                   </tr>
                 </tbody>

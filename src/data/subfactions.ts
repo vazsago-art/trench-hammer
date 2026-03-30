@@ -21,6 +21,14 @@ import {
   gc_patriarch, gc_genestealer_troop,
   ty_gaunt_barbgaunt, ty_gaunt_gargoyle, ty_gaunt_hormagaunt, ty_gaunt_termagant,
   ty_tyranid_warrior, ty_ravener, ty_zoanthrope,
+  // Chaos Daemons — Scintillating Legion (Tzeentch) Troop models for Thousand Sons Changehost
+  cd_blue_horror, cd_pink_horror, cd_screamer,
+  // Chaos Daemons — Legion of Blood (Khorne) Troop models for World Eaters Daemonkin
+  cd_bloodletter, cd_flesh_hound,
+  // Chaos Daemons — Plague Legion (Nurgle) Troop models for Death Guard Tallyband
+  cd_plaguebearer, cd_nurgling_swarm, cd_plague_drone_rider,
+  // Chaos Daemons — Legion of Excess (Slaanesh) Troop models for Emperor's Children Carnival of Excess
+  cd_daemonette, cd_seeker,
 } from './factions_complete.js';
 
 export interface SubFaction {
@@ -51,6 +59,12 @@ export interface SubFaction {
    * E.g. Black Templars caps aa_vanguard to 1.
    */
   unitMaxCountOverrides?: Record<string, number>;
+  /**
+   * Per-upgrade maxCount overrides for this subfaction.
+   * Key = upgradeId, Value = maxCount cap.
+   * Use for subfaction rules like Night Lords Terror Tactics (Havoc max 1).
+   */
+  upgradeMaxCountOverrides?: Record<string, number>;
   /** Unit IDs from this faction's roster that cannot be recruited in this subfaction */
   bannedUnitIds?: string[];
   /** Additional units from other factions or special sources available in this subfaction */
@@ -122,8 +136,35 @@ export interface SubFaction {
    * These are injected into the SelectedWargear grantsKeywords at equip time.
    */
   wargearKeywordGrants?: Record<string, string[]>;
+  /**
+   * Subfaction-specific wargear pricing overrides.
+   * Maps wargear item ID to an override cost/currency used in the UI and when purchased.
+   */
+  wargearCostOverrides?: Record<string, { cost: number; costCurrency?: 'credits' | 'glory' }>;
+  /**
+   * Subfaction-specific wargear LIMIT overrides.
+   * Maps weapon ID to a warband-wide limit value used in purchase validation.
+   */
+  wargearLimitOverrides?: Record<string, number>;
   /** Optional flavour quote displayed prominently in the subfaction rules panel */
   quote?: string;
+  /**
+   * Optional warband variant sub-mode (e.g. Changehost, Daemonkin, Tallyband, Carnival of Excess).
+   * When the player ticks the variant checkbox, these additional restrictions and extras apply
+   * on top of the base subfaction rules.
+   */
+  variantOption?: {
+    /** Checkbox label shown to the player (e.g. "Changehost", "Daemonkin") */
+    label: string;
+    /** Rules summary lines shown when the variant is active */
+    rules: string[];
+    /** Unit IDs additionally banned when the variant is active */
+    bannedUnitIds: string[];
+    /** Additional per-unit maxCount overrides merged with the subfaction's own overrides */
+    unitMaxCountOverrides: Record<string, number>;
+    /** Extra units from other factions made available when the variant is active */
+    extraUnits: UnitOption[];
+  };
 }
 
 export interface FactionSubFactions {
@@ -171,6 +212,12 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'ha_tzaangor', 'ha_sekhetar_robot',                   // Thousand Sons only
       'ha_master_of_executions', 'ha_slaughterbound',       // World Eaters only
     ],
+    upgradeMaxCountOverrides: {
+      mark_of_khorne: 1,
+      mark_of_nurgle: 1,
+      mark_of_slaanesh: 1,
+      mark_of_tzeentch: 1,
+    },
     autoModifications: [
       {
         // Dedicated to Deception: all HERETIC ASTARTES Alpha Legion models permanently have Lies and Obfuscation
@@ -239,7 +286,20 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'Can take a Foetid Blight-Drone instead of a Helbrute.',
       'Uses the Contagion Psychic Discipline instead of the Heretic Astartes Discipline.',
       'Access to Death Guard-specific wargear: Blight Grenades, Blight Launcher, Plague Blade, etc.',
+      'Optionally form a Tallyband, recruiting Chaos Daemons troops.',
     ],
+    variantOption: {
+      label: 'Tallyband',
+      rules: [
+        'Cannot include Chaos Cultists or Helbrutes.',
+        'Maximum 4 Chaos Space Marines.',
+        'Can recruit Plague Legion Troop models from Chaos Daemons (Plaguebearers, Nurgling Swarms, Plague Drone Riders).',
+        'Plague Drone Rider and Foetid Blight-Drone are mutually exclusive — if you recruit a Plague Drone Rider, you cannot also take a Foetid Blight-Drone.',
+      ],
+      bannedUnitIds: ['ha_chaos_cultist', 'ha_helbrute'],
+      unitMaxCountOverrides: { ha_chaos_space_marine: 4 },
+      extraUnits: [cd_plaguebearer, cd_nurgling_swarm, cd_plague_drone_rider],
+    },
   },
   {
     id: 'emperors_children',
@@ -276,6 +336,17 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'Adds Blastmaster, Blissblade, Sonic Blaster, Screamer Pistol, and more to armoury.',
       'Optionally form a Carnival of Excess, recruiting Chaos Daemons troops.',
     ],
+    variantOption: {
+      label: 'Carnival of Excess',
+      rules: [
+        'Cannot include Chaos Cultists or Helbrutes.',
+        'Maximum 4 Chaos Space Marines.',
+        'Can recruit Legion of Excess Troop models from Chaos Daemons (Daemonettes, Seekers).',
+      ],
+      bannedUnitIds: ['ha_chaos_cultist', 'ha_helbrute'],
+      unitMaxCountOverrides: { ha_chaos_space_marine: 4 },
+      extraUnits: [cd_daemonette, cd_seeker],
+    },
   },
   {
     id: 'iron_warriors',
@@ -292,6 +363,15 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'ha_tzaangor', 'ha_sekhetar_robot',                   // Thousand Sons only
       'ha_master_of_executions', 'ha_slaughterbound',       // World Eaters only
     ],
+    upgradeMaxCountOverrides: {
+      mark_of_khorne: 1,
+      mark_of_nurgle: 1,
+      mark_of_slaanesh: 1,
+      mark_of_tzeentch: 1,
+      ha_csm_havoc: 3,
+      ha_csm_shrivetalon: 1,
+      ha_csm_raptor: 1,
+    },
     psychicDisciplineId: 'technomancy',
     rules: [
       'No Dark Pacts. Maximum 1 of each Mark of Chaos (except Mark of Darkness). Patron cannot be Chaos Undivided.',
@@ -318,11 +398,20 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'ha_tzaangor', 'ha_sekhetar_robot',                   // Thousand Sons only
       'ha_master_of_executions', 'ha_slaughterbound',       // World Eaters only
     ],
+    upgradeMaxCountOverrides: {
+      ha_csm_shrivetalon: 3,
+      ha_csm_raptor: 3,
+      ha_csm_havoc: 1,
+      mark_of_khorne: 1,
+      mark_of_nurgle: 1,
+      mark_of_slaanesh: 1,
+      mark_of_tzeentch: 1,
+    },
     autoModifications: [
       {
         // In Midnight Clad: all HERETIC ASTARTES Night Lords models permanently have STEALTH
         unitIds: ['ha_chaos_lord', 'ha_chaos_sorcerer', 'ha_warpsmith', 'ha_chaos_space_marine', 'ha_possessed', 'ha_chaos_terminator', 'ha_helbrute'],
-        addKeywords: ['STEALTH'],
+        addKeywords: ['STEALTH', 'NIGHT LORDS'],
         addAbilities: [{
           id: 'nl_in_midnight_clad',
           name: 'In Midnight Clad — STEALTH',
@@ -359,6 +448,13 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'ha_tzaangor', 'ha_sekhetar_robot',                   // Thousand Sons only
       'ha_master_of_executions', 'ha_slaughterbound',       // World Eaters only
     ],
+    upgradeMaxCountOverrides: {
+      mark_of_khorne: 0,
+      mark_of_nurgle: 0,
+      mark_of_slaanesh: 0,
+      mark_of_tzeentch: 0,
+      mark_of_darkness: 0,
+    },
     psychicDisciplineId: 'librarius',
     autoModifications: [
       {
@@ -389,6 +485,10 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
     quote: 'MAGNUS DID NOTHING WRONG.',
     noDarkPacts: true,
     requiredPatron: 'Tzeentch (Shared Patron)',
+    // Warp Coven: allow up to 2 Chaos Sorcerers (default faction cap is 1)
+    unitMaxCountOverrides: {
+      ha_chaos_sorcerer: 2,
+    },
     // Exalted: cannot include Chaos Lords, Dark Apostles, Warpsmiths, Raptors, or Possessed.
     // Also hide all other subfaction-exclusive units.
     bannedUnitIds: [
@@ -432,6 +532,17 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'Exalted Sorcerer and Tzaangor Shaman additionally choose one Shared Discipline (Biomancy, Divination, Pyromancy, Technomancy, Telekinesis, or Telepathy).',
       'Optionally form a Changehost, recruiting Chaos Daemons troops.',
     ],
+    variantOption: {
+      label: 'Changehost',
+      rules: [
+        'Cannot include Chaos Cultists or Sekhetar Robots.',
+        'Maximum 4 Chaos Space Marines.',
+        'Can recruit Scintillating Legion Troop models from Chaos Daemons (Blue Horrors, Pink Horrors, Screamers).',
+      ],
+      bannedUnitIds: ['ha_chaos_cultist', 'ha_sekhetar_robot'],
+      unitMaxCountOverrides: { ha_chaos_space_marine: 4 },
+      extraUnits: [cd_blue_horror, cd_pink_horror, cd_screamer],
+    },
     psychicDisciplineIds: [
       'change_discipline',
       'vengeance_discipline',
@@ -460,6 +571,12 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'ha_tzaangor', 'ha_sekhetar_robot',                   // Thousand Sons only
       'ha_master_of_executions', 'ha_slaughterbound',       // World Eaters only
     ],
+    upgradeMaxCountOverrides: {
+      mark_of_khorne: 4,
+      mark_of_nurgle: 4,
+      mark_of_slaanesh: 4,
+      mark_of_tzeentch: 4,
+    },
     autoModifications: [
       {
         // Gal Vorbak: Possessed are upgraded — cost +10 credits and Ranged Skill +1
@@ -561,6 +678,17 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'Adds Chain Glaives (up to 4), Axe of Dismemberment, Blood Harpoon, Heavy Chain Weapon.',
       'Optionally form a Daemonkin Warband, recruiting Chaos Daemons troops.',
     ],
+    variantOption: {
+      label: 'Daemonkin',
+      rules: [
+        'Cannot include Chaos Cultists or Helbrutes.',
+        'Maximum 4 Chaos Space Marines.',
+        'Can recruit Legion of Blood Troop models from Chaos Daemons (Bloodletters, Flesh Hounds).',
+      ],
+      bannedUnitIds: ['ha_chaos_cultist', 'ha_helbrute'],
+      unitMaxCountOverrides: { ha_chaos_space_marine: 4 },
+      extraUnits: [cd_bloodletter, cd_flesh_hound],
+    },
   },
 ];
 
@@ -582,6 +710,11 @@ const CHAOS_DAEMONS_SUBFACTIONS: SubFaction[] = [
     name: 'Followers of Khorne',
     description: 'A pure Khorne warband dedicated to the Blood God alone.',
     requiredPatron: 'Khorne (Shared Patron)',
+    bannedUnitIds: [
+      'cd_poxbringer', 'cd_spoilpox_scrivener', 'cd_plaguebearer', 'cd_nurgling_swarm', 'cd_plague_drone_rider', // Nurgle
+      'cd_infernal_enrapturess', 'cd_tranceweaver', 'cd_daemonette', 'cd_seeker', 'cd_contorted_epitome',         // Slaanesh
+      'cd_changecaster', 'cd_flamer', 'cd_blue_horror', 'cd_pink_horror', 'cd_screamer',                          // Tzeentch
+    ],
     rules: [
       'Khorne Alone: cannot take models without the KHORNE Keyword.',
       'Khorne Disciples: can take Heretic Astartes models with KHORNE Mark as Mercenaries.',
@@ -594,6 +727,11 @@ const CHAOS_DAEMONS_SUBFACTIONS: SubFaction[] = [
     description: 'A pure Nurgle warband spreading plague and decay.',
     requiredPatron: 'Nurgle (Shared Patron)',
     psychicDisciplineId: 'warprot',
+    bannedUnitIds: [
+      'cd_bloodmaster', 'cd_skullmaster', 'cd_bloodletter', 'cd_flesh_hound',                                     // Khorne
+      'cd_infernal_enrapturess', 'cd_tranceweaver', 'cd_daemonette', 'cd_seeker', 'cd_contorted_epitome',         // Slaanesh
+      'cd_changecaster', 'cd_flamer', 'cd_blue_horror', 'cd_pink_horror', 'cd_screamer',                          // Tzeentch
+    ],
     rules: [
       'Nurgle Alone: cannot take models without the NURGLE Keyword.',
       'Nurgle Disciples: can take Heretic Astartes models with NURGLE Mark as Mercenaries.',
@@ -606,6 +744,11 @@ const CHAOS_DAEMONS_SUBFACTIONS: SubFaction[] = [
     description: 'A pure Slaanesh warband devoted to sensation and excess.',
     requiredPatron: 'Slaanesh (Shared Patron)',
     psychicDisciplineId: 'soulstain',
+    bannedUnitIds: [
+      'cd_bloodmaster', 'cd_skullmaster', 'cd_bloodletter', 'cd_flesh_hound',                                     // Khorne
+      'cd_poxbringer', 'cd_spoilpox_scrivener', 'cd_plaguebearer', 'cd_nurgling_swarm', 'cd_plague_drone_rider', // Nurgle
+      'cd_changecaster', 'cd_flamer', 'cd_blue_horror', 'cd_pink_horror', 'cd_screamer',                          // Tzeentch
+    ],
     rules: [
       'Slaanesh Alone: cannot take models without the SLAANESH Keyword.',
       'Slaanesh Disciples: can take Heretic Astartes models with SLAANESH Mark as Mercenaries.',
@@ -618,6 +761,11 @@ const CHAOS_DAEMONS_SUBFACTIONS: SubFaction[] = [
     description: 'A pure Tzeentch warband weaving the webs of fate.',
     requiredPatron: 'Tzeentch (Shared Patron)',
     psychicDisciplineId: 'tzeentch_discipline',
+    bannedUnitIds: [
+      'cd_bloodmaster', 'cd_skullmaster', 'cd_bloodletter', 'cd_flesh_hound',                                     // Khorne
+      'cd_poxbringer', 'cd_spoilpox_scrivener', 'cd_plaguebearer', 'cd_nurgling_swarm', 'cd_plague_drone_rider', // Nurgle
+      'cd_infernal_enrapturess', 'cd_tranceweaver', 'cd_daemonette', 'cd_seeker', 'cd_contorted_epitome',         // Slaanesh
+    ],
     rules: [
       'Tzeentch Alone: cannot take models without the TZEENTCH Keyword.',
       'Tzeentch Disciples: can take Heretic Astartes models with TZEENTCH Mark as Mercenaries.',
@@ -629,6 +777,24 @@ const CHAOS_DAEMONS_SUBFACTIONS: SubFaction[] = [
     name: 'Followers of Vashtor',
     description: 'An Undivided warband aligned with the Dark Mechanicum Heretek Lord.',
     requiredPatron: 'Heretek Lord (Shared Patron)',
+    autoModifications: [
+      {
+        unitIds: [
+          'cd_daemon_prince', 'cd_chaos_furie',
+          'cd_bloodmaster', 'cd_skullmaster', 'cd_bloodletter', 'cd_flesh_hound',
+          'cd_poxbringer', 'cd_spoilpox_scrivener', 'cd_plaguebearer', 'cd_nurgling_swarm', 'cd_plague_drone_rider',
+          'cd_infernal_enrapturess', 'cd_tranceweaver', 'cd_daemonette', 'cd_seeker', 'cd_contorted_epitome',
+          'cd_changecaster', 'cd_flamer', 'cd_blue_horror', 'cd_pink_horror', 'cd_screamer'
+        ],
+        addKeywords: ['ARTIFICIAL'],
+        addAbilities: [{
+          id: 'cd_vashtor_hellforged',
+          name: 'Hellforged',
+          description: 'This model has the ARTIFICIAL Keyword.',
+          cost: 0,
+        }],
+      },
+    ],
     rules: [
       'Aligned With Heretek: Warband Leader must have the UNDIVIDED Keyword. Patron must be a Heretek Lord.',
       'Hellforged: DAEMON models in your Warband have the ARTIFICIAL Keyword.',
@@ -653,33 +819,40 @@ const ADEPTA_SORORITAS_SUBFACTIONS: SubFaction[] = [
     id: 'army_of_faith',
     name: 'Army of Faith',
     description: 'A jump-pack focused warband that descends from the heavens in a blaze of glory.',
+    bannedUnitIds: ['as_penitent_engine'],
+    unitMaxCountOverrides: { as_repentia: 2 },
+    upgradeMaxCountOverrides: { as_retributor: 1, as_sacresant: 1, as_seraphim: 3, as_zephyrim: 3 },
     rules: [
       'The Faithful: cannot take Penitent Engines; max 2 Repentia.',
-      'Angelic Descent: max 1 Retributor and 1 Sacrosant, but up to 3 Seraphim and 3 Zephyrim.',
-      'Blinding Radiance: spend 1 Miracle to give -1 DICE to Hit against a model with a Jump Pack.',
-      'Shield of Faith: spending a Miracle on an Injury roll grants the model additional -1 Armour for that roll.',
+      'Angelic Descent: max 1 Retributor and 1 Sacresant, but up to 3 Seraphim and 3 Zephyrim.',
+      'Blinding Radiance: spend 1 Miracle to give -1 DICE to Hit against a model with a Jump Pack or its allies within 3".',
+      'Shield of Faith: spending a Miracle on an Injury roll grants the model additional -1 Armour (max -3) for that roll.',
     ],
   },
   {
     id: 'hallowed_martyrs',
     name: 'Hallowed Martyrs',
     description: 'A warband that draws strength from sacrifice, gaining Miracles as sisters fall.',
+    unitMaxCountOverrides: { as_paragon_warsuit: 1 },
+    upgradeMaxCountOverrides: { as_retributor: 0, as_seraphim: 0, as_sacresant: 3, as_zephyrim: 3 },
     rules: [
-      'Holy Charge: cannot upgrade Battle Sisters to Retributors or Seraphim.',
-      'Blood of Martyrs: earn 1 Miracle each time a non-Elite SORORITAS model is taken Out of Action.',
-      'Spirit of the Martyr: spend 1 Miracle when a SORORITAS model is taken Out of Action to allow it one free melee attack first.',
-      'Divine Intervention: spend 3 Miracles when an ELITE SORORITAS model is taken Out of Action to treat it as a Down result instead.',
+      'Holy Charge: cannot upgrade Battle Sisters to Retributors or Seraphim; max 1 Paragon Warsuit; but +1 additional Sacresant and +1 additional Zephyrim allowed.',
+      'Blood of Martyrs: earn 1 Miracle each time a non-Elite SORORITAS model is taken Out of Action. No Miracles for killing enemy Elites; cannot spend Miracles on Injury rolls.',
+      'Spirit of the Martyr: spend 1 Miracle when a SORORITAS model is taken Out of Action to allow it one free melee attack first. BMs cannot be spent on this attack.',
+      'Divine Intervention: spend 3 Miracles when an ELITE SORORITAS model is taken Out of Action to treat it as a Down result instead (once per battle, not if Spirit of the Martyr was used).',
     ],
   },
   {
     id: 'penitent_host',
     name: 'Penitent Host',
     description: 'A warband built on squads of Repentia and Penitent Engines seeking redemption through death.',
+    bannedUnitIds: ['as_novitiate', 'as_paragon_warsuit'],
+    unitMaxCountOverrides: { as_repentia: 99, as_penitent_engine: 2, as_battle_sister: 1 },
     rules: [
-      'Repentia Superior: Canoness replaces The Passion with Overseer of Redemption ability.',
-      'Penitents: can recruit any number of Repentia and up to 2 Penitent Engines.',
-      'Vows of Atonement: replaces Miracles with a choice each Turn among Absolution in Battle, Death Before Disgrace, or The Path of the Penitent.',
-      'Penitent Flock: replaces Sacred Martyrdom and Saint Potentia with Rally the Flock (from Adeptus Ministorum).',
+      'Repentia Superior: Canoness replaces The Passion with Overseer of Redemption (+1 DICE to Hit melee for Repentia within 3").',
+      'Penitents: any number of Repentia, up to 2 Penitent Engines, up to 5 Arco-Flagellant Mercenaries (70cr each). No Novitiates or Paragon Warsuits. Battle Sisters only via Repentance (max 1 in one-off games).',
+      'Vows of Atonement: replaces Miracles. Each Turn choose one: Absolution in Battle (+1 INJURY DICE melee after Charge), Death Before Disgrace (free melee attack on Out of Action), or The Path of the Penitent (+1 DICE Dash rolls).',
+      'Penitent Flock: replaces Sacred Martyrdom and Saint Potentia with Rally the Flock (from Adeptus Ministorum). Canoness, Dogmata, and Palatine gain ORATOR.',
     ],
   },
 ];
@@ -869,6 +1042,17 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     name: 'Salamanders',
     description: 'Fire-worshippers immune to flame who specialise in melta and flamer weapons.',
     psychicDisciplineId: 'pyromancy',
+    wargearCostOverrides: {
+      melta_gun: { cost: 35, costCurrency: 'credits' },
+      multi_melta: { cost: 65, costCurrency: 'credits' },
+    },
+    wargearLimitOverrides: {
+      flamer: 3,
+      heavy_flamer: 2,
+      melta_gun: 2,
+      multi_melta: 1,
+      incendiary_grenades: 3,
+    },
     autoModifications: [
       {
         // Promethean Cult: all ASTARTES have NEGATE FIRE

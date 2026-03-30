@@ -712,7 +712,7 @@ export const FACTION_PATRONS: Record<string, Patron[]> = {
     {
       id: 'ethereal_supreme',
       name: 'Ethereal Supreme',
-      description: "The supreme spiritual and military authority of the T'au, guiding the warband with the Greater Good. Mandatory for most T'au warbands.",
+      description: "The supreme spiritual and military authority of the T'au, guiding the warband with the Greater Good. Mandatory for most T'au warbands. Special Rule: The Warband gains +1 Glory at the start of every battle.",
       abilities: [
         { name: 'Academy Luminary', description: 'The model gains one of the Invocations listed for the Ethereal model. If it is an Ethereal, it cannot take the same Invocation twice.' },
         { name: 'Exemplar Of The Kauyon', description: 'At the start of each battle, after deployment, you may redeploy this model and up to 2 of your other non-INFILTRATOR models, or 1 INFILTRATOR model.' },
