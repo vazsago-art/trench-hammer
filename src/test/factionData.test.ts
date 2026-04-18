@@ -109,6 +109,7 @@ describe('Necrons faction – detailed verification', () => {
     'nec_apprentek',
     'nec_macrocyte_warrior',
     'nec_flayer_king',
+    'nec_flayed_one',
   ];
 
   expectedUnits.forEach(unitId => {
@@ -118,17 +119,17 @@ describe('Necrons faction – detailed verification', () => {
     });
   });
 
-  it('has exactly 17 units', () => {
-    expect(faction!.units.length).toBe(17);
+  it('has exactly 18 units', () => {
+    expect(faction!.units.length).toBe(18);
   });
 
   // ── Stat checks ────────────────────────────────────────────────────────────
-  it('Necron Lord: baseCost 115, melee +2, ranged +2, armour -3', () => {
+  it('Necron Lord: baseCost 115, melee +2, ranged +2, armour -2', () => {
     const u = faction!.units.find(u => u.id === 'nec_necron_lord')!;
     expect(u.baseCost).toBe(115);
     expect(u.stats.rangedSkill).toBe(2);
     expect(u.stats.meleeSkill).toBe(2);
-    expect(u.stats.armourSave).toBe(-3);
+    expect(u.stats.armourSave).toBe(-2);
   });
 
   it('Cryptek: baseCost 105, ranged +1, melee +0, armour -2', () => {
@@ -139,25 +140,25 @@ describe('Necrons faction – detailed verification', () => {
     expect(u.stats.armourSave).toBe(-2);
   });
 
-  it('Royal Warden: baseCost 85, ranged +1, melee +1, armour -2', () => {
+  it('Royal Warden: baseCost 100, ranged +1, melee +1, armour -2', () => {
     const u = faction!.units.find(u => u.id === 'nec_royal_warden')!;
-    expect(u.baseCost).toBe(85);
+    expect(u.baseCost).toBe(100);
     expect(u.stats.rangedSkill).toBe(1);
     expect(u.stats.meleeSkill).toBe(1);
     expect(u.stats.armourSave).toBe(-2);
   });
 
-  it('Necron Warrior: baseCost 70, ranged +0, melee +0, armour -2', () => {
+  it('Necron Warrior: baseCost 45, ranged +0, melee +0, armour -2', () => {
     const u = faction!.units.find(u => u.id === 'nec_warrior')!;
-    expect(u.baseCost).toBe(70);
+    expect(u.baseCost).toBe(45);
     expect(u.stats.rangedSkill).toBe(0);
     expect(u.stats.meleeSkill).toBe(0);
     expect(u.stats.armourSave).toBe(-2);
   });
 
-  it('Immortal: baseCost 95, ranged +1, melee +1, armour -3', () => {
+  it('Immortal: baseCost 90, ranged +1, melee +1, armour -3', () => {
     const u = faction!.units.find(u => u.id === 'nec_immortal')!;
-    expect(u.baseCost).toBe(95);
+    expect(u.baseCost).toBe(90);
     expect(u.stats.rangedSkill).toBe(1);
     expect(u.stats.meleeSkill).toBe(1);
     expect(u.stats.armourSave).toBe(-3);
@@ -776,20 +777,20 @@ describe('Heretic Astartes – built-in marks on subfaction-exclusive units', ()
     const unit = faction.units.find(u => u.id === 'ha_exalted_sorcerer')!;
     const mark = unit.defaultWargear?.find(w => (w.keywords ?? []).includes('TZEENTCH'));
     expect(mark).toBeDefined();
-    expect(mark!.id).toBe('ha_mark_tzeentch_es');
+    expect(mark!.id).toBe('mark_of_tzeentch');
   });
 
   it('ha_master_of_executions has a built-in Khorne mark in defaultWargear', () => {
     const unit = faction.units.find(u => u.id === 'ha_master_of_executions')!;
     const mark = unit.defaultWargear?.find(w => (w.keywords ?? []).includes('KHORNE'));
     expect(mark).toBeDefined();
-    expect(mark!.id).toBe('ha_mark_khorne_moe');
+    expect(mark!.id).toBe('mark_of_khorne');
   });
 
   it('ha_slaughterbound has a built-in Khorne mark in defaultWargear', () => {
     const unit = faction.units.find(u => u.id === 'ha_slaughterbound')!;
     const mark = unit.defaultWargear?.find(w => (w.keywords ?? []).includes('KHORNE'));
     expect(mark).toBeDefined();
-    expect(mark!.id).toBe('ha_mark_khorne_sb');
+    expect(mark!.id).toBe('mark_of_khorne');
   });
 });

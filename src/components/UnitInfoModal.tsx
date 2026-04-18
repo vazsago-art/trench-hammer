@@ -203,7 +203,8 @@ export function UnitInfoModal({ unit, baseUnit, selectedWargear, selectedUpgrade
           {/* ── Default Battlekit (always visible) ───────────────── */}
           {unit.defaultWargear.length > 0 && (() => {
             const defWeapons = unit.defaultWargear.filter(isWeapon) as Weapon[];
-            const defGear = unit.defaultWargear.filter(item => !isWeapon(item)) as WargearOption[];
+            const allDefGear = unit.defaultWargear.filter(item => !isWeapon(item)) as WargearOption[];
+            const defGear = allDefGear.filter(g => !(g.keywords ?? []).includes('PSYCHIC'));
             return (
               <>
                 {defWeapons.length > 0 && (
@@ -355,6 +356,28 @@ export function UnitInfoModal({ unit, baseUnit, selectedWargear, selectedUpgrade
                     <p className="unit-upgrade-description">{upg.description}</p>
                   </div>
                 ))}
+              </section>
+            );
+          })()}
+
+          {/* ── Innate Psychic Powers from default battlekit ──────────── */}
+          {unit.defaultWargear.length > 0 && (() => {
+            const psyGear = unit.defaultWargear.filter(item => !isWeapon(item) && (item.keywords ?? []).includes('PSYCHIC')) as WargearOption[];
+            if (psyGear.length === 0) return null;
+            return (
+              <section className="unit-info-section unit-psychic-section">
+                <h3 className="unit-info-section-title unit-psychic-section-title">✨ Innate Psychic Powers</h3>
+                <div className="unit-psychic-list">
+                  {psyGear.map(g => (
+                    <div key={g.id} className="unit-psychic-card">
+                      <div className="unit-psychic-card-header">
+                        <span className="unit-psychic-card-name">{g.name}</span>
+                        <span className="unit-psychic-card-meta">Innate · Included in cost</span>
+                      </div>
+                      {g.description && <p className="unit-psychic-card-desc">{g.description}</p>}
+                    </div>
+                  ))}
+                </div>
               </section>
             );
           })()}

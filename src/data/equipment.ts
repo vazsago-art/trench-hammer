@@ -1,4 +1,4 @@
-﻿import { WargearOption, UnitUpgrade } from '../types/index.js';
+﻿import { WargearOption } from '../types/index.js';
 
 export const armourOptions: WargearOption[] = [
   {
@@ -83,7 +83,7 @@ export const equipmentOptions: WargearOption[] = [
     slot: 'equipment',
     cost: 10,
     keywords: ['STEALTH'],
-    description: 'A model equipped with a Camo Cloak gains the STEALTH Keyword, making it harder for enemies to target in ranged attacks.',
+    description: 'A model equipped with a Camo Cloak gains the STEALTH Keyword. Long Range attacks against this model suffer an additional -1 DICE to Hit. Attacks that ignore Long Range penalties also ignore STEALTH.',
     grantsKeywords: ['STEALTH'],
   },
   {
@@ -129,6 +129,7 @@ export const equipmentOptions: WargearOption[] = [
     type: 'equipment',
     slot: 'equipment',
     cost: 7,
+    limit: 2,
     keywords: [],
     description: 'The equipped model does not suffer Injury rolls due to falling. It also has +1 DICE to Diving Charge Success Rolls and does not fall Down or suffer an Injury roll due to failing a Diving Charge.',
   },
@@ -288,6 +289,7 @@ export const marksOfChaos: WargearOption[] = [
     keywords: ['MARK OF CHAOS', 'KHORNE', '+1 INJURY MODIFIER (melee)'],
     description: 'Melee attacks have +1 INJURY MODIFIER. Grants KHORNE keyword. LIMIT: 2 per Warband. Max 1 Mark per model.',
     grantsKeywords: ['KHORNE'],
+    restrictedTo: ['NOT:PSYKER'],
   },
   {
     id: 'mark_of_nurgle',
@@ -322,58 +324,6 @@ export const marksOfChaos: WargearOption[] = [
     keywords: ['MARK OF CHAOS', 'TZEENTCH', '+1 INJURY MODIFIER (ranged)'],
     description: 'Ranged attacks have +1 INJURY MODIFIER. Grants TZEENTCH keyword. LIMIT: 2 per Warband. Max 1 Mark per model.',
     grantsKeywords: ['TZEENTCH'],
-  },
-];
-
-// ---------------------------------------------------------------------------
-// Heretic Astartes – Marks of Chaos as UnitUpgrades (Upgrades panel)
-// These are mutually exclusive class upgrades (max 1 per model).
-// God marks have LIMIT: 2 per warband; Mark of Darkness has no warband limit.
-// ---------------------------------------------------------------------------
-export const MARKS_OF_CHAOS_UPGRADES: UnitUpgrade[] = [
-  {
-    id: 'mark_of_darkness',
-    name: 'Mark of Darkness',
-    cost: 10,
-    maxCount: 9, // no stated warband limit; 1-per-model enforced by class-upgrade mutual exclusivity
-    keywords: ['MARK'],
-    description: 'Max 1 mark per model. Ranged attacks have -1 DICE to Hit against this model.',
-  },
-  {
-    id: 'mark_of_khorne',
-    name: 'Mark of Khorne',
-    cost: 15,
-    maxCount: 2,
-    keywords: ['MARK'],
-    grantedKeywords: ['KHORNE'],
-    description: 'Max 1 mark per model. LIMIT: 2 per Warband. Melee attacks have +1 INJURY MODIFIER. Grants KHORNE keyword.',
-  },
-  {
-    id: 'mark_of_nurgle',
-    name: 'Mark of Nurgle',
-    cost: 15,
-    maxCount: 2,
-    keywords: ['MARK'],
-    grantedKeywords: ['NURGLE'],
-    description: 'Max 1 mark per model. LIMIT: 2 per Warband. Injury rolls against this model have -1 DICE (Bloodbath ignores). Model moves only half as far when Dashing. Grants NURGLE keyword.',
-  },
-  {
-    id: 'mark_of_slaanesh',
-    name: 'Mark of Slaanesh',
-    cost: 15,
-    maxCount: 2,
-    keywords: ['MARK'],
-    grantedKeywords: ['SLAANESH'],
-    description: 'Max 1 mark per model. LIMIT: 2 per Warband. +2\" movement and +1 DICE to all Dash Success Rolls. Grants SLAANESH keyword.',
-  },
-  {
-    id: 'mark_of_tzeentch',
-    name: 'Mark of Tzeentch',
-    cost: 15,
-    maxCount: 2,
-    keywords: ['MARK'],
-    grantedKeywords: ['TZEENTCH'],
-    description: 'Max 1 mark per model. LIMIT: 2 per Warband. Ranged attacks have +1 INJURY MODIFIER. Grants TZEENTCH keyword.',
   },
 ];
 
@@ -487,8 +437,10 @@ export const haVariantEquipment: WargearOption[] = [
   { id: 'ventrilokar_vox_nl', name: 'Ventrilokar Vox', type: 'equipment', slot: 'equipment', cost: 10, limit: 1, keywords: [], description: 'As an Action with a Risky Success Roll: trick one visible enemy within 6" into moving D3" in any direction (including falling, provoking free attacks, etc.).' },
   { id: 'terrorchem_vials_nl', name: 'Terrorchem Vials', type: 'equipment', slot: 'equipment', cost: 20, limit: 1, keywords: ['6"', '-1 INJURY DICE', 'IGNORE ARMOUR', 'GAS', 'IGNORE COVER', 'IGNORE LONG RANGE', 'THROWN'], description: '6", -1 INJURY DICE, IGNORE ARMOUR, GAS, IGNORE COVER, IGNORE LONG RANGE, THROWN. Target hit moves D3" in your choice of direction.' },
   // Thousand Sons
-  { id: 'disc_of_tzeentch_ts', name: 'Disc of Tzeentch', type: 'equipment', slot: 'equipment', cost: 15, keywords: ['TZEENTCH', '8" FLYING'], description: 'Rider gains 8" FLYING movement. Elite Only.', restrictedTo: ['ELITE'] },
+  { id: 'disc_of_tzeentch_ts', name: 'Disc of Tzeentch', type: 'equipment', slot: 'equipment', cost: 15, keywords: ['TZEENTCH', '8" FLYING'], description: 'Rider gains 8" FLYING movement. Elite Only.', restrictedTo: ['ELITE'], movementOverride: 8, grantsKeywords: ['FLYING'] },
   { id: 'icon_of_flame_ts', name: 'Icon of Flame', type: 'equipment', slot: 'equipment', cost: 7, limit: 1, keywords: ['HELD', 'TZEENTCH', 'IGNORE COVER (ranged)'], description: 'HELD. The equipped model\'s ranged attacks ignore Cover. LIMIT: 1. Chaos Space Marine Only. (Thousand Sons Only)' },
+  { id: 'musical_instrument_ts', name: 'Musical Instrument', type: 'equipment', slot: 'equipment', cost: 15, limit: 1, keywords: ['HELD'], description: 'HELD. Any friendly models within 4" of the musician who is not Down can add +1 DICE to their Dash Success Rolls. LIMIT: 1. Tzaangor Only.', restrictedTo: ['BEASTMEN'] },
+  { id: 'troop_flag_ts', name: 'Troop Flag', type: 'equipment', slot: 'equipment', cost: 1, costCurrency: 'glory', limit: 1, keywords: ['HELD', 'LEADER'], description: 'HELD. While bearer is not Down, friendly models within 8" add +1 DICE to Morale rolls. LIMIT: 1. Tzaangor Only.', restrictedTo: ['BEASTMEN'] },
   // Iron Warriors – Cyberteknika
   { id: 'cyberteknika_cranial_iw', name: 'Cranial Cyberteknika', type: 'equipment', slot: 'equipment', cost: 5, keywords: ['PERMANENT'], description: 'PERMANENT. Cannot be removed or sold. Critical Hits do not grant the normal +1 DICE against this model; the CRITICAL Keyword still functions normally. Ignores Trauma penalties (prevents gaining): Dark Memory, Head Wound, Paranoia. If this Cyberteknika would prevent an injury type, roll a D6 first: on 1-3 it is destroyed but the injury is not sustained.' },
   { id: 'cyberteknika_ocular_iw', name: 'Ocular Cyberteknika', type: 'equipment', slot: 'equipment', cost: 10, keywords: ['PERMANENT'], description: 'PERMANENT. Cannot be removed or sold. Ignores the penalty for shooting at Long Range. Ignores Trauma penalties (prevents gaining): Insomniac, Lost an Eye. If this Cyberteknika would prevent an injury type, roll a D6 first: on 1-3 it is destroyed but the injury is not sustained.' },
@@ -520,7 +472,7 @@ export const chaosDaemonEquipment: WargearOption[] = [
   { id: 'sloppity_bilepipe_nurgle', name: 'Sloppity Bilepipe', type: 'equipment', slot: 'equipment', cost: 20, limit: 1, keywords: ['HELD', 'FEAR', 'NURGLE'], description: 'HELD, FEAR. NURGLE allies within 8" roll 2D6 for charge distance (take highest).' },
   // Scintillating Legion (Tzeentch)
   { id: 'blasted_standard_tzeentch', name: 'Blasted Standard', type: 'equipment', slot: 'equipment', cost: 20, limit: 1, keywords: ['HELD', 'TZEENTCH'], description: 'HELD. As an Action with a Success Roll: target one visible enemy within 8". On success, that enemy gains 1 BM. Models with NEGATE FIRE are immune.' },
-  { id: 'disc_of_tzeentch_daemons', name: 'Disc of Tzeentch', type: 'equipment', slot: 'equipment', cost: 15, limit: 2, keywords: ['TZEENTCH', '8" FLYING'], description: '8" FLYING movement.' },
+  { id: 'disc_of_tzeentch_daemons', name: 'Disc of Tzeentch', type: 'equipment', slot: 'equipment', cost: 15, limit: 2, keywords: ['TZEENTCH', '8" FLYING'], description: '8" FLYING movement.', movementOverride: 8, grantsKeywords: ['FLYING'] },
   { id: 'icon_of_tzeentch_daemons', name: 'Icon of Tzeentch', type: 'equipment', slot: 'equipment', cost: 10, limit: 3, keywords: ['TZEENTCH', 'FIRE'], description: 'Blue and Pink Horror Claws gain the FIRE Keyword. Blue or Pink Horror Only.' },
 ];
 
@@ -534,6 +486,7 @@ export const chaosCultEquipment: WargearOption[] = [
   { id: 'dum_dum_ammunition_chaoscult', name: 'Dum-Dum Ammunition', type: 'equipment', slot: 'equipment', cost: 5, limit: 2, keywords: ['CONSUMABLE'], description: 'AMMUNITION (CRITICAL). For Autogun, Autopistol, Stub Pistol, or Heavy Stubber only. CONSUMABLE.' },
   { id: 'manstopper_ammunition_chaoscult', name: 'Manstopper Ammunition', type: 'equipment', slot: 'equipment', cost: 10, limit: 1, keywords: ['CONSUMABLE'], description: 'AMMUNITION (+1 INJURY MODIFIER against any target that has no armour, including shields). For Autogun, Autopistol, Stub Pistol, or Heavy Stubber only. CONSUMABLE.' },
   { id: 'radium_ammunition_chaoscult', name: 'Radium Ammunition', type: 'equipment', slot: 'equipment', cost: 10, limit: 2, keywords: ['CONSUMABLE'], description: 'AMMUNITION (GAS). For Autogun, Automatic Shotgun, Shotgun, Autopistol, Stub Pistol, or Heavy Stubber only. CONSUMABLE.' },
+  { id: 'psychic_familiar_cc', name: 'Psychic Familiar', type: 'equipment', slot: 'equipment', cost: 5, limit: 1, keywords: [], description: 'Once per battle, when the owner makes a PSYCHIC attack or takes a PSYCHIC Success Roll, it can add +1 DICE to that roll.' },
   { id: 'cyberteknika_cranial_chaoscult', name: 'Cranial Cyberteknika', type: 'equipment', slot: 'equipment', cost: 10, keywords: ['PERMANENT'], description: 'PERMANENT. Cannot be removed or sold. Critical Hits do not grant the normal +1 DICE against this model; the CRITICAL Keyword still functions normally. Ignores Trauma penalties (prevents gaining): Dark Memory, Head Wound, Paranoia. If this Cyberteknika would prevent an injury type, roll a D6 first: on 1-3 it is destroyed but the injury is not sustained.' },
   { id: 'cyberteknika_ocular_chaoscult', name: 'Ocular Cyberteknika', type: 'equipment', slot: 'equipment', cost: 15, keywords: ['PERMANENT'], description: 'PERMANENT. Cannot be removed or sold. Ignores the penalty for shooting at Long Range. Ignores Trauma penalties (prevents gaining): Insomniac, Lost an Eye. If this Cyberteknika would prevent an injury type, roll a D6 first: on 1-3 it is destroyed but the injury is not sustained.' },
   { id: 'cyberteknika_sindexterous_chaoscult', name: 'Sindexterous Cyberteknika', type: 'equipment', slot: 'equipment', cost: 15, keywords: ['PERMANENT'], description: 'PERMANENT. Cannot be removed or sold. Ignores the penalty for attacking with the off-hand. Ignores Trauma penalties (prevents gaining): Hand Wound, Lost Arm. If this Cyberteknika would prevent an injury type, roll a D6 first: on 1-3 it is destroyed but the injury is not sustained.' },
@@ -577,7 +530,8 @@ export const adeptusAstartesEquipment: WargearOption[] = [
   // Iron Hands Variant – reduced-cost cyberteknika + Torsonic & Vascular + Servo-Skull
   { id: 'cyberteknika_torsonic_aa', name: 'Torsonic Cyberteknika', type: 'equipment', slot: 'equipment', cost: 25, limit: 2, keywords: ['PERMANENT'], description: 'PERMANENT. Cannot be removed or sold. Injuries against this model are rolled with -1 DICE. Ignores Trauma penalties (prevents gaining): Chest Wound. If this Cyberteknika would prevent an injury type, roll a D6 first: on 1-3 it is destroyed but the injury is not sustained. Iron Hands only (25 credits).' },
   { id: 'cyberteknika_vascular_aa', name: 'Vascular Cyberteknika', type: 'equipment', slot: 'equipment', cost: 20, limit: 2, keywords: ['PERMANENT'], description: 'PERMANENT. Cannot be removed or sold. +1 DICE to all Dash Success Rolls. Ignores Trauma penalties (prevents gaining): Severe Nerve Damage, Shell-Shocked. If this Cyberteknika would prevent an injury type, roll a D6 first: on 1-3 it is destroyed but the injury is not sustained. Iron Hands only (20 credits).' },
-  { id: 'servo_skull_ih', name: 'Servo-Skull', type: 'equipment', slot: 'equipment', cost: 15, keywords: [], description: '+1 INJURY MODIFIER with all attacks. Techmarine Only. (Iron Hands only)' },
+  { id: 'servo_skull_ih', name: 'Servo-Skull', type: 'armor', slot: 'equipment', cost: 15, keywords: ['+1 INJURY MODIFIER'], description: '+1 INJURY MODIFIER with all attacks. Techmarine Only. (Iron Hands only)' },
+  { id: 'servo_medicae_ih', name: 'Servo-Medicae', type: 'equipment', slot: 'equipment', cost: 10, limit: 1, keywords: [], description: 'Counts as a Medicae Kit, but gains +1 DICE on the Success Roll to use it. The user can take a Risky Success Roll and choose themself or one ally within 1". On a success, remove one BLOOD MARKER from the target, or if it is Down, allow it to stand up. (Iron Hands only)' },
   // Dark Angels Variant
   { id: 'watcher_in_the_dark', name: 'Watcher in the Dark', type: 'equipment', slot: 'equipment', cost: 5, limit: 3, keywords: [], description: 'Once per battle when the equipped model is hit by an attack, the Injury roll has -1 DICE. Elite Only. (Dark Angels only)' },
   // Space Wolves Variant – equipment mounts
@@ -618,7 +572,7 @@ export const adeptusAstartesEquipment: WargearOption[] = [
 // ---------------------------------------------------------------------------
 export const astraMilitarumEquipment: WargearOption[] = [
   { id: 'augury_scanner_am', name: 'Augury Scanner', type: 'equipment', slot: 'equipment', cost: 10, limit: 1, keywords: [], description: 'Enemy models must be set up at least 16" away from this model when using the DEEP STRIKE or INFILTRATOR Keywords.' },
-  { id: 'camo_cloak_am', name: 'Camo Cloak', type: 'equipment', slot: 'equipment', cost: 10, keywords: ['STEALTH'], description: 'A model equipped with a Camo Cloak gains the STEALTH Keyword, making it harder for enemies to target in ranged attacks.', grantsKeywords: ['STEALTH'] },
+  { id: 'camo_cloak_am', name: 'Camo Cloak', type: 'equipment', slot: 'equipment', cost: 10, keywords: ['STEALTH'], description: 'A model equipped with a Camo Cloak gains the STEALTH Keyword. Long Range attacks against this model suffer an additional -1 DICE to Hit. Attacks that ignore Long Range penalties also ignore STEALTH.', grantsKeywords: ['STEALTH'] },
   { id: 'combat_helmet_am', name: 'Combat Helmet', type: 'equipment', slot: 'headgear', cost: 5, keywords: ['NEGATE SHRAPNEL'], description: 'NEGATE SHRAPNEL.' },
   { id: 'dum_dum_ammunition_am', name: 'Dum-Dum Ammunition', type: 'equipment', slot: 'equipment', cost: 5, limit: 2, keywords: ['CONSUMABLE'], description: 'AMMUNITION (CRITICAL). For Autogun, Autopistol, Stub Pistol, or Heavy Stubber only. CONSUMABLE.' },
   { id: 'manstopper_ammunition_am', name: 'Manstopper Ammunition', type: 'equipment', slot: 'equipment', cost: 10, limit: 1, keywords: ['CONSUMABLE'], description: 'AMMUNITION (+1 INJURY MODIFIER against any target that has no armour, including shields). For Autogun, Autopistol, Stub Pistol, or Heavy Stubber only. CONSUMABLE.' },
@@ -726,6 +680,17 @@ export const adeptaSororitasEquipment: WargearOption[] = [
   { id: 'cyberteknika_ocular_sor', name: 'Ocular Cyberteknika', type: 'equipment', slot: 'equipment', cost: 15, keywords: ['PERMANENT'], description: 'PERMANENT. Cannot be removed or sold. Ignores the penalty for shooting at Long Range. Ignores Trauma penalties (prevents gaining): Insomniac, Lost an Eye. If this Cyberteknika would prevent an injury type, roll a D6 first: on 1-3 it is destroyed but the injury is not sustained.' },
   { id: 'cyberteknika_sindexterous_sor', name: 'Sindexterous Cyberteknika', type: 'equipment', slot: 'equipment', cost: 15, keywords: ['PERMANENT'], description: 'PERMANENT. Cannot be removed or sold. Ignores the penalty for attacking with the off-hand. Ignores Trauma penalties (prevents gaining): Hand Wound, Lost Arm. If this Cyberteknika would prevent an injury type, roll a D6 first: on 1-3 it is destroyed but the injury is not sustained.' },
   { id: 'cyberteknika_motive_sor', name: 'Motive Cyberteknika', type: 'equipment', slot: 'equipment', cost: 10, keywords: ['PERMANENT'], description: 'PERMANENT. Cannot be removed or sold. +1 DICE to Climb, Jump, and Diving Charge Success Rolls, and to rolls to avoid falling off raised terrain. Ignores Trauma penalties (prevents gaining): Leg Wounded, Muscle Damage. If this Cyberteknika would prevent an injury type, roll a D6 first: on 1-3 it is destroyed but the injury is not sustained.' },
+  // Campaign Shop items
+  { id: 'beneficence_chainsword_sor', name: 'Beneficence Chainsword', type: 'weapon', slot: 'equipment', cost: 5, costCurrency: 'glory', limit: 1, keywords: ['CLEAVE 2', 'CRITICAL', 'RISKY', 'SHRAPNEL', 'MAIN HAND ONLY'], description: 'Melee, CLEAVE 2, CRITICAL, RISKY, SHRAPNEL, MAIN HAND ONLY. Elite Only.' },
+  { id: 'casket_of_penance_sor', name: 'Casket of Penance', type: 'equipment', slot: 'equipment', cost: 4, costCurrency: 'glory', limit: 1, keywords: [], description: 'As an Action with no Success Roll, the carrier can rebuke its foes. The equipped model and each enemy within 6" of it each gain a BLOOD MARKER. Penitent Host Only.' },
+  { id: 'holy_judgement_sor', name: 'Holy Judgement', type: 'equipment', slot: 'equipment', cost: 2, costCurrency: 'glory', limit: 1, keywords: [], description: 'As an Action with a Risky Success Roll, this model can select any enemy model within 12" that it can see. If successful, the enemy model suffers one BLOOD MARKER. Dogmata Only; cannot be sold.' },
+  { id: 'litanies_of_faith_sor', name: 'Litanies of Faith', type: 'equipment', slot: 'equipment', cost: 4, costCurrency: 'glory', limit: 1, keywords: [], description: 'Whenever this model or an ally within 6" of it spends one or more BLESSING MARKERS on a Success Roll, it counts as having spent 1 additional BLESSING MARKER.' },
+  { id: 'quicksilver_veil_sor', name: 'Quicksilver Veil', type: 'equipment', slot: 'equipment', cost: 1, costCurrency: 'glory', limit: 1, keywords: [], description: 'Once during each battle, you can add 3" to the equipped model\'s movement speed for the duration of its Activation. Elite Only.' },
+  { id: 'relic_paragon_warsuit_sor', name: 'Relic Paragon Warsuit', type: 'equipment', slot: 'equipment', cost: 6, costCurrency: 'glory', limit: 1, keywords: ['LARGE', 'STRONG', 'VEHICLE'], description: 'The equipped model is mounted in a paragon warsuit. Gains LARGE, STRONG, VEHICLE, 8" movement, -3 Armour (replaces existing). Can equip 1 two-handed melee, 1 two-handed ranged, and Twin G-Launchers or Twin Storm Bolters. Elite Only.', grantsKeywords: ['LARGE', 'STRONG', 'VEHICLE'] },
+  { id: 'saints_pulpit_sor', name: "Saint's Pulpit", type: 'equipment', slot: 'equipment', cost: 5, costCurrency: 'glory', limit: 1, keywords: ['LARGE', 'VEHICLE', 'FLYING', 'COVER'], description: 'Mounted on floating pulpit. Gains LARGE, VEHICLE, FLYING, COVER, 8" movement, always treated as 3" above current location. Weapon Mount: ignore HEAVY of one ranged weapon. Cannot combine with Relic Paragon Warsuit. Canoness Only.', grantsKeywords: ['LARGE', 'VEHICLE', 'FLYING', 'COVER'] },
+  { id: 'sorrowsong_sor', name: 'Sorrowsong', type: 'weapon', slot: 'equipment', cost: 4, costCurrency: 'glory', limit: 1, keywords: ['PISTOL'], description: '18", PISTOL, Scope. Normal Shot: ARMOUR PIERCING 1. Overload: +2 INJURY DICE, ARMOUR PIERCING 2, RISKY, roll on injury table on miss. Elite Only.' },
+  { id: 'tears_of_saint_celestine_sor', name: 'Tears of Saint Celestine', type: 'equipment', slot: 'equipment', cost: 5, costCurrency: 'glory', limit: 1, keywords: [], description: 'As an Action with a Success Roll, attempt to heal self or one friendly non-ARTIFICIAL model within 6". Success: remove 1 BLOOD MARKER (or 3 on Critical Success).' },
+  { id: 'tears_of_the_emperor_sor', name: 'Tears of the Emperor', type: 'weapon', slot: 'equipment', cost: 2, costCurrency: 'glory', limit: 1, keywords: ['ASSAULT', 'BLAST 3"', 'IGNORE COVER', 'IGNORE LONG RANGE', 'IGNORE ARMOUR', 'THROWN'], description: '8", ASSAULT, BLAST 3", IGNORE COVER, IGNORE LONG RANGE, IGNORE ARMOUR, THROWN. +1 INJURY DICE against DAEMON. Elite Only.' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -892,7 +857,7 @@ export const harlequinsEquipment: WargearOption[] = [
 export const genestealerCultsEquipment: WargearOption[] = [
   { id: 'atalan_bike', name: 'Atalan Bike', type: 'equipment', slot: 'equipment', cost: 25, limit: 3, keywords: ['LARGE', 'VEHICLE', '10" movement'], description: 'LARGE, VEHICLE, 10" movement. Demolition Run and Outrider abilities. Neophyte Only.' },
   { id: 'atalan_quad', name: 'Atalan Quad', type: 'equipment', slot: 'equipment', cost: 45, limit: 1, keywords: ['LARGE', 'VEHICLE', '-1 INJURY MODIFIER'], description: 'LARGE, VEHICLE, 10" movement, -1 INJURY MODIFIER. Turbo-Boost ability. Neophyte Only.' },
-  { id: 'camo_cloak_gsc', name: 'Camo Cloak', type: 'equipment', slot: 'equipment', cost: 10, keywords: ['STEALTH'], description: 'A model equipped with a Camo Cloak gains the STEALTH Keyword, making it harder for enemies to target in ranged attacks.', grantsKeywords: ['STEALTH'] },
+  { id: 'camo_cloak_gsc', name: 'Camo Cloak', type: 'equipment', slot: 'equipment', cost: 10, keywords: ['STEALTH'], description: 'A model equipped with a Camo Cloak gains the STEALTH Keyword. Long Range attacks against this model suffer an additional -1 DICE to Hit. Attacks that ignore Long Range penalties also ignore STEALTH.', grantsKeywords: ['STEALTH'] },
   { id: 'cult_icon_gsc', name: 'Cult Icon', type: 'equipment', slot: 'equipment', cost: 15, limit: 1, keywords: ['HELD', 'LEADER'], description: 'HELD. As an Action with a Success Roll with +1 DICE, the carrier can attempt to heal itself or a friendly model within 6". If it succeeds, remove 1 BLOOD MARKER from that model, or 3 BLOOD MARKERS if the Success Roll was a Critical Success.' },
   { id: 'psychic_familiar_gsc', name: 'Psychic Familiar', type: 'equipment', slot: 'equipment', cost: 5, limit: 2, keywords: [], description: 'Once per battle, when the owner makes a PSYCHIC attack or takes a PSYCHIC Success Roll, it can add +1 DICE to that roll.' },
   { id: 'combat_helmet_gsc', name: 'Combat Helmet', type: 'equipment', slot: 'headgear', cost: 5, keywords: ['NEGATE SHRAPNEL'], description: 'NEGATE SHRAPNEL.' },
@@ -954,7 +919,7 @@ export const aeldariEquipment: WargearOption[] = [
 // Pirate Crew – faction-specific equipment
 // ---------------------------------------------------------------------------
 export const pirateCrewEquipment: WargearOption[] = [
-  { id: 'blade_venom_pirate', name: 'Blade Venom', type: 'equipment', slot: 'equipment', cost: 5, limit: 3, keywords: ['CONSUMABLE', 'GAS'], description: 'Blade and CCW weapons gain the GAS Keyword for one battle. CONSUMABLE.' },
+  { id: 'blade_venom_pirate', name: 'Blade Venom', type: 'equipment', slot: 'equipment', cost: 5, limit: 3, keywords: ['CONSUMABLE', 'GAS'], description: 'Blades, Close Combat Weapons, Paired Blades, Throwing Knives, and Two-Handed Blades the model is equipped with each gain the GAS Keyword for the duration of the battle. CONSUMABLE.' },
   { id: 'cyber_parrot', name: 'Cyber Parrot', type: 'equipment', slot: 'equipment', cost: 3, keywords: [], description: 'Once per battle: force an enemy to have -1 DICE to Hit in melee. Elite Only.' },
   { id: 'pirate_bike', name: 'Pirate Bike', type: 'equipment', slot: 'equipment', cost: 20, limit: 2, keywords: ['LARGE', 'VEHICLE', '10" movement'], description: 'LARGE, VEHICLE, 10" movement. +1 DICE to Dash Success Rolls.' },
   { id: 'pirate_trophy', name: 'Pirate Trophy', type: 'equipment', slot: 'equipment', cost: 15, limit: 3, keywords: ['FEAR'], description: 'Model gains the FEAR Keyword.', grantsKeywords: ['FEAR'] },
@@ -1020,11 +985,60 @@ export const necromundasGangEquipment: WargearOption[] = [
   { id: 'heavy_hunting_rig_venators', name: 'Heavy Hunting Rig', type: 'armor', slot: 'body-armour', cost: 50, keywords: ['-3 INJURY MODIFIER', 'LARGE', 'VEHICLE'], description: '-3 INJURY MODIFIER, LARGE, VEHICLE. Venators Elite Only.', statModifiers: { armourSave: -3 }, restrictedTo: ['ELITE'] },
   { id: 'yeld_hunting_rig_venators', name: 'Yeld Hunting Rig', type: 'armor', slot: 'body-armour', cost: 60, keywords: ['-2 INJURY MODIFIER', '8" FLYING', 'INFILTRATOR', 'STEALTH', 'VEHICLE'], description: '-2 INJURY MODIFIER, 8" FLYING, INFILTRATOR, STEALTH, VEHICLE. Venators.', grantsKeywords: ['INFILTRATOR', 'STEALTH'], statModifiers: { armourSave: -2 } },
   { id: 'sthenian_hunting_rig_venators', name: 'Sthenian Hunting Rig', type: 'armor', slot: 'body-armour', cost: 65, keywords: ['-3 INJURY MODIFIER', 'LARGE', 'VEHICLE'], description: '-3 INJURY MODIFIER, LARGE, VEHICLE. Venators Hunt Leader Only.', statModifiers: { armourSave: -3 } },
-  { id: 'mirror_shield_venators', name: 'Mirror Shield', type: 'armor', slot: 'body-armour', cost: 15, keywords: ['-1 INJURY MODIFIER', 'Shield'], description: '-1 INJURY MODIFIER. Built-in melee weapon. Venators Hunting Rig Only.', statModifiers: { armourSave: -1 } },
+  { id: 'mirror_shield_venators', name: 'Mirror Shield', type: 'armor', slot: 'body-armour', cost: 15, keywords: ['-1 INJURY MODIFIER', 'Shield'], description: 'Counts as a Shield, including for Shield Combo. -1 INJURY MODIFIER. Built-in melee weapon: on hit, target cannot attack Retreating enemies until end of Turn. Venators Hunting Rig Only.', statModifiers: { armourSave: -1 } },
   { id: 'incendiary_grenades_venators', name: 'Incendiary Grenades', type: 'equipment', slot: 'equipment', cost: 15, limit: 2, keywords: ['THROWN', 'FIRE'], description: 'Thrown incendiary grenades. Venators.' },
   // Palanite Enforcers
   { id: 'magnacles_enforcers', name: 'Magnacles', type: 'equipment', slot: 'equipment', cost: 10, limit: 3, keywords: [], description: 'Enemy models in close combat cannot stand up from being Down. Palanite Enforcers.' },
   { id: 'nuncio_aquila_enforcers', name: 'Nuncio Aquila', type: 'equipment', slot: 'equipment', cost: 10, limit: 1, keywords: ['FEAR'], description: 'Model gains the FEAR Keyword. Palanite Enforcers.', grantsKeywords: ['FEAR'] },
+  { id: 'photon_flash_grenades_enforcers', name: 'Photon Flash Grenades', type: 'equipment', slot: 'equipment', cost: 10, limit: 2, keywords: ['THROWN', 'STUN'], description: '8", ASSAULT, BLAST 3", IGNORE COVER, IGNORE LONG RANGE, STUN, THROWN, can be used in melee using Ranged skill. Causes no injury but applies a STUN MARKER. On hit, target cannot attack Retreating enemies until end of Turn. Palanite Enforcers.' },
+  { id: 'dum_dum_ammunition_enforcers', name: 'Dum-Dum Ammunition', type: 'equipment', slot: 'equipment', cost: 5, limit: 2, keywords: ['CONSUMABLE'], description: 'AMMUNITION (CRITICAL). Autogun, Autopistol, Stub Pistol, or Heavy Stubber only. CONSUMABLE. Palanite Enforcers.' },
+  { id: 'shock_ammunition_enforcers', name: 'Shock Ammunition', type: 'equipment', slot: 'equipment', cost: 5, limit: 1, keywords: ['CONSUMABLE', 'STUN'], description: 'AMMUNITION (STUN). One Autogun, Automatic Shotgun, Shotgun, Autopistol, Stub Pistol, or Heavy Stubber only. CONSUMABLE. Palanite Enforcers.' },
+  // House Cawdor
+  { id: 'asbestos_mandilion_cawdor', name: 'Asbestos Mandilion', type: 'equipment', slot: 'equipment', cost: 5, limit: 3, keywords: ['NEGATE FIRE'], description: 'The equipped model gains NEGATE FIRE. House Cawdor.', grantsKeywords: ['NEGATE FIRE'] },
+  { id: 'cherub_cawdor', name: 'Cherub', type: 'equipment', slot: 'equipment', cost: 1, costCurrency: 'glory', limit: 1, keywords: [], description: 'Once per battle, when this model spends a Miracle, you gain 1 Miracle. House Cawdor Elite Only.' },
+  // House Delaque
+  { id: 'digital_laser_delaque', name: 'Digital Laser', type: 'equipment', slot: 'equipment', cost: 5, limit: 3, keywords: ['PISTOL'], description: '6", PISTOL, -1 INJURY DICE, takes no hands, can be used in addition to any other attacks. Once per battle. House Delaque.' },
+  // House Goliath
+  { id: 'dum_dum_ammunition_goliath', name: 'Dum-Dum Ammunition', type: 'equipment', slot: 'equipment', cost: 5, limit: 2, keywords: ['CONSUMABLE'], description: 'AMMUNITION (CRITICAL). Autogun, Autopistol, Stub Pistol, or Heavy Stubber only. CONSUMABLE. House Goliath.' },
+  // House Van Saar
+  { id: 'shock_ammunition_vansaar', name: 'Shock Ammunition', type: 'equipment', slot: 'equipment', cost: 5, limit: 1, keywords: ['CONSUMABLE', 'STUN'], description: 'AMMUNITION (STUN). One Autogun, Automatic Shotgun, Shotgun, Autopistol, Stub Pistol, or Heavy Stubber only. CONSUMABLE. House Van Saar.' },
+  // Ash Waste Nomads - weapons
+  { id: 'venom_caster_nomads', name: 'Venom Caster', type: 'equipment', slot: 'equipment', cost: 20, limit: 1, keywords: ['GAS', 'FLAMETHROWER', 'IGNORE ARMOUR'], description: '8", -1 INJURY DICE, GAS, FLAMETHROWER, IGNORE ARMOUR, TWO-HANDED. Ash Waste Nomads.' },
+  { id: 'bone_talons_nomads', name: 'Bone Talons', type: 'equipment', slot: 'equipment', cost: 10, keywords: ['CLEAVE 2', 'VICIOUS 11'], description: 'Melee, CLEAVE 2, VICIOUS 11, TWO-HANDED, Cumbersome. Ash Waste Nomads.' },
+  { id: 'insective_knife_nomads', name: 'Insective Knife', type: 'equipment', slot: 'equipment', cost: 7, limit: 1, keywords: ['GAS'], description: 'Melee, GAS, MAIN HAND ONLY. Ash Waste Nomads.' },
+  { id: 'toxin_whip_nomads', name: 'Toxin Whip', type: 'equipment', slot: 'equipment', cost: 18, limit: 1, keywords: ['GAS', 'WHIP 3"'], description: 'Melee, BLOCK, GAS, WHIP 3", MAIN HAND ONLY. Ash Waste Nomads.' },
+  { id: 'venom_stave_nomads', name: 'Venom Stave', type: 'equipment', slot: 'equipment', cost: 10, limit: 1, keywords: ['GAS'], description: 'Melee, BLOCK, GAS, TWO-HANDED, Shield Combo. Ash Waste Nomads.' },
+  // Ash Waste Nomads - equipment & chems
+  { id: 'venom_sacs_nomads', name: 'Venom Sacs', type: 'equipment', slot: 'equipment', cost: 10, limit: 1, keywords: [], description: "This model's attacks with GAS have +1 INJURY DICE and RISKY. Ash Waste Nomads." },
+  { id: 'ash_orchid_venom_nomads', name: 'Ash Orchid Venom', type: 'equipment', slot: 'equipment', cost: 10, limit: 2, keywords: ['CONSUMABLE'], description: 'The model has REGENERATE 1, but has -1 DICE to all Success Rolls besides attacks. CONSUMABLE. Ash Waste Nomads.' },
+  { id: 'duststalker_mandible_nomads', name: "Duststalker's Mandible", type: 'equipment', slot: 'equipment', cost: 15, limit: 2, keywords: ['CONSUMABLE'], description: 'The model ignores the STEALTH Keyword and has IGNORE COVER and RISKY with its ranged attacks; whenever it suffers any STUN MARKERS, it suffers 1 additional STUN MARKER. CONSUMABLE. Ash Waste Nomads.' },
+  { id: 'milk_of_harpy_nomads', name: 'Milk of the Harpy', type: 'equipment', slot: 'equipment', cost: 10, limit: 2, keywords: ['CONSUMABLE'], description: "The model gains +2\" movement speed, but if it does not end its Activation at least 5\" away from where it began, it suffers 1 BLOOD MARKER. CONSUMABLE. Ash Waste Nomads." },
+  { id: 'tears_of_storm_nomads', name: 'Tears of the Storm', type: 'equipment', slot: 'equipment', cost: 15, limit: 1, keywords: ['CONSUMABLE'], description: 'Once per Activation, the model can make an additional Shoot or Fight attack. When Activated more than 1" from enemies, must Dash first (3" in a straight line away). If Down, stands up and moves 3" away. CONSUMABLE. Ash Waste Nomads.' },
+  { id: 'blast_carbine_nomads', name: 'Blast Carbine', type: 'equipment', slot: 'equipment', cost: 12, limit: 2, keywords: ['ASSAULT', 'CRITICAL'], description: '18", ASSAULT, CRITICAL. Ash Waste Nomads.' },
+  { id: 'blast_rifle_nomads', name: 'Blast Rifle', type: 'equipment', slot: 'equipment', cost: 10, keywords: ['CRITICAL'], description: '24", CRITICAL. Ash Waste Nomads.' },
+  // Delegation
+  { id: 'gun_skull_delegation', name: 'Gun Skull', type: 'equipment', slot: 'equipment', cost: 10, keywords: [], description: '12", ASSAULT, takes no hands, can make an additional attack when the wielder takes the Shoot Action. Delegation Master of Coin/Bone Scrivener Only.' },
+  { id: 'digital_laser_delegation', name: 'Digital Laser', type: 'equipment', slot: 'equipment', cost: 5, limit: 1, keywords: ['PISTOL'], description: '6", PISTOL, -1 INJURY DICE, takes no hands, can be used in addition to any other attacks. Once per battle. Delegation Elite Only.' },
+  { id: 'digital_laser_array_delegation', name: 'Digital Laser Array', type: 'equipment', slot: 'equipment', cost: 10, limit: 1, keywords: ['PISTOL'], description: '6", PISTOL, -1 INJURY DICE, takes no hands, can be used in addition to any other attacks. Cannot be combined with a Digital Laser. Delegation Master Charlatan Only.' },
+  { id: 'shockwhip_delegation', name: 'Shockwhip', type: 'equipment', slot: 'equipment', cost: 7, keywords: ['STUN', 'WHIP 3"'], description: 'Melee, STUN, WHIP 3". Delegation Chain Lord Only.' },
+  { id: 'sling_gun_delegation', name: 'Sling Gun', type: 'equipment', slot: 'equipment', cost: 12, keywords: [], description: '24", ARMOUR PIERCING 1 on Critical Hit, TWO-HANDED. Delegation Cold Trader Only.' },
+  { id: 'cult_icon_delegation', name: 'Cult Icon', type: 'equipment', slot: 'equipment', cost: 15, keywords: ['HELD'], description: 'HELD. As an Action with a Success Roll (+1 DICE), attempt to heal itself or a friendly model within 6". Success removes 1 BLOOD MARKER (3 on Critical). Delegation Skinflint/Syphonite/Bone Scrivener/Pyromagir/Shackleman Only.' },
+  { id: 'displacer_field_delegation', name: 'Displacer Field', type: 'equipment', slot: 'equipment', cost: 10, keywords: [], description: 'Attacks against the equipped model have -1 DICE to Hit. Cannot be combined with a Refractor Field. Delegation Leader/Mindfrayed Only.' },
+  { id: 'refractor_field_delegation', name: 'Refractor Field', type: 'equipment', slot: 'equipment', cost: 10, keywords: [], description: 'The equipped model treats Down results as Minor Hits (does not affect Down via TOUGH). Cannot be combined with a Displacer Field. Delegation Leader/Pyromagir Only.' },
+  // Ratskins - weapons
+  { id: 'longbow_ratskins', name: 'Longbow', type: 'equipment', slot: 'equipment', cost: 3, keywords: ['RELOAD'], description: '24", RELOAD, TWO-HANDED. Ratskins.' },
+  { id: 'slingshot_ratskins', name: 'Slingshot', type: 'equipment', slot: 'equipment', cost: 2, keywords: [], description: '12", TWO-HANDED. Ratskins.' },
+  // Ratskins - equipment
+  { id: 'good_luck_charm_ratskins', name: 'Good Luck Charm', type: 'equipment', slot: 'equipment', cost: 10, keywords: [], description: 'When the equipped model fails a Risky Success Roll, it may use this item to not end its Activation. Once per battle. Ratskins Elite Only.' },
+  { id: 'barbed_arrows_ratskins', name: 'Barbed Arrows', type: 'equipment', slot: 'equipment', cost: 5, limit: 2, keywords: ['CONSUMABLE'], description: 'AMMUNITION (SHRAPNEL). Longbow Only. CONSUMABLE. Ratskins.' },
+  { id: 'explosive_arrows_ratskins', name: 'Explosive Arrows', type: 'equipment', slot: 'equipment', cost: 5, limit: 1, keywords: ['CONSUMABLE'], description: 'AMMUNITION (BLAST 2", SHRAPNEL, -1 INJURY DICE). Longbow Only. CONSUMABLE. Ratskins.' },
+  { id: 'poison_arrows_ratskins', name: 'Poison Arrows', type: 'equipment', slot: 'equipment', cost: 5, limit: 3, keywords: ['CONSUMABLE', 'GAS'], description: 'AMMUNITION (GAS). Longbow Only. CONSUMABLE. Ratskins.' },
+  { id: 'blade_venom_ratskins', name: 'Blade Venom', type: 'equipment', slot: 'equipment', cost: 5, limit: 2, keywords: ['CONSUMABLE', 'GAS'], description: 'Blades, Close Combat Weapons, Paired Blades, Throwing Knives, and Two-Handed Blades the model is equipped with each gain the GAS Keyword for the duration of the battle. CONSUMABLE. Ratskins.' },
+  // Scavvies - weapons
+  { id: 'scatter_cannon_scavvies', name: 'Scatter Cannon', type: 'equipment', slot: 'equipment', cost: 10, limit: 1, keywords: ['HEAVY', 'SHRAPNEL'], description: '18", BLAST 2", SHRAPNEL, HEAVY, TWO-HANDED, Shield Combo. Scavvies.' },
+  { id: 'spear_gun_scavvies', name: 'Spear Gun', type: 'equipment', slot: 'equipment', cost: 20, limit: 1, keywords: ['HEAVY'], description: '24", +1 INJURY DICE, HEAVY, TWO-HANDED. Scavvies.' },
+  // Necromunda Gang Shared Armoury
+  { id: 'stim_slug_cache_nec', name: 'Stim-Slug Cache', type: 'equipment', slot: 'equipment', cost: 10, limit: 1, keywords: [], description: 'Once per battle at start of Activation: Remove D3 BLOOD MARKERS OR gain +2" movement and +1 DICE to Hit. Then roll INJURY with IGNORE ARMOUR and -1 INJURY DICE. Elite Only.' },
   // Psychic (available to psyker models)
   { id: 'psychic_familiar_nec', name: 'Psychic Familiar', type: 'equipment', slot: 'equipment', cost: 5, limit: 1, keywords: [], description: 'Once per battle, when the owner makes a PSYCHIC attack or takes a PSYCHIC Success Roll, it can add +1 DICE to that roll. LIMIT: 1.' },
   // Necromunda Shared Armoury cyberteknika (all gangs, 1 Glory each)

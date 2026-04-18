@@ -375,6 +375,8 @@ export interface Warband {
   totalPoints: number;  // Total credits spent
   totalGlory: number;   // Total glory spent on mercenaries
   totalModels: number;
+  /** Persistent campaign state (only populated when campaign mode is active). */
+  campaign?: CampaignState;
 }
 
 // ---------------------------------------------------------------------------
@@ -619,4 +621,84 @@ export interface SharedWarbandProps {
   setGloryLimit: (v: number) => void;
   warband: Warband;
   setWarband: (v: Warband | ((prev: Warband) => Warband)) => void;
+}
+
+// ---------------------------------------------------------------------------
+// Campaign Manager — post-battle workflow, exploration, resources
+// ---------------------------------------------------------------------------
+
+/** Which campaign bracket the warband is currently in (determines mission table & exploration dice). */
+export type CampaignBracket = 'early' | 'mid' | 'late' | 'finale';
+
+/** A single mission scenario entry. */
+export interface MissionEntry {
+  roll: number;
+  name: string;
+  description: string;
+  /** True if the scenario is from the original Trench Crusade rulebook. */
+  isOriginal?: boolean;
+}
+
+/** Exploration location with faction-conditional choices. */
+export interface ExplorationLocation {
+  /** Sum of dice needed to reach this location. */
+  result: number;
+  name: string;
+  /** Universal choices available to all factions. */
+  universalChoices: ExplorationChoice[];
+  /** Faction-conditional choices (only shown when the warband matches). */
+  factionChoices: FactionExplorationChoice[];
+}
+
+export interface ExplorationChoice {
+  name: string;
+  description: string;
+}
+
+export interface FactionExplorationChoice extends ExplorationChoice {
+  /** Faction IDs, alignment categories, or keyword conditions for eligibility.
+   *  e.g. ['chaos_cult'], ['chaos'], ['imperial'], ['xenos', 'outlaw'], ['NOT:tyranids'] */
+  condition: string[];
+  /** Human-readable condition label shown in UI, e.g. "(Chaos Cult Only)" */
+  conditionLabel: string;
+}
+
+/** Persistent campaign state stored alongside the warband. */
+export interface CampaignState {
+  /** Current game number (1-12). */
+  gameNumber: number;
+  /** Campaign Victory Points earned. */
+  campaignVP: number;
+  /** Credits earned between games (exploration, rewards). */
+  reserveCredits: number;
+  /** Glory earned between games. */
+  reserveGlory: number;
+  /** Exploration skills the warband has acquired. */
+  explorationSkills: string[];
+  /** Faction-specific campaign resource values. */
+  factionResources: Record<string, number>;
+  /** History of exploration locations found. */
+  exploredLocations: string[];
+  /** Campaign shop contacts established (from Supplier / Black Market etc.) */
+  shopContacts: CampaignShopContact[];
+  /** Free-text notes the player can keep. */
+  notes: string;
+}
+
+export interface CampaignShopContact {
+  name: string;
+  /** Max glory cost of items purchasable, or 0 for unlimited. */
+  maxGloryCost: number;
+}
+
+/** Definition of a faction-specific campaign resource. */
+export interface FactionResourceDef {
+  id: string;
+  name: string;
+  /** Faction IDs that track this resource. */
+  factionIds: string[];
+  /** Optional subfaction IDs (if resource is subfaction-specific). */
+  subfactionIds?: string[];
+  /** Short description of what this resource does. */
+  description: string;
 }

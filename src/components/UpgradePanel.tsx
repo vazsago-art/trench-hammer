@@ -45,10 +45,9 @@ export function UpgradePanel({
   const isLargeWarband = totalWarbandPoints >= 1200;
 
   // Stackable upgrades (maxCount >= 10, e.g. Primaris) are independent of class upgrades.
-  // Marks of Chaos (keyword 'MARK') are also stackable vs class upgrades (but exclusive among themselves).
   // Nested upgrades (with requiredUpgradeId) are stackable with their parent.
   // Class upgrades (maxCount < 10) are mutually exclusive with each other.
-  const isStackable = (upg: UnitUpgrade) => upg.maxCount >= 10 || (upg.keywords?.includes('MARK') ?? false) || !!upg.requiredUpgradeId;
+  const isStackable = (upg: UnitUpgrade) => upg.maxCount >= 10 || !!upg.requiredUpgradeId;
   const classUpgradeId = Object.entries(selectedUpgrades).find(([id, cnt]) => {
     if (cnt <= 0) return false;
     const upg = upgrades.find(u => u.id === id);
@@ -104,16 +103,7 @@ export function UpgradePanel({
             </>
           )}
 
-          {renderUpgrades(upgrades.filter(u => !u.keywords?.includes('MARK') && !u.requiredUpgradeId), false)}
-          
-          {upgrades.some(u => u.keywords?.includes('MARK')) && (
-            <>
-              <h3 className="upgrade-section-title" style={{ marginTop: '1.5rem', marginBottom: '0.5rem', color: '#ffd700', borderBottom: '1px solid #444', paddingBottom: '0.25rem' }}>
-                Marks of Chaos
-              </h3>
-              {renderUpgrades(upgrades.filter(u => u.keywords?.includes('MARK')), false)}
-            </>
-          )}
+          {renderUpgrades(upgrades.filter(u => !u.requiredUpgradeId), false)}
         </div>
 
         <div className="upgrade-panel-footer">

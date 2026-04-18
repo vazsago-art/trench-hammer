@@ -1,7 +1,7 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Warband, WarbandUnit, UnitOption, UnitSubType, SelectedWargear, WargearOption, SelectedPsychicPower, SelectedGiftOfChaos, UnitUpgrade, WarbandMercenary, Mercenary, MercenaryStats, SharedWarbandProps } from '../../types/index.js';
 import { getFactionById, allFactions } from '../../data/factions_complete.js';
-import { MARKS_OF_CHAOS_UPGRADES } from '../../data/equipment.js';
+import { marksOfChaos } from '../../data/equipment.js';
 import {
   calculateWarbandPoints,
   calculateWarbandGlory,
@@ -11,7 +11,6 @@ import {
 import { getAllowedWargearIds } from '../../data/faction_wargear.js';
 import { validateLoadout, lookupWargear, lookupWeapon } from '../../data/wargearSlotValidation.js';
 import { saveWarbandLocal, exportWarbandToMDFile, importWarbandFromJSON } from '../../utils/export.js';
-import { exportWarbandToPDF } from '../../utils/pdfExport.js';
 import { WargearPanel } from '../WargearPanel.js';
 import { PsychicPanel } from '../PsychicPanel.js';
 import { MutationsPanel } from '../MutationsPanel.js';
@@ -31,6 +30,14 @@ import { EliteProgressionModal } from '../EliteProgressionModal.js';
 import { isEliteEligible } from '../../data/campaignProgression.js';
 import { getPatronsForFaction, getPatronById, filterAbilitiesForSubfaction } from '../../data/patrons.js';
 import { PatronAbilityChip } from '../PatronAbilityChip.js';
+import { BattleMode } from '../BattleMode.js';
+import { getFactionLore, hasLore } from '../../data/factionLore.js';
+import { LoreModal } from '../LoreModal.js';
+import { getWarbandLore, hasWarbandLore } from '../../data/warbandLore.js';
+import { WarbandLoreModal } from '../WarbandLoreModal.js';
+import { RulesReference } from '../RulesReference.js';
+import { CampaignManager } from '../CampaignManager.js';
+import { buildShareUrl } from '../../utils/shareUrl.js';
 import './MobileApp.css';
 
 /** Renders **bold** markdown markers as JSX <strong> elements. */
@@ -118,9 +125,66 @@ export function MobileApp({
   const [unitBrowserOpen, setUnitBrowserOpen]   = useState(false);
   const [showNewBuildConfirm, setShowNewBuildConfirm] = useState(false);
   const [showImportModal, setShowImportModal]     = useState(false);
+  const [showBattleMode, setShowBattleMode]         = useState(false);
+  const [showLore, setShowLore]                       = useState(false);
+  const [showWarbandLore, setShowWarbandLore]         = useState(false);
+  const [showRulesRef, setShowRulesRef]               = useState(false);
+  const [showCampaign, setShowCampaign]               = useState(false);
   const [importPasteText, setImportPasteText]     = useState('');
   const [eliteProgressionIdx, setEliteProgressionIdx] = useState<number | null>(null);
   const importInputRef = useRef<HTMLInputElement>(null);
+
+  // ── Mobile back-button handling ────────────────────────────────────────
+  // Intercept the hardware / gesture back button so it closes the topmost
+  // overlay or navigates to the previous tab instead of exiting the app.
+  const backActionRef = useRef<(() => void) | null>(null);
+
+  // Keep the ref updated with the correct close action for the current UI state
+  useEffect(() => {
+    if (showBattleMode)              backActionRef.current = () => setShowBattleMode(false);
+    else if (showLore)               backActionRef.current = () => setShowLore(false);
+    else if (showWarbandLore)        backActionRef.current = () => setShowWarbandLore(false);
+    else if (showSavedModal)         backActionRef.current = () => setShowSavedModal(false);
+    else if (showImportModal)        backActionRef.current = () => setShowImportModal(false);
+    else if (showNewBuildConfirm)    backActionRef.current = () => setShowNewBuildConfirm(false);
+    else if (infoUnit)               backActionRef.current = () => setInfoUnit(null);
+    else if (infoMercenary)          backActionRef.current = () => setInfoMercenary(null);
+    else if (eliteProgressionIdx !== null) backActionRef.current = () => setEliteProgressionIdx(null);
+    else if (pendingSubTypeUnit)     backActionRef.current = () => setPendingSubTypeUnit(null);
+    else if (wargearUnitIdx !== null) backActionRef.current = () => setWargearUnitIdx(null);
+    else if (psychicUnitIdx !== null) backActionRef.current = () => setPsychicUnitIdx(null);
+    else if (mutationUnitIdx !== null) backActionRef.current = () => setMutationUnitIdx(null);
+    else if (upgradeUnitIdx !== null) backActionRef.current = () => setUpgradeUnitIdx(null);
+    else if (showMercenaryPanel)     backActionRef.current = () => setShowMercenaryPanel(false);
+    else if (unitBrowserOpen)        backActionRef.current = () => setUnitBrowserOpen(false);
+    else if (expandedUnit)           backActionRef.current = () => setExpandedUnit(null);
+    else if (expandedMercId)         backActionRef.current = () => setExpandedMercId(null);
+    else if (activeTab !== 'build')  backActionRef.current = () => setActiveTab('build');
+    else                             backActionRef.current = null;
+  }, [
+    showBattleMode, showLore, showWarbandLore, showSavedModal, showImportModal,
+    showNewBuildConfirm, infoUnit, infoMercenary, eliteProgressionIdx,
+    pendingSubTypeUnit, wargearUnitIdx, psychicUnitIdx, mutationUnitIdx,
+    upgradeUnitIdx, showMercenaryPanel, unitBrowserOpen, expandedUnit,
+    expandedMercId, activeTab,
+  ]);
+
+  // Push an initial history entry and listen for popstate (runs once)
+  useEffect(() => {
+    history.pushState({ mobileApp: true }, '');
+    const handlePopState = () => {
+      if (backActionRef.current) {
+        backActionRef.current();
+        // Re-push so the next back press is also caught
+        history.pushState({ mobileApp: true }, '');
+      } else {
+        // Nothing to close — allow the real "back" (exit PWA / browser page)
+        history.back();
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // ── Helpers ────────────────────────────────────────────────────────────
   const flashMsg = (text: string, ok: boolean) => {
@@ -310,7 +374,7 @@ export function MobileApp({
     }
 
     const effectiveCost = unit.baseCost + costMod + markCostBonus + modCostBonus;
-    const autoMarkUpgDef = MARKS_OF_CHAOS_UPGRADES.find(u => u.id === autoMark?.markId);
+    const autoMarkWargearDef = marksOfChaos.find(m => m.id === autoMark?.markId);
     const autoMarkWargear: SelectedWargear[] = shouldApplyMark ? [{
       id: autoMark!.markId,
       name: autoMark!.markName,
@@ -321,7 +385,7 @@ export function MobileApp({
       quantity: 1,
       isDefault: true,
       isSubfactionRule: true,
-      description: autoMarkUpgDef?.description ?? `Automatic subfaction mark. Grants: ${autoMark!.grantedKeywords.join(', ')}.`,
+      description: autoMarkWargearDef?.description ?? `Automatic subfaction mark. Grants: ${autoMark!.grantedKeywords.join(', ')}.`,
       grantsKeywords: autoMark!.grantedKeywords,
     }] : [];
     const autoMarkKeywords = shouldApplyMark ? autoMark!.grantedKeywords : [];
@@ -616,24 +680,15 @@ export function MobileApp({
       // Upgrades with maxCount >= 10 are "stackable" stat boosts (e.g. Primaris) that
       // can coexist with a class upgrade. Upgrades with maxCount < 10 are mutually exclusive
       // class upgrades (e.g. Assault Marine, Bladeguard) — only one may be active at a time.
-      // Marks of Chaos (keyword 'MARK') are also stackable in the sense that they don't block class upgrades,
-      // but they are mutually exclusive with other Marks (handled by their own logic or naturally if they are the only MARKs).
       // Nested upgrades with requiredUpgradeId (e.g. Night Lords sub-upgrades) are stackable with base class.
       const checkStackable = (upg: { maxCount?: number, keywords?: string[], requiredUpgradeId?: string }) => 
-        ((upg?.maxCount ?? 1) >= 10) || (upg?.keywords?.includes('MARK') ?? false) || !!upg?.requiredUpgradeId;
+        ((upg?.maxCount ?? 1) >= 10) || !!upg?.requiredUpgradeId;
       const isStackable = upgrade ? checkStackable(upgrade) : false;
       let newUpgrades: Record<string, number>;
       if (isStackable) {
         // Keep everything; only update this one upgrade
         newUpgrades = { ...(u.selectedUpgrades ?? {}) };
         if (count > 0) {
-          // If it's a MARK, remove other MARKs first (mutual exclusivity among Marks)
-          if (upgrade?.keywords?.includes('MARK')) {
-             for (const [id] of Object.entries(newUpgrades)) {
-               const other = unitDef?.upgrades?.find(uDef => uDef.id === id);
-               if (other?.keywords?.includes('MARK')) delete newUpgrades[id];
-             }
-          }
           // If it has specific conflicts (mutually exclusive options like Depredator vs Warp Talon)
           if (upgrade?.conflictsWithUpgradeIds) {
              for (const conflictId of upgrade.conflictsWithUpgradeIds) {
@@ -668,9 +723,7 @@ export function MobileApp({
         if (count > 0) newUpgrades[upgradeId] = count;
       }
       const upgradeCreditCost = (unitDef?.upgrades ?? []).reduce((sum, upg) => {
-        const isAuto = currentSubFaction?.autoMark?.markId === upg.id && currentSubFaction?.autoMark?.eligibleUnitIds.includes(u.id);
-        const cost = isAuto ? (currentSubFaction?.autoMark?.costOverride ?? upg.cost) : upg.cost;
-        return sum + (newUpgrades[upg.id] ?? 0) * cost;
+        return sum + (newUpgrades[upg.id] ?? 0) * upg.cost;
       }, 0);
       const calc = recalcUnitCosts(u, u.selectedWargear, unitDef);
       const psychicCredits = (u.selectedPsychicPowers ?? []).filter(p => (p.costCurrency ?? 'credits') === 'credits').reduce((s, p) => s + p.cost, 0);
@@ -863,12 +916,17 @@ export function MobileApp({
     }
   };
 
-  const handleExportPDF  = async () => {
+  const handleShareUrl = async () => {
     try {
-      await exportWarbandToPDF(warband);
-      flashMsg('PDF saved!', true);
+      const url = await buildShareUrl({
+        faction: selectedFaction,
+        subfaction: selectedSubFaction,
+        pointLimit, gloryLimit, warband,
+      });
+      await navigator.clipboard.writeText(url);
+      flashMsg('Share link copied!', true);
     } catch {
-      flashMsg('PDF export failed', false);
+      flashMsg('Failed to generate share link.', false);
     }
   };
 
@@ -974,6 +1032,14 @@ export function MobileApp({
                   <option key={f.id} value={f.id}>{f.name}</option>
                 ))}
               </select>
+              {hasLore(selectedFaction) && (
+                <button
+                  className="mlore-btn"
+                  onClick={() => setShowLore(true)}
+                >
+                  📖 Read Lore
+                </button>
+              )}
               {(() => {
                 const factionRules = getFactionRules(selectedFaction);
                 if (!factionRules) return null;
@@ -999,6 +1065,14 @@ export function MobileApp({
                         <option key={sf.id} value={sf.id}>{sf.name}</option>
                       ))}
                     </select>
+                    {hasWarbandLore(selectedSubFaction) && (
+                      <button
+                        className="mlore-btn"
+                        onClick={() => setShowWarbandLore(true)}
+                      >
+                        📖 Warband Lore
+                      </button>
+                    )}
                     {activeSF && (selectedSubFaction !== 'no_variant' || (getSubFactions(selectedFaction)?.required ?? false)) && (
                       <div className="msubfaction-rules">
                         <div className="msubfaction-desc">{activeSF.description}</div>
@@ -1350,7 +1424,7 @@ export function MobileApp({
                               (!upg.requiredSubfactionId || upg.requiredSubfactionId === selectedSubFaction) &&
                               (!upg.forbiddenSubfactionIds || !upg.forbiddenSubfactionIds.includes(selectedSubFaction))
                             );
-                            const hasAutoTiers = unit.selectedWargear.some(sw => sw.isSubfactionRule && sw.description);
+                            const hasAutoTiers = unit.selectedWargear.some(sw => sw.isSubfactionRule && sw.description && sw.slot !== 'mark');
                             return (visibleUpgrades.length > 0 || hasAutoTiers) ? (
                               <button className="mbtn mbtn-upgrade mbtn-sm" onClick={() => setUpgradeUnitIdx(idx)}>⬆ Upgrades</button>
                             ) : null;
@@ -1664,12 +1738,42 @@ export function MobileApp({
             </div>
 
             <div className="mcard">
-              <div className="mcard-title">Print Roster</div>
+              <div className="mcard-title">Battle Mode</div>
               <p className="mcard-desc">
-                Generates a full A4 PDF with all units, wargear, abilities and rules.
+                Full-screen read-only combat reference with all unit stats at a glance.
               </p>
-              <button className="mbtn mbtn-pdf mbtn-full" onClick={handleExportPDF}>
-                <span className="mbtn-icon">🖨</span> Export Print PDF
+              <button className="mbtn mbtn-battle mbtn-full" onClick={() => setShowBattleMode(true)} disabled={warband.units.length === 0}>
+                <span className="mbtn-icon">⚔</span> Enter Battle Mode
+              </button>
+            </div>
+
+            <div className="mcard">
+              <div className="mcard-title">Share Link</div>
+              <p className="mcard-desc">
+                Copies a shareable URL to clipboard — anyone can open it to load your warband.
+              </p>
+              <button className="mbtn mbtn-share-url mbtn-full" onClick={handleShareUrl}>
+                <span className="mbtn-icon">🔗</span> Copy Share Link
+              </button>
+            </div>
+
+            <div className="mcard">
+              <div className="mcard-title">Rules Reference</div>
+              <p className="mcard-desc">
+                Searchable rules and keyword glossary for quick look-ups during a game.
+              </p>
+              <button className="mbtn mbtn-rules mbtn-full" onClick={() => setShowRulesRef(true)}>
+                <span className="mbtn-icon">📖</span> Open Rules
+              </button>
+            </div>
+
+            <div className="mcard">
+              <div className="mcard-title">Campaign Manager</div>
+              <p className="mcard-desc">
+                Track campaign games, exploration, resources and skills.
+              </p>
+              <button className="mbtn mbtn-campaign mbtn-full" onClick={() => setShowCampaign(true)}>
+                <span className="mbtn-icon">🏰</span> Campaign
               </button>
             </div>
 
@@ -1908,7 +2012,7 @@ export function MobileApp({
           (!upg.forbiddenSubfactionIds || !upg.forbiddenSubfactionIds.includes(selectedSubFaction))
         );
         const autoTiers = unit.selectedWargear
-          .filter(sw => sw.isSubfactionRule && sw.description)
+          .filter(sw => sw.isSubfactionRule && sw.description && sw.slot !== 'mark')
           .map(sw => ({ name: sw.name, description: sw.description!, cost: sw.cost }));
         if (!unitDef || (visibleUpgrades.length === 0 && autoTiers.length === 0)) return null;
         const warbandUpgradeCounts = warband.units.reduce((acc, wu) => {
@@ -2039,6 +2143,53 @@ export function MobileApp({
         <MercenaryInfoModal
           mercenary={infoMercenary}
           onClose={() => setInfoMercenary(null)}
+        />
+      )}
+
+      {/* Battle Mode — full-screen read-only combat reference */}
+      {showBattleMode && (
+        <BattleMode
+          warband={warband}
+          selectedFaction={selectedFaction}
+          selectedSubFaction={selectedSubFaction}
+          allAvailableUnits={allAvailableUnits}
+          buildResolvedUnit={buildResolvedUnit}
+          onUpdateUnit={(unitIndex, updated) => {
+            setWarband(prev => {
+              const units = [...prev.units];
+              units[unitIndex] = updated;
+              return { ...prev, units };
+            });
+          }}
+          onClose={() => setShowBattleMode(false)}
+        />
+      )}
+
+      {/* Lore Modal */}
+      {showLore && (() => {
+        const lore = getFactionLore(selectedFaction);
+        if (!lore) return null;
+        return <LoreModal lore={lore} onClose={() => setShowLore(false)} />;
+      })()}
+
+      {/* Warband Lore Modal */}
+      {showWarbandLore && (() => {
+        const wlore = getWarbandLore(selectedSubFaction);
+        if (!wlore) return null;
+        return <WarbandLoreModal lore={wlore} onClose={() => setShowWarbandLore(false)} />;
+      })()}
+
+      {/* Rules Reference Modal */}
+      {showRulesRef && <RulesReference onClose={() => setShowRulesRef(false)} />}
+
+      {/* Campaign Manager Modal */}
+      {showCampaign && (
+        <CampaignManager
+          warband={warband}
+          selectedFaction={selectedFaction}
+          selectedSubFaction={selectedSubFaction}
+          onUpdateWarband={setWarband}
+          onClose={() => setShowCampaign(false)}
         />
       )}
     </div>

@@ -142,6 +142,10 @@ export interface SlotUsage {
    * When true, two-handed melee weapons with Shield Combo can be held despite the reduced hand count.
    */
   hasMountShieldCombo: boolean;
+  /** Whether a Mark of Chaos is equipped (max 1 per model) */
+  hasMarkOfChaos: boolean;
+  /** Number of HEAVY ranged weapons equipped (for SEKHETAR_ROBOT: max 1) */
+  heavyRangedCount: number;
 }
 
 /**
@@ -156,8 +160,10 @@ export function computeSlotUsage(
 ): SlotUsage {
   // STRONG models can wield TWO-HANDED melee weapons in one hand
   const isStrong = modelKeywords.includes('STRONG');
-  const maxRangedHands = 2;
-  const maxMeleeHands  = 2;
+  const hasSixArms = modelKeywords.includes('SIX_ARMS');
+  const isSekhetar = modelKeywords.includes('SEKHETAR_ROBOT');
+  const maxRangedHands = hasSixArms ? 6 : 2;
+  let maxMeleeHands  = hasSixArms ? 6 : 2;
 
   let rangedHandsUsed  = 0;
   let meleeHandsUsed   = 0;
@@ -170,6 +176,8 @@ export function computeSlotUsage(
   let rangedWeaponCount = 0;
   let meleeWeaponCount  = 0;
   let hasMountShieldCombo = false;
+  let hasMarkOfChaos   = false;
+  let heavyRangedCount = 0;
 
   for (const item of selectedItems) {
     if (item.type === 'weapon') {
@@ -181,13 +189,20 @@ export function computeSlotUsage(
       } else if (isRangedWeapon(weapon)) {
         rangedWeaponCount += item.quantity;
         const cost = getRangedHandCost(weapon);
-        rangedHandsUsed += cost * item.quantity;
+        // SEKHETAR_ROBOT: TWO-HANDED ranged weapons cost only 1 hand
+        const effectiveCost = (isSekhetar && cost === 2) ? 1 : cost;
+        rangedHandsUsed += effectiveCost * item.quantity;
         if (getWeaponHandedness(weapon) === 'two-handed') hasTwoHandedRanged = true;
+        // Track HEAVY ranged for SEKHETAR_ROBOT limit
+        if (weapon.keywords.includes('HEAVY') || weapon.type === 'heavy') {
+          heavyRangedCount += item.quantity;
+        }
       } else if (isMeleeWeapon(weapon)) {
         meleeWeaponCount += item.quantity;
         // STRONG models treat TWO-HANDED melee weapons as one-handed
+        // SEKHETAR_ROBOT overrides STRONG: cannot hold TWO-HANDED melee in one hand
         const rawCost = getMeleeHandCost(weapon);
-        const effectiveCost = (isStrong && rawCost === 2) ? 1 : rawCost;
+        const effectiveCost = (isStrong && !isSekhetar && rawCost === 2) ? 1 : rawCost;
         meleeHandsUsed += effectiveCost * item.quantity;
         if (weapon.isMainHandOnly || weapon.keywords.includes('MAIN HAND ONLY')) {
           hasMainHandWeapon = true;
@@ -204,10 +219,17 @@ export function computeSlotUsage(
       }
     } else if (item.type === 'equipment') {
       const gear = lookupWargear(item.id);
-      if (!gear) continue;
+      if (!gear) {
+        // Fallback: check the slot directly on the SelectedWargear item
+        if (item.slot === 'mark') hasMarkOfChaos = true;
+        continue;
+      }
 
       if (gear.slot === 'headgear' || gear.keywords.includes('Headgear')) {
         headgearCount++;
+      }
+      if (gear.slot === 'mark') {
+        hasMarkOfChaos = true;
       }
       // Mounts (e.g. Astartes Bike) occupy hands: the rider has fewer free hands
       if (gear.occupiesHands && gear.occupiesHands > 0) {
@@ -219,6 +241,11 @@ export function computeSlotUsage(
         hasMountShieldCombo = true;
       }
     }
+  }
+
+  // SEKHETAR_ROBOT: each HEAVY ranged weapon blocks 1 melee hand
+  if (isSekhetar && heavyRangedCount > 0) {
+    maxMeleeHands = Math.max(0, maxMeleeHands - heavyRangedCount);
   }
 
   return {
@@ -235,6 +262,8 @@ export function computeSlotUsage(
     rangedWeaponCount,
     meleeWeaponCount,
     hasMountShieldCombo,
+    hasMarkOfChaos,
+    heavyRangedCount,
   };
 }
 
@@ -275,7 +304,9 @@ export function validateAddWargear(
   // ---- Weapon slot checks -------------------------------------------------
   if (weapon) {
     // Per-weapon quantity limit (e.g. grenades: max 1)
-    if (weapon.limit !== undefined) {
+    // SEKHETAR_ROBOT: Heavy Flamer ignores normal limits
+    const ignoreLimitForSekhetar = modelKeywords.includes('SEKHETAR_ROBOT') && newItemId === 'heavy_flamer';
+    if (weapon.limit !== undefined && !ignoreLimitForSekhetar) {
       const alreadyEquipped = currentItems.find(i => i.id === newItemId);
       if (alreadyEquipped && alreadyEquipped.quantity >= weapon.limit!) {
         errors.push({
@@ -306,9 +337,21 @@ export function validateAddWargear(
     if (isRangedWeapon(weapon)) {
       const handCost = getRangedHandCost(weapon);
       const isTwo = getWeaponHandedness(weapon) === 'two-handed';
+      const isSekhetar = modelKeywords.includes('SEKHETAR_ROBOT');
+      // SEKHETAR_ROBOT: TWO-HANDED ranged costs only 1 hand
+      const effectiveHandCost = (isSekhetar && handCost === 2) ? 1 : handCost;
+      const isHeavy = weapon.keywords.includes('HEAVY') || weapon.type === 'heavy';
+
+      // SEKHETAR_ROBOT: max 1 HEAVY ranged weapon
+      if (isSekhetar && isHeavy && usage.heavyRangedCount >= 1) {
+        errors.push({
+          code: 'SEKHETAR_HEAVY_LIMIT',
+          message: `Sekhetar Robot can only carry 1 HEAVY ranged weapon.`,
+        });
+      }
 
       // Check ranged hands available
-      if (handCost > 0 && usage.rangedHandsUsed + handCost > usage.maxRangedHands) {
+      if (effectiveHandCost > 0 && usage.rangedHandsUsed + effectiveHandCost > usage.maxRangedHands) {
         if (isTwo) {
           errors.push({
             code: 'NO_RANGED_HANDS_TWO',
@@ -322,10 +365,22 @@ export function validateAddWargear(
         }
       }
 
+      // SEKHETAR_ROBOT: adding a HEAVY ranged weapon would block 1 melee hand
+      if (isSekhetar && isHeavy && usage.heavyRangedCount < 1) {
+        const projectedMaxMelee = Math.max(0, usage.maxMeleeHands - 1);
+        if (usage.meleeHandsUsed > projectedMaxMelee) {
+          errors.push({
+            code: 'SEKHETAR_HEAVY_BLOCKS_MELEE',
+            message: `Equipping a HEAVY ranged weapon would block a melee hand. Remove a melee weapon first.`,
+          });
+        }
+      }
+
       // Two-handed ranged blocks further one-handed ranged
       // (thrown / grenades are exempt — they are an independent slot)
+      // SEKHETAR_ROBOT can mix one-handed and two-handed ranged freely
       const isThrown = weapon.type === 'thrown' || weapon.keywords.includes('THROWN');
-      if (!isTwo && !isThrown && usage.hasTwoHandedRanged) {
+      if (!isSekhetar && !isTwo && !isThrown && usage.hasTwoHandedRanged) {
         errors.push({
           code: 'TWO_HANDED_RANGED_CONFLICT',
           message: `Cannot equip a one-handed ranged weapon while a two-handed ranged weapon is equipped.`,
@@ -346,8 +401,10 @@ export function validateAddWargear(
       const isTwo = getWeaponHandedness(weapon) === 'two-handed';
       const isMainHandOnly = weapon.isMainHandOnly || weapon.keywords.includes('MAIN HAND ONLY');
       // STRONG models treat TWO-HANDED melee as one-handed (costs only 1 melee hand)
+      // SEKHETAR_ROBOT overrides STRONG: cannot hold TWO-HANDED melee in one hand
       const isStrong = modelKeywords.includes('STRONG');
-      const effectiveHandCost = (isStrong && isTwo) ? 1 : handCost;
+      const isSekhetarMelee = modelKeywords.includes('SEKHETAR_ROBOT');
+      const effectiveHandCost = (isStrong && !isSekhetarMelee && isTwo) ? 1 : handCost;
 
       // Only one MAIN HAND ONLY weapon allowed (there is only one main hand)
       if (isMainHandOnly && usage.hasMainHandWeapon) {
@@ -409,6 +466,14 @@ export function validateAddWargear(
       errors.push({
         code: 'HEADGEAR_ALREADY_EQUIPPED',
         message: `Only 1 headgear item may be equipped.`,
+      });
+    }
+
+    // Mark of Chaos slot (max 1 per model)
+    if (gear.slot === 'mark' && usage.hasMarkOfChaos) {
+      errors.push({
+        code: 'MARK_ALREADY_EQUIPPED',
+        message: `Only 1 Mark of Chaos may be equipped per model.`,
       });
     }
 

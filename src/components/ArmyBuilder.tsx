@@ -5,8 +5,8 @@ import { calculateWarbandPoints, calculateWarbandGlory, calculateTotalModels, va
 import { getAllowedWargearIds } from '../data/faction_wargear.js';
 import { validateLoadout } from '../data/wargearSlotValidation.js';
 import { lookupWargear, lookupWeapon } from '../data/wargearSlotValidation.js';
+import { marksOfChaos } from '../data/equipment.js';
 import { saveWarbandLocal, exportWarbandToMDFile, importWarbandFromJSON } from '../utils/export.js';
-import { exportWarbandToPDF } from '../utils/pdfExport.js';
 import { WargearPanel } from './WargearPanel.js';
 import { PsychicPanel } from './PsychicPanel.js';
 import { MutationsPanel } from './MutationsPanel.js';
@@ -23,9 +23,17 @@ import { MercenaryInfoModal } from './MercenaryInfoModal.js';
 import { ALL_MERCENARIES } from '../data/mercenaries.js';
 import { EliteProgressionModal } from './EliteProgressionModal.js';
 import { isEliteEligible } from '../data/campaignProgression.js';
+import { BattleMode } from './BattleMode.js';
 import { getPatronsForFaction, getPatronById, filterAbilitiesForSubfaction } from '../data/patrons.js';
 import { PatronAbilityChip } from './PatronAbilityChip.js';
 import { getFactionRules } from '../data/factionRules.js';
+import { getFactionLore, hasLore } from '../data/factionLore.js';
+import { LoreModal } from './LoreModal.js';
+import { getWarbandLore, hasWarbandLore } from '../data/warbandLore.js';
+import { WarbandLoreModal } from './WarbandLoreModal.js';
+import { RulesReference } from './RulesReference.js';
+import { CampaignManager } from './CampaignManager.js';
+import { buildShareUrl } from '../utils/shareUrl.js';
 import './ArmyBuilder.css';
 
 /** Renders a string with **bold** markdown markers as JSX with <strong> elements. */
@@ -128,6 +136,11 @@ export function ArmyBuilder({
   const [saveMsg, setSaveMsg] = useState<{ text: string; ok: boolean } | null>(null);
   const [showNewBuildConfirm, setShowNewBuildConfirm] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showBattleMode, setShowBattleMode] = useState(false);
+  const [showLore, setShowLore] = useState(false);
+  const [showWarbandLore, setShowWarbandLore] = useState(false);
+  const [showRulesRef, setShowRulesRef] = useState(false);
+  const [showCampaign, setShowCampaign] = useState(false);
   const [importPasteText, setImportPasteText] = useState('');
   const importInputRef = useRef<HTMLInputElement>(null);
 
@@ -185,9 +198,20 @@ export function ArmyBuilder({
     await exportWarbandToMDFile(warband);
   };
 
-  const handleExportPDF = () => {
-    exportWarbandToPDF(warband);
-    flashMsg('Generating PDF...', true);
+  const handleShareUrl = async () => {
+    try {
+      const url = await buildShareUrl({
+        faction: selectedFaction,
+        subfaction: selectedSubFaction,
+        pointLimit,
+        gloryLimit,
+        warband,
+      });
+      await navigator.clipboard.writeText(url);
+      flashMsg('Share link copied to clipboard!', true);
+    } catch {
+      flashMsg('Failed to generate share link.', false);
+    }
   };
 
   const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -309,9 +333,7 @@ export function ArmyBuilder({
     // Auto-apply mark for warband variants (e.g. World Eaters → Mark of Khorne)
     const autoMark = currentSubFaction?.autoMark;
     const shouldApplyMark = !!(autoMark && autoMark.eligibleUnitIds.includes(unit.id));
-    // Auto-mark cost is handled as an enforced upgrade rather than base cost, so user sees it selected
-    // const markCostBonus = shouldApplyMark ? autoMark!.costOverride : 0;
-    const markCostBonus = 0;
+    const markCostBonus = shouldApplyMark ? autoMark!.costOverride : 0;
 
     // Auto-apply warband modifications (Butcher's Nails, Contagion, Rubric Marines, Jakhals, Eightbound…)
     const matchingMods = (currentSubFaction?.autoModifications ?? []).filter(mod =>
@@ -387,12 +409,22 @@ export function ArmyBuilder({
     }
 
     const effectiveCost = unit.baseCost + costMod + markCostBonus + modCostBonus;
-    const initialUpgradeCost = shouldApplyMark ? (autoMark!.costOverride) : 0;
-    
-    // Auto-mark is now handled as a selected upgrade
-    const initialUpgrades: Record<string, number> = shouldApplyMark ? { [autoMark!.markId]: 1 } : {};
-    // const autoMarkUpgDef = MARKS_OF_CHAOS_UPGRADES.find(u => u.id === autoMark?.markId);
-    // const autoMarkWargear... (Removed)
+
+    // Auto-mark is handled as locked wargear (same as MobileApp)
+    const autoMarkWargearDef = marksOfChaos.find(m => m.id === autoMark?.markId);
+    const autoMarkWargear: SelectedWargear[] = shouldApplyMark ? [{
+      id: autoMark!.markId,
+      name: autoMark!.markName,
+      cost: 0,
+      costCurrency: 'credits' as const,
+      type: 'equipment' as const,
+      slot: 'mark' as const,
+      quantity: 1,
+      isDefault: true,
+      isSubfactionRule: true,
+      description: autoMarkWargearDef?.description ?? `Automatic subfaction mark. Grants: ${autoMark!.grantedKeywords.join(', ')}.`,
+      grantsKeywords: autoMark!.grantedKeywords,
+    }] : [];
 
     const newUnit = {
       id: `unit-${Date.now()}`,
@@ -401,10 +433,10 @@ export function ArmyBuilder({
       count: 1,
       baseCostPerModel: effectiveCost,
       costCurrency: currency,
-      selectedWargear: [...modWargear],
-      selectedUpgrades: initialUpgrades,
-      totalCost: currency === 'credits' ? effectiveCost + initialUpgradeCost : 0,
-      totalGloryCost: currency === 'glory' ? effectiveCost + initialUpgradeCost : 0,
+      selectedWargear: [...autoMarkWargear, ...modWargear],
+      selectedUpgrades: {},
+      totalCost: currency === 'credits' ? effectiveCost : 0,
+      totalGloryCost: currency === 'glory' ? effectiveCost : 0,
       keywords: [...new Set([...unit.keywords, ...extraKeywords, ...(shouldApplyMark ? autoMark!.grantedKeywords : []), ...modKeywords])],
       unitType: unit.unitType,
       selectedSubType: subType?.id,
@@ -598,6 +630,16 @@ export function ArmyBuilder({
       ...prev,
       units: prev.units.filter((_, idx) => idx !== unitIndex),
     }));
+  };
+
+  const handleMoveUnit = (unitIndex: number, direction: 'up' | 'down') => {
+    setWarband(prev => {
+      const units = [...prev.units];
+      const target = direction === 'up' ? unitIndex - 1 : unitIndex + 1;
+      if (target < 0 || target >= units.length) return prev;
+      [units[unitIndex], units[target]] = [units[target], units[unitIndex]];
+      return { ...prev, units };
+    });
   };
 
   const getWarbandWeaponCounts = (units: Warband['units']): Record<string, number> => {
@@ -825,24 +867,15 @@ export function ArmyBuilder({
       // Upgrades with maxCount >= 10 are "stackable" stat boosts (e.g. Primaris) that
       // can coexist with a class upgrade. Upgrades with maxCount < 10 are mutually exclusive
       // class upgrades (e.g. Assault Marine, Bladeguard) — only one may be active at a time.
-      // Marks of Chaos (keyword 'MARK') are also stackable in the sense that they don't block class upgrades,
-      // but they are mutually exclusive with other Marks (handled by their own logic or naturally if they are the only MARKs).
       // Nested upgrades with requiredUpgradeId (e.g. Night Lords sub-upgrades) are stackable with base class.
       const checkStackable = (upg: { maxCount?: number, keywords?: string[], requiredUpgradeId?: string }) => 
-        ((upg?.maxCount ?? 1) >= 10) || (upg?.keywords?.includes('MARK') ?? false) || !!upg?.requiredUpgradeId;
+        ((upg?.maxCount ?? 1) >= 10) || !!upg?.requiredUpgradeId;
       const isStackable = upgrade ? checkStackable(upgrade) : false;
       let newUpgrades: Record<string, number>;
       if (isStackable) {
         // Keep everything; only update this one upgrade
         newUpgrades = { ...(unit.selectedUpgrades ?? {}) };
         if (count > 0) {
-          // If it's a MARK, remove other MARKs first (mutual exclusivity among Marks)
-          if (upgrade?.keywords?.includes('MARK')) {
-             for (const [id] of Object.entries(newUpgrades)) {
-               const other = unitDef?.upgrades?.find(u => u.id === id);
-               if (other?.keywords?.includes('MARK')) delete newUpgrades[id];
-             }
-          }
           // If it has specific conflicts (mutually exclusive options like Depredator vs Warp Talon)
           if (upgrade?.conflictsWithUpgradeIds) {
              for (const conflictId of upgrade.conflictsWithUpgradeIds) {
@@ -877,9 +910,7 @@ export function ArmyBuilder({
         if (count > 0) newUpgrades[upgradeId] = count;
       }
       const upgradeCreditCost = (unitDef?.upgrades ?? []).reduce((sum, upg) => {
-        const isAuto = currentSubFaction?.autoMark?.markId === upg.id && currentSubFaction?.autoMark?.eligibleUnitIds.includes(unit.id);
-        const cost = isAuto ? (currentSubFaction?.autoMark?.costOverride ?? upg.cost) : upg.cost;
-        return sum + (newUpgrades[upg.id] ?? 0) * cost;
+        return sum + (newUpgrades[upg.id] ?? 0) * upg.cost;
       }, 0);
       const calcs = recalcUnitCosts(unit, unit.selectedWargear, unitDef);
       const psychicCredits = (unit.selectedPsychicPowers ?? []).filter(p => (p.costCurrency ?? 'credits') === 'credits').reduce((s, p) => s + p.cost, 0);
@@ -989,6 +1020,15 @@ export function ArmyBuilder({
                 </option>
               ))}
             </select>
+            {hasLore(selectedFaction) && (
+              <button
+                className="lore-btn"
+                onClick={() => setShowLore(true)}
+                title="Read faction background lore"
+              >
+                📖 Read Lore
+              </button>
+            )}
           </div>
 
           {/* Faction Special Rules */}
@@ -1025,6 +1065,15 @@ export function ArmyBuilder({
                       </option>
                     ))}
                   </select>
+                  {hasWarbandLore(selectedSubFaction) && (
+                    <button
+                      className="lore-btn"
+                      onClick={() => setShowWarbandLore(true)}
+                      title="Read warband background lore"
+                    >
+                      📖 Warband Lore
+                    </button>
+                  )}
                 </div>
                 {activeSF && (selectedSubFaction !== 'no_variant' || (getSubFactions(selectedFaction)?.required ?? false)) && (
                   <div className="subfaction-rules">
@@ -1199,9 +1248,19 @@ export function ArmyBuilder({
               <button className="btn-army-io btn-load" onClick={() => setShowSavedModal(true)} title="Browse your saved armies">
                 📂 Library
               </button>
-              <button className="btn-army-io btn-pdf" onClick={handleExportPDF} title="Export army as a printable PDF roster">
-                🖨 Print PDF
+              <button className="btn-army-io btn-battle" onClick={() => setShowBattleMode(true)} title="Enter Battle Mode — read-only combat reference with all unit stats at a glance" disabled={warband.units.length === 0}>
+                ⚔ Battle Mode
               </button>
+              <button className="btn-army-io btn-share-url" onClick={handleShareUrl} title="Copy a shareable URL with your warband build to clipboard">
+                🔗 Share Link
+              </button>
+              <button className="btn-army-io btn-rules" onClick={() => setShowRulesRef(true)} title="Quick-reference for rules and keywords">
+                📖 Rules
+              </button>
+              <button className="btn-army-io btn-campaign" onClick={() => setShowCampaign(true)} title="Campaign Manager — track games, exploration, resources">
+                🏰 Campaign
+              </button>
+
             </div>
             {saveMsg && (
               <div className={`army-io-msg ${saveMsg.ok ? 'army-io-ok' : 'army-io-err'}`}>
@@ -1327,10 +1386,6 @@ export function ArmyBuilder({
               <div className="selected-units-list">
                 {[...warband.units]
                   .map((unit, origIdx) => ({ unit, idx: origIdx }))
-                  .sort((a, b) => {
-                    const order: Record<string, number> = { elite: 0, troop: 1 };
-                    return (order[a.unit.unitType] ?? 1) - (order[b.unit.unitType] ?? 1);
-                  })
                   .map(({ unit, idx }) => (
                   <div key={unit.id} className="selected-unit">
                     <div className="unit-header">
@@ -1437,7 +1492,7 @@ export function ArmyBuilder({
                           (!upg.requiredSubfactionId || upg.requiredSubfactionId === selectedSubFaction) &&
                           (!upg.forbiddenSubfactionIds || !upg.forbiddenSubfactionIds.includes(selectedSubFaction))
                         );
-                        const hasAutoTiers = unit.selectedWargear.some(sw => sw.isSubfactionRule && sw.description);
+                        const hasAutoTiers = unit.selectedWargear.some(sw => sw.isSubfactionRule && sw.description && sw.slot !== 'mark');
                         return (visibleUpgrades.length > 0 || hasAutoTiers) ? (
                           <button
                             className="btn-upgrade"
@@ -1474,6 +1529,18 @@ export function ArmyBuilder({
                         const atMax = !!unitDef3 && currentCount >= unitDef3.maxCount;
                         return (
                           <div className="unit-actions-right">
+                            <button
+                              className="btn-move"
+                              title="Move up"
+                              disabled={idx === 0}
+                              onClick={() => handleMoveUnit(idx, 'up')}
+                            >▲</button>
+                            <button
+                              className="btn-move"
+                              title="Move down"
+                              disabled={idx === warband.units.length - 1}
+                              onClick={() => handleMoveUnit(idx, 'down')}
+                            >▼</button>
                             <button
                               className="btn-clone"
                               title={atMax ? `Limit reached (${currentCount}/${unitDef3?.maxCount})` : 'Clone this unit with all its configuration'}
@@ -1856,7 +1923,7 @@ export function ArmyBuilder({
       {upgradeUnitIdx !== null && (() => {
         const unit = warband.units[upgradeUnitIdx];
         const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
-        const hasAutoTiers = unit.selectedWargear.some(sw => sw.isSubfactionRule && sw.description);
+        const hasAutoTiers = unit.selectedWargear.some(sw => sw.isSubfactionRule && sw.description && sw.slot !== 'mark');
         if (!unitDef || (!hasAutoTiers && (!unitDef.upgrades || unitDef.upgrades.length === 0))) return null;
         const warbandUpgradeCounts = warband.units.reduce((acc, wu) => {
           Object.entries(wu.selectedUpgrades ?? {}).forEach(([uid, cnt]) => {
@@ -1869,7 +1936,7 @@ export function ArmyBuilder({
             key={`upgrades-${unit.id}`}
             unitName={unit.name}
             autoTiers={unit.selectedWargear
-              .filter(sw => sw.isSubfactionRule && sw.description)
+              .filter(sw => sw.isSubfactionRule && sw.description && sw.slot !== 'mark')
               .map(sw => ({ name: sw.name, description: sw.description!, cost: sw.cost }))}
             upgrades={(unitDef.upgrades ?? []).filter(upg =>
               (!upg.requiredSubfactionId || upg.requiredSubfactionId === selectedSubFaction) &&
@@ -1949,6 +2016,53 @@ export function ArmyBuilder({
           />
         );
       })()}
+
+      {/* Battle Mode — full-screen read-only combat reference */}
+      {showBattleMode && (
+        <BattleMode
+          warband={warband}
+          selectedFaction={selectedFaction}
+          selectedSubFaction={selectedSubFaction}
+          allAvailableUnits={allAvailableUnits}
+          buildResolvedUnit={buildResolvedUnit}
+          onUpdateUnit={(unitIndex, updated) => {
+            setWarband(prev => {
+              const units = [...prev.units];
+              units[unitIndex] = updated;
+              return { ...prev, units };
+            });
+          }}
+          onClose={() => setShowBattleMode(false)}
+        />
+      )}
+
+      {/* Lore Modal */}
+      {showLore && (() => {
+        const lore = getFactionLore(selectedFaction);
+        if (!lore) return null;
+        return <LoreModal lore={lore} onClose={() => setShowLore(false)} />;
+      })()}
+
+      {/* Warband Lore Modal */}
+      {showWarbandLore && (() => {
+        const wlore = getWarbandLore(selectedSubFaction);
+        if (!wlore) return null;
+        return <WarbandLoreModal lore={wlore} onClose={() => setShowWarbandLore(false)} />;
+      })()}
+
+      {/* Rules Reference Modal */}
+      {showRulesRef && <RulesReference onClose={() => setShowRulesRef(false)} />}
+
+      {/* Campaign Manager Modal */}
+      {showCampaign && (
+        <CampaignManager
+          warband={warband}
+          selectedFaction={selectedFaction}
+          selectedSubFaction={selectedSubFaction}
+          onUpdateWarband={setWarband}
+          onClose={() => setShowCampaign(false)}
+        />
+      )}
     </div>
   );
 }

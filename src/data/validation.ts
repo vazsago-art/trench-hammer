@@ -12,21 +12,21 @@ const GAME_RULES = {
 
 /** Total credits (non-glory) spent across all units and their wargear. */
 export function calculateWarbandPoints(warband: Warband): number {
-  return warband.units.reduce((total, unit) => total + unit.totalCost, 0);
+  return warband.units.reduce((total, unit) => total + (unit.totalCost || 0), 0);
 }
 
 /** Total glory spent across all units, wargear, and hired mercenaries. */
 export function calculateWarbandGlory(warband: Warband): number {
-  const unitGlory = warband.units.reduce((total, unit) => total + unit.totalGloryCost, 0);
+  const unitGlory = warband.units.reduce((total, unit) => total + (unit.totalGloryCost || 0), 0);
   const mercGlory = (warband.mercenaries ?? []).reduce(
-    (total, merc) => total + merc.gloryCost * merc.count,
+    (total, merc) => total + (merc.gloryCost || 0) * (merc.count || 1),
     0,
   );
   return unitGlory + mercGlory;
 }
 
 export function calculateTotalModels(warband: Warband): number {
-  return warband.units.reduce((total, unit) => total + unit.count, 0);
+  return warband.units.reduce((total, unit) => total + (unit.count || 1), 0);
 }
 
 export function calculateUnitCost(

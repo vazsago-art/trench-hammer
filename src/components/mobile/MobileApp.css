@@ -367,7 +367,8 @@
 .mbtn-load     { background: #16412b;          color: #6ee7a0; }
 .mbtn-export   { background: #1a3352;          color: #93c5fd; }
 .mbtn-import   { background: #2e1a4f;          color: #c4b5fd; }
-.mbtn-pdf      { background: #4c1212;          color: #fca5a5; }
+.mbtn-battle   { background: #3d3210;          color: #c9a84c; }
+.mbtn-battle:disabled { background: #222; color: #555; opacity: 0.6; }
 .mbtn-sm       { font-size: 0.82rem; padding: 7px 12px; border-radius: 6px; }
 
 /* ── Quick roster rows (Build tab) ─────────────────────────────── */
@@ -1037,6 +1038,29 @@
   justify-content: center;
 }
 
+/* ── Mobile Lore Button ─────────────────────────────────────── */
+.mlore-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #c9a84c;
+  background: #161922;
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.mlore-btn:hover,
+.mlore-btn:active {
+  border-color: #c9a84c;
+  background: rgba(201, 168, 76, 0.1);
+}
+
 /* ── Mobile Faction Special Rules ────────────────────────────── */
 .mfaction-rules {
   margin: 0.4rem 0 0.5rem;
@@ -1626,5 +1650,29 @@
 
   .mcard {
     padding: 20px 24px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   @media print – reset mobile shell so Battle Mode can paginate properly
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media print {
+  /* Reset the mobile app shell from fixed viewport box to normal flow */
+  .mapp {
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+    padding: 0 !important;
+    inset: auto !important;
+  }
+
+  /* Hide all mobile UI chrome */
+  .mapp-topbar,
+  .mapp-progress-track,
+  .mapp-tabnav,
+  .mapp-toast,
+  .mapp-content {
+    display: none !important;
+    visibility: hidden !important;
   }
 }

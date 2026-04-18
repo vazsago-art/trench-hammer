@@ -3,9 +3,80 @@ import { getFactionById } from '../data/factions_complete.js';
 import { ALL_MERCENARIES } from '../data/mercenaries.js';
 import { expandKeywords } from '../data/keywordGlossary.js';
 import { isEliteEligible, SKILL_TABLE_LABELS } from '../data/campaignProgression.js';
+import { getSubFactionById } from '../data/subfactions.js';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+
+/**
+ * Migration: patch HA variant warbands whose auto-mark cost was previously 0
+ * due to markCostBonus being hard-coded to 0. Adds the correct mark cost to
+ * baseCostPerModel and recalculates totalCost / totalGloryCost.
+ */
+export function migrateAutoMarkCost(wb: Warband): Warband {
+  if (wb.faction !== 'heretic_astartes' || !wb.subfaction) return wb;
+  const sf = getSubFactionById(wb.faction, wb.subfaction);
+  if (!sf?.autoMark) return wb;
+  const markCost = sf.autoMark.costOverride;
+  const eligibleSet = new Set(sf.autoMark.eligibleUnitIds);
+  let changed = false;
+  const units = wb.units.map(unit => {
+    // Only patch units that have the auto-mark wargear with cost 0
+    const hasAutoMark = unit.selectedWargear.some(
+      w => w.slot === 'mark' && w.isDefault && w.cost === 0,
+    );
+    if (!hasAutoMark || !eligibleSet.has(unit.unitId)) return unit;
+    changed = true;
+    const newBase = unit.baseCostPerModel + markCost;
+    const currency = unit.costCurrency ?? 'credits';
+    return {
+      ...unit,
+      baseCostPerModel: newBase,
+      totalCost: currency === 'credits'
+        ? (unit.totalCost - unit.count * unit.baseCostPerModel) + unit.count * newBase
+        : unit.totalCost,
+      totalGloryCost: currency === 'glory'
+        ? (unit.totalGloryCost - unit.count * unit.baseCostPerModel) + unit.count * newBase
+        : unit.totalGloryCost,
+    };
+  });
+  return changed ? { ...wb, units } : wb;
+}
+
+/**
+ * Migrate legacy built-in mark IDs to canonical IDs, fix their slot and description,
+ * and remove incorrect statModifiers (e.g. rangedSkill → INJURY MODIFIER is not a stat).
+ */
+const LEGACY_MARK_MAP: Record<string, { canonId: string; description: string; grantsKeywords: string[]; statModifiers?: Partial<import('../types/index.js').ModelStats> }> = {
+  ha_mark_tzeentch_es: { canonId: 'mark_of_tzeentch', description: 'Ranged attacks have +1 INJURY MODIFIER. Grants TZEENTCH keyword. Included in base cost.', grantsKeywords: ['TZEENTCH'] },
+  ha_mark_slaanesh_kak: { canonId: 'mark_of_slaanesh', description: '+2" movement speed, +1 DICE to all Dash Success Rolls. Grants SLAANESH keyword. Included in base cost.', grantsKeywords: ['SLAANESH'], statModifiers: { movement: 2 } },
+  ha_mark_khorne_moe: { canonId: 'mark_of_khorne', description: 'Melee attacks have +1 INJURY MODIFIER. Grants KHORNE keyword. Included in base cost.', grantsKeywords: ['KHORNE'] },
+  ha_mark_khorne_sb: { canonId: 'mark_of_khorne', description: 'Melee attacks have +1 INJURY MODIFIER. Grants KHORNE keyword. Included in base cost.', grantsKeywords: ['KHORNE'] },
+};
+
+export function migrateLegacyMarkIds(wb: Warband): Warband {
+  if (wb.faction !== 'heretic_astartes') return wb;
+  let changed = false;
+  const units = wb.units.map(unit => {
+    let unitChanged = false;
+    const wargear = unit.selectedWargear.map(w => {
+      const fix = LEGACY_MARK_MAP[w.id];
+      if (!fix) return w;
+      unitChanged = true;
+      return {
+        ...w,
+        id: fix.canonId,
+        slot: 'mark' as const,
+        description: fix.description,
+        grantsKeywords: fix.grantsKeywords,
+        statModifiers: fix.statModifiers,
+      };
+    });
+    if (unitChanged) { changed = true; return { ...unit, selectedWargear: wargear }; }
+    return unit;
+  });
+  return changed ? { ...wb, units } : wb;
+}
 
 export function exportWarbandAsJSON(warband: Warband): string {
   return JSON.stringify(warband, null, 2);
@@ -377,7 +448,9 @@ export function saveWarbandLocal(warband: Warband) {
 
 export function getAllWarbands(): Warband[] {
   const stored = localStorage.getItem('trench_hammer_warbands');
-  return stored ? JSON.parse(stored) : [];
+  if (!stored) return [];
+  const raw: Warband[] = JSON.parse(stored);
+  return raw.map(wb => migrateLegacyMarkIds(migrateAutoMarkCost(wb)));
 }
 
 export function loadWarbandLocal(id: string): Warband | undefined {
@@ -417,10 +490,10 @@ export function importWarbandFromJSON(input: string): Warband | null {
     ) {
       return null;
     }
-    return {
+    return migrateLegacyMarkIds(migrateAutoMarkCost({
       ...data,
       id: `warband-${Date.now()}`,
-    } as Warband;
+    } as Warband));
   } catch {
     return null;
   }

@@ -117,9 +117,8 @@ export function WargearPanel({
     return wargearLimitOverrides?.[itemId] ?? weapon.limit;
   }
 
-  // Marks of Chaos are handled by the Upgrades panel — never show in equipment display
-  const displayDefaultItems  = defaultItems.filter(item => (item as any).slot !== 'mark');
-  const displaySelectedItems = selectedItems.filter(item => (item as any).slot !== 'mark');
+  const displayDefaultItems  = defaultItems;
+  const displaySelectedItems = selectedItems;
 
   // Determine which default items have been replaced by a selected item in the same slot
   // OR by equipping a weapon of a matching type per weaponReplacementRules.
@@ -152,6 +151,8 @@ export function WargearPanel({
 
   // For slot bar: count unreplaced defaults + selected items
   const unreplacedDefaults = defaultItems.filter(d => !isDefaultReplaced(d));
+  // Default marks must be included in add-validation so a model cannot buy a second mark
+  const defaultMarks = unreplacedDefaults.filter(d => lookupWargear(d.id)?.slot === 'mark');
   // Slot usage snapshot (recomputed on every render from selectedItems + unreplaced defaults)
   const usage = computeSlotUsage([...unreplacedDefaults, ...selectedItems], modelKeywords);
 
@@ -188,7 +189,8 @@ export function WargearPanel({
   // Deduplicate by name: if a faction-specific item has the same name as a shared
   // item, the shared item is dropped so only the faction-specific one (with ★) shows.
   const factionArmourItems = factionUpgradeItems.filter(i => i.type === 'armor');
-  const factionEquipItems  = factionUpgradeItems.filter(i => i.type !== 'armor');
+  const factionMarkItems   = factionUpgradeItems.filter(i => i.slot === 'mark');
+  const factionEquipItems  = factionUpgradeItems.filter(i => i.type !== 'armor' && i.slot !== 'mark');
 
   const factionEquipNames  = new Set(factionEquipItems.map(i => i.name));
   const factionArmourNames = new Set(factionArmourItems.map(i => i.name));
@@ -265,6 +267,7 @@ export function WargearPanel({
     { label: 'Heavy Melee',       items: filterRestricted([...sharedHeavyMeleeWeapons.filter(w => !fwAllIds.has(w.id)), ...fwHeavyMelee]),           type: 'weapon' },
     { label: 'Armour',            items: filterRestricted(mergedArmour),  type: 'armor' },
     { label: 'Equipment',         items: filterRestricted(mergedEquip),   type: 'equipment' },
+    { label: 'Marks of Chaos',    items: filterRestricted(factionMarkItems), type: 'equipment' },
   ];
   /**
    * Returns the error message if adding this item is not allowed,
@@ -287,7 +290,8 @@ export function WargearPanel({
     }
 
     // For all other slot / hand conflicts, only count purchased items (not defaults that would be replaced).
-    const errors = validateAddWargear(selectedItems, item.id, modelKeywords);
+    // Default marks are included so built-in marks block buying additional marks.
+    const errors = validateAddWargear([...defaultMarks, ...selectedItems], item.id, modelKeywords);
     if (errors.length === 0) return null;
     return errors.map(e => e.message).join(' ');
   }
@@ -405,7 +409,7 @@ export function WargearPanel({
                             const limit = getEffectiveLimit(item.id);
                             const globalCount = warbandWeaponCounts?.[item.id] ?? 0;
                             if (limit !== undefined && globalCount >= limit) return true;
-                            return validateAddWargear(selectedItems, item.id, modelKeywords).length > 0;
+                            return validateAddWargear([...defaultMarks, ...selectedItems], item.id, modelKeywords).length > 0;
                           })()}
                           onClick={() => onAdd({ ...item, quantity: item.quantity + 1 })}
                         >+</button>
@@ -517,7 +521,7 @@ export function WargearPanel({
                                   const limit = getEffectiveLimit(item.id);
                                   const globalCount = warbandWeaponCounts?.[item.id] ?? 0;
                                   if (limit !== undefined && globalCount >= limit) return true;
-                                  return validateAddWargear(selectedItems, item.id, modelKeywords).length > 0;
+                                  return validateAddWargear([...defaultMarks, ...selectedItems], item.id, modelKeywords).length > 0;
                                 })()}
                                 onClick={() => onAdd({ ...existing, quantity: existing.quantity + 1 })}
                               >+</button>

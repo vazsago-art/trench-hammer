@@ -444,7 +444,7 @@ export const FACTION_PATRONS: Record<string, Patron[]> = {
         { name: 'In the Shadows', description: 'Select any skill you want from the Stealth & Speed Skills.' },
         { name: 'Iron Jaw', description: 'Injury rolls made against this model as a result of melee attacks have -1 DICE.' },
         { name: 'Lie Low', description: 'While this model is in cover against such an attack, enemies cannot make ranged attacks at Long Range against it (even if the attack normally ignores Cover or Long Range, or hits automatically).' },
-        { name: 'Tunnel Rat', description: 'This model gains the Seek and Circle Back Exploration skills.' },
+        { name: 'Tunnel Runner', description: 'This model gains the Seek and Circle Back Exploration skills.' },
       ],
     },
     {

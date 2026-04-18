@@ -40,19 +40,20 @@ const PISTOL_IDS: string[] = [
 
 const SPECIAL_RANGED_IDS: string[] = [
   'flamer', 'grenade_launcher',
-  'comb_weapon', 'melta_gun', 'plasma_gun', 'storm_bolter',
+  'combi_weapon', 'melta_gun', 'plasma_gun', 'storm_bolter',
   'heavy_stubber', 'longlas',
 ];
 
 const HEAVY_RANGED_IDS: string[] = [
   'autocannon', 'heavy_bolter', 'heavy_flamer',
   'lascannon', 'missile_launcher', 'multi_melta', 'plasma_cannon',
+  'harpoon_launcher', 'krumper_rivet_cannon', 'seismic_cannon'
 ];
 
 const THROWN_IDS: string[] = [
   'blasting_charge', 'electro_grenades', 'frag_grenades', 'gunk_bombs',
-  'incendiary_grenades', 'krak_grenades', 'melta_bombs', 'throwing_knives',
-  'toxin_grenades',
+  'incendiary_grenades', 'krak_grenades', 'melta_bombs',
+  'smoke_grenades', 'throwing_knives', 'toxin_grenades',
 ];
 
 /** Basic melee weapons available to most factions (bayonet added per-faction below) */
@@ -64,7 +65,7 @@ const SPECIAL_MELEE_IDS: string[] = [
   'butchers_cleaver', 'butchers_chain_cleaver', 'chain_blade', 'chain_glaive',
   'force_rod', 'force_staff', 'force_weapon', 'goad_lance', 'lightning_claw',
   'plasma_blade', 'poison_blade', 'power_weapon', 'shock_baton', 'shock_stave',
-  'twin_butchers_chain_cleavers',
+  'twin_butchers_chain_cleavers', 'las_cutter'
 ];
 
 const HEAVY_MELEE_IDS: string[] = [
@@ -144,12 +145,20 @@ const IMPERIAL_WITH_BAYONET = [
   'bayonet',
 ];
 
-/** Chaos arsenal = imperial + daemon weapons + Marks of Chaos + HA Icons & equipment */
+/** Mark of Chaos IDs – available to most Heretic Astartes models via the Wargear panel */
+const MARK_OF_CHAOS_IDS = [
+  'mark_of_darkness', 'mark_of_khorne', 'mark_of_nurgle', 'mark_of_slaanesh', 'mark_of_tzeentch',
+];
+
+/** Units that CANNOT purchase Marks of Chaos (per instruction: their battlekit lists
+ *  "weapons, armour, or equipment" — no Mark of Chaos). */
+const MARK_BANNED_UNIT_IDS = new Set(['ha_chaos_cultist']);
+
+/** Chaos arsenal = imperial + chaos-specific weapons + HA Icons & equipment */
 const CHAOS_ALL = [
   ...IMPERIAL_ALL,
   'bayonet',
   ...CHAOS_SPECIFIC_IDS,
-  // Marks of Chaos are now UnitUpgrades shown in the Upgrades panel, not wargear
   // Icons of Chaos
   'chaos_icon', 'icon_of_despair', 'icon_of_excess', 'icon_of_flame', 'icon_of_wrath',
   // HA-specific equipment
@@ -248,7 +257,7 @@ const HA_VARIANT_IDS: string[] = [
   // Iron Warriors
   'cyberteknika_cranial_iw', 'cyberteknika_ocular_iw', 'cyberteknika_sindexterous_iw',
   'cyberteknika_motive_iw', 'cyberteknika_torsonic_iw', 'cyberteknika_vascular_iw',
-  'shrapnel_bolter_iw', 'shrapnel_cannon_iw', 'shrapnel_pistol_iw',
+  'shrapnel_bolter_iw', 'shrapnel_cannon_iw', 'shrapnel_pistol_iw', 'mortar',
   // Night Lords
   'chain_snare_nl', 'comms_jammer_nl', 'grisly_trophy_nl', 'ventrilokar_vox_nl',
   'terrorchem_vials_nl',
@@ -271,6 +280,87 @@ const HA_SHARED_IDS: string[] = [
   'helbrute_hammer_ha', 'power_scourge_ha',
 ];
 
+/**
+ * Items from the shared EQUIPMENT_IDS / ARMOUR_IDS pools that are NOT in the
+ * Heretic Astartes Armoury and must be stripped from the HA wargear list.
+ */
+const HA_EXCLUDED_IDS: ReadonlySet<string> = new Set([
+  // Shared equipment not in HA Armoury
+  'augury_scanner', 'camo_cloak', 'holy_relic', 'iron_halo',
+  'medicae_kit', 'musical_instrument', 'photo_goggles', 'psychic_hood',
+  'purity_seal', 'rosarius', 'troop_flag', 'vox_unit',
+  // Shared armour not in HA Armoury
+  'heavy_armour',
+]);
+
+/**
+ * Per-faction excluded IDs.  Items from base composite profiles (IMPERIAL_ALL,
+ * CHAOS_ALL, GANGER, XENOS_ELITE, etc.) that the faction's instruction-defined
+ * Armoury does NOT include.  Applied in getWargearIdsForUnit().
+ */
+const FACTION_EXCLUDED_IDS: Partial<Record<string, ReadonlySet<string>>> = {
+  adeptus_astartes: new Set([
+    'augury_scanner', 'medicae_kit', 'musical_instrument', 'photo_goggles', 'rosarius', 'shovel', 'vox_unit',
+    'heavy_armour',
+  ]),
+  adepta_sororitas: new Set([
+    'augury_scanner', 'camo_cloak', 'grav_chute', 'iron_halo', 'photo_goggles', 'psychic_hood', 'shovel',
+    'heavy_armour', 'terminator_armour', 'heavy_shield',
+  ]),
+  adeptus_mechanicus: new Set([
+    'augury_scanner', 'camo_cloak', 'grav_chute', 'iron_halo', 'photo_goggles', 'psychic_hood', 'rosarius', 'shovel', 'troop_flag',
+    'heavy_armour', 'terminator_armour', 'shield', 'heavy_shield',
+  ]),
+  adeptus_custodes: new Set([
+    'augury_scanner', 'camo_cloak', 'grav_chute', 'iron_halo', 'medicae_kit', 'musical_instrument', 'photo_goggles', 'psychic_hood', 'rosarius', 'shovel', 'troop_flag', 'vox_unit',
+    'heavy_armour', 'terminator_armour', 'shield',
+  ]),
+  adeptus_ministorum: new Set([
+    'camo_cloak', 'grav_chute', 'iron_halo', 'jump_pack', 'psychic_hood', 'shovel',
+    'standard_armour', 'heavy_armour', 'power_armour', 'terminator_armour', 'heavy_shield',
+  ]),
+  officio_assassinorum: new Set([
+    'camo_cloak', 'grav_chute', 'iron_halo', 'jump_pack', 'musical_instrument', 'psychic_hood', 'rosarius', 'shovel', 'troop_flag',
+    'heavy_armour', 'power_armour', 'terminator_armour', 'shield', 'heavy_shield',
+  ]),
+  astra_militarum: new Set([
+    'grav_chute', 'holy_relic', 'iron_halo', 'psychic_hood', 'purity_seal', 'rosarius',
+    'terminator_armour',
+  ]),
+  the_inquisition: new Set([
+    'camo_cloak', 'grav_chute', 'iron_halo', 'jump_pack', 'shovel',
+    'heavy_armour', 'heavy_shield',
+  ]),
+  // Grey Knights use the same Armoury as Adeptus Astartes
+  grey_knights: new Set([
+    'augury_scanner', 'medicae_kit', 'musical_instrument', 'photo_goggles', 'rosarius', 'shovel', 'vox_unit',
+    'heavy_armour',
+  ]),
+  chaos_cult: new Set([
+    'camo_cloak', 'grav_chute', 'holy_relic', 'iron_halo', 'jump_pack', 'psychic_hood', 'purity_seal', 'rosarius', 'shovel',
+    'terminator_armour', 'heavy_shield',
+  ]),
+  genestealer_cults: new Set([
+    'scope', 'shovel', 'vox_unit',
+    'shield', 'heavy_shield',
+  ]),
+  leagues_of_votann: new Set([
+    'camo_cloak', 'iron_halo', 'grav_chute', 'photo_goggles',
+    'heavy_armour',
+  ]),
+  pirate_crew: new Set([
+    'camo_cloak', 'shovel',
+    'heavy_shield',
+  ]),
+  the_vermintide: new Set([
+    'camo_cloak', 'medicae_kit',
+  ]),
+  necromunda_gang: new Set([
+    'shovel',
+    'heavy_shield',
+  ]),
+};
+
 /** Per-subfaction variant-specific wargear for Heretic Astartes.
  *  When a subfaction is active, only that subfaction's items (plus HA_SHARED_IDS)
  *  are shown instead of the full HA_VARIANT_IDS pool. */
@@ -290,7 +380,7 @@ const HA_SUBFACTION_WARGEAR: Record<string, string[]> = {
   iron_warriors:    [...HA_SHARED_IDS,
     'cyberteknika_cranial_iw', 'cyberteknika_ocular_iw', 'cyberteknika_sindexterous_iw',
     'cyberteknika_motive_iw', 'cyberteknika_torsonic_iw', 'cyberteknika_vascular_iw',
-    'shrapnel_bolter_iw', 'shrapnel_cannon_iw', 'shrapnel_pistol_iw',
+    'shrapnel_bolter_iw', 'shrapnel_cannon_iw', 'shrapnel_pistol_iw', 'mortar',
   ],
   night_lords:      [...HA_SHARED_IDS,
     'chain_snare_nl', 'comms_jammer_nl', 'grisly_trophy_nl', 'ventrilokar_vox_nl',
@@ -301,7 +391,7 @@ const HA_SUBFACTION_WARGEAR: Record<string, string[]> = {
     'inferno_boltgun_ts', 'inferno_bolt_pistol_ts', 'inferno_combi_bolter_ts',
     'force_stave_ts', 'power_claw_ts', 'soulreaper_cannon_ts',
     'meltagun_ts', 'hand_flamer_ts',
-    'musical_instrument',
+    'musical_instrument_ts', 'troop_flag_ts',
   ],
   world_eaters:     [...HA_SHARED_IDS,
     'axe_of_dismemberment_we', 'blood_harpoon_we', 'heavy_chain_weapon_we', 'twin_chain_blades_we',
@@ -334,6 +424,7 @@ const CHAOS_DAEMONS_WEAPON_IDS: string[] = [
 const CHAOS_CULT_IDS: string[] = [
   'chaos_icon_chaoscult', 'cult_icon_chaoscult', 'covert_guise_chaoscult',
   'dum_dum_ammunition_chaoscult', 'manstopper_ammunition_chaoscult', 'musical_instrument', 'radium_ammunition_chaoscult',
+  'psychic_familiar_cc',
   // Chaos Cult unique weapons
   'burning_censer_cc',
   // Chaos Cult mutation weapon (Gift of Chaos #54)
@@ -370,7 +461,7 @@ const ADEPTUS_ASTARTES_SPECIFIC_IDS: string[] = [
   // Astartes Bike (from HA equipment, shared between AA and HA)
   'astartes_bike',
   // Iron Hands Variant – Torsonic & Vascular Cyberteknika + Servo-Skull
-  'cyberteknika_torsonic_aa', 'cyberteknika_vascular_aa', 'servo_skull_ih',
+  'cyberteknika_torsonic_aa', 'cyberteknika_vascular_aa', 'servo_skull_ih', 'servo_medicae_ih',
   // Dark Angels Variant
   'watcher_in_the_dark',
   // Space Wolves Variant – equipment items
@@ -440,12 +531,13 @@ const ADEPTUS_CUSTODES_SPECIFIC_IDS: string[] = [
   'adrastus_bolt_caliver', 'balistus_grenade_launcher', 'kinetic_destroyer',
   'salvo_launcher', 'twin_las_pulsar', 'twin_adrathic_destructor', 'vertus_hurricane_bolter',
   // Adeptus Custodes unique melee
-  'executioner_greatblade', 'misericordia', 'tarsis_buckler', 'vaultswords',
+  'executioner_greatblade', 'interceptor_lance_custodes', 'misericordia', 'tarsis_buckler', 'vaultswords',
   'solerite_power_gauntlet', 'solerite_power_talon',
   // Adeptus Custodes combined weapons
   'achillus_dreadspear', 'adrasite_spear', 'castellan_axe', 'galatus_warblade',
   'guardian_spear', 'pyrithite_spear', 'sentinel_blade',
   'frag_ammunition_custodes', 'vengeance_ammunition',
+  'psyk_out_grenades',
 ];
 
 const ADEPTUS_MINISTORUM_SPECIFIC_IDS: string[] = [
@@ -467,6 +559,22 @@ const THE_INQUISITION_SPECIFIC_IDS: string[] = [
   'digital_weapons_inq',
 ];
 
+/** Ordo Xenos — Xenos Artifacts: up to 4 total (1 each) from Aeldari/Drukhari/Votann/Necrons/T'au */
+const ORDO_XENOS_ARTIFACT_IDS: string[] = [
+  // Aeldari
+  'avenger_shuriken_catapult', 'death_spinner_aeldari', 'mist_staff',
+  'plasma_grenades_aeldari', 'shuriken_cannon', 'shuriken_catapult', 'shuriken_pistol',
+  // Drukhari
+  'agoniser_drukhari', 'splinter_cannon_drukhari', 'splinter_pistol_drukhari', 'splinter_rifle_drukhari',
+  // Leagues of Votann
+  'ion_blaster', 'ion_pistol', 'magna_rail_rifle', 'volkanite_disintegrator',
+  // Necrons
+  'gauss_blaster', 'gauss_cannon', 'gauss_flayer', 'gauss_reaper', 'tesla_cannon', 'voidblade',
+  // T'au Empire
+  'bladestave_tau', 'emp_grenades_tau', 'honor_blade_tau', 'photon_grenades',
+  'pulse_blaster', 'pulse_carbine', 'pulse_rifle', 'rail_rifle_tau',
+];
+
 const ADEPTA_SORORITAS_SPECIFIC_IDS: string[] = [
   'armourium_cherub_sor', 'blessed_ammunition_sor', 'combat_helmet_sor',
   'incensor_cherub_sor', 'infernus_ammunition_sor', 'musical_instrument', 'phial_of_dolan_sor',
@@ -475,6 +583,10 @@ const ADEPTA_SORORITAS_SPECIFIC_IDS: string[] = [
   'cyberteknika_sindexterous_sor', 'cyberteknika_motive_sor',
   // Paragon Warsuit weapons
   'twin_storm_bolter_sor', 'twin_g_launcher_sor',
+  // Campaign Shop items
+  'beneficence_chainsword_sor', 'casket_of_penance_sor', 'holy_judgement_sor',
+  'litanies_of_faith_sor', 'quicksilver_veil_sor', 'relic_paragon_warsuit_sor',
+  'saints_pulpit_sor', 'sorrowsong_sor', 'tears_of_saint_celestine_sor', 'tears_of_the_emperor_sor',
 ];
 
 // Sororitas-correct special melee (no force weapons, no gang/shock weapons)
@@ -506,6 +618,7 @@ const OFFICIO_ASSASSINORUM_SPECIFIC_IDS: string[] = [
   'hookfang_oa', 'neuro_gauntlet_oa', 'nemesii_blade_oa', 'phase_sword_oa', 'sympatic_dataspike_oa',
   // Officio Assassinorum unique ranged
   'exitus_rifle_oa', 'exitus_pistol_oa', 'needlespine_blaster_oa', 'neural_shredder_oa', 'toxin_ejector_oa',
+  'digital_laser_oa', 'digital_laser_array_oa',
   // Officio Assassinorum unique thrown
   'poison_globes_oa', 'psyk_out_grenades_oa',
 ];
@@ -534,6 +647,7 @@ const TYRANIDS_WEAPON_IDS: string[] = [
 ];
 
 const TAU_EMPIRE_SPECIFIC_IDS: string[] = [
+  'ka_chak_tarr', 'kindled_blade_tau', 'krep_chak', 'onager_gauntlet_tau',
   'battle_armour_tau', 'shield_generator_tau', 'iridium_armour',
   'air_purifiers_tau', 'automated_repair_system', 'battlesuit_support_system',
   'comms_unit_tau', 'energy_shield_tau', 'firesight_drone_controller',
@@ -790,16 +904,17 @@ const PIRATE_CREW_SPECIFIC_IDS: string[] = [
 
 const NECROMUNDA_GANG_SPECIFIC_IDS: string[] = [
   'caryatid_nec', 'ridgerunner_nec', 'frenzon_nec', 'ghast_nec',
-  'slaught_nec', 'spur_nec', 'stinger_mould_nec',
+  'slaught_nec', 'spur_nec', 'stinger_mould_nec', 'stim_slug_cache_nec',
   'ash_cloak_nec', 'dustback_halamite_nec', 'sky_mantle_nec',
   'frightening_mask_nec', 'terrifying_mask_nec',
   'cult_icon_cawdor', 'ridge_walker_cawdor',
-  'displacer_field_delaque',
+  'asbestos_mandilion_cawdor', 'cherub_cawdor',
+  'displacer_field_delaque', 'digital_laser_delaque',
   'cutter_escher', 'bad_blood_escher', 'brain_lock_escher', 'hyper_escher',
   'jolt_escher', 'night_night_escher', 'puke_escher', 'wide_eye_escher',
-  'mauler_goliath',
+  'mauler_goliath', 'dum_dum_ammunition_goliath',
   'outrider_quad_orlock',
-  'arachni_rig_vansaar', 'servo_medicae_vansaar',
+  'arachni_rig_vansaar', 'servo_medicae_vansaar', 'shock_ammunition_vansaar',
   'cyberteknika_cranial_vansaar', 'cyberteknika_ocular_vansaar',
   'cyberteknika_sindexterous_vansaar', 'cyberteknika_motive_vansaar',
   'cyberteknika_torsonic_vansaar', 'cyberteknika_vascular_vansaar',
@@ -808,6 +923,23 @@ const NECROMUNDA_GANG_SPECIFIC_IDS: string[] = [
   'yeld_hunting_rig_venators', 'sthenian_hunting_rig_venators',
   'mirror_shield_venators', 'incendiary_grenades_venators',
   'magnacles_enforcers', 'nuncio_aquila_enforcers',
+  'photon_flash_grenades_enforcers', 'dum_dum_ammunition_enforcers', 'shock_ammunition_enforcers',
+  // Ash Waste Nomads
+  'venom_caster_nomads', 'bone_talons_nomads', 'insective_knife_nomads',
+  'toxin_whip_nomads', 'venom_stave_nomads', 'venom_sacs_nomads',
+  'ash_orchid_venom_nomads', 'duststalker_mandible_nomads',
+  'milk_of_harpy_nomads', 'tears_of_storm_nomads',
+  'blast_carbine_nomads', 'blast_rifle_nomads',
+  // Delegation
+  'gun_skull_delegation', 'digital_laser_delegation', 'digital_laser_array_delegation',
+  'shockwhip_delegation', 'sling_gun_delegation', 'cult_icon_delegation',
+  'displacer_field_delegation', 'refractor_field_delegation',
+  // Ratskins
+  'longbow_ratskins', 'slingshot_ratskins', 'good_luck_charm_ratskins',
+  'barbed_arrows_ratskins', 'explosive_arrows_ratskins', 'poison_arrows_ratskins',
+  'blade_venom_ratskins',
+  // Scavvies
+  'scatter_cannon_scavvies', 'spear_gun_scavvies',
   // Necromunda Gang weapons not in base GANGER pool
   // las_cutter is now in shared SPECIAL_MELEE_IDS (available via GANGER spread)
   'blunderbuss_polearm', 'psychic_familiar_nec',
@@ -818,6 +950,7 @@ const NECROMUNDA_GANG_SPECIFIC_IDS: string[] = [
   'cyberteknika_cranial_nec', 'cyberteknika_ocular_nec',
   'cyberteknika_sindexterous_nec', 'cyberteknika_motive_nec',
   'manstopper_ammunition_nec', 'radium_ammunition_nec',
+  'grav_chute',
 ];
 
 // ---------------------------------------------------------------------------
@@ -826,7 +959,7 @@ const NECROMUNDA_GANG_SPECIFIC_IDS: string[] = [
 
 export const FACTION_WARGEAR: Record<string, string[]> = {
   // === IMPERIAL ===
-  adeptus_astartes:      [...IMPERIAL_ALL, ...PRIMARIS_WEAPONS_IDS, ...ASTARTES_HEAVY_IDS, ...TWIN_LINKED_IDS, 'hand_flamer', 'inferno_pistol', ...ADEPTUS_ASTARTES_SPECIFIC_IDS],
+  adeptus_astartes:      [...IMPERIAL_ALL, ...PRIMARIS_WEAPONS_IDS, ...ASTARTES_HEAVY_IDS, ...TWIN_LINKED_IDS, 'hand_flamer', 'inferno_pistol', 'volkite_pistol', ...ADEPTUS_ASTARTES_SPECIFIC_IDS],
   astra_militarum:       [...IMPERIAL_WITH_BAYONET, ...TEMPESTUS_WEAPONS_IDS, ...OGRYN_WEAPONS_IDS, ...ASTRA_MILITARUM_SPECIFIC_IDS, 'heavy_stubber', 'twin_heavy_stubber', 'mortar'],
   adeptus_custodes:      [...IMPERIAL_ALL, ...ADEPTUS_CUSTODES_SPECIFIC_IDS, 'guardian_spear', 'sentinel_blade'],
   adepta_sororitas:      [...SORORITAS_WARGEAR, ...SORORITAS_WEAPONS_IDS, 'hand_flamer'], // Explicitly add hand flamer
@@ -842,11 +975,11 @@ export const FACTION_WARGEAR: Record<string, string[]> = {
   adeptus_arbites:       [...GANGER.filter(id => !MOLE_LAUNCHER_IDS.includes(id) && !MINING_WEAPONS_IDS.includes(id))],
 
   // === CHAOS ===
-  heretic_astartes:      [...CHAOS_ALL, ...ASTARTES_HEAVY_IDS, ...HA_VARIANT_IDS, ...TWIN_LINKED_IDS],
+  heretic_astartes:      [...CHAOS_ALL, ...ASTARTES_HEAVY_IDS, ...HA_VARIANT_IDS, ...TWIN_LINKED_IDS, 'mark_of_darkness', 'mark_of_khorne', 'mark_of_nurgle', 'mark_of_slaanesh', 'mark_of_tzeentch'],
   // grenadier_gauntlet is Ogryn-only in Chaos Cult — gated via UNIT_WARGEAR_OVERRIDES for cc_chaos_ogryn.
   chaos_cult:            [...CHAOS_ALL.filter(id => id !== 'grenadier_gauntlet'), ...CHAOS_CULT_IDS, 'heavy_stubber', 'heavy_heavy_stubber'], 
   chaos_daemons:         [...DAEMON_BASIC, ...CHAOS_DAEMON_IDS, ...CHAOS_DAEMONS_WEAPON_IDS],
-  the_vermintide:        [...GANGER, ...VERMINTIDE_IDS], // Used GANGER base + Extras (Mole Launcher is in GANGER now)
+  the_vermintide:        [...GANGER, ...VERMINTIDE_IDS, 'augury_scanner', 'musical_instrument', 'troop_flag', 'power_armour'],
 
   // === XENOS ===
   orks:                  [...ORK, ...ORKS_SPECIFIC_IDS, ...ORKS_WEAPON_IDS],
@@ -863,8 +996,8 @@ export const FACTION_WARGEAR: Record<string, string[]> = {
   drukhari:              [...XENOS_ELITE.filter(id => !MOLE_LAUNCHER_IDS.includes(id)), ...DRUKHARI_SPECIFIC_IDS, ...DRUKHARI_WEAPON_IDS],
 
   // === OUTLAW ===
-  necromunda_gang:       [...GANGER, ...NECROMUNDA_GANG_SPECIFIC_IDS, 'hand_flamer'], 
-  pirate_crew:           [...GANGER.filter(id => !MOLE_LAUNCHER_IDS.includes(id)), ...PIRATE_CREW_SPECIFIC_IDS],
+  necromunda_gang:       [...GANGER, ...NECROMUNDA_GANG_SPECIFIC_IDS, 'hand_flamer', 'augury_scanner', 'grav_chute', 'power_armour'], 
+  pirate_crew:           [...GANGER.filter(id => !MOLE_LAUNCHER_IDS.includes(id)), ...PIRATE_CREW_SPECIFIC_IDS, 'augury_scanner', 'jump_pack', 'musical_instrument', 'troop_flag', 'power_armour'],
 };
 
 // ---------------------------------------------------------------------------
@@ -892,7 +1025,7 @@ export const UNIT_WARGEAR_OVERRIDES: Record<string, string[]> = {
     ...BASIC_MELEE_IDS, ...SPECIAL_MELEE_IDS, ...HEAVY_MELEE_IDS,
     ...CHAOS_SPECIFIC_IDS,
     'terminator_armour', 'shield',
-    'augury_scanner', 'purity_seal',
+    'augury_scanner', 'purity_seal', 'shovel',
   ],
   // Aquilon Terminators (Custodes)
   ac_aquilon_terminator: [
@@ -970,6 +1103,40 @@ export const UNIT_WARGEAR_OVERRIDES: Record<string, string[]> = {
     'blade', 'close_combat_weapon', 'power_weapon', 'lightning_claw', 'poison_blade',
     'camo_cloak', 'combat_helmet',
   ],
+  // Space Wolves Wulfen — Stormfrag Auto-Launcher + melee weapons + armour + equipment
+  aa_wulfen: [
+    'stormfrag_auto_launcher',
+    ...BASIC_MELEE_IDS, ...SPECIAL_MELEE_IDS, ...HEAVY_MELEE_IDS,
+    'wulfen_frost_claws',
+    'standard_armour', 'heavy_armour', 'shield', 'heavy_shield',
+    'augury_scanner', 'camo_cloak', 'combat_helmet', 'filter_plugs',
+    'grapnel_launcher', 'iron_halo', 'purity_seal', 'death_totem',
+    'combat_helmet_aa', 'holy_relic_aa', 'purity_seal_aa',
+  ],
+  // Sekhetar Robot — basic melee + Power Claw + full HA ranged armoury + Heavy Flamer (ignoring limits)
+  ha_sekhetar_robot: [
+    // Basic melee + Power Claw only (per rules: "any Basic melee weapons, a Power Claw")
+    ...BASIC_MELEE_IDS,
+    'power_claw_ts',
+    // "any ranged weapons from the Heretic Astartes Armoury"
+    ...BASIC_RANGED_IDS, ...PISTOL_IDS, ...SPECIAL_RANGED_IDS,
+    ...HEAVY_RANGED_IDS, ...THROWN_IDS,
+    ...ASTARTES_HEAVY_IDS, ...TWIN_LINKED_IDS,
+    ...CHAOS_SPECIFIC_IDS,
+    'hand_flamer', 'inferno_pistol', 'combi_bolter', 'twin_bolt_pistols',
+    'disc_of_tzeentch_ts', 'inferno_boltgun_ts', 'inferno_bolt_pistol_ts', 'inferno_combi_bolter_ts',
+    'soulreaper_cannon_ts', 'meltagun_ts', 'hand_flamer_ts',
+    'vengeance_ammunition',
+  ],
+  // Necrons Hexmark Destroyer — six one-handed weapon slots + Necrons equipment
+  nec_hexmark_destroyer: [
+    'gauntlet_of_fire_nec', 'particle_caster', 'transdimensional_beamer', 'enmitic_disintegrator_pistol',
+    'claw_nec', 'mace_nec', 'sword_nec', 'voidblade', 'hyperphase_sword_nec', 'hyperphase_thresher',
+    'engrammatic_entangler', 'heart_of_darkness', 'necrodermal_plating', 'phylactery_nec',
+    'plasmacyte_accelerator', 'plasmacyte_reanimator', 'tachyon_arrow_nec', 'translocation_shroud_nec',
+    'arrow_of_infinity_nec', 'infinity_mantle_nec', 'nanoscarab_casket_nec', 'resurrection_orb_nec',
+    'sovereign_coronel_nec', 'transdimensional_shroud_nec', 'vanquishers_mask_nec',
+  ],
 };
 
 /**
@@ -1017,7 +1184,12 @@ export function getAllowedWargearIds(
     // so subfaction-specific weapons (e.g. Force Stave for Thousand Sons Sorcerer) appear.
     const unitOverride = UNIT_WARGEAR_OVERRIDES[unitId];
     if (unitOverride) {
-      const ids = [...unitOverride, ...variantIds];
+      const ids = [...unitOverride, ...variantIds]
+        .filter(id => !HA_EXCLUDED_IDS.has(id));
+      // Add marks for units that can take them
+      if (subfactionId !== 'renegade_space_marines' && !MARK_BANNED_UNIT_IDS.has(unitId)) {
+        ids.push(...MARK_OF_CHAOS_IDS);
+      }
       return Array.from(new Set(ids));
     }
       
@@ -1027,8 +1199,14 @@ export function getAllowedWargearIds(
       ...CHAOS_ALL, 
       ...variantIds, 
       ...ASTARTES_HEAVY_IDS, 
-      ...TWIN_LINKED_IDS
+      ...TWIN_LINKED_IDS,
     ];
+
+    // Marks of Chaos: available to most HA units, but NOT Renegade SM (no marks at all)
+    // and NOT Cultists (their battlekit excludes marks).
+    if (subfactionId !== 'renegade_space_marines' && !MARK_BANNED_UNIT_IDS.has(unitId)) {
+      ids.push(...MARK_OF_CHAOS_IDS);
+    }
 
     if (hasRaptor) {
       ids = [...ids, 'warp_claws', 'jump_pack'];
@@ -1046,17 +1224,34 @@ export function getAllowedWargearIds(
          ids = ids.filter(id => id !== 'jump_pack');
       }
     }
+
+    // Strip shared equipment / armour not in the HA Armoury
+    ids = ids.filter(id => !HA_EXCLUDED_IDS.has(id));
+
     // Deduplicate while preserving order
     return Array.from(new Set(ids));
+  }
+
+  // ── Per-faction excluded items filter helper ──
+  const excluded = FACTION_EXCLUDED_IDS[factionId];
+  const applyExclusions = (ids: string[]) =>
+    excluded ? ids.filter(id => !excluded.has(id)) : ids;
+
+  // ── The Inquisition: Ordo Xenos adds Xenos Artifacts to the wargear pool ──
+  if (factionId === 'the_inquisition') {
+    if (subfactionId === 'ordo_xenos') {
+      return applyExclusions([...baseIds, ...ORDO_XENOS_ARTIFACT_IDS]);
+    }
+    return applyExclusions(baseIds);
   }
 
   // ── Adeptus Astartes: Jump Pack only for Captain or Assault Marine upgrade ──
   if (factionId === 'adeptus_astartes') {
     const hasAssaultMarine = (selectedUpgrades?.['aa_assault_marine'] ?? 0) > 0;
     if (unitId !== 'aa_captain' && !hasAssaultMarine) {
-      return baseIds.filter(id => id !== 'jump_pack');
+      return applyExclusions(baseIds.filter(id => id !== 'jump_pack'));
     }
-    return baseIds;
+    return applyExclusions(baseIds);
   }
 
   // ── Adepta Sororitas: Jump Pack only for Canoness, Seraphim, or Zephyrim upgrade ──
@@ -1064,51 +1259,51 @@ export function getAllowedWargearIds(
     const hasSeraphim = (selectedUpgrades?.['as_seraphim'] ?? 0) > 0;
     const hasZephyrim = (selectedUpgrades?.['as_zephyrim'] ?? 0) > 0;
     if (unitId !== 'as_canoness' && !hasSeraphim && !hasZephyrim) {
-      return baseIds.filter(id => id !== 'jump_pack');
+      return applyExclusions(baseIds.filter(id => id !== 'jump_pack'));
     }
-    return baseIds;
+    return applyExclusions(baseIds);
   }
 
   // ── Adeptus Custodes: Jump Pack only for Custodian Guard with Venatari upgrade ──
   if (factionId === 'adeptus_custodes') {
     const hasVenatari = (selectedUpgrades?.['ac_venatari'] ?? 0) > 0;
     if (!hasVenatari) {
-      return baseIds.filter(id => id !== 'jump_pack');
+      return applyExclusions(baseIds.filter(id => id !== 'jump_pack'));
     }
-    return baseIds;
+    return applyExclusions(baseIds);
   }
 
   // ── Adeptus Mechanicus: Jump Pack only for Skitarii with Pteraxii upgrade ──
   if (factionId === 'adeptus_mechanicus') {
     const hasPteraxii = (selectedUpgrades?.['amec_pteraxii'] ?? 0) > 0;
     if (!hasPteraxii) {
-      return baseIds.filter(id => id !== 'jump_pack');
+      return applyExclusions(baseIds.filter(id => id !== 'jump_pack'));
     }
-    return baseIds;
+    return applyExclusions(baseIds);
   }
 
   // ── Astra Militarum: Jump Pack only for Veteran Guardsman with Drop Trooper upgrade ──
   if (factionId === 'astra_militarum') {
     const hasDropTrooper = (selectedUpgrades?.['am_drop_trooper'] ?? 0) > 0;
     if (!hasDropTrooper) {
-      return baseIds.filter(id => id !== 'jump_pack');
+      return applyExclusions(baseIds.filter(id => id !== 'jump_pack'));
     }
-    return baseIds;
+    return applyExclusions(baseIds);
   }
 
   // ── Pirate Crew: Jump Pack is Rigger Only — Rigger unit not yet implemented,
   //    strip from all current units until Rigger is added. ──
   if (factionId === 'pirate_crew') {
-    return baseIds.filter(id => id !== 'jump_pack');
+    return applyExclusions(baseIds.filter(id => id !== 'jump_pack'));
   }
 
   // ── Leagues of Votann: Jump Pack only for Hearthkyn ──
   if (factionId === 'leagues_of_votann') {
     if (unitId !== 'lv_hearthkyn') {
-      return baseIds.filter(id => id !== 'jump_pack');
+      return applyExclusions(baseIds.filter(id => id !== 'jump_pack'));
     }
-    return baseIds;
+    return applyExclusions(baseIds);
   }
 
-  return baseIds;
+  return applyExclusions(baseIds);
 }

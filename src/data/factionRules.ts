@@ -58,7 +58,7 @@ export const FACTION_RULES: Record<string, FactionSpecialRulesData> = {
   adeptus_ministorum: {
     title: 'Adeptus Ministorum Special Rules',
     rules: [
-      '**Battle Hymns.** At the start of each Turn, choose one Hymn. Each ORATOR model (while not Down) speaks it, granting its benefit to themselves and each friendly ECCLESIARCHY model within 6″: (1) **The Emperor Protects** — Armour gains IMPERVIOUS, -DICE to Injury cannot be negated; (2) **The Emperor\'s Strength** — ARMOUR PIERCING 1 for all melee; (3) **The Righteousness of the Emperor** — +1 DICE to Hit with ranged attacks within half range.',
+      '**Battle Hymns.** At the start of each Turn, choose one Hymn. Each ORATOR model (while not Down) speaks it, granting its benefit to themselves and each friendly ECCLESIARCHY model within 6″: (1) **The Emperor Protects** — The first -1 of armour has IMPERVIOUS, -DICE to Injury cannot be negated; (2) **The Emperor\'s Strength** — ARMOUR PIERCING 1 for all melee, stacking with other sources; (3) **The Righteousness of the Emperor** — +1 DICE to Hit with ranged attacks within half range.',
       '**Rally the Flock** (Campaign). Track Flock points (start 0). Earn Flock by holding your deployment zone, taking half enemies OOA, keeping an ORATOR up all battle, a first Glorious Deed by an Elite or Miraculist, or an ORATOR reaching the enemy deployment zone. Spend Flock to reduce Mercenary Glory cost, avoid Elite Trauma rolls, replace casualties for free, or gain Exploration Skills.',
     ],
   },
@@ -115,7 +115,7 @@ export const FACTION_RULES: Record<string, FactionSpecialRulesData> = {
   chaos_cult: {
     title: 'Chaos Cult Special Rules',
     rules: [
-      '**Accursed Gifts.** Your CHAOS CULT models can gain Gifts of Chaos (permanent or temporary; each only once). During a campaign, after each battle, grant one model a permanent Gift (Elites can roll twice and choose). Permanent Gifts increase the model\'s cost by 10 credits. Elites and Chaos Spawns can hold up to 4 permanent Gifts; other models up to 2. Roll D66 for the Gift effect from a table of 36 results — including mutations like STEALTH, SKIRMISHER, FLYING, STRONG, PSYKER, TOUGH, and the dangerous Spawnhood or Dark Apotheosis.',
+      '**Accursed Gifts.** Your CHAOS CULT models can gain Gifts of Chaos (permanent or temporary; each only once). During a campaign, after each battle, grant one model a permanent Gift (Elites can roll twice and choose). Permanent Gifts do not increase a model\'s cost (cost 5 credits for one-off games). Elites and Chaos Spawns can hold up to 4 permanent Gifts; other models up to 2. Roll D66 for the Gift effect from a table of 36 results — including mutations like STEALTH, SKIRMISHER, FLYING, STRONG, PSYKER, TOUGH, and the dangerous Spawnhood or Dark Apotheosis.',
     ],
   },
 
@@ -198,7 +198,7 @@ export const FACTION_RULES: Record<string, FactionSpecialRulesData> = {
   necrons: {
     title: 'Necron Special Rules',
     rules: [
-      '**Reanimation Protocols.** The first time each NECRON model would be taken OOA (2nd if TOUGH), it is treated as Down instead — mark it Reanimating. At the start of its Activation while Reanimating, it makes a Success Roll: on success, it stands up normally; on failure, it stays Down and Reanimating. At battle\'s end, one more Success Roll; fail = finally taken OOA. While Reanimating, it can be attacked as normal and Injury rolls against it gain +1 DICE and ignore Armour.',
+      '**Reanimation Protocols.** The first time each NECRON model would be taken OOA (2nd if TOUGH), it is treated as Down instead — mark it Reanimating. If the model has not been activated this Turn, it is considered to have done so. At the start of its Activation while Reanimating, it makes a Success Roll with +1 DICE: on success, it stands up normally; on failure, it stays Down and Reanimating and its Activation ends. **Once one of your models reanimates, no other model can make this roll during the same Turn.** At battle\'s end, one more Success Roll with +1 DICE; fail = finally taken OOA. While Reanimating, it can be attacked as normal and Injury rolls against it gain +1 DICE and IGNORE ARMOUR.',
       '**Dynastic Epithets** (Campaign). After each battle where your Warband leader scored a Glorious Deed and was not taken OOA, give it a new Epithet and choose one Dynastic Ability (up to 5 total per model). Abilities include re-deploying models, purchasing Campaign Shop items, recruiting extra Royal Wardens, recovering battlekit from casualties, earning Glory or credits, and more.',
     ],
   },
@@ -234,7 +234,7 @@ export const FACTION_RULES: Record<string, FactionSpecialRulesData> = {
     rules: [
       '**Backgrounds.** When recruiting a PIRATE model, choose one Background (Beastman, Dark Eldar, Death Worlder, Eldar Corsair, Feral Worlder, Forge Worlder, Gretchin Freebooter, Hive Worlder, Kroot, Kin, Noble, Ogryn, Ork Freebooter, Piscean, Ratling, Slanni Brave/Brute/Skirmisher, Tarellian, Voidborn, or Zoat). Each Background grants unique Keywords, stat modifiers, special abilities, and/or access to additional Battlekit lists.',
       '**Specialties.** When recruiting a PIRATE model, optionally choose a paid Specialty (Cannoneer, Duelist, Grenadier, Heavy, Heretek, Hunter, Knife Fighter, Mechanic, Pistoleer, Psyker, Reaver, Rigger, Sapper, Sneak, Tactician, or Void Terror) granting a specific combat or utility ability.',
-      '**Black Market Acquisitions.** You can purchase Campaign Shop battlekit without Exploration permission, as long as its Glory cost ≤ the number of battles you have fought (or 3 for a one-off). You can also buy from the Campaign Shop of any other Faction (except Chaos Daemons, Orks for non-ORK models, Necrons, and Tyranids), replacing Faction Keywords with PIRATE.',
+      '**Black Market Acquisitions.** You can purchase Campaign Shop battlekit without Exploration permission, so long as its Glory cost ≤ the number of battles you have fought (or 1 for every 100 credits over 700 your Warband is Worth for a one-off battle). You can also buy from the Campaign Shop of any other Faction (except Chaos Daemons, Orks for non-ORK models, Necrons, and Tyranids), replacing Faction Keywords with PIRATE.',
     ],
   },
 };

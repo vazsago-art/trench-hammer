@@ -2721,6 +2721,290 @@ export const discipline_stormspeaking: PsychicDiscipline = {
 };
 
 // ============================================================================
+// NECROMUNDA GANG PSYCHIC DISCIPLINES
+// ============================================================================
+
+// House Delaque: Darkness Discipline
+export const discipline_darkness: PsychicDiscipline = {
+  id: 'darkness',
+  name: 'Darkness Discipline',
+  factionIds: ['necromunda_gang'],
+  powers: [
+    {
+      id: 'a_perfect_void',
+      name: 'A Perfect Void',
+      cost: 3,
+      powerType: 'Effect',
+      range: 'Self',
+      target: 'Self',
+      timing: 'End of Turn',
+      description: 'No Range, Self, End of Turn. Injury rolls against the caster have -1 INJURY MODIFIER, stacking with armour up to -3.',
+    },
+    {
+      id: 'cacophony_of_silence',
+      name: 'Cacophony of Silence',
+      cost: 5,
+      powerType: 'Effect',
+      range: 'Self',
+      target: 'Self and Allies within 6"',
+      timing: 'Next Activation',
+      description: 'No Range, Self, Next Activation. The caster and any allies within 6" of it have the STEALTH Keyword.',
+    },
+    {
+      id: 'cloak_of_whispers',
+      name: 'Cloak of Whispers',
+      cost: 5,
+      powerType: 'Effect',
+      range: '12"',
+      target: 'Self or One Ally',
+      timing: 'Target Activation',
+      description: '12", Self or One Ally, Target Activation. Enemy models do not get free attacks against the target when it Retreats, and the target can move out of Melee using its Standard Move, Charge, or Dash.',
+    },
+    {
+      id: 'eternal_slumber',
+      name: 'Eternal Slumber',
+      cost: 1,
+      costCurrency: 'glory',
+      powerType: 'Attack',
+      range: '12"',
+      target: 'One Down Enemy',
+      timing: 'Immediate',
+      description: '12", +2 INJURY DICE, IGNORE ARMOUR, PSYCHIC, RISKY. This attack can only be used on a Down enemy.',
+    },
+    {
+      id: 'penumbral_mirror',
+      name: 'Penumbral Mirror',
+      cost: 10,
+      powerType: 'Effect',
+      range: '12"',
+      target: 'One Ally and One Enemy within 12" of each other',
+      timing: 'Immediate',
+      description: '12", One Ally and One Enemy that are within 12" of one another, Immediate. Remove the target ally from the battlefield then place it anywhere within 3" of the target enemy.',
+    },
+    {
+      id: 'sight_blight',
+      name: 'Sight Blight',
+      cost: 3,
+      powerType: 'Effect',
+      range: '18"',
+      target: 'One Enemy',
+      timing: 'Target Activation',
+      description: '18", One Enemy, Target Activation. The target has -1 DICE to Hit with all attacks until the end of its next Activation.',
+    },
+  ],
+};
+
+// House Delaque: Delusion Discipline
+export const discipline_delusion: PsychicDiscipline = {
+  id: 'delusion',
+  name: 'Delusion Discipline',
+  factionIds: ['necromunda_gang'],
+  powers: [
+    {
+      id: 'deceitful_thoughts',
+      name: 'Deceitful Thoughts',
+      cost: 5,
+      powerType: 'Effect',
+      range: '8"',
+      target: 'One Enemy',
+      timing: 'Immediate',
+      description: '8", One Enemy, Immediate. The target must move D3" in the direction of your choice. This movement can bring the target into or out of melee. Cannot be used while in close combat.',
+    },
+    {
+      id: 'ghost_and_shadow',
+      name: 'Ghost and Shadow',
+      cost: 3,
+      powerType: 'Effect',
+      range: '18"',
+      target: 'Up to Three Enemies',
+      timing: 'End of Turn',
+      description: '18", Up to Three Enemies, End of Turn. The targets cannot make attacks that are not made during their Activation.',
+    },
+    {
+      id: 'opprobrious_curse',
+      name: 'Opprobrious Curse',
+      cost: 10,
+      powerType: 'Effect',
+      range: '3"',
+      target: 'Each Enemy',
+      timing: 'Immediate',
+      description: '-1 DICE, 3", Each Enemy. Each target must roll on the Injury table, with IGNORE ARMOUR.',
+    },
+    {
+      id: 'seen_unseen',
+      name: 'Seen Unseen',
+      cost: 5,
+      powerType: 'Effect',
+      range: '24"',
+      target: 'One Enemy',
+      timing: 'Target Activation',
+      description: '24", One Enemy, Target Activation. The target counts as an "enemy model" to all of its allies, and it treats those allies as "enemy models." This only affects what targets it can choose, which models its abilities affect, etc.',
+    },
+    {
+      id: 'spatial_psychosis',
+      name: 'Spatial Psychosis',
+      cost: 5,
+      powerType: 'Effect',
+      range: '18"',
+      target: 'One Enemy',
+      timing: 'Immediate',
+      description: '18", One Enemy, Immediate. The target falls Down. This is not a result on the Injury chart and does not cause any BLOOD MARKERS.',
+    },
+    {
+      id: 'suicidal_embrace',
+      name: 'Suicidal Embrace',
+      cost: 2,
+      costCurrency: 'glory',
+      powerType: 'Effect',
+      range: '8"',
+      target: 'One Enemy',
+      timing: 'Immediate',
+      description: '8", One Enemy. The target must make an attack with one melee weapon of your choice that it is wielding against itself.',
+    },
+  ],
+};
+
+// House Delaque: Madness Discipline
+export const discipline_madness: PsychicDiscipline = {
+  id: 'madness',
+  name: 'Madness Discipline',
+  factionIds: ['necromunda_gang'],
+  powers: [
+    {
+      id: 'existential_barrage',
+      name: 'Existential Barrage',
+      cost: 3,
+      powerType: 'Effect',
+      range: 'Melee',
+      target: 'One Enemy',
+      timing: 'Immediate',
+      description: 'Melee, One Enemy, Immediate. The target must move D6" directly away from the caster. This movement can bring the target into or out of melee.',
+    },
+    {
+      id: 'terrible_truths',
+      name: 'Terrible Truths',
+      cost: 5,
+      powerType: 'Effect',
+      range: 'Self',
+      target: 'No Target',
+      timing: 'End of Turn',
+      description: 'No Range, No Target, End of Turn. Your opponent has -1 DICE to their Morale Test at the end of this Turn, if any.',
+    },
+    {
+      id: 'psychoteric_lure',
+      name: 'Psychoteric Lure',
+      cost: 7,
+      powerType: 'Effect',
+      range: '18"',
+      target: 'One Enemy',
+      timing: 'Immediate',
+      description: '18", One Enemy, Immediate. The target must move D6" directly towards the caster. This movement can bring the target into or out of melee.',
+    },
+    {
+      id: 'cyclopean_gaze',
+      name: 'Cyclopean Gaze',
+      cost: 5,
+      powerType: 'Effect',
+      range: '18"',
+      target: 'One Enemy',
+      timing: 'Special',
+      description: '18", One Enemy, Special. If the target has not yet activated this Turn, it cannot be chosen to activate this Turn until D3 of its owner\'s other models have been activated first.',
+    },
+    {
+      id: 'craven_howl',
+      name: 'Craven Howl',
+      cost: 5,
+      powerType: 'Effect',
+      range: '18"',
+      target: 'One Down Enemy',
+      timing: 'Target Activation',
+      description: '-1 DICE, 18", One Down Enemy, Target Activation. The Target cannot stand up from Down.',
+    },
+    {
+      id: 'unrememberable',
+      name: 'Unrememberable',
+      cost: 1,
+      costCurrency: 'glory',
+      powerType: 'Effect',
+      range: 'Self',
+      target: 'Self',
+      timing: 'Special',
+      description: 'No Range, Self, Special. Enemies cannot target the caster with ranged attacks or Charges. BLAST affects it normally. Ends if caster moves, makes a Ranged Attack, or an enemy comes within 1.5" of it.',
+    },
+  ],
+};
+
+// Ratskins: Spirit Lore Discipline
+export const discipline_spirit_lore: PsychicDiscipline = {
+  id: 'spirit_lore',
+  name: 'Spirit Lore Discipline',
+  factionIds: ['necromunda_gang'],
+  powers: [
+    {
+      id: 'spirit_provocation',
+      name: 'Spirit Provocation',
+      cost: 10,
+      powerType: 'Effect',
+      range: '12"',
+      target: 'Point',
+      timing: 'End of Turn',
+      description: '12", Point, End of Turn. Place a Spirit Marker on the battlefield at the target point. The area within 3" of the center counts as Dangerous and Difficult Terrain.',
+    },
+    {
+      id: 'curse',
+      name: 'Curse',
+      cost: 5,
+      powerType: 'Effect',
+      range: '18"',
+      target: 'One Enemy',
+      timing: 'Target Activation',
+      description: '18", One Enemy, Target Activation. The target has -1 DICE to all actions.',
+    },
+    {
+      id: 'ghost_dance',
+      name: 'Ghost Dance',
+      cost: 5,
+      powerType: 'Effect',
+      range: '12"',
+      target: 'Self or One Ally',
+      timing: 'End of Turn',
+      description: '12", Self or One Ally, End of Turn. The target has -1 INJURY MODIFIER, stacking with armour and shields up to -3.',
+    },
+    {
+      id: 'blindnake_ritual',
+      name: 'Blindnake Ritual',
+      cost: 7,
+      powerType: 'Effect',
+      range: '18"',
+      target: 'Self or One Ally',
+      timing: 'End of Turn',
+      description: '18", Self or One Ally, End of Turn. All attacks against the target have -1 DICE to Hit.',
+    },
+    {
+      id: 'spirit_walk',
+      name: 'Spirit Walk',
+      cost: 10,
+      powerType: 'Effect',
+      range: '18"',
+      target: 'Self and One Enemy',
+      timing: 'Immediate',
+      description: '18", Self and One Enemy, Immediate. Remove the caster from the battlefield then place it anywhere within 1" of the target enemy. The caster has +1 DICE to Hit with the next melee attack against the target this Activation.',
+    },
+    {
+      id: 'steal_prowess',
+      name: 'Steal Prowess',
+      cost: 1,
+      costCurrency: 'glory',
+      powerType: 'Effect',
+      range: '12"',
+      target: 'One Enemy',
+      timing: 'End of Battle',
+      description: '12", One Enemy, End of Battle. Randomly choose one Campaign Skill the target has. The target loses that skill and this model gains it. If that skill provides Exploration skills, the effect lasts until the end of the Exploration Step.',
+    },
+  ],
+};
+
+// ============================================================================
 // FACTION → DISCIPLINE MAPPING
 // Maps faction IDs to the disciplines their psykers have access to.
 // ============================================================================
@@ -2745,6 +3029,8 @@ export const FACTION_DISCIPLINES: Record<string, PsychicDiscipline[]> = {
   slanni: [discipline_celestial, discipline_primal],
   tyranids: [discipline_tyranids_psychic],
   the_vermintide: [discipline_ruin],
+  // Necromunda
+  necromunda_gang: [discipline_telepathy, discipline_telekinesis],
 };
 
 /** Get all disciplines available to a faction */
@@ -2770,6 +3056,11 @@ const SUBFACTION_OVERRIDE_DISCIPLINES: PsychicDiscipline[] = [
   discipline_stormspeaking,
   // Aeldari subfaction disciplines
   discipline_revenant,
+  // Necromunda Gang subfaction disciplines
+  discipline_darkness,
+  discipline_delusion,
+  discipline_madness,
+  discipline_spirit_lore,
 ];
 
 function _registerDisciplines() {

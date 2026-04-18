@@ -1,0 +1,1007 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Battle Mode — Full-screen read-only combat roster view
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Overlay & Container ─────────────────────────────────────────────────── */
+
+.bm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: #0d0f12;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bm-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 3rem;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+
+.bm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #c9a84c;
+}
+
+.bm-title {
+  font-size: 1.6rem;
+  color: #c9a84c;
+  margin: 0;
+  letter-spacing: 0.04em;
+}
+
+.bm-subtitle {
+  margin: 0.25rem 0 0;
+  color: #9ca3af;
+  font-size: 0.85rem;
+}
+
+.bm-close-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1.5px solid #ef4444;
+  color: #ef4444;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.15s, color 0.15s;
+}
+.bm-close-btn:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+.bm-print-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1.5px solid #c9a84c;
+  color: #c9a84c;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.15s, color 0.15s;
+}
+.bm-print-btn:hover {
+  background: #c9a84c;
+  color: #000;
+}
+
+/* ── Rules Side Buttons ──────────────────────────────────────────────────── */
+
+.bm-rules-side-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.bm-rules-side-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #c9a84c;
+  background: #161922;
+  border: 1.5px solid #3a3f4f;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.bm-rules-side-btn:hover {
+  background: #1e2230;
+  border-color: #c9a84c;
+}
+.bm-rules-side-btn--active {
+  background: #1e2230;
+  border-color: #c9a84c;
+  color: #e0c86e;
+}
+.bm-rules-side-btn--warband {
+  color: #93c5fd;
+  border-color: #3a3f4f;
+}
+.bm-rules-side-btn--warband:hover {
+  border-color: #93c5fd;
+}
+.bm-rules-side-btn--warband.bm-rules-side-btn--active {
+  border-color: #93c5fd;
+  color: #bfdbfe;
+}
+
+/* ── Rules Panel ─────────────────────────────────────────────────────────── */
+
+.bm-faction-rules {
+  background: #161922;
+  border: 1px solid #2a2e3a;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.bm-rules-panel {
+  animation: bm-panel-slide 0.2s ease-out;
+}
+
+@keyframes bm-panel-slide {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.bm-rules-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bm-rules-panel-close {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  line-height: 1;
+}
+.bm-rules-panel-close:hover {
+  color: #ef4444;
+  background: #1e2230;
+}
+
+.bm-faction-rules-title {
+  font-size: 1rem;
+  color: #c9a84c;
+  margin: 0 0 0.6rem;
+}
+
+.bm-faction-rules-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.bm-faction-rules-list li {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #d1d5db;
+}
+
+/* ── Section Headers ─────────────────────────────────────────────────────── */
+
+.bm-section-header {
+  font-size: 1.15rem;
+  color: #c9a84c;
+  margin: 1.5rem 0 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid #c9a84c44;
+}
+
+/* ── Unit Card ───────────────────────────────────────────────────────────── */
+
+.bm-card {
+  background: #161922;
+  border: 1px solid #2a2e3a;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem 0.75rem;
+  position: relative;
+}
+
+.bm-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.bm-card-name {
+  font-size: 1.05rem;
+  color: #e5e7eb;
+  margin: 0;
+}
+
+.bm-card-meta {
+  font-size: 0.78rem;
+  color: #6b7280;
+  display: block;
+  margin-top: 0.15rem;
+}
+
+.bm-promoted-badge {
+  background: #c9a84c;
+  color: #000;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* ── Sub-type banner ─────────────────────────────────────────────────────── */
+
+.bm-subtype-banner {
+  background: #1e2433;
+  border-left: 3px solid #60a5fa;
+  padding: 0.4rem 0.65rem;
+  font-size: 0.8rem;
+  color: #93c5fd;
+  margin-bottom: 0.6rem;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.45;
+}
+
+/* ── Stats Table ─────────────────────────────────────────────────────────── */
+
+.bm-stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  margin-bottom: 0.6rem;
+}
+
+.bm-stats-table th {
+  background: #1a1e2b;
+  color: #9ca3af;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  padding: 0.35rem 0.5rem;
+  text-align: center;
+  border-bottom: 1px solid #2a2e3a;
+}
+
+.bm-stats-table td {
+  padding: 0.4rem 0.5rem;
+  text-align: center;
+  color: #e5e7eb;
+  border-bottom: 1px solid #1f2330;
+  font-weight: 600;
+}
+
+.bm-delta {
+  margin-left: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.bm-delta--pos { color: #22c55e; }
+.bm-delta--neg { color: #ef4444; }
+
+.bm-move-type {
+  color: #6b7280;
+  font-weight: 400;
+  font-size: 0.75rem;
+}
+
+/* ── Card Sections ───────────────────────────────────────────────────────── */
+
+.bm-section {
+  margin-top: 0.5rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid #1f2330;
+}
+
+.bm-section-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  color: #9ca3af;
+  letter-spacing: 0.04em;
+  margin: 0 0 0.35rem;
+  font-weight: 600;
+}
+
+/* ── Weapons Table ───────────────────────────────────────────────────────── */
+
+.bm-weapons-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.bm-weapons-table th {
+  background: #1a1e2b;
+  color: #6b7280;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  padding: 0.3rem 0.4rem;
+  text-align: left;
+  border-bottom: 1px solid #2a2e3a;
+}
+
+.bm-weapons-table td {
+  padding: 0.3rem 0.4rem;
+  color: #d1d5db;
+  border-bottom: 1px solid #1a1e2b;
+  vertical-align: middle;
+}
+
+.bm-weapons-table .keywords-cell {
+  font-size: 0.75rem;
+}
+
+/* Reuse the weapon type badges from UnitInfoModal */
+.bm-weapons-table .weapon-type-badge {
+  font-size: 0.68rem;
+}
+
+/* ── Gear / Notes / Abilities lists ──────────────────────────────────────── */
+
+.bm-gear-list,
+.bm-notes,
+.bm-abilities-list,
+.bm-progression-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.2rem 0 0;
+}
+.bm-gear-list li,
+.bm-notes li,
+.bm-abilities-list li,
+.bm-progression-list li {
+  font-size: 0.8rem;
+  color: #d1d5db;
+  line-height: 1.5;
+  padding: 0.15rem 0;
+}
+.bm-abilities-list li + li,
+.bm-gear-list li + li {
+  border-top: 1px solid #1a1e2b;
+}
+
+.bm-scars li { color: #f59e0b; }
+.bm-traumas li { color: #ef4444; }
+
+/* ── Upgrade / Psychic / Mutation items ──────────────────────────────────── */
+
+.bm-upgrade-item,
+.bm-psychic-card,
+.bm-mutation-item {
+  padding: 0.3rem 0;
+  font-size: 0.8rem;
+  color: #d1d5db;
+  line-height: 1.5;
+}
+.bm-upgrade-item + .bm-upgrade-item,
+.bm-psychic-card + .bm-psychic-card,
+.bm-mutation-item + .bm-mutation-item {
+  border-top: 1px solid #1a1e2b;
+}
+
+.bm-upgrade-desc,
+.bm-psychic-desc,
+.bm-mutation-desc {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+.bm-upgrade-kws {
+  margin-left: 0.4rem;
+}
+
+.bm-psychic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.bm-psychic-meta {
+  font-size: 0.72rem;
+  color: #6b7280;
+}
+
+/* ── Keywords row ────────────────────────────────────────────────────────── */
+
+.bm-keywords-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid #1f2330;
+}
+
+.bm-kw-chip {
+  font-size: 0.68rem !important;
+}
+
+/* ── Mercenary Stats Row ─────────────────────────────────────────────────── */
+
+.bm-merc-stats-row {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.bm-merc-stat-cell {
+  flex: 1;
+  text-align: center;
+  background: #1a1e2b;
+  border-radius: 4px;
+  padding: 0.35rem 0.25rem;
+}
+
+.bm-merc-stat-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  color: #6b7280;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.bm-merc-stat-value {
+  font-size: 0.85rem;
+  color: #e5e7eb;
+  font-weight: 700;
+  margin-top: 0.1rem;
+}
+
+.bm-merc-card {
+  border-left: 3px solid #a78bfa;
+}
+
+.bm-merc-weapons th,
+.bm-merc-weapons td {
+  font-size: 0.78rem;
+}
+
+/* ── Subfaction Rules ─────────────────────────────────────────────────────── */
+
+.bm-subfaction-rules {
+  border-left: 3px solid #c9a84c;
+}
+.bm-subfaction-desc {
+  font-size: 0.82rem;
+  color: #9ca3af;
+  margin: 0 0 0.5rem;
+  font-style: italic;
+}
+
+/* ── Campaign Edit Button ────────────────────────────────────────────────── */
+
+.bm-edit-campaign-btn {
+  display: inline-block;
+  margin-left: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.72rem;
+  background: #2a2e3a;
+  color: #c9a84c;
+  border: 1px solid #3a3f4f;
+  border-radius: 4px;
+  cursor: pointer;
+  vertical-align: middle;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+.bm-edit-campaign-btn:hover {
+  background: #3a3f4f;
+  color: #e0c86e;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .bm-container {
+    padding: 0.75rem 0.5rem 2rem;
+  }
+  .bm-title { font-size: 1.2rem; }
+  .bm-card { padding: 0.6rem 0.65rem; }
+  .bm-stats-table th,
+  .bm-stats-table td { padding: 0.25rem 0.3rem; font-size: 0.75rem; }
+  .bm-header { flex-direction: column; }
+  .bm-close-btn { align-self: flex-end; }
+}
+
+/* ── Print-only elements: hidden on screen ─────────────────────────────── */
+@media screen {
+  .bm-print-only {
+    display: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Matchup — opponent loader & two-column layout
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Matchup button ──────────────────────────────────────────────────── */
+.bm-matchup-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1.5px solid #60a5fa;
+  color: #60a5fa;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.15s, color 0.15s;
+}
+.bm-matchup-btn:hover {
+  background: #60a5fa;
+  color: #000;
+}
+.bm-matchup-btn--active {
+  background: #60a5fa;
+  color: #000;
+}
+
+/* ── Matchup Loader Panel ───────────────────────────────────────────── */
+.bm-matchup-loader {
+  background: #1a1d24;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.bm-matchup-loader-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.bm-matchup-loader-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #c9a84c;
+}
+.bm-matchup-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.bm-matchup-tab {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #374151;
+  background: transparent;
+  color: #9ca3af;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.15s, color 0.15s;
+}
+.bm-matchup-tab--active {
+  background: #374151;
+  color: #e5e7eb;
+  border-color: #60a5fa;
+}
+.bm-matchup-hint {
+  color: #9ca3af;
+  font-size: 0.82rem;
+  margin: 0 0 0.75rem;
+  line-height: 1.45;
+}
+.bm-matchup-hint code {
+  background: #374151;
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+  font-size: 0.78rem;
+}
+.bm-matchup-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.6rem 0.75rem;
+  background: #0d0f12;
+  border: 1px solid #374151;
+  border-radius: 6px;
+  color: #e5e7eb;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  resize: vertical;
+  margin-bottom: 0.5rem;
+}
+.bm-matchup-textarea:focus {
+  outline: none;
+  border-color: #60a5fa;
+}
+.bm-matchup-error {
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+.bm-matchup-load-btn {
+  width: 100%;
+  padding: 0.6rem;
+  border: none;
+  border-radius: 6px;
+  background: #60a5fa;
+  color: #000;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.bm-matchup-load-btn:hover:not(:disabled) {
+  background: #93c5fd;
+}
+.bm-matchup-load-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Library list */
+.bm-matchup-lib-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.bm-matchup-lib-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  background: #0d0f12;
+  border: 1px solid #374151;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.bm-matchup-lib-item:hover {
+  border-color: #60a5fa;
+}
+.bm-matchup-lib-name {
+  font-weight: 600;
+  color: #e5e7eb;
+  font-size: 0.88rem;
+}
+.bm-matchup-lib-faction {
+  color: #9ca3af;
+  font-size: 0.8rem;
+}
+.bm-matchup-lib-stats {
+  margin-left: auto;
+  color: #60a5fa;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* ── Army view tabs (switch between your army / opponent) ────────── */
+.bm-army-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1.25rem;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #374151;
+}
+.bm-army-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.65rem 0.75rem;
+  background: #1a1d24;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: background 0.15s, color 0.15s;
+}
+.bm-army-tab + .bm-army-tab {
+  border-left: 1px solid #374151;
+}
+.bm-army-tab:hover {
+  background: #252830;
+}
+.bm-army-tab--active {
+  color: #e5e7eb;
+}
+.bm-army-tab--active.bm-army-tab--mine {
+  background: rgba(201, 168, 76, 0.18);
+  border-bottom: 2px solid #c9a84c;
+}
+.bm-army-tab--active.bm-army-tab--opponent {
+  background: rgba(96, 165, 250, 0.18);
+  border-bottom: 2px solid #60a5fa;
+}
+.bm-army-tab-label {
+  font-size: 0.9rem;
+}
+.bm-army-tab-stats {
+  font-size: 0.72rem;
+  color: #6b7280;
+}
+.bm-army-tab--active .bm-army-tab-stats {
+  color: #9ca3af;
+}
+
+/* Opponent faction banner */
+.bm-opponent-banner {
+  text-align: center;
+  padding: 0.35rem 0.75rem;
+  margin-bottom: 1rem;
+  background: rgba(96, 165, 250, 0.1);
+  border: 1px solid rgba(96, 165, 250, 0.25);
+  border-radius: 6px;
+  color: #93c5fd;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Opponent tab card accent */
+.bm-opponent-banner ~ .bm-units .bm-card {
+  border-left-color: #60a5fa;
+}
+.bm-opponent-banner ~ .bm-units .bm-card-header {
+  background: linear-gradient(135deg, #1a2332 0%, #172033 100%);
+}
+.bm-opponent-banner ~ .bm-units .bm-unit-name {
+  color: #60a5fa;
+}
+.bm-opponent-banner ~ .bm-mercenaries .bm-merc-card {
+  border-left-color: #60a5fa;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   @media print – black-on-white paper output for Battle Mode
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media print {
+  /* Hide everything, then reveal Battle Mode and its descendants */
+  body * {
+    visibility: hidden !important;
+  }
+
+  .bm-overlay,
+  .bm-overlay * {
+    visibility: visible !important;
+  }
+
+  .bm-overlay {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    background: #fff !important;
+    overflow: visible !important;
+  }
+
+  html, body, #root {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Reset mobile app shell so it doesn't clip Battle Mode */
+  .mapp {
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+    padding: 0 !important;
+    inset: auto !important;
+  }
+
+  /* Hide interactive elements */
+  .bm-header-actions,
+  .bm-header-actions *,
+  .bm-rules-side-buttons,
+  .bm-rules-side-buttons *,
+  .bm-rules-panel-close,
+  .bm-edit-campaign-btn {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Show print-only sections */
+  .bm-print-only {
+    display: block !important;
+    visibility: visible !important;
+  }
+  .bm-print-only * {
+    visibility: visible !important;
+  }
+
+  /* Container */
+  .bm-container {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Header */
+  .bm-header {
+    border-bottom-color: #000 !important;
+  }
+  .bm-title { color: #000 !important; }
+  .bm-subtitle { color: #333 !important; }
+
+  /* Cards */
+  .bm-card {
+    background: #fff !important;
+    border: 1.5px solid #000 !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-bottom: 8px;
+  }
+
+  .bm-card-header {
+    border-bottom-color: #999 !important;
+  }
+  .bm-card-name { color: #000 !important; }
+  .bm-card-meta { color: #555 !important; }
+  .bm-promoted-badge {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Subtype */
+  .bm-subtype-banner {
+    background: #f0f0f0 !important;
+    border-left-color: #333 !important;
+    color: #000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Stats */
+  .bm-stats-table th {
+    background: #eee !important;
+    color: #333 !important;
+    border-bottom-color: #999 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .bm-stats-table td {
+    color: #000 !important;
+    border-bottom-color: #ddd !important;
+  }
+  .bm-move-type { color: #666 !important; }
+  .bm-delta--pos { color: #1a6b1a !important; }
+  .bm-delta--neg { color: #a00 !important; }
+
+  /* Sections */
+  .bm-section {
+    border-top-color: #ddd !important;
+  }
+  .bm-section-title { color: #333 !important; }
+
+  /* Weapons */
+  .bm-weapons-table th {
+    background: #eee !important;
+    color: #333 !important;
+    border-bottom-color: #999 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .bm-weapons-table td { color: #000 !important; }
+
+  /* Lists */
+  .bm-gear-list li,
+  .bm-abilities-list li,
+  .bm-progression-list li,
+  .bm-notes li { color: #000 !important; }
+  .bm-scars li { color: #b45309 !important; }
+  .bm-traumas li { color: #a00 !important; }
+
+  /* Upgrades / Psychic / Mutations */
+  .bm-upgrade-item,
+  .bm-psychic-card,
+  .bm-mutation-item { color: #000 !important; }
+  .bm-upgrade-desc,
+  .bm-psychic-desc,
+  .bm-mutation-desc { color: #333 !important; }
+  .bm-psychic-meta { color: #555 !important; }
+
+  /* Keywords */
+  .bm-keywords-row {
+    border-top-color: #ccc !important;
+  }
+  .bm-kw-chip {
+    color: #000 !important;
+    border-color: #999 !important;
+    background: #eee !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Weapon type badges */
+  .bm-weapons-table .weapon-type-badge {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Mercenary stats */
+  .bm-merc-stat-cell {
+    background: #eee !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .bm-merc-stat-label { color: #555 !important; }
+  .bm-merc-stat-value { color: #000 !important; }
+  .bm-merc-card { border-left-color: #666 !important; }
+
+  /* Faction rules */
+  .bm-faction-rules {
+    background: #fff !important;
+    border-color: #999 !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .bm-faction-rules-title { color: #000 !important; }
+  .bm-faction-rules-list li { color: #000 !important; }
+  .bm-subfaction-desc { color: #333 !important; }
+
+  /* Section header */
+  .bm-section-header { color: #000 !important; border-bottom-color: #999 !important; }
+
+  /* Keyword Glossary (print-only) */
+  .bm-keyword-glossary {
+    margin-top: 1.5rem;
+    page-break-before: always;
+  }
+  .bm-glossary-list {
+    margin: 0;
+    padding: 0;
+    columns: 2;
+    column-gap: 1.5rem;
+  }
+  .bm-glossary-entry {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.35rem;
+  }
+  .bm-glossary-entry dt {
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #000;
+    text-transform: uppercase;
+    margin: 0;
+  }
+  .bm-glossary-entry dd {
+    margin: 0.1rem 0 0 0;
+    font-size: 0.72rem;
+    color: #333;
+    line-height: 1.35;
+  }
+
+  /* Page setup */
+  @page {
+    size: A4 portrait;
+    margin: 10mm 8mm;
+  }
+
+  /* Matchup – print adjustments */
+  .bm-matchup-loader { display: none !important; }
+  .bm-matchup-btn { display: none !important; }
+  .bm-army-tabs { display: none !important; }
+  .bm-opponent-banner {
+    background: #f5f5f5 !important;
+    border-color: #999 !important;
+    color: #000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

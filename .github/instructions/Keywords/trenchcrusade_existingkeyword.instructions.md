@@ -1,4 +1,4 @@
-KeyWord
+**Keyword** | **Type** | **Description**
 | +/- INJURY DICE | Effect  | Dice that are added to Injury Rolls. If the Keyword applies to a Weapon, the dice are only added to Injury Rolls for Attacks made with it.
 | +/- INJURY MODIFIER | Effect | Modifiers that are applied to the result of an Injury Roll. If the Keyword applies to a Weapon, the modifier is only added to Injury Rolls for Attacks made with it.
 | +DICE | Effect | Modifier for Action rolls. For each +DICE, add one dice to the dice pool of the 2D6 roll you are about to make. +1 DICE thus makes the roll a total of 3D6. Then roll all the dice and pick the two highest. If two +DICE are added, roll 4D6 and pick the two highest, and so on.

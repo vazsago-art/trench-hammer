@@ -4,6 +4,8 @@ import { MobileApp } from './components/mobile/MobileApp'
 import { useMobile } from './hooks/useMobile'
 import { allFactions } from './data/factions_complete'
 import { getDefaultSubFactionId } from './data/subfactions'
+import { hasSharePayload, extractSharePayload, clearShareHash } from './utils/shareUrl'
+import { migrateAutoMarkCost, migrateLegacyMarkIds } from './utils/export'
 import type { Warband } from './types/index'
 import './App.css'
 
@@ -76,6 +78,22 @@ function App() {
     const t = setTimeout(() => setDraftToast(null), 3500)
     return () => clearTimeout(t)
   }, [draftToast])
+
+  // ── Import shared warband from URL hash ───────────────────────────────────
+  useEffect(() => {
+    if (!hasSharePayload()) return
+    extractSharePayload().then(payload => {
+      if (!payload) return
+      const migrated = migrateLegacyMarkIds(migrateAutoMarkCost(payload.warband))
+      setSelectedFaction(payload.faction)
+      setSelectedSubFaction(payload.subfaction)
+      setPointLimit(payload.pointLimit)
+      setGloryLimit(payload.gloryLimit)
+      setWarband(migrated)
+      clearShareHash()
+      setDraftToast('Shared warband loaded ✓')
+    })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const sharedProps = {
     selectedFaction, setSelectedFaction,

@@ -35,8 +35,22 @@ export const unitAbilitiesMap: Record<string, Ability[]> = {
     { id: 'aa_terminator_terminator_armour', name: 'Terminator Armour', description: 'Rolls only D3 for extra charge distance instead of D6.', type: 'passive' },
   ],
   aa_dreadnought: [
-    { id: 'aa_dreadnought_dreadnought_armaments', name: 'Dreadnought Armaments', description: 'While equipped with two ranged weapons, can Shoot with both during Activation.', type: 'passive' },
+    { id: 'aa_dreadnought_dreadnought_armaments', name: 'Dreadnought Armaments', description: 'While equipped with two ranged weapons, can Shoot with both during Activation. Can wield a HEAVY weapon in one hand.', type: 'passive' },
     { id: 'aa_dreadnought_wisdom_of_the_ancients', name: 'Wisdom of the Ancients', description: 'Friendly ASTARTES within 3" have +1 DICE to Hit with all attacks.', type: 'aura' },
+  ],
+  ih_techmarine: [
+    { id: 'ih_techmarine_black_carapace', name: 'Black Carapace', description: 'Treats any Down result from the Injury Roll Table as a Minor Hit instead. Does not apply to Down results that already replaced another result (e.g. from TOUGH).', type: 'passive' },
+    { id: 'ih_techmarine_blessing_omnissiah', name: 'Blessing of the Omnissiah', description: 'As an Action: repair a MECHANICUS, ARTIFICIAL, or VEHICLE ally within 6", removing D3 Blood Markers.', type: 'action' },
+    { id: 'ih_techmarine_mechadendrites', name: 'Mechadendrites', description: 'May make an extra weapon attack without the off-hand penalty.', type: 'passive' },
+  ],
+  // Space Wolves extra units
+  aa_fenrisian_wolf: [
+    { id: 'aa_fenrisian_wolf_predatory_instinct', name: 'Predatory Instinct', description: 'When an enemy within 12" Charges an ally, the Fenrisian Wolf can immediately activate before the Charge roll (if it hasn\'t activated this Turn). Its first action must be to Charge that enemy; if it fails to reach close combat its Activation ends. Then normal activation order resumes.', type: 'passive' },
+    { id: 'aa_fenrisian_wolf_hunting_hound', name: 'Hunting Hound', description: '+1 DICE on all Dash, Climb, and Jump Success Rolls.', type: 'passive' },
+  ],
+  aa_wulfen: [
+    { id: 'aa_wulfen_savage_frenzy', name: 'Savage Frenzy', description: 'When an enemy in close combat Retreats, the Wulfen has +1 DICE to Hit and +1 INJURY DICE for its free attack against that model.', type: 'passive' },
+    { id: 'aa_wulfen_wulfen_howl', name: 'Wulfen Howl', description: 'The Wulfen and any allies within 6" roll 2D6 instead of 1D6 when determining Charge distance, taking the highest result.', type: 'aura' },
   ],
 
   // Grey Knights (same abilities, different IDs)
@@ -320,6 +334,43 @@ export const unitAbilitiesMap: Record<string, Ability[]> = {
   ha_helbrute: [
     { id: 'ha_helbrute_crazed', name: 'Crazed', description: 'Cannot Retreat from melee combat.', type: 'passive' },
   ],
+  ha_poxwalker: [
+    { id: 'ha_poxwalker_contagion', name: 'Contagion', description: 'Enemy models within 1" of this model that have 1 or more INFECTION MARKERS have -1 DICE to Hit with all attacks.', type: 'aura' },
+    { id: 'ha_poxwalker_curse_of_the_walking_pox', name: 'Curse of the Walking Pox', description: 'If this model takes an enemy Out of Action in melee, and that model is a casualty during the post-battle sequence, add another Poxwalker to your Warband.', type: 'passive' },
+    { id: 'ha_poxwalker_inevitable', name: 'Inevitable', description: 'This model moves only half as far when Dashing.', type: 'passive' },
+    { id: 'ha_poxwalker_mark_of_nurgle', name: 'Mark of Nurgle', description: 'Injury rolls made against the Poxwalker have -1 DICE.', type: 'passive' },
+  ],
+  ha_foetid_blight_drone: [
+    { id: 'ha_foetid_blight_drone_contagion', name: 'Contagion', description: 'Enemy models within 1" of this model that have 1 or more INFECTION MARKERS have -1 DICE to Hit with all attacks.', type: 'aura' },
+    { id: 'ha_foetid_blight_drone_hovering_death', name: 'Hovering Death', description: 'Enemy models never get free attacks against the Foetid Blight-Drone when it Retreats, and the Foetid Blight-Drone can move out of Melee Combat using its Standard Move, Charge, or Dash.', type: 'passive' },
+    { id: 'ha_foetid_blight_drone_mark_of_nurgle', name: 'Mark of Nurgle', description: 'Injury rolls made against the Foetid Blight-Drone have -1 DICE.', type: 'passive' },
+  ],
+  ha_lord_kakophonist: [
+    { id: 'ha_lord_kakophonist_black_carapace', name: 'Black Carapace', description: 'Treats any Down result from the Injury Roll Table as a Minor Hit instead. Does not apply to Down results that already replaced another result (e.g. from TOUGH).', type: 'passive' },
+    { id: 'ha_lord_kakophonist_doom_siren', name: 'Doom Siren', description: 'As an Action with a Success Roll, the Lord Kakophonist can give one enemy within 12" of it 1 BLOOD MARKER.', type: 'action' },
+  ],
+  ha_renegade_apothecary: [
+    { id: 'ha_renegade_apothecary_black_carapace', name: 'Black Carapace', description: 'Treats any Down result from the Injury Roll Table as a Minor Hit instead. Does not apply to Down results that already replaced another result (e.g. from TOUGH).', type: 'passive' },
+    { id: 'ha_renegade_apothecary_narthecium', name: 'Narthecium', description: 'As an Action with a Success Roll with +1 DICE, the Renegade Apothecary can attempt to heal itself or one friendly ASTARTES model within 1" of it. If it succeeds, remove 1 BLOOD MARKER from that model, or 3 BLOOD MARKERS if the Success Roll was a Critical Success.', type: 'action' },
+  ],
+  ha_exalted_sorcerer: [
+    { id: 'ha_exalted_sorcerer_black_carapace', name: 'Black Carapace', description: 'Treats any Down result from the Injury Roll Table as a Minor Hit instead. Does not apply to Down results that already replaced another result (e.g. from TOUGH).', type: 'passive' },
+  ],
+  ha_tzaangor_shaman: [
+    { id: 'ha_tzaangor_shaman_bestial_prophet', name: 'Bestial Prophet', description: 'Each other friendly BEASTMEN model within 6" of the Tzaangor Shaman has +1 DICE to Hit with all attacks.', type: 'aura' },
+    { id: 'ha_tzaangor_shaman_sacrificial_blessing', name: 'Sacrificial Blessing', description: 'When this model takes a PSYCHIC Success Roll or makes a PSYCHIC attack, you can choose one friendly BEASTMEN model within 1" of it to sacrifice. That model is taken Out of Action, and the Tzaangor Shaman has +2 DICE to the Success Roll it is taking.', type: 'passive' },
+  ],
+  ha_sekhetar_robot: [
+    { id: 'ha_sekhetar_robot_robotic_armaments', name: 'Robotic Armaments', description: 'While equipped with two ranged weapons besides its Hellfyre Missile Rack, the Sekhetar Robot can make a Shoot Action with both of them during its Activation. It cannot fire any other weapon if it attacks with its Hellfyre Missile Rack.', type: 'passive' },
+    { id: 'ha_sekhetar_robot_prophetic_sentinel', name: 'Prophetic Sentinel', description: 'When an enemy model Charges this model, it can make a single ranged attack against that enemy before it moves with a weapon other than its Hellfyre Missile Rack.', type: 'passive' },
+  ],
+  ha_master_of_executions: [
+    { id: 'ha_master_of_executions_a_worthy_skull', name: 'A Worthy Skull', description: 'Whenever the Master of Executions hits an ELITE or TOUGH enemy in melee, it costs 1 fewer BLOOD MARKER to Bloodbath that enemy.', type: 'passive' },
+    { id: 'ha_master_of_executions_black_carapace', name: 'Black Carapace', description: 'Treats any Down result from the Injury Roll Table as a Minor Hit instead. Does not apply to Down results that already replaced another result (e.g. from TOUGH).', type: 'passive' },
+  ],
+  ha_slaughterbound: [
+    { id: 'ha_slaughterbound_black_carapace', name: 'Black Carapace', description: 'Treats any Down result from the Injury Roll Table as a Minor Hit instead. Does not apply to Down results that already replaced another result (e.g. from TOUGH).', type: 'passive' },
+  ],
 
   // ========================================================================
   // CHAOS CULT
@@ -569,12 +620,14 @@ export const unitAbilitiesMap: Record<string, Ability[]> = {
   // ========================================================================
   nec_necron_lord: [
     { id: 'nec_necron_lord_my_will_be_done', name: 'My Will Be Done', description: 'At the start or end of own Activation, choose an ally within 12" — begin its Activation immediately (once per Activation).', type: 'action' },
+    { id: 'nec_necron_lord_relentless_march', name: 'Relentless March', description: 'Friendly NECRON models within 6" can add +1 DICE to their Dash Success Rolls.', type: 'aura' },
   ],
   nec_cryptek: [
     { id: 'nec_cryptek_hover', name: 'Hover', description: 'Does not suffer injuries from falling. Cannot fall Down or suffer injury from a failed Diving Charge.', type: 'passive' },
   ],
   nec_royal_warden: [
-    { id: 'nec_royal_warden_engrammatic_logic', name: 'Engrammatic Logic', description: 'Success Roll — select a Down (not Reanimating) NECRON within 12"; it stands up.', type: 'action' },
+    { id: 'nec_royal_warden_engrammatic_logic', name: 'Engrammatic Logic', description: 'Select a Down (not Reanimating) NECRON within 12"; choose one: it stands up, it makes a Shoot Action, or the Royal Warden switches positions with it.', type: 'action' },
+    { id: 'nec_royal_warden_relentless_march', name: 'Relentless March', description: 'Friendly NECRON models within 6" can add +1 DICE to their Dash Success Rolls.', type: 'aura' },
   ],
   nec_scarab_swarm: [
     { id: 'nec_scarab_swarm_self_destruction', name: 'Self-Destruction', description: 'After hitting an enemy in melee, can roll on the Injury table against itself to give the target one additional BLOOD MARKER.', type: 'action' },
@@ -842,5 +895,219 @@ export const unitAbilitiesMap: Record<string, Ability[]> = {
   ],
   pc_pirate_champion: [
     { id: 'pc_pirate_champion_experience', name: "Champion's Experience", description: 'The Pirate Champion can select up to two Specialties.', type: 'passive' },
+  ],
+  pc_pirate: [],
+  pc_pirate_veteran: [],
+
+  // ========================================================================
+  // ASTRA MILITARUM (missing entries)
+  // ========================================================================
+  am_castellan: [
+    { id: 'am_castellan_bring_it_down', name: 'Bring it Down!', description: 'Risky Action +1 DICE — choose one other friendly non-Mercenary MILITARUM model within 6". On success, that model can immediately make an attack with a non-HEAVY weapon.', type: 'action' },
+    { id: 'am_castellan_get_back_in_the_fight', name: 'Get Back in the Fight!', description: 'Action (no roll) — one ally within 6" that is Down can stand up.', type: 'action' },
+  ],
+  am_commissar: [
+    { id: 'am_commissar_summary_execution', name: 'Summary Execution', description: 'When you fail a Morale Test, select one friendly non-ELITE MILITARUM model within 6" of any Commissar (that can see it and is not Down). That model is taken Out of Action and you reroll the Morale Test with +1 DICE. Repeatable, cumulative +DICE.', type: 'passive' },
+  ],
+  am_primaris_psyker: [],
+  am_conscript: [
+    { id: 'am_conscript_conscripted', name: 'Conscripted', description: 'After 2+ missions, or scoring a Glorious Deed or taking an enemy Elite Out of Action, can be upgraded to Guardsman for free at the end of a battle.', type: 'passive' },
+  ],
+  am_guardsman: [
+    { id: 'am_guardsman_green', name: 'Green', description: 'After 2+ missions, or scoring a Glorious Deed or taking an enemy Elite Out of Action, can be upgraded to Veteran Guardsman at end of battle (respecting limits). Can immediately purchase Veteran upgrades.', type: 'passive' },
+  ],
+  am_veteran_guardsman: [
+    { id: 'am_veteran_guardsman_long_service', name: 'Long Service', description: 'If upgraded from a Guardsman, gains NEGATE FEAR. If originally recruited as a Conscript, also only fails casualty tests on a roll of 1 and can reroll Elite Trauma table once if promoted to Elite.', type: 'passive' },
+  ],
+  am_ratling_marksman: [
+    { id: 'am_ratling_marksman_clamber', name: 'Clamber', description: '+1 DICE to all Climb Success Rolls.', type: 'passive' },
+    { id: 'am_ratling_marksman_deadshot', name: 'Deadshot', description: 'When making a ranged attack with a TWO-HANDED weapon, can choose to suffer -1 DICE to Hit in exchange for +1 INJURY DICE.', type: 'passive' },
+    { id: 'am_ratling_marksman_small', name: 'Small', description: 'Cannot carry any HEAVY battlekit. If it somehow gains STRONG, the two cancel out.', type: 'passive' },
+  ],
+  am_heavy_weapons_squad: [
+    { id: 'am_heavy_weapons_squad_weapon_team', name: 'Weapon Team', description: 'Can ignore the HEAVY property of one ranged weapon it wields.', type: 'passive' },
+  ],
+  am_ogryn: [
+    { id: 'am_ogryn_wall_of_muscle', name: 'Wall of Muscle', description: 'All injury rolls made against the Ogryn have -1 DICE.', type: 'passive' },
+  ],
+
+  // ========================================================================
+  // AELDARI (missing entries)
+  // ========================================================================
+  ael_seer: [],
+  ael_warlock: [],
+  ael_guardian: [],
+  ael_aspect_warrior: [],
+  ael_dragonlord: [
+    { id: 'ael_dragonlord_agile_mount', name: 'Agile Mount', description: '+1 DICE to all Dash and Jump Success Rolls.', type: 'passive' },
+    { id: 'ael_dragonlord_dragon_bite', name: 'Dragon Bite', description: 'When taking the Fight Action, can make one additional attack with: Massive Bite — Melee, +1 INJURY DICE.', type: 'passive' },
+  ],
+  ael_dragon_knight: [
+    { id: 'ael_dragon_knight_agile_mount', name: 'Agile Mount', description: '+1 DICE to all Dash and Jump Success Rolls.', type: 'passive' },
+    { id: 'ael_dragon_knight_dragon_bite', name: 'Dragon Bite', description: 'When taking the Fight Action, can make one additional attack with: Bite — Melee.', type: 'passive' },
+  ],
+  ael_wraithseer: [],
+
+  // ========================================================================
+  // ADEPTUS MECHANICUS (missing entries)
+  // ========================================================================
+  amec_skitarii: [],
+  amec_sicarian: [],
+  amec_kataphron: [],
+
+  // ========================================================================
+  // ADEPTA SORORITAS (missing entries)
+  // ========================================================================
+  as_paragon_warsuit: [],
+
+  // ========================================================================
+  // DRUKHARI (missing entries)
+  // ========================================================================
+  dr_clawed_fiend: [
+    { id: 'dr_clawed_fiend_rage', name: 'Rage', description: '+1 DICE to Hit in melee during an Activation in which it Charged.', type: 'passive' },
+  ],
+  dr_khymera: [
+    { id: 'dr_khymera_agile_beast', name: 'Agile Beast', description: '+1 DICE to all Climb, Dash, and Jump Success Rolls.', type: 'passive' },
+    { id: 'dr_khymera_daemonic_resistance', name: 'Daemonic Resistance', description: 'Injuries rolled against the Khymera have -1 DICE.', type: 'passive' },
+  ],
+  dr_razorwing_flock: [
+    { id: 'dr_razorwing_flock_harassing_swarm', name: 'Harassing Swarm', description: 'When an enemy in close combat Retreats, the Razorwing Flock has +1 DICE to Hit and Injure for its free attack against that model.', type: 'passive' },
+  ],
+
+  // ========================================================================
+  // GENESTEALER CULTS (missing entries)
+  // ========================================================================
+  gc_magus: [],
+  gc_neophyte: [],
+  gc_acolyte: [],
+  gc_patriarch: [],
+  gc_genestealer_troop: [],
+
+  // ========================================================================
+  // HERETIC ASTARTES (missing entries)
+  // ========================================================================
+  ha_tzaangor: [],
+
+  // ========================================================================
+  // HARLEQUINS (missing entries)
+  // ========================================================================
+  hq_mime: [],
+
+  // ========================================================================
+  // THE INQUISITION (missing entries)
+  // ========================================================================
+  inq_inquisitor: [],
+
+  // ========================================================================
+  // LEAGUES OF VOTANN (missing entries)
+  // ========================================================================
+  lv_grimnyr: [],
+  lv_hearthkyn: [],
+
+  // ========================================================================
+  // NECRONS (missing entries)
+  // ========================================================================
+  nec_warrior: [],
+  nec_immortal: [
+    { id: 'nec_immortal_heavy_gunner', name: 'Heavy Gunner', description: 'Can ignore the HEAVY Keyword of one ranged weapon.', type: 'passive' },
+  ],
+
+  // ========================================================================
+  // NECROMUNDA GANG (missing entries)
+  // ========================================================================
+  ng_ganger: [],
+  ng_cyber_mastiff: [
+    { id: 'ng_cyber_mastiff_cyber_swiftness', name: 'Cyber Swiftness', description: '+1 DICE to all Dash and Jump Success Rolls.', type: 'passive' },
+    { id: 'ng_cyber_mastiff_loyal_protector', name: 'Loyal Protector', description: 'Enemies in melee with this model cannot attack its designated owner.', type: 'passive' },
+    { id: 'ng_cyber_mastiff_pet', name: 'Pet', description: 'Forms a FIRETEAM with one selected GANGER model at battle start.', type: 'passive' },
+    { id: 'ng_cyber_mastiff_watchdog', name: 'Watchdog', description: 'If both this model and its owner are legal Charge targets, an enemy cannot choose to Charge its owner instead.', type: 'passive' },
+  ],
+  ng_sanctioner_automata: [
+    { id: 'ng_sanctioner_automata_mobile_bulwark', name: 'Mobile Bulwark', description: 'Friendly non-LARGE models can treat this model as Cover; always considered large enough to provide Cover.', type: 'passive' },
+  ],
+
+  // ========================================================================
+  // ADEPTUS ARBITES (missing entries)
+  // ========================================================================
+  arb_gang_leader: [
+    { id: 'arb_gang_leader_around_the_hive', name: 'Around the Hive', description: 'Begins with one Campaign Skill: choose two skill charts, roll 2D6 on each (reroll results of 2 or 12), and choose one of the rolled skills.', type: 'passive' },
+  ],
+  arb_gang_champion: [
+    { id: 'arb_gang_champion_experienced', name: 'Experienced', description: 'Begins with one Campaign Skill: choose one skill chart, roll 2D6 (reroll results of 2 or 12), and gain that skill.', type: 'passive' },
+  ],
+  arb_juve: [
+    { id: 'arb_juve_new_kid', name: 'New Kid', description: 'After 2+ missions, or achieving a Glorious Deed or taking an Elite Out of Action, can be upgraded to Ganger for free.', type: 'passive' },
+  ],
+  arb_ganger: [],
+
+  // ========================================================================
+  // OFFICIO ASSASSINORUM (missing entries)
+  // ========================================================================
+  oa_aspirant: [],
+
+  // ========================================================================
+  // ORKS (missing entries)
+  // ========================================================================
+  or_boy: [],
+  or_nob: [],
+  or_squighog_boy: [
+    { id: 'or_squighog_boy_wild_ride', name: 'Wild Ride', description: 'Can move an additional 4" when it successfully Dashes.', type: 'passive' },
+  ],
+
+  // ========================================================================
+  // ROGUE TRADER (missing entries)
+  // ========================================================================
+  rt_voidsman: [],
+
+  // ========================================================================
+  // SLANNI (missing entries)
+  // ========================================================================
+  sl_battle_mage: [],
+
+  // ========================================================================
+  // T'AU EMPIRE (missing entries)
+  // ========================================================================
+  tau_fire_warrior: [],
+  tau_drone: [
+    { id: 'tau_drone_drone_control', name: 'Drone Control', description: 'Select one non-ARTIFICIAL, non-KROOT, T\'AU model at battle start. The Drone forms a FIRETEAM with that model.', type: 'passive' },
+  ],
+
+  // ========================================================================
+  // THE VERMINTIDE (missing entries)
+  // ========================================================================
+  ver_clawlord: [
+    { id: 'ver_clawlord_lead_from_the_back', name: 'Lead From the Back', description: 'While within 3" of a friendly SKAVEN model that is a valid target, the Clawlord cannot be chosen as the target of any ranged attack.', type: 'passive' },
+    { id: 'ver_clawlord_scurry_away', name: 'Scurry Away', description: 'Enemies do not get to make a free attack when the Clawlord Retreats.', type: 'passive' },
+  ],
+  ver_deathmaster: [
+    { id: 'ver_deathmaster_running_death', name: 'Running Death', description: '+1 DICE to all Dash Success Rolls.', type: 'passive' },
+    { id: 'ver_deathmaster_tunneljack', name: 'Tunneljack', description: 'Risky Action +1 DICE — teleport to anywhere within 6". Can teleport even if Down or within 1" of enemies. Can take 1 non-LARGE enemy within 1" along (deploy enemy within 1" of new position).', type: 'action' },
+    { id: 'ver_deathmaster_scurry_away', name: 'Scurry Away', description: 'Enemies do not get to make a free attack when the Deathmaster Retreats.', type: 'passive' },
+  ],
+  ver_warlock: [
+    { id: 'ver_warlock_scurry_away', name: 'Scurry Away', description: 'Enemies do not get to make a free attack when the Warlock Retreats.', type: 'passive' },
+  ],
+  ver_skavenslave: [
+    { id: 'ver_skavenslave_cowardice', name: 'Cowardice', description: 'The Charge Action is always a Risky Success Roll unless a friendly MASTER SKAVEN model is within 6".', type: 'passive' },
+    { id: 'ver_skavenslave_many', name: 'Many', description: 'When activated, activate another unactivated Skavenslave as a Fireteam if available. Counts for only half a model for Field Strength and Morale (round up after counting all Skavenslaves).', type: 'passive' },
+    { id: 'ver_skavenslave_scurry_away', name: 'Scurry Away', description: 'Enemies do not get to make a free attack when the Skavenslave Retreats.', type: 'passive' },
+  ],
+  ver_clanrat: [
+    { id: 'ver_clanrat_cowardice', name: 'Cowardice', description: 'The Charge Action is always a Risky Success Roll unless another friendly MASTER SKAVEN model is within 6".', type: 'passive' },
+    { id: 'ver_clanrat_scurry_away', name: 'Scurry Away', description: 'Enemies do not get to make a free attack when the Clanrat Retreats.', type: 'passive' },
+    { id: 'ver_clanrat_strength_in_numbers', name: 'Strength in Numbers', description: '+1 DICE to Hit with melee attacks against any enemy that has at least 2 SKAVEN allies within 1". Also ignores Cowardice if the Charge target is already in melee with at least 1 SKAVEN ally.', type: 'passive' },
+  ],
+  ver_stormvermin: [
+    { id: 'ver_stormvermin_elite_bodyguard', name: 'Elite Bodyguard', description: 'If any ally within 1" is hit by a ranged or melee weapon (excluding BLAST), can redirect the hit to this model instead.', type: 'passive' },
+  ],
+  ver_weapons_team: [
+    { id: 'ver_weapons_team_weapon_team', name: 'Weapon Team', description: 'Can ignore the HEAVY property of one ranged weapon.', type: 'passive' },
+  ],
+  ver_rat_ogryn: [
+    { id: 'ver_rat_ogryn_warp_fury', name: 'Warp Fury', description: 'When the Rat Ogryn successfully Charges one or more enemies, one of those enemies suffers a BLOOD MARKER.', type: 'passive' },
+  ],
+  ver_doom_flayer: [
+    { id: 'ver_doom_flayer_more_more_whirling_death', name: 'More-More Whirling Death!', description: '+2 DICE to all Dash Success Rolls, but suffers a BLOOD MARKER after taking the Dash Action.', type: 'passive' },
+    { id: 'ver_doom_flayer_scurry_away', name: 'Scurry Away', description: 'Enemies do not get to make a free attack when the Doom Flayer Retreats.', type: 'passive' },
   ],
 };

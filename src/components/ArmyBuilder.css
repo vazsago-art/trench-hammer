@@ -210,10 +210,6 @@
   gap: 0.5rem;
 }
 
-.btn-pdf {
-  grid-column: 1 / -1;
-}
-
 .btn-army-io {
   padding: 0.45rem 0.6rem;
   border: none;
@@ -233,7 +229,11 @@
 .btn-share  { background: #0e7490; color: #fff; }
 .btn-import { background: #8e44ad; color: #fff; }
 .btn-load   { background: #e67e22; color: #fff; }
-.btn-pdf    { background: #c0392b; color: #fff; }
+.btn-battle { background: #c9a84c; color: #111; }
+.btn-battle:disabled { background: #555; color: #999; cursor: not-allowed; opacity: 0.6; }
+.btn-share-url { background: #2d6a4f; color: #fff; }
+.btn-rules { background: #5a4fcf; color: #fff; }
+.btn-campaign { background: #7c3aed; color: #fff; }
 
 .army-io-msg {
   margin-top: 0.6rem;
@@ -423,6 +423,30 @@
   color: #888;
   cursor: not-allowed;
   transform: none;
+}
+
+.btn-move {
+  padding: 0.25rem 0.5rem;
+  background-color: #3a3a5c;
+  color: #c0c0e0;
+  border: 1px solid #6666aa;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8em;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.btn-move:hover {
+  background-color: #5050aa;
+  color: #fff;
+}
+
+.btn-move:disabled {
+  background-color: #2a2a3a;
+  color: #555;
+  border-color: #444;
+  cursor: not-allowed;
 }
 
 .btn-clone {
@@ -1016,6 +1040,29 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
+/* ── Read Lore Button ────────────────────────────────────────────────────── */
+
+.lore-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #c9a84c;
+  background: #161922;
+  border: 1.5px solid #3a3f4f;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.lore-btn:hover {
+  background: #1e2230;
+  border-color: #c9a84c;
+  color: #e0c86e;
+}
+
 /* ── Faction Special Rules ───────────────────────────────────────────────── */
 
 .faction-rules {
