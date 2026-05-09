@@ -1,7 +1,7 @@
 // Trench Hammer Army Builder - Service Worker
 // Offline-first strategy: cache-first for assets, network-first for navigation
 
-const CACHE_NAME = 'trench-hammer-v44';
+const CACHE_NAME = 'trench-hammer-v45';
 const ASSETS_TO_CACHE = [
   '/trench-hammer/',
   '/trench-hammer/index.html',
