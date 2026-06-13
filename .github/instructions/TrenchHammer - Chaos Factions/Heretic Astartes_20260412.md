@@ -55,14 +55,10 @@ Storm Bolter	35 credits (LIMIT: 3\)
 #### Heavy Ranged Weapons
 
 Autocannon		30 credits (LIMIT: 1\)  
-Combi-Bolter		35 credits (Wearing   
-      Terminator Armour   
-      or Helbrute Only)  
-Cyclone Missile		25 credits (Chaos   
-    Launcher		       Terminator Only)  
+Combi-Bolter		35 credits (Wearing Terminator Armour or Helbrute Only)  
+Cyclone Missile		25 credits (Chaos Launcher Terminator Only)  
 Heavy Bolter		40 credits (LIMIT: 1\)  
-Heavy Flamer		55 credits (Helbrute   
-Only)  
+Heavy Flamer		55 credits (Helbrute Only)  
 Lascannon		35 credits (LIMIT: 1\)  
 Missile Launcher	40 credits (LIMIT: 1\)  
 Multi-Melta		4 Glory (Helbrute Only)  
@@ -88,34 +84,22 @@ Only)
 
 #### Special Melee Weapons
 
-Chain Blade		10 credits (Elite or   
-Chaos Space Marines Only)  
-Chain Glaive		15 credits (LIMIT: 1,   
-Elite Only)  
-Daemon Weapon	3 Glory (Elite Only,   
-LIMIT: 1\)  
-Fell Dagger		15 credits (LIMIT: 1,   
-     Elite Psyker Only)  
+Chain Blade		10 credits (Elite or Chaos Space Marines Only)  
+Chain Glaive		15 credits (LIMIT: 1, Elite Only)  
+Daemon Weapon	3 Glory (Elite Only, LIMIT: 1\)  
+Fell Dagger		15 credits (LIMIT: 1, Elite Psyker Only)  
 Force Rod		3 credits (Psyker Only)  
 Force Staff		10 credits (Psyker Only)  
-Force Weapon		15 credits (LIMIT: 2,   
-          Elite Psyker Only)  
-Lightning Claw		10 credits (Chaos   
-    Terminator or   
-    Raptor Only)  
-Power Weapon        	15 credits (LIMIT: 2,   
-Elite Only)  
-Warp Claws		10 credits (Raptor   
-Only)
+Force Weapon		15 credits (LIMIT: 2, Elite Psyker Only)  
+Lightning Claw		10 credits (Chaos Terminator or Raptor Only)  
+Power Weapon        	15 credits (LIMIT: 2, Elite Only)  
+Warp Claws		10 credits (Raptor Only)
 
 #### Heavy Melee Weapons
 
-Helbrute Hammer	10 credits (Helbrute   
-Only)  
-Heavy Power Fist	25 credits (LIMIT: 1,   
-Elite Only)  
-Power Scourge		15 credits (Helbrute   
-Only)  
+Helbrute Hammer	10 credits (Helbrute Only)  
+Heavy Power Fist	25 credits (LIMIT: 1, Elite Only)  
+Power Scourge		15 credits (Helbrute Only)  
 Two-Handed Blade	12 credits  
 Two-Handed Hammer	10 credits  
 Thunder Hammer	20 credits  (LIMIT: 1\)
@@ -123,9 +107,7 @@ Thunder Hammer	20 credits  (LIMIT: 1\)
 #### Armour
 
 Standard Armour		15 credits  
-Power Armour		40 credits (Elite or   
-Chaos Space   
-Marine Only)  
+Power Armour		40 credits (Elite or Chaos Space Marine Only)  
 Terminator Armour	65 credits (LIMIT: 1   
     besides Chaos    
     Terminators, Elite or   
@@ -140,7 +122,7 @@ Mark of Darkness	10 credits
 Mark of Khorne		15 credits (LIMIT: 2\)  
 Mark of Nurgle		15 credits (LIMIT: 2\)  
 Mark of Slaanesh	15 credits (LIMIT: 2\)  
-Mark of Tzeentch	15 credits (LIMIT: 2\)
+  	15 credits (LIMIT: 2\)
 
 #### Equipment
 

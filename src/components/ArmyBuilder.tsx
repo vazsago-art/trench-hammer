@@ -1,10 +1,11 @@
 import { useRef, useState, type ReactNode } from 'react';
 import { Warband, UnitOption, UnitSubType, SelectedWargear, WargearOption, SelectedPsychicPower, SelectedGiftOfChaos, UnitUpgrade, WarbandMercenary, Mercenary, WarbandUnit, MercenaryStats, SharedWarbandProps } from '../types/index.js';
 import { getFactionById, allFactions } from '../data/factions_complete.js';
-import { calculateWarbandPoints, calculateWarbandGlory, calculateTotalModels, validateWarband } from '../data/validation.js';
-import { getAllowedWargearIds } from '../data/faction_wargear.js';
+import { calculateWarbandPoints, calculateWarbandGlory, calculateTotalModels, validateWarband, getUnitMaxCountForWarband } from '../data/validation.js';
+import { getAllowedWargearIds, getFactionWargearNotes } from '../data/faction_wargear.js';
 import { validateLoadout } from '../data/wargearSlotValidation.js';
 import { lookupWargear, lookupWeapon } from '../data/wargearSlotValidation.js';
+import { allWeapons } from '../data/weapons.js';
 import { marksOfChaos } from '../data/equipment.js';
 import { saveWarbandLocal, exportWarbandToMDFile, importWarbandFromJSON } from '../utils/export.js';
 import { WargearPanel } from './WargearPanel.js';
@@ -18,12 +19,14 @@ import { SavedArmiesModal } from './SavedArmiesModal.js';
 import { KeywordChip, KeywordList } from './KeywordChip.js';
 import { getDisciplinesForFaction, factionHasPsychicDisciplines } from '../data/psychicDisciplines.js';
 import { factionHasSubFactions, getSubFactions, getSubFactionById, getDefaultSubFactionId } from '../data/subfactions.js';
+import { unitAbilitiesMap } from '../data/unit_abilities.js';
 import MercenaryPanel from './MercenaryPanel.js';
 import { MercenaryInfoModal } from './MercenaryInfoModal.js';
 import { ALL_MERCENARIES } from '../data/mercenaries.js';
 import { EliteProgressionModal } from './EliteProgressionModal.js';
 import { isEliteEligible } from '../data/campaignProgression.js';
 import { BattleMode } from './BattleMode.js';
+import { TerrainGenerator } from './TerrainGenerator.js';
 import { getPatronsForFaction, getPatronById, filterAbilitiesForSubfaction } from '../data/patrons.js';
 import { PatronAbilityChip } from './PatronAbilityChip.js';
 import { getFactionRules } from '../data/factionRules.js';
@@ -34,6 +37,9 @@ import { WarbandLoreModal } from './WarbandLoreModal.js';
 import { RulesReference } from './RulesReference.js';
 import { CampaignManager } from './CampaignManager.js';
 import { buildShareUrl } from '../utils/shareUrl.js';
+import { TacticalAnalysis } from './TacticalAnalysis.js';
+import { analyseTactical } from '../utils/tacticalAnalysis.js';
+import { QuickBuildWizard } from './QuickBuildWizard.js';
 import './ArmyBuilder.css';
 
 /** Renders a string with **bold** markdown markers as JSX with <strong> elements. */
@@ -67,14 +73,20 @@ export function ArmyBuilder({
   const upgradeMaxCountOverrides: Record<string, number> = {
     ...(currentSubFaction?.upgradeMaxCountOverrides ?? {}),
   };
+  const withMappedAbilities = (unit: UnitOption): UnitOption => {
+    if ((unit.abilities?.length ?? 0) > 0) return unit;
+    const mappedAbilities = unitAbilitiesMap[unit.id];
+    if (!mappedAbilities || mappedAbilities.length === 0) return unit;
+    return { ...unit, abilities: mappedAbilities };
+  };
   const allAvailableUnits: UnitOption[] = [
     ...(currentFaction?.units.filter(u => !bannedUnitIdsSet.has(u.id)).map(u =>
       unitMaxCountOverrides[u.id] !== undefined
         ? { ...u, maxCount: unitMaxCountOverrides[u.id] }
         : u
     ) ?? []),
-    ...(currentSubFaction?.extraUnits ?? []),
-    ...(variantCfg?.extraUnits ?? []),
+    ...(currentSubFaction?.extraUnits?.map(withMappedAbilities) ?? []),
+    ...(variantCfg?.extraUnits?.map(withMappedAbilities) ?? []),
   ];
   const validation = validateWarband(warband);
   const totalPoints = calculateWarbandPoints(warband);
@@ -137,6 +149,9 @@ export function ArmyBuilder({
   const [showNewBuildConfirm, setShowNewBuildConfirm] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showBattleMode, setShowBattleMode] = useState(false);
+  const [showTerrainGen, setShowTerrainGen]  = useState(false);
+  const [showTactical,   setShowTactical]    = useState(false);
+  const [showQuickBuild, setShowQuickBuild]  = useState(false);
   const [showLore, setShowLore] = useState(false);
   const [showWarbandLore, setShowWarbandLore] = useState(false);
   const [showRulesRef, setShowRulesRef] = useState(false);
@@ -319,6 +334,11 @@ export function ArmyBuilder({
     // If the unit requires a type selection, open the sub-type modal first
     if (unit.unitSubTypes && unit.unitSubTypes.length > 0) {
       setPendingSubTypeUnit(unit);
+      return;
+    }
+    const maxCount = getUnitMaxCountForWarband(warband, unit.id, unit.maxCount);
+    if (maxCount < 1) {
+      flashMsg('Cannot add this unit: the cultist cap is already reached.', false);
       return;
     }
     commitAddUnit(unit, null);
@@ -632,6 +652,21 @@ export function ArmyBuilder({
     }));
   };
 
+  const handleSetUnitCount = (unitIndex: number, newCount: number) => {
+    setWarband(prev => {
+      const units = [...prev.units];
+      const unit = units[unitIndex];
+      const unitDef = allFactions.flatMap(f => f.units).find(u => u.id === unit.unitId);
+      const minCount = unitDef?.minCount ?? 0;
+      const maxCount = getUnitMaxCountForWarband(prev, unit.unitId, unitDef?.maxCount ?? 99, unitIndex);
+      const clamped = Math.max(minCount, Math.min(maxCount, newCount));
+      if (clamped === unit.count) return prev;
+      const costPerModel = unit.totalCost / unit.count;
+      units[unitIndex] = { ...unit, count: clamped, totalCost: Math.round(costPerModel * clamped) };
+      return { ...prev, units };
+    });
+  };
+
   const handleMoveUnit = (unitIndex: number, direction: 'up' | 'down') => {
     setWarband(prev => {
       const units = [...prev.units];
@@ -847,10 +882,11 @@ export function ArmyBuilder({
       const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
       const calcs = recalcUnitCosts(unit, unit.selectedWargear, unitDef);
       const upgradeCreditCost = (unitDef?.upgrades ?? []).reduce((sum, upg) => sum + ((unit.selectedUpgrades ?? {})[upg.id] ?? 0) * upg.cost, 0);
+      const giftCredits0p = (unit.selectedGiftsOfChaos ?? []).reduce((s, g) => s + g.cost, 0);
       updatedUnits[unitIndex] = {
         ...unit,
         selectedPsychicPowers: newPowers,
-        totalCost:      calcs.totalCost + psychicCredits + upgradeCreditCost,
+        totalCost:      calcs.totalCost + psychicCredits + giftCredits0p + upgradeCreditCost,
         totalGloryCost: calcs.totalGloryCost + psychicGlory,
       };
       return { ...prev, units: updatedUnits };
@@ -868,8 +904,10 @@ export function ArmyBuilder({
       // can coexist with a class upgrade. Upgrades with maxCount < 10 are mutually exclusive
       // class upgrades (e.g. Assault Marine, Bladeguard) — only one may be active at a time.
       // Nested upgrades with requiredUpgradeId (e.g. Night Lords sub-upgrades) are stackable with base class.
-      const checkStackable = (upg: { maxCount?: number, keywords?: string[], requiredUpgradeId?: string }) => 
-        ((upg?.maxCount ?? 1) >= 10) || !!upg?.requiredUpgradeId;
+      // Upgrades with upgradeGroup are stackable (not cleared by class-upgrade clearing) but
+      // mutually exclusive within their group (e.g. Pirate Crew Backgrounds and Specialties).
+      const checkStackable = (upg: { maxCount?: number, keywords?: string[], requiredUpgradeId?: string, upgradeGroup?: string }) => 
+        ((upg?.maxCount ?? 1) >= 10) || !!upg?.requiredUpgradeId || !!upg?.upgradeGroup;
       const isStackable = upgrade ? checkStackable(upgrade) : false;
       let newUpgrades: Record<string, number>;
       if (isStackable) {
@@ -881,6 +919,15 @@ export function ArmyBuilder({
              for (const conflictId of upgrade.conflictsWithUpgradeIds) {
                delete newUpgrades[conflictId];
              }
+          }
+          // If it belongs to an upgradeGroup, clear other members of the same group
+          if (upgrade?.upgradeGroup) {
+            for (const [id] of Object.entries(newUpgrades)) {
+              const existingUpg = unitDef?.upgrades?.find(u => u.id === id);
+              if (existingUpg?.upgradeGroup === upgrade.upgradeGroup && id !== upgradeId) {
+                delete newUpgrades[id];
+              }
+            }
           }
           newUpgrades[upgradeId] = count;
         }
@@ -974,6 +1021,27 @@ export function ArmyBuilder({
     });
   };
 
+  /** Toggle promoted-to-Elite status for a troop unit (campaign rule). */
+  const handleTogglePromote = (unitIndex: number) => {
+    setWarband(prev => {
+      const updatedUnits = [...prev.units];
+      const unit = { ...updatedUnits[unitIndex] };
+      updatedUnits[unitIndex] = { ...unit, isPromoted: !unit.isPromoted };
+      return { ...prev, units: updatedUnits };
+    });
+  };
+
+  /** Increment/decrement mission participation count (Novitiate tracker). */
+  const handleChangeMissionCount = (unitIndex: number, delta: number) => {
+    setWarband(prev => {
+      const updatedUnits = [...prev.units];
+      const unit = { ...updatedUnits[unitIndex] };
+      const current = unit.missionCount ?? 0;
+      updatedUnits[unitIndex] = { ...unit, missionCount: Math.max(0, current + delta) };
+      return { ...prev, units: updatedUnits };
+    });
+  };
+
   /** Remove a psychic power (by id) from the unit at `unitIndex`. */
   const handleRemovePsychicPower = (unitIndex: number, powerId: string) => {
     setWarband(prev => {
@@ -999,8 +1067,12 @@ export function ArmyBuilder({
   return (
     <div className="army-builder">
       <header className="builder-header">
-        <h1>Trench Hammer - Army Builder</h1>
-        <p>Build and validate your warbands</p>
+        <div className="builder-header-row">
+          <div>
+            <h1>Trench Hammer - Army Builder</h1>
+            <p>Build and validate your warbands</p>
+          </div>
+        </div>
       </header>
 
       <main className="builder-main">
@@ -1036,14 +1108,39 @@ export function ArmyBuilder({
             const factionRules = getFactionRules(selectedFaction);
             if (!factionRules) return null;
             return (
-              <div className="faction-rules">
-                <div className="faction-rules-title">{factionRules.title}</div>
+              <details className="faction-rules" open>
+                {factionRules.quote && (
+                      <blockquote className="subfaction-quote">{factionRules.quote}</blockquote>
+                )}
+                <summary className="faction-rules-title">{factionRules.title}</summary>
                 <ul className="faction-rules-list">
                   {factionRules.rules.map((rule, i) => (
                     <li key={i}>{renderFormattedText(rule)}</li>
                   ))}
+                {factionRules?.variantOption && (
+                  <div className="changehost-section">
+                    <label className="changehost-label">
+                      <input
+                        type="checkbox"
+                        checked={warband.variantOptionEnabled ?? false}
+                        onChange={e => setWarband(prev => ({
+                          ...prev,
+                          variantOptionEnabled: e.target.checked || undefined,
+                        }))}
+                      />
+                      <strong>{factionRules.variantOption.label}</strong>
+                    </label>
+                    {warband.variantOptionEnabled && (
+                      <ul className="changehost-rule-list">
+                        {factionRules.variantOption.rules.map((r, i) => (
+                          <li key={i}>{r}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
                 </ul>
-              </div>
+              </details>
             );
           })()}
 
@@ -1229,12 +1326,15 @@ export function ArmyBuilder({
             </div>
           </div>
 
-          {/* ── Save / Export / Import / Load ─────────────────────────── */}
+          {/* ── Warband Tools ──────────────────────────────────────────── */}
           <div className="army-io">
-            <h3>Army Library</h3>
+            <h3>Warband Tools</h3>
             <div className="army-io-grid">
               <button className="btn-army-io btn-new" onClick={handleNewBuild} title="Start a fresh warband build">
                 🆕 New
+              </button>
+              <button className="btn-army-io btn-quickbuild" onClick={() => setShowQuickBuild(true)} title="Generate a recommended army list based on your credit and glory budget">
+                🎲 Quick Build
               </button>
               <button className="btn-army-io btn-save" onClick={handleSaveLocal} title="Save current army to your local library">
                 💾 Save
@@ -1250,6 +1350,12 @@ export function ArmyBuilder({
               </button>
               <button className="btn-army-io btn-battle" onClick={() => setShowBattleMode(true)} title="Enter Battle Mode — read-only combat reference with all unit stats at a glance" disabled={warband.units.length === 0}>
                 ⚔ Battle Mode
+              </button>
+              <button className="btn-army-io btn-terrain" onClick={() => setShowTerrainGen(true)} title="Generate a balanced terrain layout for your battlefield">
+                🗺 Terrain
+              </button>
+              <button className="btn-army-io btn-tactical" onClick={() => setShowTactical(true)} title="Analyse your warband — advantages, disadvantages and tactical focus" disabled={warband.units.length === 0}>
+                ⚡ Analyse
               </button>
               <button className="btn-army-io btn-share-url" onClick={handleShareUrl} title="Copy a shareable URL with your warband build to clipboard">
                 🔗 Share Link
@@ -1312,6 +1418,29 @@ export function ArmyBuilder({
                 </div>
               );
             })}
+          </div>
+
+          {/* ── About panel ──────────────────────────────────────────── */}
+          <div className="builder-about">
+            <h3>About</h3>
+            <div className="builder-about-grid">
+              <span className="builder-about-label">App</span>
+              <span className="builder-about-value">Trench Hammer Army Builder</span>
+              <span className="builder-about-label">Version</span>
+              <span className="builder-about-value">
+                <span className="builder-version-badge">v{__APP_VERSION__}</span>
+              </span>
+              <span className="builder-about-label">Ruleset</span>
+              <span className="builder-about-value">Trench Hammer 1.4.2</span>
+              <span className="builder-about-label">Rules by</span>
+              <span className="builder-about-value">Goober</span>
+              <span className="builder-about-label">Author</span>
+              <span className="builder-about-value">{__APP_AUTHOR__}</span>
+              <span className="builder-about-label">Powered by</span>
+              <span className="builder-about-value">GitHub Copilot (Claude Sonnet)</span>
+              <span className="builder-about-label">Last Updated</span>
+              <span className="builder-about-value">May 24, 2026</span>
+            </div>
           </div>
         </aside>
 
@@ -1384,10 +1513,27 @@ export function ArmyBuilder({
               <p className="empty-state">No units selected. Add units from the left.</p>
             ) : (
               <div className="selected-units-list">
-                {[...warband.units]
-                  .map((unit, origIdx) => ({ unit, idx: origIdx }))
-                  .map(({ unit, idx }) => (
-                  <div key={unit.id} className="selected-unit">
+                {(() => {
+                  // A unit is displayed as ELITE if: base unitType is elite, OR isPromoted, OR keywords include ELITE
+                  const effElite = (u: typeof warband.units[number]) =>
+                    u.unitType === 'elite' || !!u.isPromoted || u.keywords.includes('ELITE');
+                  const sorted = [...warband.units]
+                    .map((unit, origIdx) => ({ unit, idx: origIdx }))
+                    .sort((a, b) => {
+                      const ae = effElite(a.unit) ? 0 : 1;
+                      const be = effElite(b.unit) ? 0 : 1;
+                      return ae - be;
+                    });
+                  const sections: Array<{ label: string; units: typeof sorted }> = [
+                    { label: 'Elites', units: sorted.filter(x => effElite(x.unit)) },
+                    { label: 'Troops', units: sorted.filter(x => !effElite(x.unit)) },
+                  ];
+                  return sections.flatMap(({ label, units: sectionUnits }) => {
+                    if (sectionUnits.length === 0) return [];
+                    return [
+                      <div key={`section-${label}`} className="selected-units-section-header">{label}</div>,
+                      ...sectionUnits.map(({ unit, idx }) => (
+                    <div key={unit.id} className="selected-unit">
                     <div className="unit-header">
                       {renamingUnitId === unit.id ? (
                         <div className="unit-rename-row">
@@ -1411,6 +1557,13 @@ export function ArmyBuilder({
                         <div className="unit-name-block">
                           <h4>{unit.customName ?? unit.name}</h4>
                           {unit.customName && <span className="unit-typename">{unit.name}</span>}
+                          {unit.count > 1 && (
+                            <span className="unit-count-badge">
+                              <button className="btn-count-adj" onClick={() => handleSetUnitCount(idx, unit.count - 1)} title="Remove one model">−</button>
+                              <span className="unit-count-num">×{unit.count}</span>
+                              <button className="btn-count-adj" onClick={() => handleSetUnitCount(idx, unit.count + 1)} title="Add one model">+</button>
+                            </span>
+                          )}
                           <button
                             className="btn-rename-trigger"
                             title="Rename this model"
@@ -1431,13 +1584,30 @@ export function ArmyBuilder({
                           ⚠ Needs Power
                         </span>
                       )}
-                      {isEliteEligible(unit) && (
+                      {unit.unitType === 'troop' && (!unit.keywords.includes('NO PROMOTION') || (unit.selectedUpgrades?.['as_repentia_promoted'] ?? 0) > 0) && !unit.keywords.includes('ELITE') && (
+                        <button
+                          className={unit.isPromoted ? 'btn-demote-elite' : 'btn-promote-elite'}
+                          title={unit.isPromoted ? 'Remove promoted-to-Elite status' : 'Promote this troop to Elite (campaign rule)'}
+                          onClick={() => handleTogglePromote(idx)}
+                        >
+                          {unit.isPromoted ? '↓ Demote' : '↑ Promote'}
+                        </button>
+                      )}
+                      {isEliteEligible(unit) ? (
                         <button
                           className="btn-elite-xp"
                           title={`Campaign progression for ${unit.name} (XP: ${unit.xp ?? 0})`}
                           onClick={() => setEliteProgressionIdx(idx)}
                         >
                           ★ XP: {unit.xp ?? 0}
+                        </button>
+                      ) : (
+                        <button
+                          className="btn-elite-xp btn-injuries"
+                          title={`Battle Scars & Traumas for ${unit.name}`}
+                          onClick={() => setEliteProgressionIdx(idx)}
+                        >
+                          ☠ Injuries
                         </button>
                       )}
                       <button
@@ -1559,6 +1729,74 @@ export function ArmyBuilder({
                         );
                       })()}
                     </div>
+                    {/* ── Sisterhood Path banner (Adepta Sororitas progression chain) ── */}
+                    {(() => {
+                      const SORO_CHAIN_IDS = ['as_novitiate', 'as_battle_sister', 'as_repentia'];
+                      if (!SORO_CHAIN_IDS.includes(unit.unitId)) return null;
+                      const isNovitiate  = unit.unitId === 'as_novitiate';
+                      const isSister     = unit.unitId === 'as_battle_sister';
+                      const isRepentia   = unit.unitId === 'as_repentia';
+                      const promoted     = (unit.selectedUpgrades?.['as_novitiate_promoted'] ?? 0) > 0;
+                      const repPromoted  = (unit.selectedUpgrades?.['as_repentia_promoted'] ?? 0) > 0;
+                      const missions     = unit.missionCount ?? 0;
+                      const novEligible  = isNovitiate && !promoted && missions >= 2;
+                      return (
+                        <div className="sisterhood-chain-banner">
+                          <div className="sisterhood-chain-title">
+                            ✝ Path of Sisterhood
+                          </div>
+                          <div className="sisterhood-chain-steps">
+                            <span className={`sisterhood-step ${isNovitiate && !promoted ? 'sisterhood-step-active' : ''}`}>Novitiate</span>
+                            <span className="sisterhood-step-arrow">→</span>
+                            <span className={`sisterhood-step ${(isSister) || (isNovitiate && promoted) || (isRepentia && repPromoted) ? 'sisterhood-step-active' : ''}`}>Battle Sister</span>
+                            <span className="sisterhood-step-arrow">↔</span>
+                            <span className={`sisterhood-step ${isRepentia && !repPromoted ? 'sisterhood-step-active' : ''}`}>Repentia</span>
+                          </div>
+                          {/* Novitiate: mission counter + promotion condition */}
+                          {isNovitiate && !promoted && (
+                            <div className="sisterhood-chain-info">
+                              <div className="sisterhood-mission-row">
+                                <span className="sisterhood-mission-label">Missions participated:</span>
+                                <button className="sisterhood-mission-btn" onClick={() => handleChangeMissionCount(idx, -1)} disabled={missions === 0}>−</button>
+                                <span className={`sisterhood-mission-count ${missions >= 2 ? 'sisterhood-mission-ready' : ''}`}>{missions}</span>
+                                <button className="sisterhood-mission-btn" onClick={() => handleChangeMissionCount(idx, 1)}>+</button>
+                              </div>
+                              <div className={`sisterhood-condition ${novEligible ? 'sisterhood-condition-met' : ''}`}>
+                                {novEligible ? '✅' : '⏳'} Promote after <strong>2 missions</strong>, OR a <strong>Glorious Deed</strong>, OR taking an <strong>Elite Out of Action</strong>
+                              </div>
+                              <div className="sisterhood-note">After promotion: must equip Power Armour (40 cr) before next mission. Uses Battle Sister cost (75 cr) for mission limits.</div>
+                            </div>
+                          )}
+                          {/* Novitiate already promoted */}
+                          {isNovitiate && promoted && (
+                            <div className="sisterhood-chain-info">
+                              <div className="sisterhood-condition sisterhood-condition-met">✅ Promoted — now counts as Battle Sister. Equip Power Armour if not yet done.</div>
+                              <div className="sisterhood-note">⭐ Retains <strong style={{color:'#e0c0f0'}}>Impetuous Fervor</strong> permanently — unique to sisters promoted from the Novitiate.</div>
+                            </div>
+                          )}
+                          {/* Battle Sister: demotion condition */}
+                          {isSister && (
+                            <div className="sisterhood-chain-info">
+                              <div className="sisterhood-condition">⚠ Can be demoted to Repentia if a <strong>Morale test was failed</strong> in battle (up to 2 Battle Sisters that were not taken Out of Action). Use the Upgrades panel to apply a "Penitence" marker to track this.</div>
+                            </div>
+                          )}
+                          {/* Repentia: not yet promoted */}
+                          {isRepentia && !repPromoted && (
+                            <div className="sisterhood-chain-info">
+                              <div className="sisterhood-condition">⏳ Return to Battle Sister by scoring a <strong>Glorious Deed</strong> OR taking an <strong>Elite Out of Action</strong>. Use Upgrades → <em>Promoted to Battle Sister (Repentance)</em> to apply.</div>
+                              <div className="sisterhood-note">Costs 20 cr for Power Armour (or use existing suit from armoury). Permanently gains NEGATE FEAR.</div>
+                            </div>
+                          )}
+                          {/* Repentia already promoted back */}
+                          {isRepentia && repPromoted && (
+                            <div className="sisterhood-chain-info">
+                              <div className="sisterhood-condition sisterhood-condition-met">✅ Redeemed — now counts as Battle Sister. Equip Power Armour if not yet done.</div>
+                              <div className="sisterhood-note">⭐ Permanently gains <strong style={{color:'#e0c0f0'}}>NEGATE FEAR</strong> (replaces Penitence of Cowardice — she can never be demoted again).</div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                     {/* Wargear summary: default (included) items first, then purchased upgrades */}
                     {(() => {
                       const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
@@ -1636,7 +1874,10 @@ export function ArmyBuilder({
                       );
                     })()}
                   </div>
-                ))}
+                      )),
+                    ];
+                  });
+                })()}
               </div>
             )}
             {/* ── Hired Mercenaries ── */}
@@ -1897,6 +2138,30 @@ export function ArmyBuilder({
           isDefault: true,
           grantsKeywords: (item as any).grantsKeywords,
         }));
+        // Compute per-model wargear limits from active upgrades (e.g. Inceptor: plasma_pistol → 2)
+        const activeUpgradePerModelLimits: Record<string, number> = {};
+        for (const [uid, count] of Object.entries(unit.selectedUpgrades ?? {})) {
+          if ((count ?? 0) <= 0) continue;
+          const upg = unitDef?.upgrades?.find(u => u.id === uid);
+          if (upg?.perModelWargearLimits) {
+            Object.assign(activeUpgradePerModelLimits, upg.perModelWargearLimits);
+          }
+        }
+        const perModelWargearLimits = Object.keys(activeUpgradePerModelLimits).length > 0 ? activeUpgradePerModelLimits : undefined;
+        // Compute patron-ability cost discounts (Ded Choppy: melee ≥10cr -5; Dakkalad: ranged ≥10cr -5)
+        const hasDedChoppy = warband.units.some(u => (u.campaignSkills ?? []).some(s => s.source === 'patron' && s.name === 'Ded Choppy'));
+        const hasDakkalad  = warband.units.some(u => (u.campaignSkills ?? []).some(s => s.source === 'patron' && s.name === 'Dakkalad'));
+        const patronOverrides: Record<string, { cost: number }> = {};
+        if (hasDedChoppy || hasDakkalad) {
+          for (const w of allWeapons) {
+            if (w.costCurrency === 'glory') continue;
+            if (hasDedChoppy && w.type === 'melee'  && w.cost >= 10) patronOverrides[w.id] = { cost: w.cost - 5 };
+            if (hasDakkalad  && w.type !== 'melee'  && w.cost >= 10) patronOverrides[w.id] = { cost: w.cost - 5 };
+          }
+        }
+        const mergedCostOverrides = (hasDedChoppy || hasDakkalad)
+          ? { ...patronOverrides, ...(currentSubFaction?.wargearCostOverrides ?? {}) }
+          : currentSubFaction?.wargearCostOverrides;
         return (
           <WargearPanel
             key={unit.id}
@@ -1912,9 +2177,11 @@ export function ArmyBuilder({
             weaponReplacementRules={unitDef?.weaponReplacementRules}
             cannotEquip={unitDef?.cannotEquip}
             rawDefaultWargear={unitDef?.defaultWargear ?? []}
-            wargearCostOverrides={currentSubFaction?.wargearCostOverrides}
+            wargearCostOverrides={mergedCostOverrides}
             warbandWeaponCounts={getWarbandWeaponCounts(warband.units)}
             wargearLimitOverrides={currentSubFaction?.wargearLimitOverrides}
+            perModelWargearLimits={perModelWargearLimits}
+            factionNotes={getFactionWargearNotes(selectedFaction)}
           />
         );
       })()}
@@ -1926,8 +2193,14 @@ export function ArmyBuilder({
         const hasAutoTiers = unit.selectedWargear.some(sw => sw.isSubfactionRule && sw.description && sw.slot !== 'mark');
         if (!unitDef || (!hasAutoTiers && (!unitDef.upgrades || unitDef.upgrades.length === 0))) return null;
         const warbandUpgradeCounts = warband.units.reduce((acc, wu) => {
+          const wuDef = allAvailableUnits.find(u => u.id === wu.unitId);
           Object.entries(wu.selectedUpgrades ?? {}).forEach(([uid, cnt]) => {
-            if (cnt > 0) acc[uid] = (acc[uid] ?? 0) + 1;
+            if (cnt <= 0) return;
+            acc[uid] = (acc[uid] ?? 0) + 1;
+            const upgDef = wuDef?.upgrades?.find(u => u.id === uid);
+            (upgDef?.countsAsUpgradeIds ?? []).forEach(aliasId => {
+              acc[aliasId] = (acc[aliasId] ?? 0) + 1;
+            });
           });
           return acc;
         }, {} as Record<string, number>);
@@ -1964,6 +2237,10 @@ export function ArmyBuilder({
         return (
           <EliteProgressionModal
             unit={unit}
+            factionId={selectedFaction ?? undefined}
+            patronId={warband.patron}
+            subfactionName={currentSubFaction?.name}
+            isElite={isEliteEligible(unit)}
             onChange={(updated) => {
               setWarband(prev => {
                 const units = [...prev.units];
@@ -2013,6 +2290,51 @@ export function ArmyBuilder({
             onAdd={(power) => handleAddPsychicPower(psychicUnitIdx, power)}
             onRemove={(id) => handleRemovePsychicPower(psychicUnitIdx, id)}
             onClose={() => setPsychicUnitIdx(null)}
+          />
+        );
+      })()}
+
+      {/* Terrain Generator */}
+      {showTerrainGen && <TerrainGenerator onClose={() => setShowTerrainGen(false)} />}
+
+      {showQuickBuild && (
+        <QuickBuildWizard
+          onClose={() => setShowQuickBuild(false)}
+          onApplyBuild={(fId, sfId, credits, glory, units) => {
+            const sf = sfId || getDefaultSubFactionId(fId);
+            setSelectedFaction(fId);
+            setSelectedSubFaction(sf);
+            setPointLimit(credits);
+            setGloryLimit(glory);
+            setWarband({
+              id: `warband-${Date.now()}`,
+              name: 'My Warband',
+              faction: fId,
+              subfaction: sf,
+              subfactionName: getSubFactionById(fId, sf)?.name,
+              pointLimit: credits,
+              gloryLimit: glory,
+              units,
+              mercenaries: [],
+              totalPoints: units.reduce((s, u) => s + u.totalCost, 0),
+              totalGlory: 0,
+              totalModels: units.reduce((s, u) => s + u.count, 0),
+              schemaVersion: 1,
+            });
+            setShowQuickBuild(false);
+          }}
+        />
+      )}
+
+      {showTactical && (() => {
+        const factionDef = getFactionById(warband.faction);
+        return (
+          <TacticalAnalysis
+            report={analyseTactical(warband, allAvailableUnits)}
+            warbandName={warband.name}
+            factionName={factionDef?.name ?? warband.faction}
+            totalPoints={warband.totalPoints}
+            onClose={() => setShowTactical(false)}
           />
         );
       })()}

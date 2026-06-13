@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Battle Report: Ash and a Thousand Eyes</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&display=swap');
+
+  :root {
+    --gold: #c9a84c;
+    --gold-dim: #8a7030;
+    --blood: #8b1a1a;
+    --warp-blue: #2a4a7f;
+    --tzeentch: #1a6b8a;
+    --salamander: #2d6b2e;
+    --bg-dark: #0d0d0d;
+    --bg-card: #1a1a1a;
+    --text: #d4d0c8;
+    --text-dim: #8a8578;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text);
+    font-family: 'Merriweather', Georgia, serif;
+    line-height: 1.8;
+    padding: 0;
+  }
+
+  /* Hero Banner */
+  .hero {
+    position: relative;
+    text-align: center;
+    padding: 80px 20px;
+    background: linear-gradient(135deg, #0a0a2e 0%, #1a0a0a 50%, #0a1a0a 100%);
+    border-bottom: 3px solid var(--gold);
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(201,168,76,0.08) 0%, transparent 70%);
+  }
+  .hero h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.8rem, 5vw, 3.5rem);
+    font-weight: 900;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    text-shadow: 0 0 30px rgba(201,168,76,0.3);
+    position: relative;
+  }
+  .hero .subtitle {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    color: var(--text-dim);
+    margin-top: 10px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    position: relative;
+  }
+  .hero .rematch-badge {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 6px 20px;
+    border: 1px solid var(--gold-dim);
+    border-radius: 20px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    background: rgba(201,168,76,0.06);
+    position: relative;
+  }
+  .hero .skull {
+    font-size: 2rem;
+    margin: 20px 0 0;
+    position: relative;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* Army Cards */
+  .armies {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 40px auto;
+    max-width: 900px;
+    padding: 0 20px;
+  }
+  @media (max-width: 700px) { .armies { grid-template-columns: 1fr; } }
+
+  .army-card {
+    background: var(--bg-card);
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .army-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+  .army-card.ts::before { background: linear-gradient(90deg, var(--tzeentch), #3aa5d0); }
+  .army-card.sal::before { background: linear-gradient(90deg, var(--salamander), #4a9b4b); }
+
+  .army-card h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .army-card.ts h3 { color: #3aa5d0; }
+  .army-card.sal h3 { color: #4a9b4b; }
+
+  .army-card .credits {
+    font-size: 0.8rem;
+    color: var(--gold-dim);
+    margin-bottom: 14px;
+  }
+
+  .army-card table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .army-card th {
+    text-align: left;
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-weight: 400;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 0;
+    border-bottom: 1px solid #333;
+  }
+  .army-card td {
+    padding: 5px 0;
+    border-bottom: 1px solid #1f1f1f;
+    vertical-align: top;
+  }
+  .army-card td:first-child { font-weight: 700; }
+  .role { color: var(--text-dim); font-size: 0.75rem; }
+  .equip { color: var(--text-dim); font-size: 0.75rem; font-style: italic; }
+  .merc-tag { color: #a07830; font-size: 0.7rem; font-weight: 700; }
+
+  /* Analysis boxes */
+  .analysis-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 30px auto;
+    max-width: 900px;
+    padding: 0 20px;
+  }
+  @media (max-width: 700px) { .analysis-grid { grid-template-columns: 1fr; } }
+
+  .analysis-card {
+    background: var(--bg-card);
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .analysis-card h4 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #2a2a2a;
+  }
+  .analysis-card.ts h4 { color: #3aa5d0; }
+  .analysis-card.sal h4 { color: #4a9b4b; }
+  .analysis-card ul {
+    list-style: none;
+    font-size: 0.82rem;
+    line-height: 1.9;
+    color: var(--text-dim);
+  }
+  .analysis-card ul li { padding-left: 16px; position: relative; }
+  .analysis-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--gold-dim); }
+  .analysis-card .weakness {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: rgba(139,26,26,0.1);
+    border-left: 2px solid var(--blood);
+    border-radius: 0 4px 4px 0;
+    font-size: 0.78rem;
+    color: #c08080;
+    font-style: italic;
+  }
+
+  /* Turn Headers */
+  .turn-header {
+    text-align: center;
+    margin: 50px 0 30px;
+    position: relative;
+  }
+  .turn-header::before,
+  .turn-header::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 30%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  }
+  .turn-header::before { left: 0; }
+  .turn-header::after { right: 0; }
+
+  .turn-header h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.6rem;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    display: inline-block;
+    background: var(--bg-dark);
+    padding: 0 20px;
+    position: relative;
+  }
+  .turn-header .turn-subtitle {
+    display: block;
+    font-family: 'Merriweather', serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    font-weight: 300;
+    letter-spacing: 0;
+    text-transform: none;
+    margin-top: 4px;
+  }
+
+  /* Activation blocks */
+  .activation {
+    margin: 24px 0;
+    padding: 18px 20px;
+    background: var(--bg-card);
+    border-left: 3px solid #333;
+    border-radius: 0 6px 6px 0;
+  }
+  .activation.highlight { border-left-color: var(--blood); background: #1a1212; }
+  .activation.warp { border-left-color: #6a2aaa; background: #15101f; }
+  .activation.kill { border-left-color: var(--gold); }
+  .activation.friendly-fire { border-left-color: #8b4500; background: #1a1208; }
+  .activation.shaken { border-left-color: #555; background: #141414; }
+
+  .activation h4 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .activation.warp h4 { color: #b060ff; }
+  .activation.kill h4 { color: var(--gold); }
+
+  .activation p { margin-bottom: 10px; }
+  .activation p:last-child { margin-bottom: 0; }
+
+  .quote {
+    font-style: italic;
+    color: var(--gold);
+    padding: 8px 16px;
+    border-left: 2px solid var(--gold-dim);
+    margin: 12px 0;
+    background: rgba(201,168,76,0.03);
+  }
+
+  /* Score boxes */
+  .score-box {
+    text-align: center;
+    margin: 30px 0;
+    padding: 16px;
+    border: 1px solid var(--gold-dim);
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(26,107,138,0.08), rgba(45,107,46,0.08));
+  }
+  .score-box .label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .score-box .score {
+    font-family: 'Cinzel', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--gold);
+    margin: 4px 0;
+  }
+  .score-box .score .ts-color { color: #3aa5d0; }
+  .score-box .score .sal-color { color: #4a9b4b; }
+  .score-box .note {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* Intro / Outro */
+  .narrative {
+    margin: 30px 0;
+    font-size: 0.95rem;
+    line-height: 2;
+  }
+  .narrative p { margin-bottom: 14px; }
+
+  /* Morale box */
+  .morale-box {
+    margin: 20px 0;
+    padding: 14px 18px;
+    border: 1px dashed #444;
+    border-radius: 6px;
+    background: rgba(80,80,80,0.06);
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+  .morale-box .morale-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #999;
+    margin-bottom: 6px;
+  }
+  .morale-box.fail { border-color: var(--blood); background: rgba(139,26,26,0.06); }
+  .morale-box.fail .morale-title { color: #c06060; }
+  .morale-box.pass { border-color: #3a6b3a; background: rgba(45,107,46,0.06); }
+  .morale-box.pass .morale-title { color: #60a060; }
+
+  /* Summary */
+  .summary {
+    margin: 50px auto;
+    max-width: 900px;
+    padding: 0 20px;
+  }
+  .summary h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 24px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .stats-table {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 30px;
+    border-collapse: collapse;
+  }
+  .stats-table th {
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.75rem;
+    color: var(--gold);
+    padding: 8px;
+    border-bottom: 2px solid var(--gold-dim);
+  }
+  .stats-table td {
+    text-align: center;
+    padding: 8px;
+    border-bottom: 1px solid #222;
+    font-size: 0.85rem;
+  }
+  .stats-table td:first-child { text-align: left; color: var(--text-dim); }
+
+  .moments {
+    list-style: none;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .moments li {
+    padding: 10px 0 10px 24px;
+    position: relative;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .moments li::before {
+    content: '⚡';
+    position: absolute;
+    left: 0;
+    top: 10px;
+  }
+  .moments .mvp::before { content: '🏆'; }
+  .moments .rip::before { content: '💀'; }
+  .moments .legend::before { content: '🌟'; }
+  .moments .warp-moment::before { content: '🌀'; }
+
+  .footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    border-top: 1px solid #222;
+    margin-top: 40px;
+  }
+
+  .army-links {
+    text-align: center;
+    margin: 10px 0 30px;
+    font-size: 0.78rem;
+  }
+  .army-links a {
+    color: var(--gold-dim);
+    text-decoration: none;
+    margin: 0 10px;
+    letter-spacing: 1px;
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+  }
+  .army-links a:hover { color: var(--gold); }
+
+  strong { color: #e8e0d0; }
+  em { color: #b8b0a0; }
+
+  .blood-marker {
+    display: inline-block;
+    background: var(--blood);
+    color: #fff;
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 0.75rem;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+  }
+  .tag-tough {
+    display: inline-block;
+    background: #3a3a6a;
+    color: #9090e0;
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 0.72rem;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+  }
+  .tag-warp {
+    display: inline-block;
+    background: #3a1a5a;
+    color: #c090ff;
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 0.72rem;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<header class="hero">
+  <h1>⚔️ Ash and a Thousand Eyes</h1>
+  <div class="subtitle">Battle Report — The Rematch · Sector Vermillion-9</div>
+  <div class="rematch-badge">⚔ Rematch — One Week Later ⚔</div>
+  <div class="skull">☠</div>
+</header>
+
+<!-- ═══════════════════ ARMIES ═══════════════════ -->
+<section class="armies">
+  <div class="army-card ts">
+    <h3>Thousand Sons</h3>
+    <div class="credits">6 Models · Lean &amp; Focused · Concentrated Lethality</div>
+    <table>
+      <tr><th>Model</th><th>Equipment</th></tr>
+      <tr>
+        <td>Exalted Sorcerer Ahriman <span class="role">Leader</span></td>
+        <td><span class="equip">Disc of Tzeentch, Storm Bolter, Fell Dagger, Warptime + Invisibility</span></td>
+      </tr>
+      <tr>
+        <td>Tzaangor Shaman <span class="role">Elite</span></td>
+        <td><span class="equip">Gate of Infinity (Teleport), Psychic</span></td>
+      </tr>
+      <tr>
+        <td>Sekhetar Robot <span class="role">Troop</span></td>
+        <td><span class="equip">Storm Bolter + Autogun (AUTOMATIC 2 each), Power Claw AP2, TOUGH, INFILTRATOR</span></td>
+      </tr>
+      <tr>
+        <td>Rubric Marine <span class="role">Troop</span></td>
+        <td><span class="equip">Inferno Boltgun 24", Scope (ignores concealment)</span></td>
+      </tr>
+      <tr>
+        <td>Tzaangor <span class="role">Troop</span></td>
+        <td><span class="equip">Musical Instrument (buffs ally movement)</span></td>
+      </tr>
+      <tr>
+        <td>Traitor Weapon Team <span class="role">Mercenary</span> <span class="merc-tag">[MERC]</span></td>
+        <td><span class="equip">Lascannon 48", Armour Piercing 2</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="army-card sal">
+    <h3>Salamanders</h3>
+    <div class="credits">8 Models · Long-Range Firepower · Stacked Combinations</div>
+    <table>
+      <tr><th>Model</th><th>Equipment</th></tr>
+      <tr>
+        <td>Space Marine Captain <span class="role">Leader</span></td>
+        <td><span class="equip">Terminator Armour, Assault Bolter 12", DEEP STRIKE</span></td>
+      </tr>
+      <tr>
+        <td>Scout Marine <span class="role">Troop</span></td>
+        <td><span class="equip">Autocannon 36", Camo Cloak (concealment)</span></td>
+      </tr>
+      <tr>
+        <td>Space Marine <span class="role">Troop</span></td>
+        <td><span class="equip">Reaper Chaincannon (AUTOMATIC 3)</span></td>
+      </tr>
+      <tr>
+        <td>Space Marine ×2 <span class="role">Troops</span></td>
+        <td><span class="equip">Heavy Flamer (AUTOMATIC 2, auto-hit)</span></td>
+      </tr>
+      <tr>
+        <td>Space Marine — Inceptor <span class="role">Troop</span></td>
+        <td><span class="equip">2× Plasma Pistol, Inceptor Upgrade (fire both weapons + ASSAULT charge)</span></td>
+      </tr>
+      <tr>
+        <td>Death Cult Assassin <span class="role">Mercenary</span> <span class="merc-tag">[MERC]</span></td>
+        <td><span class="equip">INFILTRATOR, melee-focused</span></td>
+      </tr>
+      <tr>
+        <td>Gun Servitor <span class="role">Mercenary</span> <span class="merc-tag">[MERC]</span></td>
+        <td><span class="equip">Ranged weapon 36"</span></td>
+      </tr>
+    </table>
+  </div>
+</section>
+
+<div class="army-links">
+  <a href="https://vazsago-art.github.io/trench-hammer/#share=eF7tWN2O2jgUfhUr17SCCZSBuzSTATT8jELavViNIpMY8DaxU9uZEVuNtA-xT7hP0uP8kACzQFfb0ajiBuJz7PPz-XzHib8ZSxwoypnRN3BIEpVKH0uFhSLSaBgyXVR6iSMcYxYSoVUJp0yNaUyV0e81mw1jFXGxKQQwfMJiAZON_jeDwm85ftfqdtvdbrfZM5vmNdhhOCagnmzQb8WKxvGYTjlOGVXS6P9e-NXD0mmr1e6ZH4x8zkhrMfYDnChMWRWKvRUEPGVgtNUwFlgSm0t1T8SEhyQCYaupJ0hlp0IQFmxgZSBIqJ0DcCQigSIh5LQiWFThAIh-InhM1Jpg5gdppCrP91sFsnOFdpBlFRIZCJoUsLgkiXBAJLJYiLw12aD5GkcRumP8CU05ugWf70FBJYp1uGiNJZo6A8tz0O3IddA_f_2NqEJ0xbgAM3otWS4hZIn4EkEI-bQ7snniIkScoSeCE85gKnhc4z-xCOV74wgCapPolMjXlCYxYTqZrylmiqpNhiiVN2SJdZZ9JVKiBfNttblpREr5SsAqWUSiN9aoJWI8PDcKZIM1bJq_iKBkanuphehjIczR1BtXRJcntRvansEllWrf3m0uy82ZZ5pTRMSUYcWFj0XMU1FZ9bYqZJWq3PiHzta4XiT2UTwE58Zx7tHcc0d3DkyGh9l0AA-fneHIHmvR2HIHddywlHob_AWPIMQqKCuXo4-lvECvc166EFnCSORHOGXBum54kGvQuNIUSJ6qmucHmMEVjuw8lN51MR7oFmCXXPlSg8Oae5brOXMw5IxHXgUA_DvWjePCgzf7NBjCf72uGqeAfMi7iFcEHFFFarz_lED-wFnd_qDHJILGWFCpc9gitNOZus1Ot2vsdiaZAMd9vZDVSnqupWhSSo_1qF7n0qLeUosC2B43_hKO0TofhlqKbktpjmfnBM32mJBNP5sJO9Ht1LESnCf_XschedQnMTSqFyu52-qZ-pBtdd8t1Nr841LPl3o-s55f89jo_NCx8VPJcnXV67UvNPm1aSIgQCL87H0ywIzx2seGm-mQvaMr6voNUcY0fzplXmRI-7rdvO40Lwz5tRnyv36DXL0qM9r_mRnwUXE3ciej-RC-Qs6mia5_aBUkOXKudMye2WsfsAYYoQ5Zo6XnsaZzYc3bYk2q-P55YtVlRUmfeUER4Jj7QcTxl8qcDTJkF7KCfM3TqR5mMPcca-wNa9G_Ajl_7H5gOkP37mwy80az6SFVy_hf4Kn2Cu-6AWHAIpLfPZbjTcY-PdLMk_4qZb4k4pEqXs84ZWheSVdVuGadkiXHXBKIlKpZRo5R9SZetE8N8Qv-SRBE8FKK1Tojoa-brpT1m88brcyIiKxKWYumXUWzhfpe38fKDNgK62qY9Y5cfeQ2uVJNi7ZUUz8_fweMJ5KN" target="_blank">📋 Salamander Build List</a>
+  <a href="https://vazsago-art.github.io/trench-hammer/#share=eJzVWFlv2zgQ_isEX1cNfMR26jfVUWxtfQSyiqC7WwhjibaISKSWpJJmi_73BSXq8NE4CVos9snmfBQ5nOObIb_hLYSKcobHOCaCKBoGIBUIRSS2sMw3Da5inktgUSA502DGKVNzmlKFx-87HQvvEi6ejODKwo8gNsAiPP6GaYTH1fhddzQaDi57w8FwcDnAFmaQEjzGPpEKdTudzrpc_lnFzu2dM6okHv9pttbDet-rztWog8s5rkZjCMhXSBTRRxMhEUQ0ajklgtYNEvKcKTzuWngDkky4VLdELHhEEjzu9gZ6glSTXAjCwic8xqEgkVbHwpIkJFQkugOxIyAaBaXiIg02PFHtvddaij5UUr0sHvcHFlZPmcYfCWScYQv_nQNTVD3hcfe7ZZbckiQJItjt2ivekCRB15WwXLD7wgUjKsOAbwP1DyFMhXFQHMksfE1liPgW-QY8tTr5O6dZSpja38DCOwFMyY_k6ZGLSLsN38w_u8sp_lJvvkkgIs12H8yw3OPy-QN8sbDiCpJJMbnX7ZnxVMdMKexY-L61vTN3fQdbeOZ4ju9OkL32bc931tjCc9ubamju2NeOhy18u_780fFQH1vYX32azvTvH46z9Cf6b3WQMtx8Y4iEKtIKh1v5FMY0vOWPRLSilrIHKumGJvoc9dHdfan2Cs0SykgRy4okJAMV70PLKsUMiK5rqHFUpzb2I4hM0bRl77tGcrDhYXIGUXvpIxVm5XRkm-mnNOk3IUdAxUFMvrYCTYvQrBD9elUGOnjCXCqemq_sWNAUGK51rLll2O0NL3v9TveAW9Q_AGzHRSBj0F82jGcAtK6A55hl2HkLsWQ6pgIQKc9bNFBEGrIrqcmiTp1Ger74EQ2QlLOgTrTKLaDF6K4SG08eqVzwNP4fEE6sK902gZSIvX1nwCJ0U8jrLXudlx0oBXHfPlCz6gLE_U88TU1AXw7IrzvqHJNff5_8Pjj22l84S2zVPHizms9XdwXdnaBEw4Ddn8d8O1BEG4qyLWV77DcFRbSh3AY5wYD3lBFJ5Y840MAnWXBQe0uRNOMCkiAFRrM8gaIdafUrJYwW-_CBOmEMbEfOUFGjiD7bpPikzUGnyGbQuxpddvoHZCPJfUwUiEDwDVetVsLIkWfkzzYxozdxzS9oYiBXfJe3rG7XgtelXsmDYQKPe9lcEuEkgcdXt0P_fTL3BoOznYzt-e6NO3Ht-dk0dpc37tz3bH-lJyydqe07aGpraLlCt95qsfLdlaaFtfNx5vi2F3irDytfC3zHnvuz4p-3Wk5P9UL7RKAE59nJIno1HA36_cMGvSqix9XzTCxfvimU01zSEJKAMqlErv20FzaLEkZuDb_Cx_WhpQIWgYiOyvPaAIcVurX2cxWasi0RjBeZGGRUKp7sae-WeJGT6LbAmy16L4t-GVOSRC2Vq3HVTL5I062AXbAThEFEWgreCNihaSMu1xy9pst___5sarTq3POJMXcXru9co9uV7yz9MpXWH11v4a5nxTevjfFe__1gNBwccncYA5eBzCAkQQqirBXGJBONobXG0KLCfsFF9A2s9lyCncgEmXBlNjrkPiqvyRbyROGxEjnRgnX9AuHlCankEZGhoJl5H_B0uYwQKAXhvUQxPBD0Wxe5y98_eZ_RYnXt3riOd4GmBbWiylvIBMMFKhw8Rj2UEYHuymeKC7SAr6iLimNrearteoHPMHTdPMhA5BtBQ-PJVnR7hdx4UbbNuH-sBX8g2maISjT4CyPNRQQi7YPhX_gC3cWEIW2bB9APFI9UxZRpSM8AtBWUsCh5QmV7ZmmTXLsTBymOoHgFkDEqTStRlAvKdkjFoJBdLkk5u0AzkKipBBf4da5-m3OP7duqRV8sTZtqwSO6pUXP-A2nxlB4_K77vWGokGetBFqboWkbzl1MznF3mHBJgpCnG1BHl6GJBtGkAE9ciV7CrzTkTOdhcQPZZ--QM-3h4g5yghzPVp2YP5CkzdxmbLrNFy-0E5AxkgQJ5CyM2y3ftETQvEEOD39u8XYN2-Xsh_Wr3Que69wOrkLD_nGJ6O2XiBPFoHXD2Q_LI-JvWPZTthNFKRt_K3hepkEMDzzUSmmtUiJCwkBQUt6BqvFTURn0yNQGJYAqLkzABYpA2mqIStAEHPJLcLd3z6sqRm2LW_2QKgv2aWzRDItiUsLPvgU3YHXNMhNQ8Zr7_fu_yLRllg" target="_blank">📋 1000 Sons Build List</a>
+</div>
+
+<!-- ═══════════════════ ANALYSIS ═══════════════════ -->
+<div class="analysis-grid">
+  <div class="analysis-card sal">
+    <h4>⚡ Salamanders — Rebuilt Strategy</h4>
+    <ul>
+      <li>Abandoned the mass-INFILTRATOR approach; kept only 1 mercenary assassin to hold the Objective</li>
+      <li>2 Heavy Flamers on each flank, each paired with a finisher model to leverage Blood Markers</li>
+      <li>Space Marine Inceptor — the new trump card: fire both weapons, then charge into melee</li>
+      <li>Scout Marine Autocannon 36" + Reaper Chaincannon AUTOMATIC 3: controlling the entire front line</li>
+      <li>Gun Servitor 36" positioned with the Heavy Flamer cluster to optimise kill setups</li>
+      <li>Captain DEEP STRIKE hidden off-board in Turn 1 — a flexible reserve held in the shadows</li>
+    </ul>
+    <div class="weakness">⚠ Weakness: 8 models, but 3 core units clustered together. If Sekhetar Robot infiltrates early — the entire cluster collapses in a chain reaction.</div>
+  </div>
+  <div class="analysis-card ts">
+    <h4>⚡ Thousand Sons — Rebuilt Strategy</h4>
+    <ul>
+      <li>Maximum efficiency: stripped back to 1 Tzaangor with Musical Instrument for support buffs</li>
+      <li>Sekhetar Robot: fully re-armed for damage — dual AUTOMATIC 2 weapons plus ASSAULT charge after shooting</li>
+      <li>Traitor Weapon Team replaces the old Rubric — Lascannon 48" AP2 punching through any heavy armour</li>
+      <li>Rubric Marine retained but re-armed with Inferno Boltgun + Scope to counter concealment</li>
+      <li>The trinity of Ahriman + Shaman + Sekhetar remains the core, each with a clearly defined role</li>
+    </ul>
+    <div class="weakness">⚠ Weakness: 6 models against 8 — outnumbered in Activations every turn. But every single Activation is extremely dangerous.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════ DEPLOYMENT ═══════════════════ -->
+<div class="container">
+  <div class="turn-header">
+    <h2>Deployment <span class="turn-subtitle">"The Board Before the First Shot"</span></h2>
+  </div>
+
+  <div class="narrative">
+    <p>Sector Vermillion-9 shudders once more beneath the boots of warriors who have already spilled blood here. One week. The old stains are barely dry; the old craters barely cold. Both sides understand — this time will be different. <em>This time there will be no draw.</em></p>
+
+    <p><strong>The Thousand Sons</strong> deploy with surgical patience: two ranged specialists climb to the high ground — <strong>Rubric Marine</strong> and the <strong>Traitor Weapon Team</strong> seize elevated positions at 11", staring down across the full width of the battlefield. Below, <strong>Ahriman</strong>, the <strong>Tzaangor Shaman</strong>, and the <strong>Tzaangor</strong> cluster together within range of the Musical Instrument — any enemy wishing to break that knot must face all three at once. And somewhere in the closest shadow to the enemy line, half-visible in the dark — the <strong>Sekhetar Robot</strong>, <em>once again lurking in INFILTRATOR position</em>, but not to guard an Objective this time. This time it is here to <strong>drive straight into the heart of the enemy formation.</strong></p>
+
+    <p><strong>The Salamanders</strong> deploy with symmetry and discipline: two long-range fire platforms — <strong>Scout Marine</strong> and <strong>Space Marine Reaper Chaincannon</strong> — hold commanding high ground on opposite flanks. Each side of the board is anchored by a complete combat cluster: <em>right flank</em> — Heavy Flamer + Space Marine Inceptor; <em>left flank</em> — Heavy Flamer + Gun Servitor. The <strong>Death Cult Assassin</strong> uses INFILTRATOR to plant directly on the nearest Objective from the opening moment. The <strong>Captain</strong> — as before — enters from the sky, DEEP STRIKE keeping him concealed until Turn 2. <em>A flawless formation on paper. A pity that Sekhetar Robot is already crouching in the dark beside it.</em></p>
+  </div>
+
+  <!-- ═══════════════════ TURN 1 ═══════════════════ -->
+  <div class="turn-header">
+    <h2>Turn 1 <span class="turn-subtitle">"A Catastrophe in Moments"</span></h2>
+  </div>
+
+  <div class="narrative">
+    <p>By virtue of their smaller force — 6 models to 8 — the <strong>Thousand Sons seize initiative</strong>, choosing who activates first. They do not hesitate.</p>
+  </div>
+
+  <div class="activation highlight">
+    <h4>A1 — Sekhetar Robot: The Iron Storm</h4>
+    <p>A vast dark shape steps from the shadows. Two crimson eyes ignite. The <strong>Sekhetar Robot</strong> — fully re-armed for this rematch — surges toward the Salamanders' right flank cluster: the <strong>Space Marine Heavy Flamer</strong> and his new companion, the <strong>Space Marine Inceptor</strong>, who stands with both pistols raised in confident readiness.</p>
+    <p>The ancient machine unleashes its internal protocol, firing both weapons simultaneously — <em>Storm Bolter</em> and <em>Autogun</em>, AUTOMATIC 2 each. Four bursts tear through the air. First, second — enough to stagger the Inceptor. Third — <strong>the Space Marine Inceptor collapses, eliminated.</strong> He never fired a shot. Never launched his charge. <em>The Salamanders' new trump card was erased from the board on the third burst.</em></p>
+    <p>The final burst hammers into the adjacent Space Marine Heavy Flamer. Enough to close the distance. ASSAULT triggers, the Sekhetar Robot charges, and the <strong>Power Claw AP2</strong> swings down. However thick the Ceramite, Armour Piercing 2 makes it irrelevant. <strong>The Space Marine Heavy Flamer falls, eliminated.</strong></p>
+    <div class="quote">"Two. One Activation. Six turns remaining." — <em>Sekhetar Robot, if it knew how to speak</em></div>
+  </div>
+
+  <div class="activation">
+    <h4>A2 — Space Marine Reaper Chaincannon: Retaliation From the Heights</h4>
+    <p>The Salamanders are stunned. Two vital warriors gone before half the first turn has passed. The swiftest thinker among them — the <strong>Space Marine with the Reaper Chaincannon</strong>, perched on the high ground — swings his weapon toward the Sekhetar Robot and empties three AUTOMATIC rounds without pause.</p>
+    <p>Rounds hammer the machine in a relentless cascade. <span class="blood-marker">BLOOD MARKER ××××</span> stack onto the ancient chassis. It does not die — not yet. But the foundation for a Bloodbath is laid. <em>The plan begins to take shape.</em></p>
+  </div>
+
+  <div class="activation kill">
+    <h4>A3 — Ahriman: Sorcery and Thunder</h4>
+    <p><strong>Ahriman</strong> rides his Disc of Tzeentch into the field, threading through the rubble, climbing to a position of dominance over the entire board. First, he weaves <strong>Warptime</strong> — a power that bends the threads of probability, sharpening every strike he lands this turn.</p>
+    <p>Then he turns on the <strong>Gun Servitor</strong> — the 36" threat anchoring the enemy left flank beside the Heavy Flamer. Two AUTOMATIC Storm Bolter rounds, one of them striking true with lethal precision. <strong>The Gun Servitor drops, eliminated,</strong> before it fires a single shot.</p>
+    <p>With the target neutralised, Ahriman immediately weaves <strong>Invisibility</strong> to vanish before the enemy can respond. But the Warp never gives without taking.</p>
+    <p><span class="tag-warp">PERILS OF THE WARP</span> — the dice roll. Result: <strong>Warp Surge.</strong> Rather than punishment, the Warp grants power — all of Ahriman's powers now roll with +DICE, but the threshold for triggering Perils rises, and <em>the next time this result appears, he will die.</em></p>
+    <div class="quote">"The Warp gives. The Warp takes. Tonight — it gives." — <em>Ahriman, studying the dice</em></div>
+  </div>
+
+  <div class="activation">
+    <h4>A4 — Space Marine Heavy Flamer #2: Desperate Fury</h4>
+    <p>Three units lost in three Activations. Every plan in ruins. The <strong>remaining Space Marine Heavy Flamer</strong> — the last model standing in the cluster Sekhetar has just shredded — swings the flamer and douses the machine in fire.</p>
+    <p>AUTOMATIC 2, auto-hit, no aim required — the flames wash over Sekhetar Robot, stacking <span class="blood-marker">BLOOD MARKER ×××</span>. Bloodbath triggers. The dice roll.</p>
+    <p><em>Fortune smiles on the machine.</em> Sekhetar Robot is wreathed in smoke, sparking from every plate — but still standing. <span class="tag-tough">TOUGH</span> holds.</p>
+  </div>
+
+  <div class="activation">
+    <h4>A5 — Traitor Weapon Team: The Opening Shot</h4>
+    <p>From their elevated position at 11", the <strong>Traitor Weapon Team</strong> trains the <em>Lascannon 48" AP2</em> on the <strong>Scout Marine</strong> sheltering across the battlefield. The range is extreme — nearly half the board — and the beam arrives diminished. Only <span class="blood-marker">1 BLOOD MARKER</span> is pinned to the sniper's coat. <em>A warning from afar. More threat than wound.</em></p>
+  </div>
+
+  <div class="activation kill">
+    <h4>A6 — Scout Marine: The First Kill</h4>
+    <p>Enough. The <strong>Scout Marine</strong> raises his Autocannon 36", draws down on the staggering Sekhetar Robot, and calls upon every Blood Marker that has been stacked since the opening volley — <strong>Bloodbath triggers.</strong></p>
+    <p>The round punches through. Oil — or something that passes for blood — pours from the wound. <strong>Sekhetar Robot's first life ends.</strong> The machine goes down… but <span class="tag-tough">TOUGH</span> means this is not the last. It still breathes — barely, damaged beyond reckoning, but <em>not yet dead.</em></p>
+  </div>
+
+  <div class="activation warp">
+    <h4>A7 — Tzaangor Shaman: Swallowed by the Warp</h4>
+    <p>Buoyed by his allies' run of early dominance, the <strong>Tzaangor Shaman</strong> reaches for the Warp with ambition — <strong>Gate of Infinity</strong>, a 24" teleport, to materialise directly behind the enemy snipers and unravel their entire position.</p>
+    <p>He closes his eyes. He whispers. The power of the Warp swells.</p>
+    <p><em>The Warp has already been stirred too violently by what came before.</em></p>
+    <p><span class="tag-warp">PERILS OF THE WARP</span> — the dice roll. Result: <strong>Dragged into the Warp.</strong> The Shaman must test immediately — but this is not the first psychic power cast this turn. Ahriman already cast <em>Warptime</em> and <em>Invisibility</em>, and the rules impose <strong>-1 DICE for each psychic power already cast this turn (including this one)</strong> — this is the third cast, meaning the Shaman must test at <strong>-3 DICE.</strong> The Warp was overwrought long before the Shaman reached into it. The Gate is no longer an entrance — it is a trap.</p>
+    <p>The test <strong>fails utterly.</strong> No surprise.</p>
+    <p>The Tzaangor Shaman does not teleport anywhere. He simply <em>ceases to exist</em> — pulled straight through the Gate he opened, dissolved into nothing before the eyes of both warbands. No scream. No corpse. Only a brief flicker of warp-light that gutters and dies.</p>
+    <div class="quote">"...Shaman?" — <em>The Tzaangor, staring at empty space</em></div>
+  </div>
+
+  <div class="activation">
+    <h4>A8 — Death Cult Assassin: Standing Vigil</h4>
+    <p>The <strong>Death Cult Assassin</strong> holds the far Objective, watching the carnage unfold from a distance. Every instinct screams to charge. But if he leaves — the point is lost. The Thousand Sons have more than enough left to seize it in a heartbeat.</p>
+    <p>He stays. Motionless. <em>Strategy has already made his choice for him.</em></p>
+  </div>
+
+  <div class="activation">
+    <h4>A9 — Rubric Marine: Climb Down, Then Leap</h4>
+    <p>The <strong>Rubric Marine</strong> — holding the high ground at 11" — surveys the battlefield and understands: his <em>Inferno Boltgun 24"</em> cannot reach any meaningful target while he remains here. All the fighting has shifted toward the far enemy line, well beyond his range.</p>
+    <p>Jumping straight down 11" would be the act of an impatient thing — and would cost <strong>-3 Injury Dice</strong>. The Rubric Marine is not impatient. He spends his full Movement to <em>Climb down</em> 5" first — edging along the terrain piece, each step deliberate and unhurried. The drop is now only 6". <em>Then</em> he leaps — impact dice reduced to just <strong>-1 Injury Dice</strong>, an entirely acceptable price. <span class="blood-marker">1 BLOOD MARKER</span> is placed on him — and he is a Rubric Marine, an empty armour that registers no pain. He straightens immediately.</p>
+    <p>He strides toward the <strong>Scout Marine</strong> sheltering beneath his Camo Cloak. <em>The Scope on the Inferno Boltgun sees through every concealment.</em> The round finds its mark — <span class="blood-marker">BLOOD MARKER</span> pinned to the Salamander sniper.</p>
+  </div>
+
+  <div class="activation">
+    <h4>A10 — Tzaangor: The Music of the Battlefield</h4>
+    <p>The lone <strong>Tzaangor</strong> — the last of his kind now that the Shaman has been swallowed by the Warp — does not panic. He steps forward, instrument still in hand, and keeps the rhythm for his allies. The Musical Instrument pulses with its uncanny resonance. He advances a step toward the Objective, tightening the grip on the point.</p>
+  </div>
+
+  <div class="score-box">
+    <div class="label">End of Turn 1</div>
+    <div class="score"><span class="ts-color">Thousand Sons 1</span> — <span class="sal-color">Salamanders 1</span></div>
+    <div class="note">A draw on points — but the Salamanders have lost three core units. The Tzaangor Shaman has been unmade by the Warp itself. Sekhetar Robot still stands, barely.</div>
+  </div>
+
+  <!-- ═══════════════════ TURN 2 ═══════════════════ -->
+  <div class="turn-header">
+    <h2>Turn 2 <span class="turn-subtitle">"The Serpent Loses Its Head"</span></h2>
+  </div>
+
+  <div class="narrative">
+    <p>Staggering under their losses, the <strong>Salamanders claim initiative</strong> this turn. Simultaneously, the Captain triggers DEEP STRIKE — a colossal armoured silhouette drops from the sky, angling straight toward the objective from which the Assassin was just torn away.</p>
+  </div>
+
+  <div class="activation">
+    <h4>A1 — Heavy Flamer: One More Attempt</h4>
+    <p>Unbroken, the <strong>Space Marine Heavy Flamer</strong> washes Sekhetar Robot in fire again. Bloodbath triggers once more. The dice roll.</p>
+    <p><em>Sekhetar Robot still lives.</em> This is no longer luck — this is the will of something that <em>refuses to die.</em> The machine spills black smoke, lists to one side, but does not fall. <span class="tag-tough">TOUGH</span> is the last shield.</p>
+  </div>
+
+  <div class="activation kill">
+    <h4>A2 — Sekhetar Robot: Rise and Slaughter</h4>
+    <p>Enough. <strong>Sekhetar Robot hauls itself upright.</strong> The millennial machine needs no rest — it needs to <em>kill.</em></p>
+    <p>New target: the <strong>Death Cult Assassin</strong> holding the Objective. Four AUTOMATIC bursts streak across the gap. After the fourth — <strong>the Assassin is gone, eliminated.</strong> The Objective stands unguarded.</p>
+    <p>ASSAULT triggers. Sekhetar Robot charges straight into the <strong>Space Marine Heavy Flamer</strong> — the one who has been burning him since last turn. The Power Claw swings. It does not kill the stubborn warrior yet, but it locks him in melee — the flamer specialist is now trapped in close combat with a murder-machine, unable to bring his weapon to bear on anything else.</p>
+  </div>
+
+  <div class="activation friendly-fire">
+    <h4>A3 — Reaper Chaincannon: Friendly Fire Catastrophe</h4>
+    <p>The <strong>Space Marine Reaper Chaincannon</strong> looks down from his height — Sekhetar Robot is there, locked in combat with his comrade. He weighs it. Looks again. Sekhetar has far too much life left; it has to come down now.</p>
+    <p><em>He fires.</em></p>
+    <p>Three AUTOMATIC rounds tear through the air. Sekhetar dodges — and all three slam into <strong>his own ally, the Space Marine Heavy Flamer</strong> struggling below. <span class="blood-marker">5 BLOOD MARKER</span> pile onto a brother-in-arms in an instant of anguish.</p>
+    <div class="quote">"I... forgive me, brother." — <em>a voice, barely audible over the vox</em></div>
+  </div>
+
+  <div class="activation">
+    <h4>A4 — Rubric Marine: Strike First, Strike Hard</h4>
+    <p>The Thousand Sons' intention is clear: eliminate the <strong>Captain</strong> before he can become a genuine threat. The <strong>Rubric Marine</strong> slips wide, finds cover, and fires the first shot into the Captain — still blinking in the aftermath of his DEEP STRIKE landing. The Inferno Boltgun speaks — <span class="blood-marker">1 BLOOD MARKER</span> scores against the Terminator plate.</p>
+  </div>
+
+  <div class="activation">
+    <h4>A5 — Scout Marine: Covering Fire</h4>
+    <p>Seeing the Captain under fire, the <strong>Scout Marine</strong> sends two Autocannon rounds toward the Rubric Marine — one of them a <em>critical hit</em>, enough to instantly destroy an ordinary soldier. But the Rubric Marine is no ordinary soldier. He is an empty suit of armour, hollow of soul. Two <span class="blood-marker">BLOOD MARKER</span> are placed, and he does not stagger. <em>No pain. No fear. Nothing to touch.</em></p>
+  </div>
+
+  <div class="activation">
+    <h4>A6 — Traitor Weapon Team: Lascannon Through Terminator Plate</h4>
+    <p>From their 11" elevation, the <strong>Traitor Weapon Team</strong> locks the Captain in their sights. The Lascannon shrieks, and a lance of white light punches across the battlefield. The Terminator Armour carries the highest defence value on the board — but <strong>Armour Piercing 2</strong> strips it to a standard save. Another <span class="blood-marker">1 BLOOD MARKER</span> sears into the Captain's chest. <em>Not a kill — but one more weight on the scales.</em></p>
+  </div>
+
+  <div class="activation">
+    <h4>A7 — Captain: Dash for the Objective, Fire in Passing</h4>
+    <p>Struck from two directions the moment he lands, the <strong>Captain</strong> realises he cannot stand still. He drives hard toward the now-unguarded Objective — the one the Assassin died defending — levelling his <em>Assault Bolter 12"</em> toward Sekhetar Robot in passing. The range is too short and the melee too chaotic. The shots find nothing.</p>
+  </div>
+
+  <div class="activation kill">
+    <h4>A8 — Ahriman: The Fateful Shot</h4>
+    <p><strong>Ahriman</strong> drops his Invisibility, rides his Disc straight at the Captain. Two AUTOMATIC Storm Bolter rounds — and <em>the second is a critical hit.</em></p>
+    <p>A crack of azure lightning. A short, sharp detonation. <strong>The Captain falls — eliminated on the spot,</strong> his Terminator Armour splitting apart under the force of focused sorcery.</p>
+    <p>The kill complete, Ahriman repositions into cover and reaches for Invisibility once more. The Warp opens — and this time it is more dangerous than ever, with the Warp Surge from last turn still coiled inside him.</p>
+    <p><span class="tag-warp">PERILS OF THE WARP</span> again — the dice roll. <strong>Dragged into the Warp.</strong> Test at -1 DICE.</p>
+    <p>Ahriman closes his eyes. Breathes. The test <strong>succeeds</strong> — but only just. <span class="blood-marker">3 BLOOD MARKER</span> erupt across his body like wounds torn open from within. Invisibility holds — he vanishes, and the Salamanders lose their target.</p>
+    <div class="quote">"Tzeentch... I remain useful." — <em>Ahriman, watching his hand tremble slightly</em></div>
+  </div>
+
+  <div class="activation">
+    <h4>A9 — Tzaangor: Holding the Objective in Song</h4>
+    <p>The <strong>Tzaangor</strong> walks onto the Objective, settles in, and resumes playing. The battle rages. He does not care. The point is held — <em>and the music never stops.</em></p>
+  </div>
+
+  <div class="score-box">
+    <div class="label">End of Turn 2</div>
+    <div class="score"><span class="ts-color">Thousand Sons 2</span> — <span class="sal-color">Salamanders 1</span></div>
+    <div class="note">The Salamander Captain has fallen. The serpent has lost its head — and the rest will follow.</div>
+  </div>
+
+  <!-- ═══════════════════ TURN 3 ═══════════════════ -->
+  <div class="turn-header">
+    <h2>Turn 3 <span class="turn-subtitle">"Shaken — Trembling Before Fate"</span></h2>
+  </div>
+
+  <div class="morale-box fail">
+    <div class="morale-title">⚠ Morale Test — Salamanders</div>
+    The Captain is dead. Every surviving Salamander must test their nerve. <strong>All fail.</strong> Each warrior falls into the <strong>SHAKEN</strong> state — for the entirety of Turn 3, every action they take is a <em>Risky Action</em>. A single failure ends their Activation immediately.
+  </div>
+
+  <div class="narrative">
+    <p>The Salamanders still move first despite their diminishing numbers — but this time not from tactical advantage. They go first because there is no other choice.</p>
+  </div>
+
+  <div class="activation kill">
+    <h4>A1 — Space Marine Heavy Flamer: Breaking Free, Bringing It Down</h4>
+    <p>The <strong>Space Marine Heavy Flamer</strong> — carrying 5 Blood Markers from his own comrade's friendly fire — wrenches free of Sekhetar Robot's grip. The machine claws at him, but fortune holds for a single moment. He turns, and fires one last, desperate burst.</p>
+    <p>Fortune has abandoned the Sekhetar Robot at last. <strong>The ancient machine collapses for the final time — eliminated.</strong></p>
+    <p>A moment of silence. Then the Space Marine, exhausted, steps toward the Objective, his armour still wet with a dead brother's blood. <em>This is not victory. This is survival.</em></p>
+  </div>
+
+  <div class="activation">
+    <h4>A2 — Rubric Marine: Fire Before They Recover</h4>
+    <p>With the SHAKEN state still blanketing every Salamander, the <strong>Rubric Marine</strong> lines up the Inferno Boltgun on the <strong>Space Marine Reaper Chaincannon</strong>. A kill is not needed — only Blood Markers. Every Blood Marker stacked is another chance that the target fumbles his Risky Action when SHAKEN, and a failed Risky Action means <em>the Activation ends immediately.</em> Two <span class="blood-marker">BLOOD MARKER</span> are pinned to the Reaper Marine.</p>
+  </div>
+
+  <div class="activation shaken">
+    <h4>A3 — Reaper Chaincannon: Shot Missed, Activation Lost</h4>
+    <p>The <strong>Space Marine Reaper Chaincannon</strong> lifts his weapon, draws his aim. SHAKEN means this is a Risky Action — he must roll before he can act. The roll fails. <strong>Activation ends immediately.</strong> He stands there, weapon in hand, unable to fire a single round — completely useless in the most critical turn of the battle.</p>
+  </div>
+
+  <div class="activation">
+    <h4>A4 — Traitor Weapon Team: Same Tactic</h4>
+    <p>The same calculation — the <strong>Traitor Weapon Team</strong> angles the Lascannon at the <strong>Scout Marine</strong>. No kill needed; stack Blood Markers so SHAKEN can sabotage his next shot. <span class="blood-marker">1 BLOOD MARKER</span> is placed on the Scout.</p>
+  </div>
+
+  <div class="activation shaken">
+    <h4>A5 — Scout Marine: Descend and Miss</h4>
+    <p>The <strong>Scout Marine</strong> decides to drop from his sniper perch to find a better angle on Ahriman. A Risky Action — he must roll first. Success. He descends, draws a bead on the Sorcerer, and fires. But the Blood Markers the Thousand Sons have carefully stacked reduce his odds considerably — <strong>a miss</strong>, and because he is SHAKEN, the Activation closes.</p>
+  </div>
+
+  <div class="activation highlight">
+    <h4>A6 — Ahriman: The Blade of the Survivor</h4>
+    <p><strong>Ahriman</strong> steps from the darkness and drops his Invisibility. He fires a burst from the Storm Bolter toward the <strong>Space Marine Heavy Flamer</strong> — the most tenacious warrior on this battlefield — then drives in for close combat. The <strong>Fell Dagger</strong> — a blade forged in the Warp itself, one that drinks the life of the slain and returns it to its wielder — finds a gap in the armour. Blood flows. The <span class="blood-marker">1 BLOOD MARKER</span> that Ahriman carried from the previous turn's Perils <em>dissolves</em> as life floods back into him.</p>
+    <p>But the Space Marine Heavy Flamer does not fall. Battered, armour hanging in ruin, and <em>still standing.</em> He is the most obstinate warrior on this field, and he is not finished.</p>
+  </div>
+
+  <div class="activation">
+    <h4>A7 — Tzaangor: Still Playing</h4>
+    <p>The <strong>Tzaangor</strong> remains on the Objective, lost in his own music. Blood, ash, and gunfire all around — he does not care. <em>The point is held. The music plays on. It is enough.</em></p>
+  </div>
+
+  <div class="score-box">
+    <div class="label">End of Turn 3</div>
+    <div class="score"><span class="ts-color">Thousand Sons 3</span> — <span class="sal-color">Salamanders 2</span></div>
+    <div class="note">Sekhetar Robot has finally fallen — but his work was done long before his last breath. The Thousand Sons lead. Only three exhausted Salamanders remain.</div>
+  </div>
+
+  <!-- ═══════════════════ TURN 4 ═══════════════════ -->
+  <div class="turn-header">
+    <h2>Turn 4 — Final Turn <span class="turn-subtitle">"The Last Breath"</span></h2>
+  </div>
+
+  <div class="morale-box pass">
+    <div class="morale-title">✓ Morale Test — Salamanders</div>
+    The Captain fell last turn. This time — <strong>they hold.</strong> Not one Salamander breaks. The SHAKEN state lifts. Those who remain stand resolute, fighting to their last breath — <em>for the honour of Vulkan, for every brother who has fallen before them.</em>
+  </div>
+
+  <div class="narrative">
+    <p>The final turn. Three Salamanders remain. Four Thousand Sons. The score stands at 3–2. One point — just one more — will decide everything.</p>
+  </div>
+
+  <div class="activation">
+    <h4>A1 — Reaper Chaincannon: Firing Into Futility</h4>
+    <p>The <strong>Space Marine Reaper Chaincannon</strong> empties everything into the Rubric Marine — AUTOMATIC 3, rounds cascading without pause. <span class="blood-marker">BLOOD MARKER ×××××</span> pile onto the hollow warrior. But the Rubric Marine has no emotion, no pain, no soul to shake. He stands unmoved. <em>As if nothing happened at all.</em></p>
+  </div>
+
+  <div class="activation kill">
+    <h4>A2 — Rubric Marine: One Critical Round</h4>
+    <p>The <strong>Rubric Marine</strong> shifts position, flanking wide for a clean line of fire. He draws a bead on the <strong>Space Marine Reaper Chaincannon</strong> — the one who just unleashed that relentless torrent at him. One round. Singular. <em>Critical hit.</em></p>
+    <p><strong>The Space Marine Reaper Chaincannon drops, eliminated.</strong></p>
+    <p>The Rubric Marine advances toward the Salamander Objective — a new prize within reach.</p>
+  </div>
+
+  <div class="activation kill">
+    <h4>A3 — Scout Marine: The Rubric Falls</h4>
+    <p>Only the Scout Marine and the Heavy Flamer remain. The <strong>Scout Marine</strong> uses his last Activation — the Autocannon swings onto the <strong>Rubric Marine</strong> advancing on the Objective. This time: enough damage. Enough Blood Markers. <strong>The Rubric Marine collapses — eliminated.</strong></p>
+    <p>But it is far too late to reverse the score. Across the board, <strong>Ahriman</strong> remains locked in combat with the <strong>Space Marine Heavy Flamer</strong> — both of them tangled at the Objective, neither able to disengage. <em>That Objective is contested. The Salamanders cannot score it.</em></p>
+  </div>
+
+  <div class="activation">
+    <h4>A4 — Tzaangor: Grenade, Then Hold</h4>
+    <p>The final Activation of the battle. The <strong>Tzaangor</strong> breaks from his Objective, lofts a grenade toward the <strong>Scout Marine</strong> — the last Salamander sniper standing. It detonates. Shrapnel and smoke. More wounds are dealt — but the Scout Marine holds.</p>
+    <p>The Tzaangor does not pursue. He turns, steps back to his Objective, and holds the point. Instrument still in hand. Across the board, Ahriman and the Heavy Flamer are still locked together — that Objective scores for no one. No final point for the Salamanders.</p>
+    <p>The Salamanders survey what remains and concede. There is nothing left to salvage. <em>GG.</em></p>
+    <p><em>The music of the victor plays one last time.</em></p>
+  </div>
+
+  <!-- ═══════════════════ FINAL SCORE ═══════════════════ -->
+  <div class="score-box" style="border-color: var(--gold); background: linear-gradient(135deg, rgba(201,168,76,0.06), rgba(201,168,76,0.02)); margin-top: 40px;">
+    <div class="label">⚔️ Final Score ⚔️</div>
+    <div class="score"><span class="ts-color">Thousand Sons 4</span> — <span class="sal-color">Salamanders 2</span></div>
+    <div class="note" style="font-size: 1rem; font-weight: 700; color: #3aa5d0; font-style: normal; margin-top: 8px;">THOUSAND SONS VICTORIOUS</div>
+    <div class="note" style="margin-top: 6px;">The Objective held by Ahriman and the Heavy Flamer is contested — Salamanders cannot score the final point. The battle ends by concession after A4.</div>
+  </div>
+
+  <!-- ═══════════════════ EPILOGUE ═══════════════════ -->
+  <div class="narrative" style="margin-top: 40px;">
+    <p>Sector Vermillion-9 falls quiet. The smoke rising from Sekhetar Robot's wounds — the machine that absorbed the fire of an entire warband across the first two turns — still drifts in the still air. He fell eventually. But the work was already done.</p>
+    <p>The Salamanders lost — not for want of courage, nor firepower. They lost because of a single, ruthless equation: <em>Sekhetar Robot walked into the centre of their formation on A1, and every calculation from that moment forward was wrong.</em> Two AUTOMATIC 2 weapons, one ASSAULT charge — enough to erase three core units in half a turn. From a perfect eight-model formation, they became desperate men running a losing race with half a warband.</p>
+    <p>The Thousand Sons leave with a 4–2 victory. Ahriman was still locked in combat with the Heavy Flamer when the final bell sounded — that Space Marine refused to fall even when every comrade was gone. But it no longer mattered. The Objective was contested, no point could be claimed, and on the far side of the field the Tzaangor sat unmoved upon his Objective, playing his strange, unceasing song. The Salamanders looked at the board and nodded. <em>GG.</em></p>
+    <p style="text-align: center; margin-top: 30px; font-style: italic; color: var(--gold-dim);">But in the eyes of the surviving Salamanders — there is no submission.<br>Only a quiet promise made to those who fell.<br><br><strong>A third battle will come.</strong></p>
+  </div>
+</div>
+
+<!-- ═══════════════════ SUMMARY ═══════════════════ -->
+<section class="summary">
+  <h2>📊 Battle Statistics</h2>
+
+  <table class="stats-table">
+    <tr>
+      <th></th>
+      <th style="color: #3aa5d0;">Thousand Sons</th>
+      <th style="color: #4a9b4b;">Salamanders</th>
+    </tr>
+    <tr><td>Starting Models</td><td>6</td><td>8</td></tr>
+    <tr><td>Survivors</td><td>3 (Ahriman, Tzaangor, Traitor WT)</td><td>2 (Scout Marine, Heavy Flamer SM)</td></tr>
+    <tr><td>Kills</td><td>6 (Inceptor, HF×1, Gun Servitor, Assassin, Captain, Reaper SM)</td><td>3 (Tzaangor Shaman†, Sekhetar Robot, Rubric Marine)</td></tr>
+    <tr><td>Perils of the Warp</td><td>3 (Ahriman ×2, Shaman ×1)</td><td>—</td></tr>
+    <tr><td>Friendly Fire</td><td>—</td><td>1 (Reaper Chaincannon fires into own Heavy Flamer — 5 BM)</td></tr>
+    <tr><td>MVP</td><td>🏆 Sekhetar Robot</td><td>🏆 Space Marine Heavy Flamer</td></tr>
+    <tr><td><strong>Final Score</strong></td><td><strong>4</strong></td><td><strong>2</strong></td></tr>
+  </table>
+  <p style="font-size:0.72rem; color: var(--text-dim); text-align:center; margin-top: -20px; margin-bottom: 30px;">† Tzaangor Shaman was removed by Dragged into the Warp — not by the enemy.</p>
+
+  <h2>🌟 Memorable Moments</h2>
+  <ul class="moments">
+    <li class="legend"><strong>Sekhetar Robot — A1</strong>: Kills 2 units in the very first Activation of the battle. The outcome was decided before the first turn was done.</li>
+    <li class="warp-moment"><strong>Tzaangor Shaman</strong>: Did not fall to the enemy — devoured by the Warp itself after triggering Dragged into the Warp at -3 DICE. The MVP of the previous battle; the Warp's own sacrifice in this one.</li>
+    <li class="legend"><strong>Ahriman — Perils Chain</strong>: Triggered Perils twice, absorbed Warp Surge in T1, nearly died in T2 — but survived to deliver the killing blow on the Captain with a critical hit.</li>
+    <li class="rip"><strong>Space Marine Reaper Chaincannon</strong>: Dealt 5 Blood Markers of friendly fire onto his own ally in T2, then was put down by a single critical round from the Rubric Marine in T4.</li>
+    <li class="mvp"><strong>Space Marine Heavy Flamer</strong>: Survived from start to finish despite being charged by Sekhetar, struck by 5 BM of friendly fire, and locked in combat with Ahriman in T4. <em>One of the last two Salamanders standing.</em></li>
+    <li class="legend"><strong>Sekhetar Robot</strong>: Absorbed fire from all 5 Salamander units across the first two turns, survived 2 consecutive Bloodbath rolls through TOUGH, and only fell in Turn 3 — after eliminating 2 units and locking a third in combat.</li>
+  </ul>
+</section>
+
+<footer class="footer">
+  TRENCH HAMMER — Battle Report · The Rematch<br>
+  Thousand Sons vs Salamanders · Sector Vermillion-9 · April 27, 2026<br>
+  Final Score: Thousand Sons 4 — Salamanders 2<br>
+  Generated by Trench Hammer Army Builder
+</footer>
+
+</body>
+</html>

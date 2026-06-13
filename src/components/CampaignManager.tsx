@@ -5,6 +5,13 @@ import {
   getAvailableExplorationTables, EXPLORATION_TABLES, EXPLORATION_SKILL_DEFS,
 } from '../data/campaignMissions.js';
 import { getFactionResources, buildInitialFactionResources } from '../data/factionResources.js';
+import {
+  getPatronById, filterAbilitiesForSubfaction,
+  PATRON_WARBAND_EFFECTS, PATRON_WARBAND_EFFECT_CATEGORY_LABELS,
+} from '../data/patrons.js';
+import type { PatronWarbandEffectCategory } from '../data/patrons.js';
+import { getSubFactionById } from '../data/subfactions.js';
+import { PatronAbilityChip } from './PatronAbilityChip.js';
 import './CampaignManager.css';
 
 interface Props {
@@ -61,8 +68,37 @@ export function CampaignManager({
     [selectedFaction, selectedSubFaction]
   );
 
+  const currentSubFactionName = useMemo(
+    () => getSubFactionById(selectedFaction, selectedSubFaction)?.name,
+    [selectedFaction, selectedSubFaction]
+  );
+
+  const selectedPatron = useMemo(
+    () => (warband.patron ? getPatronById(warband.patron, selectedFaction) : undefined),
+    [warband.patron, selectedFaction]
+  );
+
+  const patronAbilities = useMemo(
+    () => (selectedPatron ? filterAbilitiesForSubfaction(selectedPatron.abilities, currentSubFactionName) : []),
+    [selectedPatron, currentSubFactionName]
+  );
+
+  /** Patron skills held by warband models that provide warband-wide campaign effects. */
+  const activeWarbandEffects = useMemo(() => {
+    const results: Array<{ skillName: string; unitName: string; category: PatronWarbandEffectCategory; summary: string }> = [];
+    for (const unit of warband.units) {
+      for (const skill of (unit.campaignSkills ?? [])) {
+        if (skill.source === 'patron') {
+          const effect = PATRON_WARBAND_EFFECTS[skill.name];
+          if (effect) results.push({ skillName: skill.name, unitName: unit.name, ...effect });
+        }
+      }
+    }
+    return results;
+  }, [warband.units]);
+
   // ── Local UI state ────────────────────────────────────────────
-  const [activeTab, setActiveTab] = useState<'overview' | 'missions' | 'exploration' | 'resources' | 'skills'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'missions' | 'exploration' | 'resources' | 'skills' | 'patron' | 'guide'>('overview');
   const [missionRoll, setMissionRoll] = useState<number | null>(null);
   const [explorationDice, setExplorationDice] = useState<number[]>([]);
   const [explorationAssignment, setExplorationAssignment] = useState<Record<string, number[]>>({});
@@ -148,9 +184,9 @@ export function CampaignManager({
 
         {/* ── Tabs ────────────────────────────────────────────── */}
         <div className="campaign-tabs">
-          {(['overview', 'missions', 'exploration', 'resources', 'skills'] as const).map(t => (
+          {(['overview', 'missions', 'exploration', 'resources', 'skills', 'patron', 'guide'] as const).map(t => (
             <button key={t} className={activeTab === t ? 'active' : ''} onClick={() => setActiveTab(t)}>
-              {t === 'overview' ? 'Overview' : t === 'missions' ? 'Missions' : t === 'exploration' ? 'Exploration' : t === 'resources' ? 'Resources' : 'Skills'}
+              {t === 'overview' ? 'Overview' : t === 'missions' ? 'Missions' : t === 'exploration' ? 'Exploration' : t === 'resources' ? 'Resources' : t === 'skills' ? 'Skills' : t === 'patron' ? 'Patron' : '? Guide'}
             </button>
           ))}
         </div>
@@ -398,8 +434,7 @@ export function CampaignManager({
           )}
 
           {/* ── SKILLS TAB ───────────────────────────────────── */}
-          {activeTab === 'skills' && (
-            <div className="campaign-skills">
+          {activeTab === 'skills' && (            <div className="campaign-skills">
               <div className="campaign-section">
                 <h3>Exploration Skills</h3>
                 {campaign.explorationSkills.length === 0 ? (
@@ -442,8 +477,263 @@ export function CampaignManager({
               </div>
             </div>
           )}
+
+          {/* ── PATRON TAB ───────────────────────────────────── */}
+          {activeTab === 'patron' && (
+            <div className="campaign-patron">
+              {!selectedPatron ? (
+                <div className="campaign-empty">
+                  <p>No Patron selected for this warband.</p>
+                  <p className="campaign-hint">Select a Patron in the Army Builder to see their abilities here.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="campaign-patron-header">
+                    <span className="campaign-patron-icon">⚜</span>
+                    <div>
+                      <h3 className="campaign-patron-name">{selectedPatron.name}</h3>
+                      <p className="campaign-patron-desc">{selectedPatron.description}</p>
+                    </div>
+                  </div>
+
+                  <div className="campaign-section">
+                    <h3>Patron Skills</h3>
+                    <p className="campaign-hint">
+                      When a model rolls a 2 or 12 on any Skill table, they may choose one of these Patron Skills.
+                    </p>
+                    <ul className="campaign-patron-skills">
+                      {patronAbilities.map((ability, i) => (
+                        <li key={i} className="campaign-patron-skill-item">
+                          <PatronAbilityChip ability={ability} />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {activeWarbandEffects.length > 0 && (
+                    <div className="campaign-section">
+                      <h3>Active Warband Effects</h3>
+                      <p className="campaign-hint">
+                        These Patron Skills are held by models in your warband and provide ongoing benefits during campaign phases.
+                      </p>
+                      {(['cost', 'limit', 'income', 'battle'] as PatronWarbandEffectCategory[]).map(cat => {
+                        const effects = activeWarbandEffects.filter(e => e.category === cat);
+                        if (effects.length === 0) return null;
+                        return (
+                          <div key={cat} className="campaign-warband-effect-group">
+                            <div className="campaign-warband-effect-cat-label">
+                              {PATRON_WARBAND_EFFECT_CATEGORY_LABELS[cat]}
+                            </div>
+                            {effects.map((e, i) => (
+                              <div key={i} className="campaign-warband-effect-row">
+                                <div className="campaign-warband-effect-top">
+                                  <span className="campaign-warband-effect-name">⚜ {e.skillName}</span>
+                                  <span className="campaign-warband-effect-holder">{e.unitName}</span>
+                                </div>
+                                <p className="campaign-warband-effect-summary">{e.summary}</p>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  <div className="campaign-section campaign-patrons-visit">
+                    <h3>⚜ Patron's Visit</h3>
+                    <p className="campaign-hint">
+                      During the Campaign Phase, your Patron may intercede on your behalf.
+                      Spend 1 Reserve Glory to gain 1 Campaign Victory Point — a direct translation of divine favour into strategic advantage.
+                    </p>
+                    <div className="campaign-patrons-visit-row">
+                      <div className="campaign-patrons-visit-stat">
+                        <span className="campaign-patrons-visit-label">Reserve Glory</span>
+                        <span className="campaign-patrons-visit-value">{campaign.reserveGlory}</span>
+                      </div>
+                      <button
+                        className="campaign-patrons-visit-btn"
+                        disabled={campaign.reserveGlory < 1}
+                        onClick={() => update({
+                          reserveGlory: campaign.reserveGlory - 1,
+                          campaignVP: campaign.campaignVP + 1,
+                        })}
+                      >
+                        Exchange 1 Glory → 1 Campaign VP
+                      </button>
+                      <div className="campaign-patrons-visit-stat">
+                        <span className="campaign-patrons-visit-label">Campaign VP</span>
+                        <span className="campaign-patrons-visit-value">{campaign.campaignVP}</span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* ── GUIDE TAB ─────────────────────────────────────── */}
+          {activeTab === 'guide' && (
+            <div className="campaign-guide">
+              <p className="campaign-guide-intro">
+                Step-by-step walkthrough of how the <strong>Patron system</strong> works across every phase of your campaign.
+              </p>
+              {PATRON_GUIDE_STEPS.map((step, i) => (
+                <div key={i} className="campaign-guide-step">
+                  <div className="campaign-guide-step-marker">
+                    <span className="campaign-guide-step-num">{i + 1}</span>
+                    {i < PATRON_GUIDE_STEPS.length - 1 && <div className="campaign-guide-step-line" />}
+                  </div>
+                  <div className="campaign-guide-step-body">
+                    <div className="campaign-guide-step-header">
+                      <span className="campaign-guide-step-icon">{step.icon}</span>
+                      <div>
+                        <div className="campaign-guide-step-phase">{step.phase}</div>
+                        <h3 className="campaign-guide-step-title">{step.title}</h3>
+                      </div>
+                    </div>
+                    <p className="campaign-guide-step-desc">{step.description}</p>
+                    {step.bullets && (
+                      <ul className="campaign-guide-step-bullets">
+                        {step.bullets.map((b, j) => <li key={j}>{b}</li>)}
+                      </ul>
+                    )}
+                    {step.tip && (
+                      <div className="campaign-guide-tip">
+                        <span className="campaign-guide-tip-label">Tip</span>
+                        {step.tip}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
+
+// ── Patron Guide step data ──────────────────────────────────────────────────
+const PATRON_GUIDE_STEPS: Array<{
+  icon: string;
+  phase: string;
+  title: string;
+  description: string;
+  bullets?: string[];
+  tip?: string;
+}> = [
+  {
+    icon: '⚜',
+    phase: 'Campaign Setup  (once)',
+    title: 'Choose Your Patron',
+    description:
+      'Before your first campaign game, select a Patron for your warband. This choice is permanent — choose based on your faction and playstyle.',
+    bullets: [
+      'Open the Army Builder → find the Patron section in the warband panel.',
+      'Pick from the Patrons available to your faction (Imperial / Chaos / faction-specific).',
+      'Come back here to the Patron tab to see all Patron Skills your models can earn.',
+    ],
+    tip: 'Chaos warbands choose from Chaos Patrons; Imperial warbands from Imperial Patrons. Some Patrons require a specific subfaction.',
+  },
+  {
+    icon: '🗺',
+    phase: 'Pre-Game Phase  (each battle)',
+    title: 'Apply Battle-Start Patron Effects',
+    description:
+      'Before deployment, check whether any model holds a Patron Skill that triggers at the start of the game.',
+    bullets: [
+      'Open Patron tab → Active Warband Effects → "⚔ Battle Setup" category.',
+      'Legal Action: after deployment, move one enemy model up to 6" (not into Melee or impassable terrain).',
+      'Master of Spies (Inquisition only): roll your Shadow Operation twice and choose one result.',
+      'Master of the Void: up to 2 non-Elite ROGUE TRADER models gain DEEP STRIKE for this battle.',
+    ],
+    tip: 'If no models have Battle Setup skills yet, skip this step. You will unlock them through Elite Progression.',
+  },
+  {
+    icon: '⚔',
+    phase: 'During the Battle',
+    title: 'Use Patron Abilities on Your Models',
+    description:
+      'Patron Skills work exactly like regular skills — they are always active on the model that holds them.',
+    bullets: [
+      'Passive bonuses (e.g. Brazen Hide, Loathsome Grace) are always on.',
+      'Triggered abilities (e.g. Profane Zeal, Zealous Persecution) fire when their condition is met.',
+      'Active abilities (e.g. Daemonic Whispers, Exalted Possessor) require an Action or Success Roll during that model\'s Activation.',
+    ],
+    tip: 'Use the Patron tab → Patron Skills list as a quick reference for what each ability does mid-game.',
+  },
+  {
+    icon: '🎲',
+    phase: 'Post-Game  →  Elite Progression',
+    title: 'Earn Patron Skills on a Roll of 2 or 12',
+    description:
+      'After the battle, Elite models roll on a Skill Table. A result of 2 or 12 lets that model pick a Patron Skill instead.',
+    bullets: [
+      'Open Army Builder → select the Elite model → tap Elite Progression.',
+      'Roll a skill table. When the result is 2 or 12, the Patron Skill Picker appears automatically.',
+      'Browse available skills — filtered for that model\'s keywords (Leader Only, Psyker Only, etc.).',
+      'Pick one. The skill is saved with a ⚜ badge. A model cannot take the same Patron Skill twice.',
+    ],
+    tip: 'Skills with "Leader Only" or "Psyker Only" conditions only appear for qualifying models in the picker.',
+  },
+  {
+    icon: '💰',
+    phase: 'Post-Game  →  Quartermaster Step',
+    title: 'Apply Cost-Reduction Patron Skills',
+    description:
+      'If any model holds a Supply Shipment or similar Patron Skill, apply those discounts when buying new equipment.',
+    bullets: [
+      'Open Patron tab → Active Warband Effects → "💰 Cost Reductions".',
+      'Supply Shipment: Armour & Equipment — items costing ≥15cr cost 5cr less (LIMIT: 1 model).',
+      'Supply Shipment: Melee Weapons — melee weapons costing ≥10cr cost 5cr less (LIMIT: 1 model).',
+      'Supply Shipment: Ranged Weapons — ranged weapons costing ≥20cr cost 5cr less (LIMIT: 1 model).',
+      'These discounts are active as long as the skill-holder is in the warband (not dead or retired).',
+    ],
+    tip: 'Two models cannot stack the same Supply Shipment type. Each LIMIT:1 means only one model in the warband may hold that specific skill.',
+  },
+  {
+    icon: '📋',
+    phase: 'Post-Game  →  Reinforcements Step',
+    title: 'Check Limit-Increase Patron Skills',
+    description:
+      'Some Patron Skills permanently raise the LIMIT of certain units, weapons, or equipment.',
+    bullets: [
+      'Open Patron tab → Active Warband Effects → "📋 Limit Increases".',
+      'Organizational Talent: one battlekit item\'s LIMIT increases by 1 (record your choice).',
+      'Secret Forces: one Troop type\'s LIMIT increases by 1 (cannot choose LIMIT:1 or LARGE models).',
+      'Port Contacts: any one weapon, armour, or equipment LIMIT increases by 1.',
+      'Tactical Acumen: one non-ELITE model type\'s limit increases by 1.',
+    ],
+    tip: 'The app tracks who holds which skill, but the specific item/unit you chose for a Limit increase is yours to note down.',
+  },
+  {
+    icon: '⭐',
+    phase: 'Post-Game  →  Income Step',
+    title: 'Collect Glory & Credit Income',
+    description:
+      'After each battle, collect any Glory or Credits granted by Patron Skills.',
+    bullets: [
+      'Open Patron tab → Active Warband Effects → "⭐ Glory & Credit Income".',
+      'Guild Affiliate: earn +2D6×10 credits — roll and add to Reserve Credits in the Overview tab.',
+      'Trusted War Leader (Leader Only): earn +1 Reserve Glory.',
+      'Inquisitorial Honor (non-Inquisition only): earn +1 Reserve Glory if this model participated.',
+      'Acquisitions: your credit limit for missions is permanently increased by 25.',
+    ],
+    tip: 'Update Reserve Credits and Reserve Glory in the Overview tab after collecting income.',
+  },
+  {
+    icon: '🏆',
+    phase: 'Post-Game  →  Patron\'s Visit  (optional)',
+    title: 'Trade Glory for Campaign Victory Points',
+    description:
+      'At any point during the Campaign Phase, your Patron can intercede on your behalf. Spend 1 Reserve Glory to gain 1 Campaign VP.',
+    bullets: [
+      'Open Patron tab → scroll to Patron\'s Visit at the bottom.',
+      'Tap "Exchange 1 Glory → 1 Campaign VP" (button disabled if Reserve Glory is 0).',
+      'Reserve Glory decreases by 1; Campaign VP increases by 1.',
+      'Use this when you are close to a VP milestone or heading into the Finale.',
+    ],
+    tip: 'Glory also pays for other campaign actions. Only trade it for VP when you have surplus or urgently need the Campaign VP.',
+  },
+];

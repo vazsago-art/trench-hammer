@@ -576,12 +576,9 @@ Incendiary Grenades	15 credits (LIMIT: 1\)
 ##### Special Melee Weapons
 
 Butcher’s Cleaver	10 credits  
-Butcher’s Chain	15 credits (Elite or Ganger Only)  
-Cleaver  
-Chain Glaive	20 credits (LIMIT: 2, Elite or   
-Ganger Only)  
-Twin Butcher’s	23 credits (Elite or Ganger Only)  
-Chain Cleavers
+Butcher’s Chain Cleaver 15 credits (Elite or Ganger Only)  
+Chain Glaive	20 credits (LIMIT: 2, Elite or Ganger Only)  
+Twin Butcher’s Chain Cleavers	23 credits (Elite or Ganger Only)  
 
 ##### Heavy Melee Weapons
 

@@ -89,6 +89,7 @@ export const unitAbilitiesMap: Record<string, Ability[]> = {
   // ========================================================================
   ac_shield_captain: [
     { id: 'ac_shield_captain_aegis_of_the_emperor', name: 'Aegis of the Emperor', description: 'Out of Action results become Down unless caused by Bloodbath; BLOOD MARKERs are only removable via Amelioration Pail.', type: 'passive' },
+    { id: 'ac_shield_captain_living_fortress', name: 'Living Fortress', description: 'The first -1 of the Shield-Captain\'s Armour gains IMPERVIOUS.', type: 'passive' },
     { id: 'ac_shield_captain_master_of_stances', name: 'Master of Stances', description: 'Choose ARMOUR PIERCING 1 or CRITICAL on each melee attack before rolling.', type: 'passive' },
     { id: 'ac_shield_captain_stand_vigil', name: 'Stand Vigil', description: 'Down results become Minor Hits.', type: 'passive' },
     { id: 'ac_shield_captain_strategic_mastery', name: 'Strategic Mastery', description: 'No roll — choose any model that has not yet activated; end own Activation and begin that model\'s Activation immediately.', type: 'action' },
@@ -115,12 +116,14 @@ export const unitAbilitiesMap: Record<string, Ability[]> = {
   ],
   ac_aquilon_terminator: [
     { id: 'ac_aquilon_terminator_aegis_of_the_emperor', name: 'Aegis of the Emperor', description: 'Out of Action results become Down unless caused by Bloodbath; BLOOD MARKERs are only removable via Amelioration Pail.', type: 'passive' },
+    { id: 'ac_aquilon_terminator_aquilon_armour', name: 'Aquilon Armour', description: 'Can wield a TWO-HANDED ranged weapon in one hand instead of a TWO-HANDED melee weapon.', type: 'passive' },
+    { id: 'ac_aquilon_terminator_heavy_assault_infantry', name: 'Heavy Assault Infantry', description: 'Whenever this model makes a ranged attack at Short Range against the closest legal target with a non-THROWN weapon, that attack has +1 INJURY DICE.', type: 'passive' },
     { id: 'ac_aquilon_terminator_stand_vigil', name: 'Stand Vigil', description: 'Down results become Minor Hits.', type: 'passive' },
   ],
   ac_contemptor_dreadnought: [
     { id: 'ac_contemptor_dreadnought_dread_foe', name: 'Dread Foe', description: 'When successfully Charges one or more enemies, those models must immediately roll on the Injury table.', type: 'passive' },
     { id: 'ac_contemptor_dreadnought_dreadnought_armaments', name: 'Dreadnought Armaments', description: 'While equipped with two ranged weapons, can Shoot with both during Activation.', type: 'passive' },
-    { id: 'ac_contemptor_dreadnought_unyielding_ancient', name: 'Unyielding Ancient', description: 'All injury rolls made against this model have -1 INJURY DICE.', type: 'passive' },
+    { id: 'ac_contemptor_dreadnought_unyielding_ancient', name: 'Unyielding Ancient', description: 'The first -1 of the Contemptor Dreadnought\'s Armour gains IMPERVIOUS.', type: 'passive' },
   ],
 
   // ========================================================================
@@ -360,9 +363,9 @@ export const unitAbilitiesMap: Record<string, Ability[]> = {
     { id: 'ha_tzaangor_shaman_bestial_prophet', name: 'Bestial Prophet', description: 'Each other friendly BEASTMEN model within 6" of the Tzaangor Shaman has +1 DICE to Hit with all attacks.', type: 'aura' },
     { id: 'ha_tzaangor_shaman_sacrificial_blessing', name: 'Sacrificial Blessing', description: 'When this model takes a PSYCHIC Success Roll or makes a PSYCHIC attack, you can choose one friendly BEASTMEN model within 1" of it to sacrifice. That model is taken Out of Action, and the Tzaangor Shaman has +2 DICE to the Success Roll it is taking.', type: 'passive' },
   ],
-  ha_sekhetar_robot: [
-    { id: 'ha_sekhetar_robot_robotic_armaments', name: 'Robotic Armaments', description: 'While equipped with two ranged weapons besides its Hellfyre Missile Rack, the Sekhetar Robot can make a Shoot Action with both of them during its Activation. It cannot fire any other weapon if it attacks with its Hellfyre Missile Rack.', type: 'passive' },
-    { id: 'ha_sekhetar_robot_prophetic_sentinel', name: 'Prophetic Sentinel', description: 'When an enemy model Charges this model, it can make a single ranged attack against that enemy before it moves with a weapon other than its Hellfyre Missile Rack.', type: 'passive' },
+  ts_sekhetar_robot: [
+    { id: 'ts_sekhetar_robot_robotic_armaments', name: 'Robotic Armaments', description: 'While equipped with two ranged weapons besides its Hellfyre Missile Rack, the Sekhetar Robot can make a Shoot Action with both of them during its Activation. It cannot fire any other weapon if it attacks with its Hellfyre Missile Rack.', type: 'passive' },
+    { id: 'ts_sekhetar_robot_prophetic_sentinel', name: 'Prophetic Sentinel', description: 'When an enemy model Charges this model, it can make a single ranged attack against that enemy before it moves with a weapon other than its Hellfyre Missile Rack.', type: 'passive' },
   ],
   ha_master_of_executions: [
     { id: 'ha_master_of_executions_a_worthy_skull', name: 'A Worthy Skull', description: 'Whenever the Master of Executions hits an ELITE or TOUGH enemy in melee, it costs 1 fewer BLOOD MARKER to Bloodbath that enemy.', type: 'passive' },
@@ -968,7 +971,7 @@ export const unitAbilitiesMap: Record<string, Ability[]> = {
   ],
   dr_khymera: [
     { id: 'dr_khymera_agile_beast', name: 'Agile Beast', description: '+1 DICE to all Climb, Dash, and Jump Success Rolls.', type: 'passive' },
-    { id: 'dr_khymera_daemonic_resistance', name: 'Daemonic Resistance', description: 'Injuries rolled against the Khymera have -1 DICE.', type: 'passive' },
+    { id: 'dr_khymera_daemonic_resistance', name: 'Daemonic Resistance', description: 'Injuries rolled against the Khymera have -1 INJURY MODIFIER with IMPERVIOUS. Injuries caused by non-PSYCHIC ranged attacks have -2 INJURY MODIFIER with IMPERVIOUS instead.', type: 'passive' },
   ],
   dr_razorwing_flock: [
     { id: 'dr_razorwing_flock_harassing_swarm', name: 'Harassing Swarm', description: 'When an enemy in close combat Retreats, the Razorwing Flock has +1 DICE to Hit and Injure for its free attack against that model.', type: 'passive' },

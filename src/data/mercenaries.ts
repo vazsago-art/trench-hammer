@@ -258,7 +258,7 @@ const IMPERIAL_ECCLESIARCHY: Mercenary[] = [
       { name: "Surgeon's Tools", profile: 'Melee, SHRAPNEL' },
     ],
     abilities: [
-      { name: 'Medicus Ministorum', description: 'As an Action: remove all Blood Markers from this model or an ally within 1".' },
+      { name: 'Medicus Ministorum', description: 'As an Action with +1 DICE: remove all Blood Markers from this model or an ally within 1". On a Critical Success, remove 3 BLOOD MARKERS instead of all.' },
     ],
   },
   {
@@ -375,7 +375,7 @@ const IMPERIAL_LAW: Mercenary[] = [
       'necromunda_gang:palanite_enforcers',
       'the_inquisition:inquisition_minoris',
     ],
-    keywords: [],
+    keywords: ['ARBITES'],
     stats: { movement: '6"/Infantry', ranged: '+1', melee: '+1', armour: '-2', base: '25-32mm' },
     weapons: [
       { name: 'Automatic Shotgun', profile: '12", +1 DICE, SHOTGUN, ASSAULT; with Bayonet Lug' },
@@ -397,7 +397,7 @@ const IMPERIAL_LAW: Mercenary[] = [
       'necromunda_gang:house_orlock',
       'the_inquisition:inquisition_minoris',
     ],
-    keywords: ['ARTIFICIAL', 'NO PROMOTION'],
+    keywords: ['ARBITES', 'ARTIFICIAL', 'NEGATE GAS', 'NO PROMOTION'],
     stats: { movement: '6"/Infantry', ranged: 'N/A', melee: '+1', armour: '-2', base: '25-28mm' },
     weapons: [
       { name: 'Savage Bite', profile: 'Melee, ARMOUR PIERCING 1' },
@@ -426,7 +426,7 @@ const IMPERIAL_LAW: Mercenary[] = [
     keywords: ['ANATHEMA', 'FEAR'],
     stats: { movement: '6"/Infantry', ranged: '+1', melee: '+1', armour: '-2', base: '32mm' },
     weapons: [
-      { name: 'Executioner Greatblade', profile: 'Melee, +1 INJURY DICE, +1 INJURY DICE vs DAEMON/PSYKER, TWO-HANDED' },
+      { name: 'Executioner Greatblade', profile: 'Melee, +1 INJURY DICE, +1 INJURY DICE vs DAEMON/PSYKER, CRITICAL, TWO-HANDED' },
       { name: 'Stakethrower', profile: '18", +1 INJURY DICE vs DAEMON/PSYKER, IGNORE ARMOUR on Critical, CRITICAL, TWO-HANDED; Shield Combo' },
       { name: 'Psyk-Out Grenades', profile: '8", IGNORE ARMOUR, +1 INJURY DICE vs DAEMON/PSYKER, BLAST 2", ASSAULT, STUN, THROWN' },
     ],
@@ -630,7 +630,7 @@ const IMPERIAL_MILITARY: Mercenary[] = [
     ],
     abilities: [
       { name: 'Knifer', description: 'This model has +1 INJURY DICE with Close Combat Weapons.' },
-      { name: 'Weathered', description: 'Injury rolls against this model have -1 DICE.' },
+      { name: 'Weathered', description: 'This model gains IMPERVIOUS and NEGATE FIRE and NEGATE STUN.' },
     ],
   },
   {
@@ -638,10 +638,10 @@ const IMPERIAL_MILITARY: Mercenary[] = [
     name: 'Penal Legionnaire',
     gloryCost: 3,
     category: 'imperial',
-    subcategory: 'Military',
+    subcategory: 'Law',
     maxCount: 1,
-    unavailableTo: ['adepta_sororitas', 'adeptus_astartes', 'adeptus_custodes'],
-    keywords: ['MILITARUM', 'NO PROMOTION'],
+    unavailableTo: ['adepta_sororitas', 'adeptus_astartes', 'adeptus_custodes', 'adeptus_arbites', 'necromunda_gang:adeptus_arbites'],
+    keywords: ['ARBITES', 'MILITARUM', 'NO PROMOTION'],
     stats: { movement: '6"/Infantry', ranged: '0', melee: '+1', armour: '-1', base: '28mm' },
     weapons: [
       { name: 'Hand Flamer', profile: '6", FLAMETHROWER, IGNORE ARMOUR, -2 INJURY DICE, FIRE' },
@@ -1335,22 +1335,23 @@ const CHAOS_DAEMON: Mercenary[] = [
     variantName: 'Daemon Prince (Winged)',
     variantGloryCost: 8,
     unavailableTo: ['chaos_daemons', 'vermintide'],
-    keywords: ['DAEMON', 'ELITE', 'LARGE', 'STRONG', 'TOUGH'],
+    keywords: ['DAEMON', 'ELITE', 'FEAR', 'LARGE', 'STRONG', 'TOUGH'],
     recruitPrompt: "Choose the Daemon Prince's allegiance:",
     recruitOptions: [
       { id: 'darkness', label: 'Daemon Prince of Darkness', description: 'The Daemon Prince and all allied models within 6" of it gain the STEALTH Keyword.' },
-      { id: 'khorne', label: 'Daemon Prince of Khorne', description: 'Melee attacks gain +1 INJURY MODIFIER. Gains the KHORNE Keyword.' },
-      { id: 'nurgle', label: 'Daemon Prince of Nurgle', description: 'Treats Down results as Minor Hits (does not affect TOUGH). Gains the NURGLE Keyword.' },
-      { id: 'slaanesh', label: 'Daemon Prince of Slaanesh', description: '+1" movement speed, +1 DICE to all Dash Success Rolls. Gains the SLAANESH Keyword.' },
-      { id: 'tzeentch', label: 'Daemon Prince of Tzeentch', description: 'Ranged attacks gain +1 INJURY MODIFIER. Gains the TZEENTCH Keyword.' },
+      { id: 'khorne', label: 'Daemon Prince of Khorne', description: 'Has CLEAVE 2 with its Hellforged Weapon. Gains the KHORNE Keyword. Requires Khorne Patron.' },
+      { id: 'nurgle', label: 'Daemon Prince of Nurgle', description: 'All injury rolls against the Daemon Prince have -1 INJURY DICE (a Bloodbath ignores this effect). Gains the NURGLE Keyword. Requires Nurgle Patron.' },
+      { id: 'slaanesh', label: 'Daemon Prince of Slaanesh', description: '+1" movement speed, +1 DICE to all Dash Success Rolls. Gains the SLAANESH Keyword. Requires Slaanesh Patron.' },
+      { id: 'tzeentch', label: 'Daemon Prince of Tzeentch', description: 'Has AUTOMATIC 2 with its Warp Bolter. Gains the TZEENTCH Keyword. Requires Tzeentch Patron.' },
     ],
     stats: { movement: '8"/Infantry', ranged: '+2', melee: '+2', armour: '-3', base: '60mm' },
     weapons: [
-      { name: 'Hellforged Weapon', profile: 'Melee, +1 INJURY DICE, HEAVY, TWO-HANDED; choose AP1 or extra attack' },
-      { name: 'Infernal Cannon', profile: '24", +1 INJURY DICE, BLAST 2", HEAVY, SHRAPNEL, TWO-HANDED' },
+      { name: 'Hellforged Weapon', profile: 'Melee, +1 INJURY DICE, HEAVY, TWO-HANDED; Strike: ARMOUR PIERCING 2; Sweep: SWEEPING' },
+      { name: 'Malefic Talons', profile: 'Melee, CRITICAL' },
+      { name: 'Warp Bolter', profile: '24", ASSAULT, CRITICAL, VICIOUS 11, HEAVY, TWO-HANDED' },
     ],
     abilities: [
-      { name: 'Daemonic Resistance', description: '-1 DICE to all Injury rolls against this model.' },
+      { name: 'Armoured Daemonic Resistance', description: 'The first -1 of the Daemon Prince\'s Armour has IMPERVIOUS. This increases to the first -2 if the injury is caused by a non-PSYCHIC ranged attack.' },
       { name: 'Chaos Allegiance', description: 'Choose a mark at recruitment (Darkness/Khorne/Nurgle/Slaanesh/Tzeentch) for a corresponding bonus ability.' },
     ],
     mercUpgrades: [
@@ -1373,12 +1374,12 @@ const CHAOS_DAEMON: Mercenary[] = [
     unavailableTo: ['chaos_daemons'],
     description: 'Summoned Daemon. Max 2 Summoned Daemons total across entire warband.',
     keywords: ['DAEMON', 'FLYING', 'UNDIVIDED'],
-    stats: { movement: '10"/Flying', ranged: 'N/A', melee: '+1', armour: '0', base: '25mm' },
+    stats: { movement: '8"/Flying', ranged: 'N/A', melee: '+0', armour: '-0/-1', base: '25mm' },
     weapons: [
       { name: 'Daemonic Claw (×2)', profile: 'Melee, IGNORE OFF-HAND' },
     ],
     abilities: [
-      { name: 'Daemonic Resistance', description: '-1 DICE to all Injury rolls against this model.' },
+      { name: 'Minor Daemonic Resistance', description: 'Injuries caused by non-PSYCHIC ranged attacks have -1 INJURY MODIFIER with IMPERVIOUS.' },
       { name: 'Prey on the Weak', description: 'This model ignores the Armour of Down enemies.' },
     ],
   },
@@ -1392,13 +1393,13 @@ const CHAOS_DAEMON: Mercenary[] = [
     unavailableTo: ['chaos_daemons'],
     description: 'Summoned Daemon. Max 2 Summoned Daemons total across entire warband.',
     keywords: ['DAEMON', 'KHORNE'],
-    stats: { movement: '6"/Infantry', ranged: '+0', melee: '+2', armour: '0', base: '32mm' },
+    stats: { movement: '6"/Infantry', ranged: '+0', melee: '+2', armour: '-0/-1', base: '32mm' },
     weapons: [
       { name: 'Hellblade', profile: 'Melee, VICIOUS 10, CRITICAL, TWO-HANDED' },
     ],
     abilities: [
       { name: 'Bane of Cowards', description: '+1 DICE to Hit and Injure on free attacks triggered by enemy Retreats.' },
-      { name: 'Daemonic Resistance', description: '-1 DICE to all Injury rolls against this model.' },
+      { name: 'Minor Daemonic Resistance', description: 'Injuries caused by non-PSYCHIC ranged attacks have -1 INJURY MODIFIER with IMPERVIOUS.' },
     ],
   },
   {
@@ -1411,12 +1412,13 @@ const CHAOS_DAEMON: Mercenary[] = [
     unavailableTo: ['chaos_daemons'],
     description: 'Summoned Daemon. Max 2 Summoned Daemons total across entire warband.',
     keywords: ['DAEMON', 'FEAR', 'SLAANESH'],
-    stats: { movement: '8"/Infantry', ranged: '+0', melee: '+1', armour: '0', base: '25mm' },
+    stats: { movement: '8"/Infantry', ranged: '+0', melee: '+1', armour: '-1/-2', base: '25mm' },
     weapons: [
       { name: 'Slashing Claw (×2)', profile: 'Melee, CRITICAL, IGNORE OFF-HAND' },
     ],
     abilities: [
-      { name: 'Daemonic Resistance', description: '-1 DICE to all Injury rolls against this model.' },
+      { name: 'Graceful', description: 'When the Daemonette takes the Dash Action, if it rolls a 10 or higher, it automatically succeeds at any Climb or Jump Success Rolls it makes during that movement.' },
+      { name: 'Minor Daemonic Resistance', description: 'Injuries caused by non-PSYCHIC ranged attacks have -1 INJURY MODIFIER with IMPERVIOUS.' },
     ],
   },
   {
@@ -1429,15 +1431,15 @@ const CHAOS_DAEMON: Mercenary[] = [
     unavailableTo: ['chaos_daemons'],
     description: 'Summoned Daemon. Max 2 Summoned Daemons total across entire warband.',
     keywords: ['DAEMON', 'NURGLE'],
-    stats: { movement: '5"/Infantry', ranged: '+0', melee: '+1', armour: '0', base: '32mm' },
+    stats: { movement: '5"/Infantry', ranged: '+0', melee: '+1', armour: '-1/-2', base: '32mm' },
     weapons: [
       { name: 'Plaguesword', profile: 'Melee, INFECTION MARKERS, TWO-HANDED' },
     ],
     abilities: [
-      { name: 'Daemonic Resistance', description: '-1 DICE to all Injury rolls against this model.' },
-      { name: 'Disgustingly Resilient', description: 'Down results against this model become Minor Hits instead.' },
-      { name: 'Inevitable', description: 'This model may only move up to half its movement when Dashing.' },
-      { name: 'Infected Outbreak', description: 'Enemies in combat with this model that have Infection Markers suffer -1 DICE to all rolls.' },
+      { name: 'Disgustingly Resilient', description: 'All Injury rolls against this model have -1 INJURY DICE. A Bloodbath ignores this effect.' },
+      { name: 'Inevitable', description: 'This model moves only half as far when Dashing (i.e. 3").' },
+      { name: 'Infected Outbreak', description: 'Enemies in close combat with this model that have any INFECTION MARKERS have -1 DICE to all Success Rolls.' },
+      { name: 'Minor Daemonic Resistance', description: 'Injuries caused by non-PSYCHIC ranged attacks have -1 INJURY MODIFIER with IMPERVIOUS.' },
     ],
   },
   {
@@ -1450,41 +1452,42 @@ const CHAOS_DAEMON: Mercenary[] = [
     unavailableTo: ['chaos_daemons'],
     description: 'Summoned Daemon. Max 2 Summoned Daemons total across entire warband.',
     keywords: ['DAEMON', 'LIMITED POTENTIAL', 'TZEENTCH'],
-    stats: { movement: '6"/Infantry', ranged: '+1', melee: '+0', armour: '0', base: '32mm' },
+    stats: { movement: '6"/Infantry', ranged: '+1', melee: '+0', armour: '-0/-1', base: '32mm' },
     weapons: [
       { name: 'Coruscating Blue Flames', profile: '18", -1 INJURY DICE, IGNORE ARMOUR, FIRE, PSYCHIC, RISKY, TWO-HANDED' },
       { name: 'Blue Claws', profile: 'Melee, -1 INJURY DICE, TWO-HANDED' },
       { name: 'Icon of Tzeentch', profile: 'Equipment: Blue Claws gain the FIRE keyword' },
     ],
     abilities: [
-      { name: 'Brimstone', description: 'When this model goes Out of Action, one enemy within 6" must pass a roll or gain a Blood Marker.' },
+      { name: 'Brimstone', description: 'When this model is taken Out of Action, you can choose up to two enemy models within 6" of it. Each chosen model must succeed at a Success Roll or gain 1 BLOOD MARKER.' },
+      { name: 'Minor Daemonic Resistance', description: 'Injuries caused by non-PSYCHIC ranged attacks have -1 INJURY MODIFIER with IMPERVIOUS.' },
     ],
   },
   {
     id: 'merc_daemon_pink_horror',
     name: 'Pink Horror',
-    gloryCost: 5,
+    gloryCost: 4,
     category: 'chaos',
     subcategory: 'Daemon',
     maxCount: 1,
     unavailableTo: ['chaos_daemons'],
     description: 'Summoned Daemon. Counts as 2 toward the max 2 Summoned Daemons limit.',
     keywords: ['DAEMON', 'TZEENTCH'],
-    stats: { movement: '6"/Infantry', ranged: '+2', melee: '+1', armour: '0', base: '32mm' },
+    stats: { movement: '6"/Infantry', ranged: '+2', melee: '+1', armour: '-1/-2', base: '32mm' },
     weapons: [
       { name: 'Coruscating Pink Flames', profile: '18", FIRE, PSYCHIC, RISKY, TWO-HANDED' },
       { name: 'Pink Claws', profile: 'Melee, TWO-HANDED' },
     ],
     abilities: [
-      { name: 'Daemonic Resistance', description: '-1 DICE to all Injury rolls against this model.' },
-      { name: 'Split', description: 'When this model goes Out of Action, place two Blue Horror models within 3".' },
+      { name: 'Daemonic Resistance', description: 'Injuries rolled against this model have -1 INJURY MODIFIER with IMPERVIOUS. Injuries caused by non-PSYCHIC ranged attacks have -2 INJURY MODIFIER with IMPERVIOUS instead.' },
+      { name: 'Split', description: 'When this model is taken Out of Action, place two Summoned Blue Horrors as close as possible. They join your Warband for the remainder of the battle, then disappear.' },
     ],
   },
   // ── Summoned Daemons (new 20260412) ──
   {
     id: 'merc_daemon_summoned_flesh_hound',
     name: 'Summoned Flesh Hound',
-    gloryCost: 3,
+    gloryCost: 4,
     category: 'chaos',
     subcategory: 'Daemon',
     maxCount: 1,
@@ -1492,13 +1495,13 @@ const CHAOS_DAEMON: Mercenary[] = [
     leaderKeywordRequired: 'KHORNE',
     description: 'Only a Warband with the Khorne Patron can recruit this Mercenary.',
     keywords: ['DAEMON', 'LARGE', 'NO PROMOTION', 'KHORNE'],
-    stats: { movement: '8"/Infantry', ranged: 'N/A', melee: '+2', armour: '0', base: '60 x 35mm' },
+    stats: { movement: '8"/Infantry', ranged: 'N/A', melee: '+2', armour: '-1/-2', base: '60 x 35mm' },
     weapons: [
       { name: 'Burning Roar', profile: '8", FLAMETHROWER, IGNORE ARMOUR, -1 INJURY DICE, FIRE' },
       { name: 'Gore-Drenched Fangs', profile: 'Melee, +1 INJURY DICE' },
     ],
     abilities: [
-      { name: 'Daemonic Resistance', description: 'Injuries rolled against this model have -1 DICE.' },
+      { name: 'Daemonic Resistance', description: 'Injuries rolled against this model have -1 INJURY MODIFIER with IMPERVIOUS. Injuries caused by non-PSYCHIC ranged attacks have -2 INJURY MODIFIER with IMPERVIOUS instead.' },
       { name: 'Hunter from the Warp', description: '+1 DICE to all Dash, Climb, and Jump Success Rolls.' },
     ],
   },
@@ -1518,15 +1521,16 @@ const CHAOS_DAEMON: Mercenary[] = [
       { name: 'Close Combat Weapon', profile: 'Melee' },
     ],
     abilities: [
-      { name: 'Daemonic Resistance', description: 'Injuries rolled against this model have -1 DICE.' },
-      { name: 'Inevitable', description: 'Moves only half as far when Dashing (i.e. 3").' },
+      { name: 'Disgustingly Resilient', description: 'All Injury rolls against this model have -1 INJURY DICE. A Bloodbath ignores this effect.' },
+      { name: 'Inevitable', description: 'This model moves only half as far when Dashing (i.e. 3").' },
+      { name: 'Minor Daemonic Resistance', description: 'Injuries caused by non-PSYCHIC ranged attacks have -1 INJURY MODIFIER with IMPERVIOUS.' },
       { name: 'Mischief Makers', description: 'Enemies in melee with one or more Nurgling Swarms suffer -1 DICE to Hit with all attacks.' },
     ],
   },
   {
     id: 'merc_daemon_summoned_screamer',
     name: 'Summoned Screamer',
-    gloryCost: 2,
+    gloryCost: 3,
     category: 'chaos',
     subcategory: 'Daemon',
     maxCount: 1,
@@ -1534,12 +1538,12 @@ const CHAOS_DAEMON: Mercenary[] = [
     leaderKeywordRequired: 'TZEENTCH',
     description: 'Only a Warband with the Tzeentch Patron can recruit this Mercenary.',
     keywords: ['DAEMON', 'FLYING', 'NO PROMOTION', 'TZEENTCH'],
-    stats: { movement: '10"/Flying', ranged: 'N/A', melee: '+1', armour: '0', base: '32mm' },
+    stats: { movement: '10"/Flying', ranged: 'N/A', melee: '+1', armour: '-1/-2', base: '32mm' },
     weapons: [
       { name: 'Lamprey Maw', profile: 'Melee, +1 INJURY DICE, TWO-HANDED' },
     ],
     abilities: [
-      { name: 'Daemonic Resistance', description: 'Injuries rolled against this model have -1 DICE.' },
+      { name: 'Daemonic Resistance', description: 'Injuries rolled against this model have -1 INJURY MODIFIER with IMPERVIOUS. Injuries caused by non-PSYCHIC ranged attacks have -2 INJURY MODIFIER with IMPERVIOUS instead.' },
       { name: 'Slashing Dive', description: 'Can move through enemies without Charging. First enemy moved through each Activation gains 1 BLOOD MARKER.' },
     ],
   },
@@ -1554,13 +1558,13 @@ const CHAOS_DAEMON: Mercenary[] = [
     leaderKeywordRequired: 'SLAANESH',
     description: 'Only a Warband with the Slaanesh Patron can recruit this Mercenary.',
     keywords: ['DAEMON', 'LARGE', 'INFILTRATOR', 'SLAANESH'],
-    stats: { movement: '10"/Infantry', ranged: '+0', melee: '+1', armour: '0', base: '60 x 35mm' },
+    stats: { movement: '10"/Infantry', ranged: '+0', melee: '+1', armour: '-0/-1', base: '60 x 35mm' },
     weapons: [
       { name: 'Lashing Tongue', profile: 'Melee, takes no hands, extra attack on Fight Action' },
       { name: 'Slashing Claw (×2)', profile: 'Melee, CRITICAL, IGNORE OFF-HAND' },
     ],
     abilities: [
-      { name: 'Daemonic Resistance', description: 'Injuries rolled against this model have -1 DICE.' },
+      { name: 'Minor Daemonic Resistance', description: 'Injuries caused by non-PSYCHIC ranged attacks have -1 INJURY MODIFIER with IMPERVIOUS.' },
       { name: 'Unholy Speed', description: '+1 DICE to all Dash and Jump Success Rolls.' },
     ],
   },
@@ -1579,6 +1583,7 @@ const CHAOS_HERETIC_ASTARTES: Mercenary[] = [
       'heretic_astartes:iron_warriors',
       'heretic_astartes:night_lords',
       'heretic_astartes:word_bearers',
+      'chaos_daemons',
     ],
     keywords: ['HERETIC ASTARTES'],
     stats: { movement: '6"/Infantry', ranged: '+2', melee: '+2', armour: '-2', base: '32mm' },
@@ -2169,12 +2174,12 @@ const XENOS_AELDARI: Mercenary[] = [
   {
     id: 'merc_xen_el_corsair_shade_runner',
     name: 'Corsair Shade Runner',
-    gloryCost: 3,
+    gloryCost: 4,
     category: 'xenos',
     subcategory: 'Aeldari',
     maxCount: 1,
     availableTo: ['aeldari', 'drukhari', 'harlequins'],
-    keywords: ['INFILTRATOR'],
+    keywords: ['AELDARI', 'INFILTRATOR'],
     stats: { movement: '7"/Infantry', ranged: '+2', melee: '+2', armour: '-1', base: '25mm' },
     weapons: [
       { name: 'Shuriken Pistol', profile: '12", ARMOUR PIERCING 1 on Critical, PISTOL' },
@@ -2195,11 +2200,11 @@ const XENOS_AELDARI: Mercenary[] = [
     subcategory: 'Aeldari',
     maxCount: 1,
     availableTo: ['aeldari', 'drukhari', 'harlequins'],
-    keywords: ['PSYKER 1'],
+    keywords: ['AELDARI', 'PSYKER 1'],
     stats: { movement: '7"/Infantry', ranged: '+2', melee: '+2', armour: '-1', base: '25mm' },
     weapons: [
       { name: 'Shuriken Pistol', profile: '12", ARMOUR PIERCING 1 on Critical, PISTOL' },
-      { name: 'Power Blade', profile: 'Melee, CRITICAL, ARMOUR PIERCING 2' },
+      { name: 'Witchblade', profile: 'Melee, +1 INJURY DICE, CRITICAL, PSYCHIC, HELD, MAIN HAND ONLY' },
       { name: 'Mesh Armour', profile: 'Equipment: -1 DICE to Injury rolls' },
     ],
     psychicPowers: [
@@ -2297,7 +2302,7 @@ const XENOS_AELDARI: Mercenary[] = [
     subcategory: 'Aeldari',
     maxCount: 1,
     availableTo: ['aeldari'],
-    keywords: ['INFILTRATOR'],
+    keywords: ['AELDARI', 'INFILTRATOR', 'STEALTH'],
     stats: { movement: '7"/Infantry', ranged: '+2', melee: '+1', armour: '0', base: '32mm' },
     weapons: [
       { name: 'Long Rifle', profile: '48", +1 DICE, CRITICAL, TWO-HANDED' },
@@ -2307,7 +2312,7 @@ const XENOS_AELDARI: Mercenary[] = [
     ],
     abilities: [
       { name: 'Bringer of the True Death', description: 'Only 3 Blood Markers are needed for a Bloodbath result when this model shoots at range.' },
-      { name: 'Hunter Unseen', description: 'This model cannot be targeted by ranged attacks from Long Range.' },
+      { name: 'Hunter Unseen', description: 'This model cannot be targeted by ranged attacks from Long Range or while STEALTH applies.' },
     ],
   },
   {
@@ -2431,20 +2436,20 @@ const XENOS_LEAGUES: Mercenary[] = [
     stats: { movement: '5"/Infantry', ranged: '+2', melee: '0', armour: '-2', base: '32mm' },
     weapons: [
       { name: 'Transmatter Inverter — Half Charge', profile: '12", ARMOUR PIERCING 1' },
-      { name: 'Transmatter Inverter — Full Charge', profile: '18", +1 INJURY DICE, ARMOUR PIERCING 2, RISKY' },
-      { name: 'Transmatter Inverter — Overcharge', profile: '24", IGNORE ARMOUR, RISKY' },
+      { name: 'Transmatter Inverter — Full Charge', profile: '18", +1 INJURY DICE, ARMOUR PIERCING 2, DANGEROUS' },
+      { name: 'Transmatter Inverter — Overcharge', profile: '24", +1 INJURY DICE, IGNORE ARMOUR, DANGEROUS' },
       { name: 'Close Combat Weapon', profile: 'Melee' },
     ],
     abilities: [
       { name: 'Deadly Demise', description: 'When this model goes Out of Action, all models within 3" suffer an Injury roll.' },
-      { name: 'Resource Transmutation', description: 'Once per Quartermaster step, swap up to 30 resources between models.' },
+      { name: 'Resource Transmutation', description: 'Once per Quartermaster step, grant 30 credits to any friendly model or swap resources between models.' },
       { name: 'Science Guild Support', description: 'This model cannot be targeted by ranged attacks while within 3" of a friendly VOTANN model.' },
     ],
   },
   {
     id: 'merc_xen_lov_corv',
     name: 'C-ORV',
-    gloryCost: 2,
+    gloryCost: 3,
     category: 'xenos',
     subcategory: 'Leagues of Votann',
     maxCount: 2,
@@ -2530,7 +2535,7 @@ const XENOS_LEAGUES: Mercenary[] = [
   {
     id: 'merc_xen_lov_squat_exo_driller',
     name: 'Squat Exo-Driller',
-    gloryCost: 5,
+    gloryCost: 4,
     category: 'xenos',
     subcategory: 'Leagues of Votann',
     maxCount: 1,
@@ -2729,11 +2734,11 @@ const XENOS_ORKS: Mercenary[] = [
     keywords: ['ORK', 'STEALTH'],
     stats: { movement: '6"/Infantry', ranged: '+2', melee: '0', armour: '-1', base: '25mm' },
     weapons: [
-      { name: 'Kustom Grot Blasta (×2)', profile: '18", PISTOL' },
+      { name: 'Kustom Grot Blasta (×2)', profile: '18", ASSAULT, PISTOL' },
       { name: "'Ard Hat", profile: 'Equipment: NEGATE SHRAPNEL' },
     ],
     abilities: [
-      { name: "Blasta Slingin'", description: 'When firing both Blastas, gains ASSAULT and IGNORE OFF-HAND.' },
+      { name: "Blasta Slingin'", description: 'When firing both Blastas, gains IGNORE OFF-HAND WEAPON.' },
       { name: 'Ded Killy', description: 'IGNORE COVER against targets that have already been hit this activation; +1 INJURY DICE against already-hit targets. Applies only to ranged attacks.' },
       { name: 'Small', description: '-1 DICE to all Injury rolls against this model.' },
     ],
@@ -2833,7 +2838,7 @@ const XENOS_SLANNI: Mercenary[] = [
     subcategory: 'Slanni',
     maxCount: 1,
     availableTo: ['slanni'],
-    keywords: ['FLYING', 'LARGE', 'NO PROMOTION', 'SLANN', 'STRONG', 'VEHICLE'],
+    keywords: ['FLYING', 'LARGE', 'NO PROMOTION', 'SLANN', 'STRONG', 'TOUGH', 'VEHICLE'],
     stats: { movement: '10"/Flying', ranged: '+1', melee: '0', armour: '-2', base: '50mm' },
     weapons: [
       { name: 'Scatter Cannon', profile: '36", AUTO 3, HEAVY, RELOAD, TWO-HANDED' },
@@ -2872,7 +2877,7 @@ const XENOS_SLANNI: Mercenary[] = [
     subcategory: 'Slanni',
     maxCount: 1,
     availableTo: ['slanni'],
-    keywords: ['SLANN', 'STRONG'],
+    keywords: ['SLANN', 'STRONG', 'TOUGH'],
     stats: { movement: '6"/Infantry', ranged: 'N/A', melee: '+2', armour: '-2', base: '40mm' },
     weapons: [
       { name: 'Celestite Warmace', profile: 'Melee, +1 INJURY MODIFIER, HEAVY, IGNORE ARMOUR on Critical, TWO-HANDED' },
@@ -2880,7 +2885,7 @@ const XENOS_SLANNI: Mercenary[] = [
       { name: 'Energy Field', profile: 'Equipment: -1 DICE to Injury rolls' },
     ],
     abilities: [
-      { name: 'Predator', description: 'VICIOUS 11 against bloodied targets.' },
+      { name: 'Alpha Predator', description: 'VICIOUS 11 against bloodied targets. This model has TOUGH.' },
       { name: 'Primal Rage', description: 'This model cannot spend Blood Markers. At 3+ Blood Markers, all attacks gain +1 DICE.' },
       { name: 'Scent of Weakness', description: '-1 Blood Marker cost for Bloodbath results against enemies within 1".' },
     ],
@@ -3108,12 +3113,12 @@ const XENOS_TYRANIDS: Mercenary[] = [
   {
     id: 'merc_xen_ty_parasite',
     name: 'Parasite of Mortrex',
-    gloryCost: 5,
+    gloryCost: 4,
     category: 'xenos',
     subcategory: 'Tyranids',
     maxCount: 1,
     availableTo: ['tyranids', 'genestealer_cults'],
-    keywords: ['ELITE', 'FEAR', 'FLYING', 'LARGE', 'TYRANID'],
+    keywords: ['ELITE', 'FEAR', 'FLYING', 'LARGE', 'TOUGH', 'TYRANID'],
     stats: { movement: '8"/Flying', ranged: 'N/A', melee: '+2', armour: '-1', base: '40mm' },
     weapons: [
       { name: 'Barbed Ovipositor', profile: 'CLEAVE 2, +1 INJURY DICE' },
@@ -3142,7 +3147,7 @@ const XENOS_TYRANIDS: Mercenary[] = [
   {
     id: 'merc_xen_ty_von_ryans_leaper',
     name: "Von Ryan's Leaper",
-    gloryCost: 4,
+    gloryCost: 3,
     category: 'xenos',
     subcategory: 'Tyranids',
     maxCount: 2,
@@ -3270,7 +3275,7 @@ const XENOS_TYRANIDS: Mercenary[] = [
     keywords: ['GENESTEALER CULTS'],
     stats: { movement: '6"/Infantry', ranged: 'N/A', melee: '+2', armour: '0', base: '32mm' },
     weapons: [
-      { name: 'Barbed Tail', profile: 'Melee, REACH' },
+      { name: 'Barbed Tail', profile: 'Melee, WHIP 6", REACH' },
       { name: 'Blades', profile: 'Melee, CRITICAL' },
     ],
     abilities: [
@@ -3331,7 +3336,7 @@ const XENOS_TYRANIDS: Mercenary[] = [
       { name: 'Bio Dagger', profile: 'Melee, CLEAVE 2, CRITICAL, GAS' },
     ],
     abilities: [
-      { name: 'Assassinate', description: 'When this model takes an enemy Leader Out of Action, the enemy warband must immediately take a Nerve test at -2.' },
+      { name: 'Assassinate', description: 'When this model takes an enemy model that has not yet activated this turn Out of Action, the enemy warband must immediately take a Nerve test at -2.' },
       { name: 'Dodge', description: 'Once per activation, when this model is hit by a ranged attack, it may immediately move up to 2" in any direction.' },
     ],
   },
@@ -3366,26 +3371,6 @@ const OUTLAW_HIVE: Mercenary[] = [
     ],
   },
   {
-    id: 'merc_out_hive_deep_hive_hunter',
-    name: 'Deep Hive Hunter',
-    gloryCost: 3,
-    category: 'outlaw',
-    subcategory: 'Hive',
-    maxCount: 1,
-    availableTo: ['necromunda_gang'],
-    keywords: ['GANGER', 'INFILTRATOR', 'STEALTH'],
-    stats: { movement: '6"/Infantry', ranged: '+1', melee: '+1', armour: '-1', base: '25mm' },
-    weapons: [
-      { name: 'Blunderbuss', profile: '10", SHRAPNEL' },
-      { name: 'Close Combat Weapon', profile: 'Melee' },
-      { name: 'Close Combat Weapon', profile: 'Melee' },
-      { name: 'Filter Plugs', profile: 'Equipment: NEGATE GAS' },
-    ],
-    abilities: [
-      { name: 'In the Muck', description: 'This model ignores the movement penalty for Difficult Terrain.' },
-    ],
-  },
-  {
     id: 'merc_out_hive_hired_gun',
     name: 'Hired Gun',
     gloryCost: 2,
@@ -3400,7 +3385,7 @@ const OUTLAW_HIVE: Mercenary[] = [
       { name: 'Bludgeon', profile: 'Melee, -1 DICE' },
     ],
     abilities: [
-      { name: 'Specialties', description: 'Choose one Specialty at recruitment: +1 Ranged, +1 Melee, or a special weapon. The abilities of this model vary based on the chosen specialty.' },
+      { name: 'Specialties', description: 'Choose one Specialty at recruitment: +1 Ranged, +1 Melee, Grenadier (all ranged attacks beyond normal range suffer -1 DICE), or a special weapon. The abilities of this model vary based on the chosen specialty.' },
     ],
   },
   {
@@ -3480,13 +3465,13 @@ const OUTLAW_HIVE_BEAST: Mercenary[] = [
     subcategory: 'Hive Beast',
     maxCount: 2,
     description: 'Up to 2 per warband.',
-    keywords: ['BEAST', 'FLYING', 'NO PROMOTION'],
+    keywords: ['ARTIFICIAL', 'BEAST', 'FLYING', 'NO PROMOTION'],
     stats: { movement: '8"/Flying', ranged: 'N/A', melee: '+1', armour: '0', base: '25mm' },
     weapons: [
       { name: 'Talons', profile: 'Melee, CRITICAL' },
     ],
     abilities: [
-      { name: 'Grapple', description: 'When this model successfully hits with its Talons, it attaches to the target. Attached models give +2 DICE to hit that target.' },
+      { name: 'Grapple', description: 'When this model successfully hits with its Talons, it can drag the target model up to 2" in any direction.' },
       { name: 'Pet', description: 'This model is always in FIRETEAM with its owner.' },
     ],
   },
@@ -3610,36 +3595,19 @@ const OUTLAW_WASTELAND_BEAST: Mercenary[] = [
     ],
   },
   {
-    id: 'merc_out_waste_borewyrm_swarm',
-    name: 'Borewyrm Swarm',
-    gloryCost: 2,
-    category: 'outlaw',
-    subcategory: 'Wasteland Beast',
-    maxCount: 2,
-    description: 'Up to 2 per warband.',
-    keywords: ['BEAST', 'BURROW', 'DEEP STRIKE (TUNNEL)', 'NO PROMOTION', 'SWARM'],
-    stats: { movement: '5"/Burrow', ranged: 'N/A', melee: '+1', armour: '0', base: '40mm' },
-    weapons: [
-      { name: 'Vicious Jaws', profile: 'Melee, IGNORE ARMOUR' },
-    ],
-    abilities: [
-      { name: 'Evasive', description: 'This model does not trigger free attacks when Retreating from melee and may leave melee via any movement action.' },
-    ],
-  },
-  {
     id: 'merc_out_waste_giant_grapplehawk',
-    name: 'Giant Grapplehawk',
+    name: 'Macro-Grapplehawk',
     gloryCost: 3,
     category: 'outlaw',
     subcategory: 'Wasteland Beast',
     maxCount: 1,
-    keywords: ['BEAST', 'NO PROMOTION'],
+    keywords: ['ARTIFICIAL', 'BEAST', 'LIMITED POTENTIAL'],
     stats: { movement: '8"/Flying', ranged: 'N/A', melee: '+2', armour: '-1', base: '32mm' },
     weapons: [
       { name: 'Massive Talons', profile: 'Melee, +1 INJURY DICE, CRITICAL' },
     ],
     abilities: [
-      { name: 'Grapple', description: 'Enemies engaged with this model cannot Retreat. Enemy models within 1" that are Down cannot stand up.' },
+      { name: 'Grapple', description: 'Can drag even LARGE models up to 2" in any direction on a successful hit. Dragged models cannot Retreat.' },
     ],
   },
   {
@@ -3670,11 +3638,13 @@ const OUTLAW_WASTELAND_BEAST: Mercenary[] = [
     maxCount: 3,
     description: 'Up to 3 per warband.',
     keywords: ['BEAST', 'BURROW', 'DEEP STRIKE (TUNNEL)'],
-    stats: { movement: '6"/Burrow', ranged: 'N/A', melee: '+1', armour: '-1', base: '32mm' },
+    stats: { movement: '7"/Burrow', ranged: 'N/A', melee: '+1', armour: '-1', base: '32mm' },
     weapons: [
       { name: 'Fanged Maw', profile: 'Melee, CRITICAL' },
     ],
-    abilities: [],
+    abilities: [
+      { name: 'Evasive', description: 'All attacks have -1 DICE to Hit against this model while it has no Blood Markers.' },
+    ],
   },
   {
     id: 'merc_out_waste_ripperjack',
@@ -3690,7 +3660,7 @@ const OUTLAW_WASTELAND_BEAST: Mercenary[] = [
       { name: 'Teeth', profile: 'Melee, +1 INJURY MODIFIER' },
     ],
     abilities: [
-      { name: 'Enveloping', description: 'Enemies engaged with this model cannot Retreat.' },
+      { name: 'Enveloping', description: 'Enemies engaged with this model cannot Retreat. Enemy models within 1" that are Down cannot stand up.' },
     ],
   },
   {
@@ -3781,7 +3751,7 @@ const OUTLAW_OTHER: Mercenary[] = [
     keywords: ['ORK', 'STRONG'],
     stats: { movement: '6"/Infantry', ranged: '0', melee: '+2', armour: '-1', base: '32mm' },
     weapons: [
-      { name: 'Kustom Shoota', profile: '18", AUTO 3, -1 INJURY DICE, HEAVY, RISKY' },
+      { name: 'Kustom Shoota', profile: '18", AUTO 3, -1 DICE, HEAVY' },
       { name: 'Chain Choppa', profile: 'Melee, CRITICAL, RISKY, SHRAPNEL' },
       { name: 'Hook', profile: 'Melee' },
     ],

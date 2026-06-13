@@ -182,6 +182,17 @@
   color: #c08070;
 }
 
+.wginfo-faction-note {
+  margin: 0.6rem 0 0;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  color: #e6a817;
+  background: rgba(230, 168, 23, 0.1);
+  border-left: 3px solid #e6a817;
+  border-radius: 3px;
+  line-height: 1.4;
+}
+
 /* ── Eye button (within wargear cards) ───────────────────────────────────── */
 .btn-wg-info {
   background: transparent;
@@ -204,4 +215,34 @@
 .btn-wg-info:hover {
   background: #2ecc71;
   color: #1e1e2e;
+}
+
+/* ── Eye button for weapon/equipment detail popups in tables ─────────────── */
+.btn-wg-eye {
+  background: transparent;
+  border: 1px solid #2ecc71;
+  color: #2ecc71;
+  border-radius: 3px;
+  width: 1.4rem;
+  height: 1.4rem;
+  cursor: pointer;
+  font-size: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.btn-wg-eye:hover {
+  background: #2ecc71;
+  color: #1e1e2e;
+}
+
+/* Inline variant for list items (gear/battlekit) */
+.btn-wg-eye-inline {
+  margin-left: 0.4rem;
 }

@@ -14,17 +14,22 @@ const DRAFT_KEY = 'trench_hammer_session_draft'
 /**
  * Read the session draft once at module load — outside React lifecycle so it
  * only parses once and is available synchronously for useState initialisers.
+ * Migration is applied here so that over-migrated drafts are corrected on startup.
  */
 const _savedDraft = (() => {
   try {
     const raw = localStorage.getItem(DRAFT_KEY)
     if (!raw) return null
-    return JSON.parse(raw) as {
+    const parsed = JSON.parse(raw) as {
       selectedFaction: string
       selectedSubFaction: string
       pointLimit: number
       gloryLimit: number
       warband: Warband
+    }
+    return {
+      ...parsed,
+      warband: migrateLegacyMarkIds(migrateAutoMarkCost(parsed.warband)),
     }
   } catch { return null }
 })()
@@ -43,6 +48,7 @@ const _blankWarband: Warband = {
   totalPoints: 0,
   totalGlory: 0,
   totalModels: 0,
+  schemaVersion: 1,
 }
 
 function App() {

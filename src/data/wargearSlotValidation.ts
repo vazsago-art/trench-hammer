@@ -11,6 +11,11 @@
  *       TWO-HANDED melee   → 2 melee hands
  *       One-handed melee   → 1 melee hand
  *       MAIN HAND ONLY     → 1 melee hand (must be in primary slot)
+ *   - HELD weapons       : permanently occupy hands across BOTH pools
+ *       A HELD melee weapon also blocks ranged hands (can't put it down)
+ *       A HELD ranged weapon also blocks melee hands
+ *       STRONG: can hold a TWO-HANDED HELD weapon in one hand (cross-pool cost = 1)
+ *       CUMBERSOME: negates the STRONG exception (always 2 hands)
  *   - Shield slot       : max 1, blocked if a TWO-HANDED ranged weapon is equipped
  *   - Body-armour slot  : max 1
  *   - Headgear slot     : max 1
@@ -108,6 +113,35 @@ export function getMeleeHandCost(weapon: Weapon): number {
   return 1;
 }
 
+/**
+ * For a HELD weapon, returns the number of hands it permanently blocks
+ * in the OTHER weapon pool (ranged ↔ melee).
+ *
+ * HELD = weapon is always carried and cannot be set down.
+ * - A 1-hand HELD weapon blocks 1 hand from the opposite pool.
+ * - A 2-hand HELD weapon blocks 2 hands from the opposite pool.
+ * - STRONG: a model can hold a TWO-HANDED HELD weapon in one hand,
+ *   reducing both its own-pool and cross-pool cost to 1.
+ * - CUMBERSOME: negates the STRONG exception (always 2 hands).
+ *
+ * Thrown/grenade weapons are exempt (they are not held permanently).
+ */
+export function getHeldCrossPoolCost(
+  weapon: Weapon,
+  isStrong: boolean,
+  isSekhetar: boolean = false,
+): number {
+  if (!weapon.keywords.includes('HELD')) return 0;
+  // Thrown weapons are not permanently held
+  if (weapon.type === 'thrown' || weapon.keywords.includes('THROWN')) return 0;
+  const h = getWeaponHandedness(weapon);
+  const rawHands = h === 'two-handed' ? 2 : h === 'one-handed' ? 1 : 0;
+  if (rawHands === 0) return 0;
+  const isCumbersome = weapon.keywords.includes('CUMBERSOME');
+  // STRONG reduces 2H HELD to 1 hand (unless CUMBERSOME or SEKHETAR_ROBOT)
+  return (isStrong && !isSekhetar && !isCumbersome && rawHands === 2) ? 1 : rawHands;
+}
+
 // ---------------------------------------------------------------------------
 // Slot usage snapshot
 // ---------------------------------------------------------------------------
@@ -146,6 +180,10 @@ export interface SlotUsage {
   hasMarkOfChaos: boolean;
   /** Number of HEAVY ranged weapons equipped (for SEKHETAR_ROBOT: max 1) */
   heavyRangedCount: number;
+  /** Ranged hands blocked by HELD melee weapons (already included in rangedHandsUsed) */
+  heldRangedPenalty: number;
+  /** Melee hands blocked by HELD ranged weapons (already included in meleeHandsUsed) */
+  heldMeleePenalty: number;
 }
 
 /**
@@ -162,8 +200,11 @@ export function computeSlotUsage(
   const isStrong = modelKeywords.includes('STRONG');
   const hasSixArms = modelKeywords.includes('SIX_ARMS');
   const isSekhetar = modelKeywords.includes('SEKHETAR_ROBOT');
-  const maxRangedHands = hasSixArms ? 6 : 2;
-  let maxMeleeHands  = hasSixArms ? 6 : 2;
+  const isDreadnought = modelKeywords.includes('DREADNOUGHT_CHASSIS');
+  // Dreadnought uses a weapon-count system (max 2 TWO-HANDED/HEAVY weapons) instead of hand slots.
+  // Give it a large hand pool so the normal hand validation never false-fires.
+  let maxRangedHands = isDreadnought ? 8 : (hasSixArms ? 6 : 2);
+  let maxMeleeHands  = isDreadnought ? 8 : (hasSixArms ? 6 : 2);
 
   let rangedHandsUsed  = 0;
   let meleeHandsUsed   = 0;
@@ -178,6 +219,8 @@ export function computeSlotUsage(
   let hasMountShieldCombo = false;
   let hasMarkOfChaos   = false;
   let heavyRangedCount = 0;
+  let heldRangedPenalty = 0;
+  let heldMeleePenalty  = 0;
 
   for (const item of selectedItems) {
     if (item.type === 'weapon') {
@@ -208,6 +251,22 @@ export function computeSlotUsage(
           hasMainHandWeapon = true;
         }
       }
+
+      // ── HELD weapons permanently occupy hands, blocking the OTHER pool ──
+      // A HELD weapon cannot be set down, so the hand(s) holding it are
+      // unavailable for the other weapon category (ranged ↔ melee).
+      const heldCross = getHeldCrossPoolCost(weapon, isStrong, isSekhetar);
+      if (heldCross > 0) {
+        if (isMeleeWeapon(weapon)) {
+          // HELD melee weapon blocks ranged hands
+          rangedHandsUsed   += heldCross * item.quantity;
+          heldRangedPenalty  += heldCross * item.quantity;
+        } else if (isRangedWeapon(weapon)) {
+          // HELD ranged weapon blocks melee hands
+          meleeHandsUsed    += heldCross * item.quantity;
+          heldMeleePenalty   += heldCross * item.quantity;
+        }
+      }
     } else if (item.type === 'armor') {
       const gear = lookupWargear(item.id);
       if (!gear) continue;
@@ -235,6 +294,10 @@ export function computeSlotUsage(
       if (gear.occupiesHands && gear.occupiesHands > 0) {
         rangedHandsUsed += gear.occupiesHands;
         meleeHandsUsed  += gear.occupiesHands;
+      }
+      // Built-In Weapon abilities grant extra ranged slots that don't cost hands
+      if (gear.grantsExtraRangedSlots && gear.grantsExtraRangedSlots > 0) {
+        maxRangedHands += gear.grantsExtraRangedSlots;
       }
       // Mounted models can hold TWO-HANDED melee weapons with Shield Combo despite reduced hands
       if (gear.allowsShieldComboTwoHanded) {
@@ -264,6 +327,8 @@ export function computeSlotUsage(
     hasMountShieldCombo,
     hasMarkOfChaos,
     heavyRangedCount,
+    heldRangedPenalty,
+    heldMeleePenalty,
   };
 }
 
@@ -288,6 +353,8 @@ export function validateAddWargear(
   currentItems: SelectedWargear[],
   newItemId: string,
   modelKeywords: string[] = [],
+  unitCount: number = 1,
+  perModelLimits?: Record<string, number>,
 ): WargearSlotError[] {
   const errors: WargearSlotError[] = [];
   const usage = computeSlotUsage(currentItems, modelKeywords);
@@ -301,17 +368,74 @@ export function validateAddWargear(
     return [];
   }
 
+  // ---- DREADNOUGHT_CHASSIS special rules ----------------------------------
+  // The Dreadnought can only be equipped with up to 2 TWO-HANDED or HEAVY weapons
+  // (melee or ranged) from the Adeptus Astartes scope. It cannot equip equipment,
+  // armour (only the built-in chassis plating is allowed), or thrown weapons.
+  if (modelKeywords.includes('DREADNOUGHT_CHASSIS')) {
+    // Block any equipment (non-weapon wargear)
+    if (gear) {
+      errors.push({
+        code: 'DREADNOUGHT_NO_GEAR',
+        message: `The Dreadnought cannot be equipped with equipment or armour — only TWO-HANDED or HEAVY weapons from the Adeptus Astartes armoury.`,
+      });
+      return errors;
+    }
+    if (weapon) {
+      // Block thrown weapons
+      if (weapon.type === 'thrown' || weapon.keywords.includes('THROWN')) {
+        errors.push({
+          code: 'DREADNOUGHT_NO_THROWN',
+          message: `The Dreadnought cannot be equipped with thrown weapons.`,
+        });
+        return errors;
+      }
+      // Only allow TWO-HANDED or HEAVY weapons
+      const isEligible =
+        weapon.keywords.includes('TWO-HANDED') ||
+        weapon.keywords.includes('HEAVY') ||
+        weapon.type === 'heavy';
+      if (!isEligible) {
+        errors.push({
+          code: 'DREADNOUGHT_WEAPONS_ONLY',
+          message: `The Dreadnought can only be equipped with TWO-HANDED or HEAVY weapons.`,
+        });
+        return errors;
+      }
+      // Max 2 qualifying weapons (non-default items only)
+      const dreadnoughtWeaponCount = currentItems.filter(i => {
+        if (i.isDefault) return false;
+        const w = lookupWeapon(i.id);
+        return w && (
+          w.keywords.includes('TWO-HANDED') ||
+          w.keywords.includes('HEAVY') ||
+          w.type === 'heavy'
+        );
+      }).reduce((sum, i) => sum + (i.quantity ?? 1), 0);
+      if (dreadnoughtWeaponCount >= 2) {
+        errors.push({
+          code: 'DREADNOUGHT_WEAPON_LIMIT',
+          message: `The Dreadnought can only be equipped with up to 2 TWO-HANDED or HEAVY weapons.`,
+        });
+        return errors;
+      }
+    }
+    return errors;
+  }
+
   // ---- Weapon slot checks -------------------------------------------------
   if (weapon) {
     // Per-weapon quantity limit (e.g. grenades: max 1)
     // SEKHETAR_ROBOT: Heavy Flamer ignores normal limits
     const ignoreLimitForSekhetar = modelKeywords.includes('SEKHETAR_ROBOT') && newItemId === 'heavy_flamer';
-    if (weapon.limit !== undefined && !ignoreLimitForSekhetar) {
+    const effectivePerModelLimit = perModelLimits?.[newItemId] ?? weapon.limit;
+    if (effectivePerModelLimit !== undefined && !ignoreLimitForSekhetar) {
       const alreadyEquipped = currentItems.find(i => i.id === newItemId);
-      if (alreadyEquipped && alreadyEquipped.quantity >= weapon.limit!) {
+      // Multiply per-model limit by unitCount: a 2-model unit can carry weapon.limit copies per model
+      if (alreadyEquipped && alreadyEquipped.quantity >= effectivePerModelLimit * unitCount) {
         errors.push({
           code: 'WEAPON_LIMIT',
-          message: `${weapon.name} can only be equipped ${weapon.limit} time(s) per model.`,
+          message: `${weapon.name} can only be equipped ${effectivePerModelLimit} time(s) per model.`,
         });
         return errors;
       }
@@ -394,6 +518,18 @@ export function validateAddWargear(
           message: `Cannot equip a two-handed ranged weapon while a Shield is equipped. Remove the Shield first.`,
         });
       }
+
+      // HELD ranged weapon cross-pool check: blocks melee hands
+      if (weapon.keywords.includes('HELD')) {
+        const isStrongModel = modelKeywords.includes('STRONG');
+        const heldCross = getHeldCrossPoolCost(weapon, isStrongModel, isSekhetar);
+        if (heldCross > 0 && usage.meleeHandsUsed + heldCross > usage.maxMeleeHands) {
+          errors.push({
+            code: 'HELD_BLOCKS_MELEE',
+            message: `This HELD weapon permanently occupies ${heldCross} hand(s), but only ${Math.max(0, usage.maxMeleeHands - usage.meleeHandsUsed)} melee hand slot(s) available.`,
+          });
+        }
+      }
     }
 
     if (isMeleeWeapon(weapon)) {
@@ -426,6 +562,17 @@ export function validateAddWargear(
           errors.push({
             code: 'NO_MELEE_HANDS_ONE',
             message: `Cannot equip another melee weapon: no melee hand slots remaining.`,
+          });
+        }
+      }
+
+      // HELD melee weapon cross-pool check: blocks ranged hands
+      if (weapon.keywords.includes('HELD')) {
+        const heldCross = getHeldCrossPoolCost(weapon, isStrong, isSekhetarMelee);
+        if (heldCross > 0 && usage.rangedHandsUsed + heldCross > usage.maxRangedHands) {
+          errors.push({
+            code: 'HELD_BLOCKS_RANGED',
+            message: `This HELD weapon permanently occupies ${heldCross} hand(s), but only ${Math.max(0, usage.maxRangedHands - usage.rangedHandsUsed)} ranged hand slot(s) available.`,
           });
         }
       }
@@ -491,6 +638,19 @@ export function validateAddWargear(
     }
   }
 
+  // weapon conflictsWith check (e.g. mutually exclusive drone weapons)
+  if (weapon?.conflictsWith) {
+    for (const conflictId of weapon.conflictsWith) {
+      if (currentItems.some(i => i.id === conflictId)) {
+        const conflictItem = lookupAnyItem(conflictId);
+        errors.push({
+          code: 'ITEM_CONFLICT',
+          message: `${weapon.name} cannot be combined with ${conflictItem?.name ?? conflictId}.`,
+        });
+      }
+    }
+  }
+
   return errors;
 }
 
@@ -550,6 +710,18 @@ export function validateLoadout(
           errors.push({
             code: 'ITEM_CONFLICT',
             message: `${gear.name} cannot be combined with ${conflictItem?.name ?? conflictId}.`,
+          });
+        }
+      }
+    }
+    const weapon = lookupWeapon(item.id);
+    if (weapon?.conflictsWith) {
+      for (const conflictId of weapon.conflictsWith) {
+        if (selectedItems.some(i => i.id === conflictId)) {
+          const conflictItem = lookupAnyItem(conflictId);
+          errors.push({
+            code: 'ITEM_CONFLICT',
+            message: `${weapon.name} cannot be combined with ${conflictItem?.name ?? conflictId}.`,
           });
         }
       }

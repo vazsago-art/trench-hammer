@@ -7,9 +7,11 @@ import {
   calculateWarbandGlory,
   calculateTotalModels,
   validateWarband,
+  getUnitMaxCountForWarband,
 } from '../../data/validation.js';
-import { getAllowedWargearIds } from '../../data/faction_wargear.js';
+import { getAllowedWargearIds, getFactionWargearNotes } from '../../data/faction_wargear.js';
 import { validateLoadout, lookupWargear, lookupWeapon } from '../../data/wargearSlotValidation.js';
+import { allWeapons } from '../../data/weapons.js';
 import { saveWarbandLocal, exportWarbandToMDFile, importWarbandFromJSON } from '../../utils/export.js';
 import { WargearPanel } from '../WargearPanel.js';
 import { PsychicPanel } from '../PsychicPanel.js';
@@ -22,6 +24,7 @@ import { UnitSubTypeModal } from '../UnitSubTypeModal.js';
 import { SavedArmiesModal } from '../SavedArmiesModal.js';
 import { getDisciplinesForFaction, factionHasPsychicDisciplines } from '../../data/psychicDisciplines.js';
 import { factionHasSubFactions, getSubFactions, getSubFactionById, getDefaultSubFactionId } from '../../data/subfactions.js';
+import { unitAbilitiesMap } from '../../data/unit_abilities.js';
 import { getFactionRules } from '../../data/factionRules.js';
 import MercenaryPanel from '../MercenaryPanel.js';
 import { MercenaryInfoModal } from '../MercenaryInfoModal.js';
@@ -31,6 +34,7 @@ import { isEliteEligible } from '../../data/campaignProgression.js';
 import { getPatronsForFaction, getPatronById, filterAbilitiesForSubfaction } from '../../data/patrons.js';
 import { PatronAbilityChip } from '../PatronAbilityChip.js';
 import { BattleMode } from '../BattleMode.js';
+import { TerrainGenerator } from '../TerrainGenerator.js';
 import { getFactionLore, hasLore } from '../../data/factionLore.js';
 import { LoreModal } from '../LoreModal.js';
 import { getWarbandLore, hasWarbandLore } from '../../data/warbandLore.js';
@@ -38,6 +42,9 @@ import { WarbandLoreModal } from '../WarbandLoreModal.js';
 import { RulesReference } from '../RulesReference.js';
 import { CampaignManager } from '../CampaignManager.js';
 import { buildShareUrl } from '../../utils/shareUrl.js';
+import { TacticalAnalysis } from '../TacticalAnalysis.js';
+import { analyseTactical } from '../../utils/tacticalAnalysis.js';
+import { QuickBuildWizard } from '../QuickBuildWizard.js';
 import './MobileApp.css';
 
 /** Renders **bold** markdown markers as JSX <strong> elements. */
@@ -73,14 +80,20 @@ export function MobileApp({
   const upgradeMaxCountOverrides: Record<string, number> = {
     ...(currentSubFaction?.upgradeMaxCountOverrides ?? {}),
   };
+  const withMappedAbilities = (unit: UnitOption): UnitOption => {
+    if ((unit.abilities?.length ?? 0) > 0) return unit;
+    const mappedAbilities = unitAbilitiesMap[unit.id];
+    if (!mappedAbilities || mappedAbilities.length === 0) return unit;
+    return { ...unit, abilities: mappedAbilities };
+  };
   const allAvailableUnits: UnitOption[] = [
     ...(currentFaction?.units.filter(u => !bannedUnitIdsSet.has(u.id)).map(u =>
       unitMaxCountOverrides[u.id] !== undefined
         ? { ...u, maxCount: unitMaxCountOverrides[u.id] }
         : u
     ) ?? []),
-    ...(currentSubFaction?.extraUnits ?? []),
-    ...(variantCfg?.extraUnits ?? []),
+    ...(currentSubFaction?.extraUnits?.map(withMappedAbilities) ?? []),
+    ...(variantCfg?.extraUnits?.map(withMappedAbilities) ?? []),
   ];
   const validation     = validateWarband(warband);
   const totalPoints    = calculateWarbandPoints(warband);
@@ -126,6 +139,9 @@ export function MobileApp({
   const [showNewBuildConfirm, setShowNewBuildConfirm] = useState(false);
   const [showImportModal, setShowImportModal]     = useState(false);
   const [showBattleMode, setShowBattleMode]         = useState(false);
+  const [showTerrainGen, setShowTerrainGen]           = useState(false);
+  const [showTactical, setShowTactical]               = useState(false);
+  const [showQuickBuild, setShowQuickBuild]           = useState(false);
   const [showLore, setShowLore]                       = useState(false);
   const [showWarbandLore, setShowWarbandLore]         = useState(false);
   const [showRulesRef, setShowRulesRef]               = useState(false);
@@ -141,7 +157,10 @@ export function MobileApp({
 
   // Keep the ref updated with the correct close action for the current UI state
   useEffect(() => {
-    if (showBattleMode)              backActionRef.current = () => setShowBattleMode(false);
+    if (showTerrainGen)               backActionRef.current = () => setShowTerrainGen(false);
+    else if (showTactical)           backActionRef.current = () => setShowTactical(false);
+    else if (showQuickBuild)         backActionRef.current = () => setShowQuickBuild(false);
+    else if (showBattleMode)         backActionRef.current = () => setShowBattleMode(false);
     else if (showLore)               backActionRef.current = () => setShowLore(false);
     else if (showWarbandLore)        backActionRef.current = () => setShowWarbandLore(false);
     else if (showSavedModal)         backActionRef.current = () => setShowSavedModal(false);
@@ -162,7 +181,7 @@ export function MobileApp({
     else if (activeTab !== 'build')  backActionRef.current = () => setActiveTab('build');
     else                             backActionRef.current = null;
   }, [
-    showBattleMode, showLore, showWarbandLore, showSavedModal, showImportModal,
+    showTerrainGen, showBattleMode, showTactical, showQuickBuild, showLore, showWarbandLore, showSavedModal, showImportModal,
     showNewBuildConfirm, infoUnit, infoMercenary, eliteProgressionIdx,
     pendingSubTypeUnit, wargearUnitIdx, psychicUnitIdx, mutationUnitIdx,
     upgradeUnitIdx, showMercenaryPanel, unitBrowserOpen, expandedUnit,
@@ -291,6 +310,11 @@ export function MobileApp({
   const handleAddUnit = (unit: UnitOption) => {
     if (unit.unitSubTypes && unit.unitSubTypes.length > 0) {
       setPendingSubTypeUnit(unit);
+      return;
+    }
+    const maxCount = getUnitMaxCountForWarband(warband, unit.id, unit.maxCount);
+    if (maxCount < 1) {
+      flashMsg('Cannot add this unit: the cultist cap is already reached.', false);
       return;
     }
     commitAddUnit(unit, null);
@@ -422,6 +446,14 @@ export function MobileApp({
     setWarband(prev => ({ ...prev, units: prev.units.filter((_, i) => i !== unitIndex) }));
   };
 
+  const handleMoveUnit = (origIdxA: number, origIdxB: number) => {
+    setWarband(prev => {
+      const units = [...prev.units];
+      [units[origIdxA], units[origIdxB]] = [units[origIdxB], units[origIdxA]];
+      return { ...prev, units };
+    });
+  };
+
   const getWarbandWeaponCounts = (units: Warband['units']): Record<string, number> => {
     const counts: Record<string, number> = {};
     for (const u of units) {
@@ -431,6 +463,15 @@ export function MobileApp({
       }
     }
     return counts;
+  };
+
+  const handleTogglePromote = (unitIndex: number) => {
+    setWarband(prev => {
+      const updatedUnits = [...prev.units];
+      const unit = { ...updatedUnits[unitIndex] };
+      updatedUnits[unitIndex] = { ...unit, isPromoted: !unit.isPromoted };
+      return { ...prev, units: updatedUnits };
+    });
   };
 
   const handleCloneUnit = (unitIndex: number) => {
@@ -460,17 +501,22 @@ export function MobileApp({
 
   const handleChangeUnitCount = (unitIndex: number, newCount: number) => {
     if (newCount < 1) return;
-    const unitDef = allAvailableUnits.find(u => u.id === warband.units[unitIndex]?.unitId);
-    if (unitDef && newCount > unitDef.maxCount) return;
     setWarband(prev => {
       const units = [...prev.units];
       const u = { ...units[unitIndex] };
+      const unitDef = allFactions.flatMap(f => f.units).find(unit => unit.id === u.unitId);
       const currency = u.costCurrency ?? 'credits';
       const creditWg = u.selectedWargear.filter(w => (w.costCurrency ?? 'credits') === 'credits').reduce((s, w) => s + w.cost * w.quantity, 0);
       const gloryWg  = u.selectedWargear.filter(w => w.costCurrency === 'glory').reduce((s, w) => s + w.cost * w.quantity, 0);
-      u.count         = newCount;
-      u.totalCost     = (currency === 'credits' ? newCount * u.baseCostPerModel : 0) + creditWg;
-      u.totalGloryCost = (currency === 'glory'  ? newCount * u.baseCostPerModel : 0) + gloryWg;
+      const psychicCredits = (u.selectedPsychicPowers ?? []).filter(p => (p.costCurrency ?? 'credits') === 'credits').reduce((s, p) => s + p.cost, 0);
+      const psychicGlory   = (u.selectedPsychicPowers ?? []).filter(p => p.costCurrency === 'glory').reduce((s, p) => s + p.cost, 0);
+      const giftCredits    = (u.selectedGiftsOfChaos ?? []).reduce((s, g) => s + g.cost, 0);
+      const upgradeCreditCost = (unitDef?.upgrades ?? []).reduce((sum, upg) => sum + ((u.selectedUpgrades ?? {})[upg.id] ?? 0) * upg.cost, 0);
+      const minCount = unitDef?.minCount ?? 0;
+      const maxCount = getUnitMaxCountForWarband(prev, u.unitId, unitDef?.maxCount ?? 99, unitIndex);
+      u.count = Math.max(minCount, Math.min(maxCount, newCount));
+      u.totalCost      = (currency === 'credits' ? u.count * u.baseCostPerModel : 0) + creditWg + psychicCredits + giftCredits + upgradeCreditCost;
+      u.totalGloryCost = (currency === 'glory'   ? u.count * u.baseCostPerModel : 0) + gloryWg + psychicGlory;
       units[unitIndex] = u;
       return { ...prev, units };
     });
@@ -535,9 +581,13 @@ export function MobileApp({
                 id: bonusWeapon.id,
                 name: bonusWeapon.name,
                 cost: 0,
+                costCurrency: 'credits' as const,
+                type: 'weapon' as const,
+                quantity: 1,
                 isDefault: true,
+                grantsKeywords: bonusWeapon.grantsKeywords ?? [],
                 associatedWithId: effectiveItem.id,
-              } as SelectedWargear,
+              },
             ];
           }
         }
@@ -681,8 +731,10 @@ export function MobileApp({
       // can coexist with a class upgrade. Upgrades with maxCount < 10 are mutually exclusive
       // class upgrades (e.g. Assault Marine, Bladeguard) — only one may be active at a time.
       // Nested upgrades with requiredUpgradeId (e.g. Night Lords sub-upgrades) are stackable with base class.
-      const checkStackable = (upg: { maxCount?: number, keywords?: string[], requiredUpgradeId?: string }) => 
-        ((upg?.maxCount ?? 1) >= 10) || !!upg?.requiredUpgradeId;
+      // Upgrades with upgradeGroup are stackable (not cleared by class-upgrade clearing) but
+      // mutually exclusive within their group (e.g. Pirate Crew Backgrounds and Specialties).
+      const checkStackable = (upg: { maxCount?: number, keywords?: string[], requiredUpgradeId?: string, upgradeGroup?: string }) => 
+        ((upg?.maxCount ?? 1) >= 10) || !!upg?.requiredUpgradeId || !!upg?.upgradeGroup;
       const isStackable = upgrade ? checkStackable(upgrade) : false;
       let newUpgrades: Record<string, number>;
       if (isStackable) {
@@ -694,6 +746,15 @@ export function MobileApp({
              for (const conflictId of upgrade.conflictsWithUpgradeIds) {
                delete newUpgrades[conflictId];
              }
+          }
+          // If it belongs to an upgradeGroup, clear other members of the same group
+          if (upgrade?.upgradeGroup) {
+            for (const [id] of Object.entries(newUpgrades)) {
+              const existingUpg = unitDef?.upgrades?.find(upg => upg.id === id);
+              if (existingUpg?.upgradeGroup === upgrade.upgradeGroup && id !== upgradeId) {
+                delete newUpgrades[id];
+              }
+            }
           }
           newUpgrades[upgradeId] = count;
         }
@@ -1044,14 +1105,14 @@ export function MobileApp({
                 const factionRules = getFactionRules(selectedFaction);
                 if (!factionRules) return null;
                 return (
-                  <div className="mfaction-rules">
-                    <div className="mfaction-rules-title">{factionRules.title}</div>
+                <details className="mfaction-rules" open>
+                    <summary className="mfaction-rules-title">{factionRules.title}</summary>
                     <ul className="mfaction-rules-list">
                       {factionRules.rules.map((rule, i) => (
                         <li key={i}>{renderFormattedText(rule)}</li>
                       ))}
                     </ul>
-                  </div>
+                  </details>
                 );
               })()}
               {factionHasSubFactions(selectedFaction) && (() => {
@@ -1176,20 +1237,34 @@ export function MobileApp({
               </button>
             </div>
 
+            {/* Quick Build card */}
+            <div className="mcard">
+              <div className="mcard-title">Quick Build</div>
+              <p className="mcard-desc">
+                Generate a recommended army list from your credit and glory budget. Great for new players!
+              </p>
+              <button className="mbtn mbtn-quickbuild mbtn-full" onClick={() => setShowQuickBuild(true)}>
+                <span className="mbtn-icon">🎲</span> Quick Build
+              </button>
+            </div>
+
             {/* Quick unit count summary by faction category */}
             {warband.units.length > 0 && (
               <div className="mcard">
                 <div className="mcard-title">Roster Quick View</div>
-                {warband.units.map((u, i) => (
+                {warband.units.map((u, i) => {
+                  const effE = u.unitType === 'elite' || !!u.isPromoted || u.keywords.includes('ELITE');
+                  return (
                   <div key={u.id} className="mquick-row">
-                    <span className={`mquick-badge ${u.unitType}`}>{u.unitType === 'elite' ? 'E' : 'T'}</span>
+                    <span className={`mquick-badge ${effE ? 'elite' : 'troop'}`}>{effE ? 'E' : 'T'}</span>
                     <span className="mquick-name">{u.name}{u.count > 1 ? ` ×${u.count}` : ''}</span>
                     <span className="mquick-cost">
                       {(u.costCurrency ?? 'credits') === 'glory' ? `${u.totalGloryCost}G` : `${u.totalCost}Cr`}
                     </span>
                     <button className="mquick-remove" onClick={() => handleRemoveUnit(i)}>✕</button>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -1207,13 +1282,13 @@ export function MobileApp({
                 </button>
               </div>
             ) : (
-              [...warband.units]
-                .map((unit, origIdx) => ({ unit, origIdx }))
-                .sort((a, b) => {
-                  const order: Record<string, number> = { elite: 0, troop: 1 };
-                  return (order[a.unit.unitType] ?? 1) - (order[b.unit.unitType] ?? 1);
-                })
-                .map(({ unit, origIdx: idx }) => {
+              (() => {
+                const effEliteM = (u: typeof warband.units[number]) =>
+                  u.unitType === 'elite' || !!u.isPromoted || u.keywords.includes('ELITE');
+                const sortedUnits = [...warband.units]
+                  .map((unit, origIdx) => ({ unit, origIdx }))
+                  .sort((a, b) => (effEliteM(a.unit) ? 0 : 1) - (effEliteM(b.unit) ? 0 : 1));
+                return sortedUnits.map(({ unit, origIdx: idx }, sortedIdx) => {
                 const isExpanded = expandedUnit === unit.id;
                 const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
                 const loadout = validateLoadout(unit.selectedWargear, unit.keywords);
@@ -1226,8 +1301,8 @@ export function MobileApp({
                       onClick={() => setExpandedUnit(isExpanded ? null : unit.id)}
                     >
                       <div className="munit-header-left">
-                        <span className={`munit-type-badge ${unit.unitType}`}>
-                          {unit.unitType === 'elite' ? 'ELITE' : 'TROOP'}
+                        <span className={`munit-type-badge ${effEliteM(unit) ? 'elite' : 'troop'}`}>
+                          {effEliteM(unit) ? 'ELITE' : 'TROOP'}
                         </span>
                         <span className="munit-name">{unit.customName ?? unit.name}</span>
                         {!loadout.isValid && <span className="munit-warn-dot" title="Wargear issues">!</span>}
@@ -1443,8 +1518,19 @@ export function MobileApp({
                               ☠ Mutations{(unit.selectedGiftsOfChaos?.length ?? 0) > 0 ? ` (${unit.selectedGiftsOfChaos!.length})` : ''}
                             </button>
                           )}
-                          {isEliteEligible(unit) && (
+                          {unit.unitType === 'troop' && (!unit.keywords.includes('NO PROMOTION') || (unit.selectedUpgrades?.['as_repentia_promoted'] ?? 0) > 0) && !unit.keywords.includes('ELITE') && (
+                            <button
+                              className={unit.isPromoted ? 'mbtn mbtn-sm mbtn-demote-elite' : 'mbtn mbtn-sm mbtn-promote-elite'}
+                              title={unit.isPromoted ? 'Remove promoted-to-Elite status' : 'Promote this troop to Elite (campaign rule)'}
+                              onClick={() => handleTogglePromote(idx)}
+                            >
+                              {unit.isPromoted ? '↓ Demote' : '↑ Promote'}
+                            </button>
+                          )}
+                          {isEliteEligible(unit) ? (
                             <button className="mbtn mbtn-sm btn-elite-xp" onClick={() => setEliteProgressionIdx(idx)}>★ XP: {unit.xp ?? 0}</button>
+                          ) : (
+                            <button className="mbtn mbtn-sm btn-elite-xp btn-injuries" onClick={() => setEliteProgressionIdx(idx)}>☠ Injuries</button>
                           )}
                           {(() => {
                             const unitDef4 = allAvailableUnits.find(u => u.id === unit.unitId);
@@ -1459,13 +1545,26 @@ export function MobileApp({
                               >⧉ Clone</button>
                             );
                           })()}
+                          <button
+                            className="mbtn mbtn-sm"
+                            title="Move up"
+                            disabled={sortedIdx === 0}
+                            onClick={() => handleMoveUnit(idx, sortedUnits[sortedIdx - 1].origIdx)}
+                          >▲</button>
+                          <button
+                            className="mbtn mbtn-sm"
+                            title="Move down"
+                            disabled={sortedIdx === sortedUnits.length - 1}
+                            onClick={() => handleMoveUnit(idx, sortedUnits[sortedIdx + 1].origIdx)}
+                          >▼</button>
                           <button className="mbtn mbtn-danger mbtn-sm" onClick={() => handleRemoveUnit(idx)}>✕ Remove</button>
                         </div>
                       </div>
                     )}
                   </div>
                 );
-              })
+              });
+              })()
             )}
             {/* ── Hire Mercenaries ── */}
             <div className="m-merc-section">
@@ -1653,7 +1752,7 @@ export function MobileApp({
                 </div>
                 <div className="mstat-cell">
                   <span className="mstat-label">Elites</span>
-                  <span className="mstat-value">{warband.units.filter(u => u.unitType === 'elite').length}</span>
+                  <span className="mstat-value">{warband.units.filter(u => u.unitType === 'elite' || !!u.isPromoted || u.keywords.includes('ELITE')).length}</span>
                 </div>
                 <div className="mstat-cell">
                   <span className="mstat-label">Troops</span>
@@ -1695,7 +1794,7 @@ export function MobileApp({
           </div>
         )}
 
-        {/* ══ EXPORT TAB ══════════════════════════════════════════════ */}
+        {/* ══ TOOLS TAB ═══════════════════════════════════════════════ */}
         {activeTab === 'export' && (
           <div className="mapp-tab">
 
@@ -1735,6 +1834,26 @@ export function MobileApp({
                 style={{ display: 'none' }}
                 onChange={handleImportFile}
               />
+            </div>
+
+            <div className="mcard">
+              <div className="mcard-title">Terrain Setup</div>
+              <p className="mcard-desc">
+                Auto-generate a balanced terrain layout for your battlefield.
+              </p>
+              <button className="mbtn mbtn-terrain mbtn-full" onClick={() => setShowTerrainGen(true)}>
+                <span className="mbtn-icon">🗺</span> Generate Terrain
+              </button>
+            </div>
+
+            <div className="mcard">
+              <div className="mcard-title">Tactical Analysis</div>
+              <p className="mcard-desc">
+                Analyse your warband — advantages, disadvantages and tactical focus.
+              </p>
+              <button className="mbtn mbtn-tactical mbtn-full" onClick={() => setShowTactical(true)} disabled={warband.units.length === 0}>
+                <span className="mbtn-icon">⚡</span> Analyse Warband
+              </button>
             </div>
 
             <div className="mcard">
@@ -1800,11 +1919,15 @@ export function MobileApp({
                 </div>
                 <div className="mabout-row">
                   <span className="mabout-label">Ruleset</span>
-                  <span className="mabout-value">Trench Hammer Beta 1.3.3</span>
+                  <span className="mabout-value">Trench Hammer 1.4.2</span>
                 </div>
                 <div className="mabout-row">
-                  <span className="mabout-label">Platform</span>
-                  <span className="mabout-value">Android (Capacitor)</span>
+                  <span className="mabout-label">Rules by</span>
+                  <span className="mabout-value">Goober</span>
+                </div>
+                <div className="mabout-row">
+                  <span className="mabout-label">Last Updated</span>
+                  <span className="mabout-value">June 7, 2026</span>
                 </div>
               </div>
             </div>
@@ -1840,7 +1963,7 @@ export function MobileApp({
           onClick={() => setActiveTab('export')}
         >
           <span className="mtab-icon">📤</span>
-          <span className="mtab-label">Export</span>
+          <span className="mtab-label">Tools</span>
         </button>
       </nav>
 
@@ -1982,6 +2105,30 @@ export function MobileApp({
           isDefault: true,
           grantsKeywords: (item as WargearOption).grantsKeywords,
         }));
+        // Compute per-model wargear limits from active upgrades (e.g. Inceptor: plasma_pistol → 2)
+        const activeUpgradePerModelLimits: Record<string, number> = {};
+        for (const [uid, count] of Object.entries(unit.selectedUpgrades ?? {})) {
+          if ((count ?? 0) <= 0) continue;
+          const upg = unitDef?.upgrades?.find(u => u.id === uid);
+          if (upg?.perModelWargearLimits) {
+            Object.assign(activeUpgradePerModelLimits, upg.perModelWargearLimits);
+          }
+        }
+        const perModelWargearLimits = Object.keys(activeUpgradePerModelLimits).length > 0 ? activeUpgradePerModelLimits : undefined;
+        // Compute patron-ability cost discounts (Ded Choppy: melee ≥10cr -5; Dakkalad: ranged ≥10cr -5)
+        const hasDedChoppy = warband.units.some(u => (u.campaignSkills ?? []).some(s => s.source === 'patron' && s.name === 'Ded Choppy'));
+        const hasDakkalad  = warband.units.some(u => (u.campaignSkills ?? []).some(s => s.source === 'patron' && s.name === 'Dakkalad'));
+        const patronOverrides: Record<string, { cost: number }> = {};
+        if (hasDedChoppy || hasDakkalad) {
+          for (const w of allWeapons) {
+            if (w.costCurrency === 'glory') continue;
+            if (hasDedChoppy && w.type === 'melee' && w.cost >= 10) patronOverrides[w.id] = { cost: w.cost - 5 };
+            if (hasDakkalad  && w.type !== 'melee' && w.cost >= 10) patronOverrides[w.id] = { cost: w.cost - 5 };
+          }
+        }
+        const mergedCostOverrides = (hasDedChoppy || hasDakkalad)
+          ? { ...patronOverrides, ...(currentSubFaction?.wargearCostOverrides ?? {}) }
+          : currentSubFaction?.wargearCostOverrides;
         return (
           <WargearPanel
             key={unit.id}
@@ -1997,9 +2144,11 @@ export function MobileApp({
             weaponReplacementRules={unitDef?.weaponReplacementRules}
             cannotEquip={unitDef?.cannotEquip}
             rawDefaultWargear={unitDef?.defaultWargear ?? []}
-            wargearCostOverrides={currentSubFaction?.wargearCostOverrides}
+            wargearCostOverrides={mergedCostOverrides}
             warbandWeaponCounts={getWarbandWeaponCounts(warband.units)}
             wargearLimitOverrides={currentSubFaction?.wargearLimitOverrides}
+            perModelWargearLimits={perModelWargearLimits}
+            factionNotes={getFactionWargearNotes(selectedFaction)}
           />
         );
       })()}
@@ -2016,8 +2165,14 @@ export function MobileApp({
           .map(sw => ({ name: sw.name, description: sw.description!, cost: sw.cost }));
         if (!unitDef || (visibleUpgrades.length === 0 && autoTiers.length === 0)) return null;
         const warbandUpgradeCounts = warband.units.reduce((acc, wu) => {
+          const wuDef = allAvailableUnits.find(u => u.id === wu.unitId);
           Object.entries(wu.selectedUpgrades ?? {}).forEach(([uid, cnt]) => {
-            if (cnt > 0) acc[uid] = (acc[uid] ?? 0) + 1;
+            if (cnt <= 0) return;
+            acc[uid] = (acc[uid] ?? 0) + 1;
+            const upgDef = wuDef?.upgrades?.find(u => u.id === uid);
+            (upgDef?.countsAsUpgradeIds ?? []).forEach(aliasId => {
+              acc[aliasId] = (acc[aliasId] ?? 0) + 1;
+            });
           });
           return acc;
         }, {} as Record<string, number>);
@@ -2128,6 +2283,10 @@ export function MobileApp({
         return (
           <EliteProgressionModal
             unit={unit}
+            factionId={selectedFaction ?? undefined}
+            patronId={warband.patron}
+            subfactionName={currentSubFaction?.name}
+            isElite={isEliteEligible(unit)}
             onChange={(updated: WarbandUnit) => setWarband(prev => {
               const units = [...prev.units];
               units[eliteProgressionIdx] = updated;
@@ -2143,6 +2302,52 @@ export function MobileApp({
         <MercenaryInfoModal
           mercenary={infoMercenary}
           onClose={() => setInfoMercenary(null)}
+        />
+      )}
+
+      {/* Terrain Generator */}
+      {showTerrainGen && <TerrainGenerator onClose={() => setShowTerrainGen(false)} />}
+
+      {/* Tactical Analysis */}
+      {showTactical && (() => {
+        const factionDef = getFactionById(warband.faction);
+        return (
+          <TacticalAnalysis
+            report={analyseTactical(warband, allAvailableUnits)}
+            warbandName={warband.name}
+            factionName={factionDef?.name ?? warband.faction}
+            totalPoints={warband.totalPoints}
+            onClose={() => setShowTactical(false)}
+          />
+        );
+      })()}
+
+      {showQuickBuild && (
+        <QuickBuildWizard
+          onClose={() => setShowQuickBuild(false)}
+          onApplyBuild={(fId, sfId, credits, glory, units) => {
+            const sf = sfId || getDefaultSubFactionId(fId);
+            setSelectedFaction(fId);
+            setSelectedSubFaction(sf);
+            setPointLimit(credits);
+            setGloryLimit(glory);
+            setWarband({
+              id: `warband-${Date.now()}`,
+              name: 'My Warband',
+              faction: fId,
+              subfaction: sf,
+              subfactionName: getSubFactionById(fId, sf)?.name,
+              pointLimit: credits,
+              gloryLimit: glory,
+              units,
+              mercenaries: [],
+              totalPoints: units.reduce((s, u) => s + u.totalCost, 0),
+              totalGlory: 0,
+              totalModels: units.reduce((s, u) => s + u.count, 0),
+              schemaVersion: 1,
+            });
+            setShowQuickBuild(false);
+          }}
         />
       )}
 

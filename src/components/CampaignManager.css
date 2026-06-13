@@ -330,9 +330,503 @@
 }
 .skill-ref-entry strong { color: #9d9dff; }
 
-/* Mobile */
-@media (max-width: 600px) {
-  .campaign-modal { max-width: 100%; max-height: 100vh; border-radius: 0; }
-  .campaign-stat-grid { grid-template-columns: repeat(2, 1fr); }
-  .campaign-dice-row { gap: 8px; }
+/* ── Patron tab ─────────────────────────────────────────────────────────── */
+.campaign-patron {
+  padding: 8px 0;
+}
+
+.campaign-patron-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(157, 157, 255, 0.08);
+  border: 1px solid rgba(157, 157, 255, 0.25);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.campaign-patron-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.campaign-patron-name {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+  color: #c8b8ff;
+}
+
+.campaign-patron-desc {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #aaa;
+  line-height: 1.4;
+}
+
+.campaign-patron-skills {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.campaign-patron-skill-item {
+  display: flex;
+}
+
+/* ── Active Warband Effects ──────────────────────────────────────────────── */
+.campaign-warband-effect-group {
+  margin-bottom: 12px;
+}
+
+.campaign-warband-effect-cat-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.campaign-warband-effect-row {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #2a2a2a;
+  border-radius: 5px;
+  padding: 7px 10px;
+  margin-bottom: 5px;
+}
+
+.campaign-warband-effect-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 3px;
+  flex-wrap: wrap;
+}
+
+.campaign-warband-effect-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #f0c040;
+}
+
+.campaign-warband-effect-holder {
+  font-size: 0.75rem;
+  color: #777;
+  font-style: italic;
+  flex-shrink: 0;
+}
+
+.campaign-warband-effect-summary {
+  font-size: 0.82rem;
+  color: #bbb;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── Patron's Visit ──────────────────────────────────────────────────────── */
+.campaign-patrons-visit {
+  border-top: 1px solid #2a2a2a;
+}
+
+.campaign-patrons-visit-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.campaign-patrons-visit-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 80px;
+}
+
+.campaign-patrons-visit-label {
+  font-size: 0.72rem;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.campaign-patrons-visit-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f0c040;
+  line-height: 1;
+}
+
+.campaign-patrons-visit-btn {
+  flex: 1;
+  min-width: 200px;
+  background: linear-gradient(135deg, #3a2a0a 0%, #2a1a00 100%);
+  border: 1px solid #8b7020;
+  color: #f0c040;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.campaign-patrons-visit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5a3c0a 0%, #3a2a00 100%);
+  border-color: #c09030;
+}
+
+.campaign-patrons-visit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Guide tab ───────────────────────────────────────────────────────────── */
+.campaign-guide {
+  padding: 4px 0;
+}
+
+.campaign-guide-intro {
+  font-size: 0.88rem;
+  color: #999;
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+.campaign-guide-intro strong { color: #c8b8ff; }
+
+/* Vertical stepper */
+.campaign-guide-step {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 0;
+}
+
+.campaign-guide-step-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.campaign-guide-step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #2a2a4a;
+  border: 2px solid #5a5aaa;
+  color: #9d9dff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.campaign-guide-step-line {
+  width: 2px;
+  flex: 1;
+  min-height: 20px;
+  background: linear-gradient(to bottom, #3a3a6a, #1a1a2e);
+  margin: 4px 0;
+}
+
+/* Step content */
+.campaign-guide-step-body {
+  padding-bottom: 24px;
+  flex: 1;
+  min-width: 0;
+}
+
+.campaign-guide-step-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.campaign-guide-step-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.campaign-guide-step-phase {
+  font-size: 0.7rem;
+  color: #9d9dff;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.campaign-guide-step-title {
+  margin: 0;
+  font-size: 1rem;
+  color: #e0e0e0;
+  line-height: 1.2;
+}
+
+.campaign-guide-step-desc {
+  margin: 0 0 10px;
+  font-size: 0.85rem;
+  color: #aaa;
+  line-height: 1.5;
+}
+
+.campaign-guide-step-bullets {
+  margin: 0 0 10px;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.campaign-guide-step-bullets li {
+  font-size: 0.83rem;
+  color: #bbb;
+  line-height: 1.45;
+}
+
+.campaign-guide-tip {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  background: rgba(157, 157, 255, 0.07);
+  border-left: 3px solid #5a5aaa;
+  border-radius: 0 6px 6px 0;
+  padding: 7px 10px;
+  font-size: 0.82rem;
+  color: #bbb;
+  line-height: 1.4;
+}
+
+.campaign-guide-tip-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #9d9dff;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+/* Mobile: slightly tighter */
+@media (max-width: 768px) {
+  .campaign-guide-step-icon { font-size: 1.2rem; }
+  .campaign-guide-step-title { font-size: 0.92rem; }
+  .campaign-guide-step-body { padding-bottom: 18px; }
+}
+
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Full-screen sheet instead of a floating dialog */
+  .campaign-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .campaign-modal {
+    max-width: 100%;
+    width: 100%;
+    max-height: 96dvh;   /* leave a tiny gap at top so users can see it's a sheet */
+    border-radius: 18px 18px 0 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  /* Header */
+  .campaign-header {
+    padding: 14px 16px 10px;
+  }
+  .campaign-header h2 {
+    font-size: 1.1rem;
+  }
+  .campaign-close {
+    font-size: 1.2rem;
+    padding: 4px 10px;
+  }
+
+  /* Tabs — scrollable pill strip */
+  .campaign-tabs {
+    padding: 8px 12px 0;
+    gap: 4px;
+  }
+  .campaign-tabs button {
+    padding: 7px 12px;
+    font-size: 0.8rem;
+    border-radius: 20px;         /* pill shape */
+    flex-shrink: 0;
+  }
+  .campaign-tabs button.active {
+    border-radius: 20px;
+  }
+
+  /* Body */
+  .campaign-body {
+    padding: 14px 14px 24px;
+  }
+
+  /* Stat grid: always 2 columns on mobile */
+  .campaign-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .campaign-stat {
+    padding: 10px 8px;
+  }
+  .campaign-stat label {
+    font-size: 0.72rem;
+  }
+  .campaign-stat-value {
+    font-size: 1.15rem;
+  }
+  .campaign-stat-controls button {
+    width: 36px;
+    height: 36px;   /* bigger tap targets */
+  }
+
+  /* Section headings */
+  .campaign-section h3 {
+    font-size: 0.92rem;
+  }
+
+  /* Mission list — remove the roll number chip on very small screens */
+  .campaign-mission {
+    gap: 8px;
+    padding: 8px 10px;
+  }
+  .campaign-mission-info strong {
+    font-size: 0.88rem;
+  }
+  .campaign-mission-info p {
+    font-size: 0.8rem;
+  }
+
+  /* Exploration dice */
+  .campaign-dice-row {
+    gap: 8px;
+  }
+  .campaign-die-value {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+  .campaign-die-assign button {
+    width: 30px;
+    height: 26px;
+    font-size: 0.68rem;
+  }
+
+  /* Exploration results */
+  .campaign-explore-result h4 {
+    font-size: 0.88rem;
+  }
+  .explore-location {
+    padding: 10px;
+  }
+
+  /* Contacts */
+  .campaign-contact-add {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .campaign-contact-add button {
+    width: 100%;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 0.85rem;
+  }
+
+  /* Skill add buttons */
+  .campaign-skill-add {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .campaign-skill-add button {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    text-align: left;
+  }
+
+  /* Notes textarea */
+  .campaign-notes {
+    font-size: 0.85rem;
+    min-height: 100px;
+  }
+
+  /* Resources */
+  .campaign-resource {
+    padding: 10px 12px;
+  }
+
+  /* Patron header */
+  .campaign-patron-header {
+    padding: 12px;
+    gap: 10px;
+  }
+  .campaign-patron-icon {
+    font-size: 1.3rem;
+  }
+  .campaign-patron-name {
+    font-size: 1rem;
+  }
+  .campaign-patron-desc {
+    font-size: 0.82rem;
+  }
+
+  /* Patron's Visit — stack vertically */
+  .campaign-patrons-visit-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .campaign-patrons-visit-stat {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    min-width: unset;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    padding: 8px 14px;
+  }
+  .campaign-patrons-visit-value {
+    font-size: 1.3rem;
+  }
+  .campaign-patrons-visit-btn {
+    min-width: unset;
+    width: 100%;
+    padding: 12px;
+    font-size: 0.92rem;
+  }
+
+  /* Warband effects */
+  .campaign-warband-effect-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .campaign-warband-effect-holder {
+    font-size: 0.72rem;
+  }
+
+  /* Roll button */
+  .campaign-roll-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 0.9rem;
+  }
 }

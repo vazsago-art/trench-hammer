@@ -3005,6 +3005,100 @@ export const discipline_spirit_lore: PsychicDiscipline = {
 };
 
 // ============================================================================
+// ORK PSYCHIC POWERS
+// ============================================================================
+
+export const discipline_ork_psychic: PsychicDiscipline = {
+  id: 'ork_psychic',
+  name: 'Ork Psychic Powers',
+  factionIds: ['orks'],
+  powers: [
+    {
+      id: 'da_jump',
+      name: 'Da Jump',
+      cost: 2,
+      costCurrency: 'glory',
+      powerType: 'Effect',
+      range: '6"',
+      target: 'Self or One ORK Ally and Point',
+      timing: 'Immediate',
+      description: '-1 DICE, 6", Self or One ORK Ally and Point, Immediate. Choose a point anywhere on the battlefield at least 8" from all enemies and not Impassable Terrain, then roll 1D6: 1 – target rolls on Injury table; 2 – opponent places target anywhere on table; 3 – remove caster, place at chosen point; 4–6 – remove target, place at chosen point.',
+    },
+    {
+      id: 'da_krunch',
+      name: 'Da Krunch',
+      cost: 7,
+      powerType: 'Attack',
+      range: '18"',
+      target: 'One Point',
+      timing: 'Immediate',
+      description: '18", -1 DICE, +1 INJURY DICE, BLAST 2", PSYCHIC, RISKY',
+    },
+    {
+      id: 'eadbanger',
+      name: "'Eadbanger",
+      cost: 7,
+      powerType: 'Attack',
+      range: '18"',
+      target: 'One Enemy',
+      timing: 'Immediate',
+      description: '18", -1 DICE, +1 INJURY DICE, ARMOUR PIERCING 1, PSYCHIC, RISKY, STUN',
+    },
+    {
+      id: 'eyez_of_mork',
+      name: 'Eyez of Mork',
+      cost: 5,
+      powerType: 'Attack',
+      range: '18"',
+      target: 'One Enemy',
+      timing: 'Immediate',
+      description: '18", -1 DICE, IGNORE ARMOUR, PSYCHIC, RISKY',
+    },
+    {
+      id: 'fists_of_gork',
+      name: 'Fists of Gork',
+      cost: 3,
+      powerType: 'Effect',
+      range: '6"',
+      target: 'Self or One ORK Ally',
+      timing: 'Target Activation',
+      description: '-2 DICE, 6", Self or One ORK Ally. Target Activation: the target has +1 INJURY MODIFIER with all melee attacks.',
+    },
+    {
+      id: 'jabbin_fingerz',
+      name: "Jabbin' Fingerz",
+      cost: 7,
+      powerType: 'Effect',
+      range: '18"',
+      target: 'One Enemy',
+      timing: 'Immediate',
+      description: '-1 DICE, 18", One Enemy, Immediate. The target gets D3 STUN MARKERS.',
+    },
+    {
+      id: 'roar_of_mork',
+      name: 'Roar of Mork',
+      cost: 10,
+      powerType: 'Effect',
+      range: '18"',
+      target: 'One Enemy',
+      timing: 'Immediate',
+      description: '-1 DICE, 18", One Enemy, Immediate. The target must move D6" directly away from the caster. This movement can bring the target into or out of melee, and counts as a Charge and/or Retreat as appropriate.',
+    },
+    {
+      id: 'warpath',
+      name: 'Warpath',
+      cost: 2,
+      costCurrency: 'glory',
+      powerType: 'Effect',
+      range: '6"',
+      target: 'Self or One ORK Ally',
+      timing: 'Target Activation',
+      description: '-1 DICE, 6", Self or One ORK Ally. Target Activation: the target can make an additional attack with one melee weapon when it takes the Fight Action.',
+    },
+  ],
+};
+
+// ============================================================================
 // FACTION → DISCIPLINE MAPPING
 // Maps faction IDs to the disciplines their psykers have access to.
 // ============================================================================
@@ -3021,6 +3115,10 @@ export const FACTION_DISCIPLINES: Record<string, PsychicDiscipline[]> = {
   heretic_astartes: [discipline_heretic_astartes, discipline_technomancy],
   chaos_cult: [discipline_hereticus],
   chaos_daemons: [discipline_soulstain, discipline_warprot, discipline_tzeentch],
+  death_guard: [discipline_contagion],
+  emperors_children: [discipline_excess],
+  thousand_sons: [discipline_change, discipline_vengeance, discipline_heretic_astartes],
+  world_eaters: [],
   // Xenos
   aeldari: [discipline_runes_of_battle, discipline_runes_of_fate, discipline_runes_of_fortune],
   harlequins: [discipline_phantasmancy],
@@ -3029,6 +3127,7 @@ export const FACTION_DISCIPLINES: Record<string, PsychicDiscipline[]> = {
   slanni: [discipline_celestial, discipline_primal],
   tyranids: [discipline_tyranids_psychic],
   the_vermintide: [discipline_ruin],
+  orks: [discipline_ork_psychic],
   // Necromunda
   necromunda_gang: [discipline_telepathy, discipline_telekinesis],
 };

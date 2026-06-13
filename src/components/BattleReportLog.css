@@ -1,0 +1,448 @@
+/* BattleReportLog.css ─────────────────────────────────────────────────────── */
+
+.brlog-root {
+  padding: 0 0 2rem;
+  color: #e0ddd4;
+}
+
+/* ── Report header ──────────────────────────────────────────────────────────── */
+
+.brlog-report-header {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  flex-wrap: wrap;
+  padding: .75rem 1rem;
+  background: #1a1c1e;
+  border-bottom: 2px solid #c9a84c;
+  margin-bottom: 1rem;
+}
+
+.brlog-report-meta {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  flex: 1 1 300px;
+}
+
+.brlog-report-stats {
+  display: flex;
+  gap: .5rem;
+}
+
+.brlog-report-stat {
+  background: #2a2c30;
+  color: #c9a84c;
+  padding: .15rem .5rem;
+  border-radius: 4px;
+  font-size: .75rem;
+}
+
+.brlog-export-btn {
+  padding: .4rem .9rem;
+  background: #1a3020;
+  border: 1px solid #4caf78;
+  color: #4caf78;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: .85rem;
+  white-space: nowrap;
+}
+.brlog-export-btn:hover { background: #254530; }
+
+/* ── Army names ─────────────────────────────────────────────────────────────── */
+
+.brlog-army-names {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .5rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.brlog-army-name {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  flex: 1;
+}
+.brlog-army-name label {
+  font-size: .7rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.brlog-army-name--player .brlog-input { border-color: #4a7ebe; }
+.brlog-army-name--opponent .brlog-input { border-color: #be4a4a; }
+
+.brlog-army-name--vs {
+  flex: 0 0 auto;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #c9a84c;
+}
+
+/* ── Shared input / select ──────────────────────────────────────────────────── */
+
+.brlog-input {
+  background: #1a1c1f;
+  border: 1px solid #3a3c40;
+  border-radius: 4px;
+  color: #e0ddd4;
+  padding: .35rem .6rem;
+  font-size: .85rem;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+.brlog-input:focus { border-color: #c9a84c; }
+
+.brlog-select {
+  background: #1a1c1f;
+  border: 1px solid #3a3c40;
+  border-radius: 4px;
+  color: #e0ddd4;
+  padding: .35rem .6rem;
+  font-size: .85rem;
+  outline: none;
+  min-width: 120px;
+}
+.brlog-select:focus { border-color: #c9a84c; }
+
+.brlog-input--mission { font-weight: 600; color: #c9a84c; }
+.brlog-input--outcome { color: #a0c080; }
+.brlog-input--note    { border-style: dashed; color: #a0a8b8; }
+.brlog-input--turn-note { border-style: dashed; color: #a0a8b8; width: 100%; margin-bottom: .5rem; }
+.brlog-input--weapon  { min-width: 140px; }
+.brlog-input--profile { min-width: 200px; color: #a0c0d8; }
+.brlog-input--target  { min-width: 120px; }
+.brlog-input--dist    { width: 72px; }
+
+/* ── Remove buttons ─────────────────────────────────────────────────────────── */
+
+.brlog-remove-btn {
+  padding: .2rem .45rem;
+  background: transparent;
+  border: 1px solid #6a2020;
+  color: #c06060;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: .75rem;
+  flex-shrink: 0;
+}
+.brlog-remove-btn:hover { background: #3a1010; }
+.brlog-remove-btn--activation { font-size: .7rem; margin-left: auto; }
+.brlog-remove-btn--turn       { font-size: .7rem; margin-left: auto; }
+
+/* ── Turn panel ─────────────────────────────────────────────────────────────── */
+
+.brlog-turns { display: flex; flex-direction: column; gap: .5rem; }
+
+.brlog-turn {
+  border: 1px solid #2e3035;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.brlog-turn-header {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .55rem .9rem;
+  background: #1e2025;
+  cursor: pointer;
+  user-select: none;
+}
+.brlog-turn-header:hover { background: #252830; }
+
+.brlog-turn-collapse { color: #c9a84c; font-size: .8rem; }
+
+.brlog-turn-title {
+  margin: 0;
+  font-size: 1rem;
+  color: #c9a84c;
+  font-weight: 700;
+}
+
+.brlog-turn-count {
+  font-size: .75rem;
+  color: #888;
+  margin-left: .25rem;
+}
+
+.brlog-turn-body {
+  padding: .75rem;
+  background: #13151a;
+}
+
+/* ── Activation ─────────────────────────────────────────────────────────────── */
+
+.brlog-activations { display: flex; flex-direction: column; gap: .4rem; }
+
+.brlog-activation {
+  border-left: 3px solid;
+  border-radius: 0 4px 4px 0;
+  overflow: hidden;
+}
+.brlog-activation--player   { border-color: #4a7ebe; }
+.brlog-activation--opponent { border-color: #be4a4a; }
+
+.brlog-activation-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .45rem .7rem;
+  background: #1c1e24;
+  cursor: pointer;
+  user-select: none;
+  flex-wrap: wrap;
+}
+.brlog-activation-header:hover { background: #22252d; }
+
+.brlog-activation-collapse { font-size: .75rem; color: #888; }
+.brlog-activation-num      { font-weight: 700; font-size: .8rem; color: #c9a84c; white-space: nowrap; }
+.brlog-activation-side     { font-size: .75rem; color: #888; white-space: nowrap; }
+.brlog-activation-model    { font-size: .85rem; color: #e0ddd4; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.brlog-activation-actions-count { font-size: .7rem; color: #666; white-space: nowrap; }
+
+.brlog-activation-body {
+  padding: .6rem .7rem;
+  background: #0f1114;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.brlog-activation-meta {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ── Add activation buttons ─────────────────────────────────────────────────── */
+
+.brlog-add-activation-row {
+  display: flex;
+  gap: .5rem;
+  margin-top: .5rem;
+  flex-wrap: wrap;
+}
+
+.brlog-add-activation-btn {
+  padding: .35rem .75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: .8rem;
+  border: 1px solid;
+}
+.brlog-add-activation-btn--player {
+  background: #0e1a2e;
+  border-color: #4a7ebe;
+  color: #7ab0e8;
+}
+.brlog-add-activation-btn--player:hover  { background: #142240; }
+.brlog-add-activation-btn--opponent {
+  background: #2e0e0e;
+  border-color: #be4a4a;
+  color: #e07878;
+}
+.brlog-add-activation-btn--opponent:hover { background: #3e1212; }
+
+/* ── Action editor ──────────────────────────────────────────────────────────── */
+
+.brlog-actions-list { display: flex; flex-direction: column; gap: .4rem; }
+
+.brlog-action {
+  border: 1px solid #2a2c30;
+  border-radius: 4px;
+  padding: .5rem .65rem;
+  background: #151820;
+}
+
+.brlog-action-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .4rem;
+  flex-wrap: wrap;
+}
+
+.brlog-action-index {
+  font-size: .7rem;
+  color: #888;
+  min-width: 52px;
+}
+
+.brlog-action-type {
+  background: #1a1c1f;
+  border: 1px solid #3a3c40;
+  border-radius: 4px;
+  color: #e0ddd4;
+  padding: .25rem .5rem;
+  font-size: .82rem;
+}
+
+.brlog-action-result {
+  padding: .25rem .5rem;
+  border-radius: 4px;
+  border: 1px solid #3a3c40;
+  background: #1a1c1f;
+  color: #e0ddd4;
+  font-size: .82rem;
+}
+.brlog-action-result--success  { border-color: #4caf78; color: #4caf78; background: #0e2018; }
+.brlog-action-result--critical { border-color: #c9a84c; color: #c9a84c; background: #201808; }
+.brlog-action-result--failure  { border-color: #be4a4a; color: #e07878; background: #2e0e0e; }
+
+.brlog-action-attack-meta {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin-bottom: .4rem;
+}
+
+.brlog-action-desc {
+  width: 100%;
+  box-sizing: border-box;
+  background: #1a1c1f;
+  border: 1px solid #2a2c30;
+  border-radius: 4px;
+  color: #b0aaa0;
+  padding: .35rem .6rem;
+  font-size: .82rem;
+  resize: vertical;
+  outline: none;
+}
+.brlog-action-desc:focus { border-color: #4a5060; }
+
+.brlog-add-action-btn {
+  align-self: flex-start;
+  margin-top: .25rem;
+  padding: .3rem .7rem;
+  background: #1a1c20;
+  border: 1px dashed #3a3c40;
+  color: #888;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: .8rem;
+}
+.brlog-add-action-btn:hover { border-color: #c9a84c; color: #c9a84c; }
+
+/* ── Attack roll rows ───────────────────────────────────────────────────────── */
+
+.brlog-rolls {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  margin-top: .4rem;
+  padding-left: .5rem;
+  border-left: 2px solid #2a2c30;
+}
+
+.brlog-roll-row {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  flex-wrap: wrap;
+}
+
+.brlog-roll-index {
+  font-size: .72rem;
+  color: #888;
+  min-width: 24px;
+}
+
+.brlog-roll-outcome {
+  padding: .2rem .4rem;
+  border-radius: 3px;
+  border: 1px solid #3a3c40;
+  font-size: .78rem;
+  background: #1a1c1f;
+  color: #e0ddd4;
+  min-width: 120px;
+}
+.brlog-roll--hit       { border-color: #4caf78; color: #4caf78; background: #0e2018; }
+.brlog-roll--critical  { border-color: #c9a84c; color: #c9a84c; background: #201808; }
+.brlog-roll--miss      { border-color: #666;    color: #888;    background: #1a1a1a; }
+.brlog-roll--down      { border-color: #e0a030; color: #e0a030; background: #201400; }
+.brlog-roll--ooa       { border-color: #be4a4a; color: #e07878; background: #2e0e0e; }
+
+.brlog-roll-label {
+  font-size: .72rem;
+  color: #666;
+  white-space: nowrap;
+}
+
+.brlog-roll-num {
+  width: 52px;
+  padding: .2rem .4rem;
+  background: #1a1c1f;
+  border: 1px solid #2a2c30;
+  border-radius: 3px;
+  color: #e0ddd4;
+  font-size: .8rem;
+  text-align: center;
+}
+.brlog-roll-num--mod { width: 52px; }
+.brlog-roll-num--bm  { width: 46px; }
+
+.brlog-roll-note {
+  flex: 1;
+  min-width: 80px;
+  padding: .2rem .4rem;
+  background: #1a1c1f;
+  border: 1px solid #2a2c30;
+  border-radius: 3px;
+  color: #a0a8b8;
+  font-size: .78rem;
+}
+
+.brlog-add-roll-btn {
+  align-self: flex-start;
+  padding: .2rem .55rem;
+  background: #141620;
+  border: 1px dashed #2a2c30;
+  color: #666;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: .75rem;
+  margin-top: .15rem;
+}
+.brlog-add-roll-btn:hover { border-color: #4a7ebe; color: #7ab0e8; }
+
+/* ── Add turn / empty ───────────────────────────────────────────────────────── */
+
+.brlog-add-turn-btn {
+  display: block;
+  width: 100%;
+  margin-top: .75rem;
+  padding: .55rem 1rem;
+  background: #1c1e22;
+  border: 1px dashed #3a3c40;
+  border-radius: 6px;
+  color: #c9a84c;
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+.brlog-add-turn-btn:hover { background: #22252d; border-color: #c9a84c; }
+
+.brlog-empty {
+  text-align: center;
+  color: #666;
+  padding: 2rem 1rem;
+  font-size: .9rem;
+}
+
+/* ── Print suppression ──────────────────────────────────────────────────────── */
+
+@media print {
+  .brlog-export-btn,
+  .brlog-add-turn-btn,
+  .brlog-add-action-btn,
+  .brlog-add-roll-btn,
+  .brlog-add-activation-row,
+  .brlog-remove-btn { display: none !important; }
+}

@@ -13,15 +13,15 @@
  *  - XP value displayed correctly
  *  - "Promoted" badge visible only when isPromoted===true
  *  - Campaign skills listed with name, table label, roll, and description
- *  - Battle scars listed with name and description
+ *  - Battle Scars shown as a numeric count
  *  - Traumas listed with name and description
- *  - Empty arrays → sub-sections not rendered
+ *  - Empty/zero values → sub-sections not rendered
  */
 
 import { render, screen } from '@testing-library/react';
 import { UnitInfoModal } from '../components/UnitInfoModal';
 import type { UnitOption, WarbandUnit } from '../types/index.js';
-import type { CampaignSkill, BattleScar, EliteTrauma } from '../types/index.js';
+import type { CampaignSkill, EliteTrauma } from '../types/index.js';
 
 // ── Minimal fixtures ─────────────────────────────────────────────────────────
 
@@ -47,12 +47,6 @@ const SAMPLE_SKILL: CampaignSkill = {
   description: 'Add +1 to the Melee Skill of this model.',
 };
 
-const SAMPLE_SCAR: BattleScar = {
-  id: 'scar-test-1',
-  name: 'Leg Wound',
-  description: "This model's movement is reduced by 1\".",
-};
-
 const SAMPLE_TRAUMA: EliteTrauma = {
   id: 'trauma-test-1',
   name: 'Shell Shock',
@@ -75,7 +69,7 @@ function makeEliteUnit(overrides: Partial<WarbandUnit> = {}): WarbandUnit {
     xp: 0,
     isPromoted: false,
     campaignSkills: [],
-    battleScars: [],
+    scarCount: 0,
     traumas: [],
     ...overrides,
   };
@@ -206,34 +200,24 @@ describe('UnitInfoModal — Campaign Skills', () => {
 // ── Battle Scars ─────────────────────────────────────────────────────────────
 
 describe('UnitInfoModal — Battle Scars', () => {
-  it('does NOT render Battle Scars sub-section when array is empty', () => {
-    renderModal(MINIMAL_UNIT, makeEliteUnit({ battleScars: [] }));
+  it('does NOT render Battle Scars sub-section when scarCount is 0', () => {
+    renderModal(MINIMAL_UNIT, makeEliteUnit({ scarCount: 0 }));
     expect(screen.queryByText('Battle Scars')).not.toBeInTheDocument();
   });
 
-  it('renders Battle Scars heading when scars are present', () => {
-    renderModal(MINIMAL_UNIT, makeEliteUnit({ battleScars: [SAMPLE_SCAR] }));
+  it('renders Battle Scars heading when scarCount > 0', () => {
+    renderModal(MINIMAL_UNIT, makeEliteUnit({ scarCount: 1 }));
     expect(screen.getByText('Battle Scars')).toBeInTheDocument();
   });
 
-  it('shows the scar name', () => {
-    renderModal(MINIMAL_UNIT, makeEliteUnit({ battleScars: [SAMPLE_SCAR] }));
-    expect(screen.getByText('Leg Wound')).toBeInTheDocument();
+  it('shows the scar count', () => {
+    renderModal(MINIMAL_UNIT, makeEliteUnit({ scarCount: 2 }));
+    expect(screen.getByText(/2\/3/)).toBeInTheDocument();
   });
 
-  it('shows the scar description', () => {
-    renderModal(MINIMAL_UNIT, makeEliteUnit({ battleScars: [SAMPLE_SCAR] }));
-    expect(screen.getByText(/movement is reduced by 1"/i)).toBeInTheDocument();
-  });
-
-  it('renders multiple scars', () => {
-    const scars: BattleScar[] = [
-      SAMPLE_SCAR,
-      { id: 'scar-2', name: 'Eye Wound', description: 'This model suffers -1 DICE on all ranged attack Hit rolls beyond 12".' },
-    ];
-    renderModal(MINIMAL_UNIT, makeEliteUnit({ battleScars: scars }));
-    expect(screen.getByText('Leg Wound')).toBeInTheDocument();
-    expect(screen.getByText('Eye Wound')).toBeInTheDocument();
+  it('shows dead notice at 3 scars', () => {
+    renderModal(MINIMAL_UNIT, makeEliteUnit({ scarCount: 3 }));
+    expect(screen.getByText(/permanently removed/i)).toBeInTheDocument();
   });
 });
 
@@ -279,7 +263,7 @@ describe('UnitInfoModal — full progression display', () => {
       xp: 12,
       isPromoted: false,
       campaignSkills: [SAMPLE_SKILL],
-      battleScars: [SAMPLE_SCAR],
+      scarCount: 1,
       traumas: [SAMPLE_TRAUMA],
     });
     renderModal(MINIMAL_UNIT, fullUnit);
@@ -287,7 +271,7 @@ describe('UnitInfoModal — full progression display', () => {
     expect(screen.getByText(/Elite Progression/i)).toBeInTheDocument();
     expect(screen.getByText('12')).toBeInTheDocument();
     expect(screen.getByText('Melee Proficiency')).toBeInTheDocument();
-    expect(screen.getByText('Leg Wound')).toBeInTheDocument();
+    expect(screen.getByText('Battle Scars')).toBeInTheDocument();
     expect(screen.getByText('Shell Shock')).toBeInTheDocument();
   });
 
@@ -297,7 +281,7 @@ describe('UnitInfoModal — full progression display', () => {
       isPromoted: true,
       xp: 3,
       campaignSkills: [SAMPLE_SKILL],
-      battleScars: [],
+      scarCount: 0,
       traumas: [],
     });
     renderModal(MINIMAL_UNIT, promotedUnit);

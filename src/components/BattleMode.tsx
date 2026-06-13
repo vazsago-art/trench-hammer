@@ -1,6 +1,8 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import type { ReactNode } from 'react';
+import { BattleReportLog } from './BattleReportLog.js';
+import type { BattleReport } from '../types/battleReport.js';
 import { Warband, UnitOption, WarbandUnit, WarbandMercenary, SelectedWargear, WargearOption, Weapon } from '../types/index.js';
 import { lookupWeapon, lookupWargear } from '../data/wargearSlotValidation.js';
 import { lookupPsychicPower } from '../data/psychicDisciplines.js';
@@ -8,6 +10,7 @@ import { GIFTS_OF_CHAOS } from '../data/gifts_of_chaos.js';
 import { getFactionRules } from '../data/factionRules.js';
 import { ALL_MERCENARIES } from '../data/mercenaries.js';
 import { KeywordChip, KeywordList } from './KeywordChip.js';
+import { WargearInfoModal } from './WargearInfoModal.js';
 import { expandKeywords } from '../data/keywordGlossary.js';
 import { SKILL_TABLE_LABELS } from '../data/campaignProgression.js';
 import { isEliteEligible } from '../data/campaignProgression.js';
@@ -15,9 +18,20 @@ import { calculateWarbandPoints, calculateWarbandGlory, calculateTotalModels } f
 import { getFactionById } from '../data/factions_complete.js';
 import { getSubFactionById, getSubFactions } from '../data/subfactions.js';
 import { EliteProgressionModal } from './EliteProgressionModal.js';
+import { RulesReference } from './RulesReference.js';
 import { getAllWarbands, importWarbandFromJSON } from '../utils/export.js';
 import { parseShareUrlString } from '../utils/shareUrl.js';
 import './BattleMode.css';
+
+function createEmptyBattleReport(playerName: string, opponentName: string): BattleReport {
+  return {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    createdAt: new Date().toISOString(),
+    playerArmyName: playerName,
+    opponentArmyName: opponentName,
+    turns: [],
+  };
+}
 
 interface BattleModeProps {
   warband: Warband;
@@ -81,6 +95,7 @@ function UnitCard({
   warbandUnit: WarbandUnit;
   onEditCampaign: () => void;
 }) {
+  const [infoItem, setInfoItem] = useState<{ item: Weapon | WargearOption; catType: 'weapon' | 'armor' | 'equipment' } | null>(null);
   const base = baseUnit.stats;
   const eff = resolved.stats;
   const movDelta = eff.movement - base.movement;
@@ -199,7 +214,7 @@ function UnitCard({
           <h4 className="bm-section-title">Default Battlekit</h4>
           <table className="bm-weapons-table">
             <thead>
-              <tr><th>Weapon</th><th>Type</th><th>Range</th><th>Rules</th></tr>
+              <tr><th>Weapon</th><th>Type</th><th>Range</th><th>Rules</th><th></th></tr>
             </thead>
             <tbody>
               {defWeapons.map(w => (
@@ -208,6 +223,7 @@ function UnitCard({
                   <td><span className={`weapon-type-badge type-${w.type}`}>{weaponTypeLabel(w)}</span></td>
                   <td>{weaponRangeLabel(w)}</td>
                   <td className="keywords-cell"><KeywordList keywords={w.keywords} /></td>
+                  <td><button className="btn-wg-eye" title={`View ${w.name} details`} onClick={() => setInfoItem({ item: w, catType: 'weapon' })}>👁</button></td>
                 </tr>
               ))}
             </tbody>
@@ -231,6 +247,7 @@ function UnitCard({
               <li key={g.id}>
                 <strong>{g.name}.</strong>{' '}
                 {g.description ?? (g.keywords.length ? <KeywordList keywords={g.keywords} /> : '')}
+                <button className="btn-wg-eye btn-wg-eye-inline" title={`View ${g.name} details`} onClick={() => setInfoItem({ item: g, catType: g.type === 'armor' ? 'armor' : 'equipment' })}>👁</button>
               </li>
             ))}
           </ul>
@@ -243,7 +260,7 @@ function UnitCard({
           <h4 className="bm-section-title">Equipped Weapons</h4>
           <table className="bm-weapons-table">
             <thead>
-              <tr><th>Weapon</th><th>Type</th><th>Range</th><th>Rules</th></tr>
+              <tr><th>Weapon</th><th>Type</th><th>Range</th><th>Rules</th><th></th></tr>
             </thead>
             <tbody>
               {equippedWeapons.map(({ sw, w }) => (
@@ -252,6 +269,7 @@ function UnitCard({
                   <td><span className={`weapon-type-badge type-${w.type}`}>{weaponTypeLabel(w)}</span></td>
                   <td>{weaponRangeLabel(w)}</td>
                   <td className="keywords-cell"><KeywordList keywords={w.keywords} /></td>
+                  <td><button className="btn-wg-eye" title={`View ${w.name} details`} onClick={() => setInfoItem({ item: w, catType: 'weapon' })}>👁</button></td>
                 </tr>
               ))}
             </tbody>
@@ -268,6 +286,7 @@ function UnitCard({
               <li key={sw.id}>
                 <strong>{g.name}.</strong>{' '}
                 {g.description ?? (g.keywords.length ? <KeywordList keywords={g.keywords} /> : '')}
+                <button className="btn-wg-eye btn-wg-eye-inline" title={`View ${g.name} details`} onClick={() => setInfoItem({ item: g, catType: g.type === 'armor' ? 'armor' : 'equipment' })}>👁</button>
               </li>
             ))}
           </ul>
@@ -350,37 +369,37 @@ function UnitCard({
       )}
 
       {/* Elite Progression */}
-      {isEliteEligible(warbandUnit) && (
-        <div className="bm-section">
-          <h4 className="bm-section-title">
-            ★ Elite Progression — XP: {warbandUnit.xp ?? 0}
-            <button className="bm-edit-campaign-btn" onClick={onEditCampaign} title="Edit XP, Skills, Battle Scars, and Traumas">✎ Edit</button>
-          </h4>
-          {(warbandUnit.campaignSkills?.length ?? 0) > 0 && (
-            <ul className="bm-progression-list">
-              {warbandUnit.campaignSkills!.map(s => (
-                <li key={s.id}>
-                  <strong>{s.name}</strong> ({SKILL_TABLE_LABELS[s.table]}): {s.description}
-                </li>
-              ))}
-            </ul>
+      {/* Campaign Record: Battle Scars & Traumas (all units); XP & Skills (Elite only) */}
+      <div className="bm-section">
+        <h4 className="bm-section-title">
+          {isEliteEligible(warbandUnit)
+            ? `★ Elite Progression — XP: ${warbandUnit.xp ?? 0}`
+            : '☠ Campaign Record'}
+          <button className="bm-edit-campaign-btn" onClick={onEditCampaign} title="Edit Battle Scars and Traumas">✎ Edit</button>
+        </h4>
+        {isEliteEligible(warbandUnit) && (warbandUnit.campaignSkills?.length ?? 0) > 0 && (
+          <ul className="bm-progression-list">
+            {warbandUnit.campaignSkills!.map(s => (
+              <li key={s.id}>
+                <strong>{s.name}</strong> ({SKILL_TABLE_LABELS[s.table]}): {s.description}
+              </li>
+            ))}
+          </ul>
+        )}
+          {(warbandUnit.scarCount ?? 0) > 0 && (
+            <p className="bm-progression-scars">
+              <strong>Battle Scars:</strong> {warbandUnit.scarCount}/3
+              {(warbandUnit.scarCount ?? 0) >= 3 && <span className="bm-scar-dead"> — DEAD</span>}
+            </p>
           )}
-          {(warbandUnit.battleScars?.length ?? 0) > 0 && (
-            <ul className="bm-progression-list bm-scars">
-              {warbandUnit.battleScars!.map(s => (
-                <li key={s.id}><strong>Scar — {s.name}:</strong> {s.description}</li>
-              ))}
-            </ul>
-          )}
-          {(warbandUnit.traumas?.length ?? 0) > 0 && (
-            <ul className="bm-progression-list bm-traumas">
-              {warbandUnit.traumas!.map(t => (
-                <li key={t.id}><strong>Trauma — {t.name}:</strong> {t.description}</li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
+        {(warbandUnit.traumas?.length ?? 0) > 0 && (
+          <ul className="bm-progression-list bm-traumas">
+            {warbandUnit.traumas!.map(t => (
+              <li key={t.id}><strong>Trauma — {t.name}:</strong> {t.description}</li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       {/* Abilities */}
       {regularAbilities.length > 0 && (
@@ -400,6 +419,13 @@ function UnitCard({
           <KeywordChip key={kw} keyword={kw} className="bm-kw-chip" />
         ))}
       </div>
+      {infoItem && (
+        <WargearInfoModal
+          item={infoItem.item}
+          catType={infoItem.catType}
+          onClose={() => setInfoItem(null)}
+        />
+      )}
     </div>
   );
 }
@@ -673,6 +699,15 @@ export function BattleMode({
   // Side-panel toggles for rules
   const [showFactionRules, setShowFactionRules] = useState(false);
   const [showWarbandRules, setShowWarbandRules] = useState(false);
+  const [showRulesReference, setShowRulesReference] = useState(false);
+
+  // Battle Report
+  const [showBattleReport, setShowBattleReport] = useState(false);
+  const battleReportRef = useRef<BattleReport | null>(null);
+  if (!battleReportRef.current) {
+    battleReportRef.current = createEmptyBattleReport(warband.name, '');
+  }
+  const [battleReport, setBattleReport] = useState<BattleReport>(() => battleReportRef.current!);
 
   // ── Matchup (opponent) state ──────────────────────────────────────────
   const [opponent, setOpponent] = useState<Warband | null>(null);
@@ -682,6 +717,25 @@ export function BattleMode({
   const [matchupPaste, setMatchupPaste] = useState('');
   const [matchupError, setMatchupError] = useState('');
   const [savedWarbands] = useState(() => getAllWarbands());
+
+  // Sync opponent army name into report when first loaded (if still empty)
+  const prevOpponentRef = useRef<string>('');
+  if (opponent && opponent.name !== prevOpponentRef.current) {
+    prevOpponentRef.current = opponent.name;
+    if (!battleReport.opponentArmyName) {
+      const updated = { ...battleReport, opponentArmyName: opponent.name };
+      battleReportRef.current = updated;
+    }
+  }
+
+  // Model name lists for Battle Report quick-pick
+  const playerModelNames = useMemo(() =>
+    warband.units.map(u => u.customName ? `${u.customName} (${u.name})` : u.name),
+  [warband.units]);
+
+  const opponentModelNames = useMemo(() =>
+    opponent ? opponent.units.map(u => u.customName ? `${u.customName} (${u.name})` : u.name) : [],
+  [opponent]);
 
   const opponentUnits = useMemo(() => opponent ? getOpponentUnits(opponent) : [], [opponent]);
   const opponentFaction = opponent ? getFactionById(opponent.faction) : null;
@@ -761,6 +815,21 @@ export function BattleMode({
               >
                 {opponent ? '⚔ Clear Matchup' : '⚔ Matchup'}
               </button>
+              <button
+                className={`bm-report-btn ${showBattleReport ? 'bm-report-btn--active' : ''}`}
+                onClick={() => {
+                  if (!battleReport.opponentArmyName && opponent) {
+                    setBattleReport(r => ({ ...r, opponentArmyName: opponent.name }));
+                  }
+                  setShowBattleReport(v => !v);
+                }}
+                title="Toggle Battle Report Log"
+              >
+                📋 Battle Report
+              </button>
+              <button className="bm-rules-ref-btn" onClick={() => setShowRulesReference(true)} title="Quick Rules Reference">
+                📖 Rules
+              </button>
               <button className="bm-print-btn" onClick={handlePrint} title="Print / Save as PDF">
                 🖨 Print
               </button>
@@ -822,6 +891,25 @@ export function BattleMode({
               </ul>
             </section>
           )}
+
+        {/* ── Battle Report Panel ───────────────────────────────────────── */}
+        {showBattleReport && (
+          <section className="bm-battle-report-panel">
+            <div className="bm-battle-report-panel-header">
+              <h2>📋 Battle Report</h2>
+              <button className="bm-rules-panel-close" onClick={() => setShowBattleReport(false)}>✕</button>
+            </div>
+            <BattleReportLog
+              report={battleReport}
+              onChange={updated => {
+                battleReportRef.current = updated;
+                setBattleReport(updated);
+              }}
+              playerModels={playerModelNames}
+              opponentModels={opponentModelNames}
+            />
+          </section>
+        )}
 
         {/* ── Matchup Loader Panel ───────────────────────────────────────── */}
         {showMatchupLoader && !opponent && (
@@ -1042,6 +1130,8 @@ export function BattleMode({
         return (
           <EliteProgressionModal
             unit={unit}
+            factionId={activeFaction ?? undefined}
+            isElite={isEliteEligible(unit)}
             onChange={(updated) => {
               onUpdateUnit(eliteProgressionIdx, updated);
               setEliteProgressionIdx(null);
@@ -1050,6 +1140,11 @@ export function BattleMode({
           />
         );
       })()}
+
+      {/* Quick Rules Reference */}
+      {showRulesReference && (
+        <RulesReference onClose={() => setShowRulesReference(false)} />
+      )}
     </div>
   );
 }

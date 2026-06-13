@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { UnitOption, WarbandUnit, SelectedWargear, Weapon, WargearOption, UnitUpgrade, SelectedPsychicPower, SelectedGiftOfChaos } from '../types/index.js';
 import { lookupWeapon, lookupWargear } from '../data/wargearSlotValidation.js';
 import { lookupPsychicPower } from '../data/psychicDisciplines.js';
@@ -5,6 +6,7 @@ import { GIFTS_OF_CHAOS } from '../data/gifts_of_chaos.js';
 import { KeywordChip, KeywordList } from './KeywordChip.js';
 import { SKILL_TABLE_LABELS } from '../data/campaignProgression.js';
 import { isEliteEligible } from '../data/campaignProgression.js';
+import { WargearInfoModal } from './WargearInfoModal.js';
 import './UnitInfoModal.css';
 
 interface UnitInfoModalProps {
@@ -71,6 +73,7 @@ function isWeapon(item: Weapon | WargearOption): item is Weapon {
 
 export function UnitInfoModal({ unit, baseUnit, selectedWargear, selectedUpgrades, selectedPsychicPowers, selectedGiftsOfChaos, warbandUnit, onClose }: UnitInfoModalProps) {
   const isSelectedMode = selectedWargear !== undefined;
+  const [infoItem, setInfoItem] = useState<{ item: Weapon | WargearOption; catType: 'weapon' | 'armor' | 'equipment' } | null>(null);
 
   // Compute stat deltas (effective – base) for display in the Profile table.
   // Only shown when a baseUnit is provided and the stats actually differ.
@@ -221,6 +224,7 @@ export function UnitInfoModal({ unit, baseUnit, selectedWargear, selectedUpgrade
                             <th>Type</th>
                             <th>Range</th>
                             <th>Rules</th>
+                            <th></th>
                           </tr>
                         </thead>
                         <tbody>
@@ -230,6 +234,7 @@ export function UnitInfoModal({ unit, baseUnit, selectedWargear, selectedUpgrade
                               <td><span className={`weapon-type-badge type-${w.type}`}>{weaponTypeLabel(w)}</span></td>
                               <td>{weaponRangeLabel(w)}</td>
                               <td className="keywords-cell"><KeywordList keywords={w.keywords} /></td>
+                              <td><button className="btn-wg-eye" title={`View ${w.name} details`} onClick={() => setInfoItem({ item: w, catType: 'weapon' })}>👁</button></td>
                             </tr>
                           ))}
                         </tbody>
@@ -259,6 +264,7 @@ export function UnitInfoModal({ unit, baseUnit, selectedWargear, selectedUpgrade
                           {g.description ?? (g.keywords.length
                             ? <KeywordList keywords={g.keywords} hide={new Set()} />
                             : '')}
+                          <button className="btn-wg-eye btn-wg-eye-inline" title={`View ${g.name} details`} onClick={() => setInfoItem({ item: g, catType: g.type === 'armor' ? 'armor' : 'equipment' })}>👁</button>
                         </li>
                       ))}
                     </ul>
@@ -281,6 +287,7 @@ export function UnitInfoModal({ unit, baseUnit, selectedWargear, selectedUpgrade
                       <th>Range</th>
                       <th>Rules</th>
                       <th>Cost</th>
+                      <th></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -291,6 +298,7 @@ export function UnitInfoModal({ unit, baseUnit, selectedWargear, selectedUpgrade
                         <td>{weaponRangeLabel(w)}</td>
                         <td className="keywords-cell"><KeywordList keywords={w.keywords} /></td>
                         <td>{sw.cost * sw.quantity} {sw.costCurrency === 'glory' ? 'Glory' : 'Credits'}</td>
+                        <td><button className="btn-wg-eye" title={`View ${w.name} details`} onClick={() => setInfoItem({ item: w, catType: 'weapon' })}>👁</button></td>
                       </tr>
                     ))}
                   </tbody>
@@ -312,6 +320,7 @@ export function UnitInfoModal({ unit, baseUnit, selectedWargear, selectedUpgrade
                       <th>Slot</th>
                       <th>Keywords</th>
                       <th>Cost</th>
+                      <th></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -322,6 +331,7 @@ export function UnitInfoModal({ unit, baseUnit, selectedWargear, selectedUpgrade
                         <td>{g.slot ?? '—'}</td>
                         <td className="keywords-cell"><KeywordList keywords={g.keywords} /></td>
                         <td>{sw.cost * sw.quantity} {sw.costCurrency === 'glory' ? 'Glory' : 'Credits'}</td>
+                        <td><button className="btn-wg-eye" title={`View ${g.name} details`} onClick={() => setInfoItem({ item: g, catType: g.type === 'armor' ? 'armor' : 'equipment' })}>👁</button></td>
                       </tr>
                     ))}
                   </tbody>
@@ -460,50 +470,51 @@ export function UnitInfoModal({ unit, baseUnit, selectedWargear, selectedUpgrade
             </section>
           )}
 
-          {/* ── Elite Progression (recruited unit only) ─────────── */}
-          {warbandUnit && isEliteEligible(warbandUnit) && (
+          {/* ── Campaign Record (all units): Elite Progression + Scars/Traumas ─── */}
+          {warbandUnit && (isEliteEligible(warbandUnit) || (warbandUnit.scarCount ?? 0) > 0 || (warbandUnit.traumas?.length ?? 0) > 0) && (
             <section className="unit-info-section unit-elite-progression-section">
               <h3 className="unit-info-section-title unit-elite-progression-title">
-                ★ Elite Progression
+                {isEliteEligible(warbandUnit) ? '★ Elite Progression' : '☠ Campaign Record'}
               </h3>
-              <div className="unit-ep-xp-row">
-                <span className="unit-ep-xp-label">Experience Points (XP)</span>
-                <span className="unit-ep-xp-value">{warbandUnit.xp ?? 0}</span>
-                {warbandUnit.isPromoted && (
-                  <span className="unit-ep-promoted-badge">Promoted</span>
-                )}
-              </div>
 
-              {(warbandUnit.campaignSkills?.length ?? 0) > 0 && (
-                <div className="unit-ep-subsection">
-                  <h4 className="unit-ep-sub-title">Campaign Skills</h4>
-                  <ul className="unit-ep-list">
-                    {warbandUnit.campaignSkills!.map(s => (
-                      <li key={s.id} className="unit-ep-item">
-                        <div className="unit-ep-item-header">
-                          <span className="unit-ep-item-name">{s.name}</span>
-                          <span className="unit-ep-item-tag">{SKILL_TABLE_LABELS[s.table]} — roll {s.roll}</span>
-                        </div>
-                        <p className="unit-ep-item-desc">{s.description}</p>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+              {/* XP + Skills — Elite only */}
+              {isEliteEligible(warbandUnit) && (
+                <>
+                  <div className="unit-ep-xp-row">
+                    <span className="unit-ep-xp-label">Experience Points (XP)</span>
+                    <span className="unit-ep-xp-value">{warbandUnit.xp ?? 0}</span>
+                    {warbandUnit.isPromoted && (
+                      <span className="unit-ep-promoted-badge">Promoted</span>
+                    )}
+                  </div>
+
+                  {(warbandUnit.campaignSkills?.length ?? 0) > 0 && (
+                    <div className="unit-ep-subsection">
+                      <h4 className="unit-ep-sub-title">Campaign Skills</h4>
+                      <ul className="unit-ep-list">
+                        {warbandUnit.campaignSkills!.map(s => (
+                          <li key={s.id} className="unit-ep-item">
+                            <div className="unit-ep-item-header">
+                              <span className="unit-ep-item-name">{s.name}</span>
+                              <span className="unit-ep-item-tag">{SKILL_TABLE_LABELS[s.table]} — roll {s.roll}</span>
+                            </div>
+                            <p className="unit-ep-item-desc">{s.description}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </>
               )}
 
-              {(warbandUnit.battleScars?.length ?? 0) > 0 && (
+              {/* Battle Scars + Traumas — all units */}
+              {(warbandUnit.scarCount ?? 0) > 0 && (
                 <div className="unit-ep-subsection">
                   <h4 className="unit-ep-sub-title">Battle Scars</h4>
-                  <ul className="unit-ep-list">
-                    {warbandUnit.battleScars!.map(s => (
-                      <li key={s.id} className="unit-ep-item">
-                        <div className="unit-ep-item-header">
-                          <span className="unit-ep-item-name">{s.name}</span>
-                        </div>
-                        <p className="unit-ep-item-desc">{s.description}</p>
-                      </li>
-                    ))}
-                  </ul>
+                  <p className="unit-ep-item-desc">
+                    {warbandUnit.scarCount}/3
+                    {(warbandUnit.scarCount ?? 0) >= 3 && <strong> — Model permanently removed from roster.</strong>}
+                  </p>
                 </div>
               )}
 
@@ -551,6 +562,13 @@ export function UnitInfoModal({ unit, baseUnit, selectedWargear, selectedUpgrade
 
         </div>{/* /unit-info-body */}
       </div>
+      {infoItem && (
+        <WargearInfoModal
+          item={infoItem.item}
+          catType={infoItem.catType}
+          onClose={() => setInfoItem(null)}
+        />
+      )}
     </div>
   );
 }

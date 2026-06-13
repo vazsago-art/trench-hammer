@@ -524,6 +524,14 @@
   line-height: 1.3;
 }
 
+.wg-faction-note {
+  font-size: 0.7rem;
+  color: #e6a817;
+  margin: 0.15rem 0;
+  line-height: 1.3;
+  font-style: italic;
+}
+
 .btn-add-wg:disabled {
   cursor: not-allowed;
   opacity: 0.4;
@@ -546,3 +554,53 @@
 .badge-one  { background: #2980b9; color: #fff; }
 .badge-main { background: #8e44ad; color: #fff; }
 .badge-faction { background: #b8860b; color: #fff; font-size: 0.55rem; font-weight: 700; letter-spacing: 0.04em; padding: 0.05rem 0.3rem; border-radius: 2px; }
+
+/* ── Campaign Shop section ─────────────────────────────────────────────────── */
+.campaign-shop-section {
+  border-top: 2px solid #d4af37;
+  margin-top: 0.5rem;
+}
+
+.campaign-shop-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem 0.25rem;
+  background: #1e1a0e;
+}
+
+.campaign-shop-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #d4af37;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.campaign-shop-subtitle {
+  font-size: 0.75rem;
+  color: #a89060;
+  font-style: italic;
+}
+
+.campaign-shop-section .wargear-categories {
+  background: #1a160a;
+}
+
+.campaign-shop-section .wargear-cat-header {
+  background: #221c0e;
+  color: #d4af37;
+}
+
+.campaign-shop-section .wargear-cat-header:hover {
+  background: #2e2412;
+}
+
+.campaign-shop-section .wargear-category {
+  border-color: #3a3015;
+}
+
+.campaign-shop-section .wg-item-cost {
+  color: #d4af37;
+  font-weight: 600;
+}

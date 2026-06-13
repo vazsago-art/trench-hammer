@@ -301,6 +301,125 @@
   background: #5a2090;
 }
 
+/* ── Patron badge on skill rows ──────────────────────────────────────────── */
+.ep-patron-badge {
+  display: inline-block;
+  color: #f0c040;
+  font-size: 0.85em;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* ── Patron skill picker ─────────────────────────────────────────────────── */
+.ep-patron-picker {
+  border: 1px solid rgba(240, 192, 64, 0.35);
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: rgba(240, 192, 64, 0.05);
+  margin-top: 6px;
+}
+
+.ep-patron-picker--empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.ep-patron-picker-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.ep-patron-picker-icon {
+  font-size: 1rem;
+  color: #f0c040;
+}
+
+.ep-patron-picker-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #f0c040;
+}
+
+.ep-patron-picker-empty {
+  font-size: 0.82rem;
+  color: #888;
+  margin: 4px 0 0;
+}
+
+.ep-patron-picker-taken {
+  font-size: 0.78rem;
+  color: #666;
+  margin: 8px 0 0;
+  font-style: italic;
+}
+
+.ep-patron-skill-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ep-patron-skill-option {
+  border: 1px solid rgba(240, 192, 64, 0.2);
+  border-radius: 5px;
+  padding: 7px 10px;
+  background: rgba(240, 192, 64, 0.04);
+}
+
+.ep-patron-skill-option-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.ep-patron-skill-option-name {
+  font-size: 0.88rem;
+  color: #e8d080;
+}
+
+.ep-patron-skill-condition {
+  display: inline-block;
+  font-size: 0.72rem;
+  color: #999;
+  margin-left: 6px;
+  font-style: italic;
+}
+
+.ep-patron-skill-desc {
+  font-size: 0.8rem;
+  color: #aaa;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.ep-patron-skill-pick-btn {
+  flex-shrink: 0;
+  background: rgba(240, 192, 64, 0.15);
+  border: 1px solid rgba(240, 192, 64, 0.5);
+  color: #f0c040;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.ep-patron-skill-pick-btn:hover {
+  background: rgba(240, 192, 64, 0.3);
+}
+
 /* ── List items (skills, scars, traumas) ──────────────────────────────────── */
 .ep-list {
   list-style: none;
@@ -428,3 +547,169 @@
     font-size: 1.6rem;
   }
 }
+
+/* ── Badge variants ───────────────────────────────────────────────────────── */
+.ep-badge--danger {
+  background: #c03030;
+}
+
+/* ── Battle Scar counter ──────────────────────────────────────────────────── */
+.ep-scar-counter-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0.5rem;
+}
+
+.ep-scar-rule {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #7a6090;
+  text-align: center;
+  line-height: 1.5;
+  max-width: 36rem;
+}
+
+.ep-scar-counter {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ep-scar-value {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #c0a0d8;
+  min-width: 3rem;
+  text-align: center;
+  line-height: 1;
+}
+
+.ep-scar-value--warning {
+  color: #e0902a;
+}
+
+.ep-scar-value--dead {
+  color: #c03030;
+}
+
+.ep-scar-death-warning {
+  background: #2a0808;
+  border: 1px solid #c03030;
+  color: #e08080;
+  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.ep-scar-caution {
+  background: #201008;
+  border: 1px solid #c07020;
+  color: #e0a060;
+  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ── Trauma note ──────────────────────────────────────────────────────────── */
+.ep-trauma-note {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #607070;
+  font-style: italic;
+}
+
+.ep-add-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #7a6090;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.ep-tag-recoverable {
+  background: #0e2e2e;
+  color: #50c8c8;
+  border: 1px solid #1e4040;
+}
+
+/* ── Commendations ────────────────────────────────────────────────────────── */
+.ep-commendation-intro {
+  margin: 0;
+  font-size: 0.83rem;
+  color: #7a6090;
+  line-height: 1.5;
+}
+
+.ep-commendation-list {
+  gap: 0.6rem;
+}
+
+.ep-commendation-item {
+  background: #1a1828;
+  border: 1px solid #2e2848;
+  padding: 0.75rem 0.9rem;
+}
+
+.ep-commendation-item--held {
+  background: #1a1e30;
+  border-color: #4060a0;
+}
+
+.ep-commendation-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  flex: 1;
+}
+
+.ep-commendation-check {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #6080d0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.ep-commendation-item .ep-item-name {
+  color: #8090d8;
+  font-weight: 700;
+}
+
+.ep-commendation-item--held .ep-item-name {
+  color: #a0b8f0;
+}
+
+.ep-item-restriction {
+  margin: 0.2rem 0 0;
+  font-size: 0.75rem;
+  color: #706050;
+  font-style: italic;
+}
+
+.ep-item-req {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: #9080a0;
+  line-height: 1.4;
+}
+
+.ep-item-benefit {
+  margin: 0.25rem 0 0;
+  font-size: 0.82rem;
+  color: #70a080;
+  line-height: 1.4;
+}
+
+.ep-tag-unique {
+  background: #2a1a08;
+  color: #c0802a;
+  border: 1px solid #5a3010;
+}
+

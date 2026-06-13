@@ -15,17 +15,826 @@ export interface RulesEntry {
 }
 
 export const RULES_CATEGORIES = [
-  'Psychic Powers',
+  'Turn Structure',
+  'Actions',
+  'Dice & Rolls',
+  'Movement',
+  'Ranged Combat',
+  'Melee Combat',
+  'Injury & Damage',
   'Markers',
+  'Morale',
+  'Terrain',
   'Deployment',
-  'Campaign',
   'Combat',
+  'Keywords',
+  'Profiles & Battlekit',
+  'Psychic Powers',
   'Perils of the Warp',
+  'Campaign',
 ] as const;
 
 export type RulesCategory = typeof RULES_CATEGORIES[number];
 
 export const RULES_ENTRIES: RulesEntry[] = [
+  // ── TURN STRUCTURE ─────────────────────────────────────────────
+  {
+    id: 'turn_sequence',
+    title: 'Turn Sequence',
+    category: 'Turn Structure',
+    body: `A game is divided into Turns, each split into 3 phases:
+
+1. Initiative Phase — Determine who goes first.
+2. Activation Phase — Players alternate activating models.
+3. Morale Phase — Check if warbands break.`,
+    tags: ['turn', 'phase', 'sequence', 'initiative', 'activation', 'morale'],
+  },
+  {
+    id: 'initiative_phase',
+    title: 'Initiative Phase',
+    category: 'Turn Structure',
+    body: `• Count models in each Warband currently on the battlefield (do NOT count Down or Out of Action models).
+• Player with the fewest models has Initiative.
+• If tied, roll-off (each player rolls 1D6, highest wins).
+• The player with Initiative chooses which player activates first.
+• Start of Turn tasks are resolved in the order chosen by the Initiative player.
+• Simultaneous activities: Initiative player determines order.`,
+    tags: ['initiative', 'first', 'roll-off', 'models', 'count'],
+  },
+  {
+    id: 'activation_phase',
+    title: 'Activation Phase',
+    category: 'Turn Structure',
+    body: `• Players alternate activating models one at a time.
+• When it's your turn, pick any un-Activated model in your Warband.
+• A model cannot be Activated more than once per Turn.
+• If one player runs out of models to activate, the opponent activates remaining models one after another.
+• Then proceed to the Morale Phase.`,
+    tags: ['activation', 'alternate', 'model', 'turn'],
+  },
+  {
+    id: 'winning_the_game',
+    title: 'Winning the Game',
+    category: 'Turn Structure',
+    body: `• If your opponent's warband flees, you win immediately.
+• Otherwise, the winner is determined after the final Turn per scenario rules.`,
+    tags: ['win', 'victory', 'flee', 'scenario'],
+  },
+  // ── ACTIONS ────────────────────────────────────────────────────
+  {
+    id: 'actions_overview',
+    title: 'Actions — Overview',
+    category: 'Actions',
+    body: `Each ACTION can only be taken once per Activation unless stated otherwise. Actions can be taken in any order.
+
+Available actions:
+• Move, Charge, or Retreat (pick ONE of these)
+• Dash (in addition to Move/Charge/Retreat)
+• Shoot (Ranged Attack)
+• Fight (Melee Attack)
+• Other (unique actions from Warband Entry, Battlekit, or Campaign Skills)`,
+    tags: ['action', 'move', 'charge', 'retreat', 'dash', 'shoot', 'fight'],
+  },
+  {
+    id: 'action_move',
+    title: 'Action — Move',
+    category: 'Actions',
+    body: `Move up to the model's Movement Characteristic in inches, in any direction.
+
+• Cannot move within 1" of an enemy model (must Charge instead).
+• Obstacles up to 1" high are crossed without penalty.
+• Cannot move across a friendly model unless you have enough movement to clear it entirely.
+• Cannot move off the battlefield unless a rule allows it.
+• A model starting within 1" of an enemy can only move if it stays within 1" of every enemy it started near, or Retreats.`,
+    tags: ['move', 'movement', 'action', 'inches'],
+  },
+  {
+    id: 'action_charge',
+    title: 'Action — Charge',
+    category: 'Actions',
+    body: `Pick a visible enemy within 12". Roll 1D6 and add to Movement Characteristic (max Movement Characteristic of 12"). Move toward target.
+
+• If you finish within 1" of the target, you may Fight.
+• Cannot Charge if already within 1" of an enemy.
+• Cannot Shoot and Charge/Fight in same Activation unless weapon has ASSAULT keyword.
+• Interposing rule: cannot charge past an enemy within 1" of your path — must charge the interposing model instead.`,
+    tags: ['charge', 'action', '1d6', 'bonus', 'interposing', 'assault'],
+  },
+  {
+    id: 'action_retreat',
+    title: 'Action — Retreat',
+    category: 'Actions',
+    body: `Only for models within 1" of an enemy. Move up to Movement Characteristic but must end more than 1" from all enemies.
+
+Before retreating, each enemy model within 1" can make 1 melee attack with 1 weapon against the retreating model. If that takes the model Down or Out of Action, it doesn't move.
+
+The attacking model cannot use the Multiple Melee Weapons rule, but CLEAVE still applies.`,
+    tags: ['retreat', 'action', 'disengage', 'free attack'],
+  },
+  {
+    id: 'action_dash',
+    title: 'Action — Dash',
+    category: 'Actions',
+    body: `Dash can be taken in addition to Move/Charge/Retreat (before or after).
+
+• Move up to Movement Characteristic in any direction.
+• Must take a Risky Success Roll first.
+  — Fail = Activation ends immediately.
+  — Succeed = move as normal.
+• Cannot charge or retreat with a Dash.`,
+    tags: ['dash', 'action', 'risky', 'extra movement'],
+  },
+  {
+    id: 'action_shoot',
+    title: 'Action — Shoot',
+    category: 'Actions',
+    body: `Make a Ranged Attack.
+
+• Must be more than 1" from all enemies.
+• Must have a Ranged Weapon.
+• Cannot Shoot and Charge/Fight in same Activation (unless ASSAULT keyword).`,
+    tags: ['shoot', 'action', 'ranged', 'attack'],
+  },
+  {
+    id: 'action_fight',
+    title: 'Action — Fight',
+    category: 'Actions',
+    body: `Make a Melee Attack.
+
+• Must be within 1" of an enemy.
+• Must have a Melee Weapon.`,
+    tags: ['fight', 'action', 'melee', 'attack', 'close combat'],
+  },
+  // ── DICE & ROLLS ───────────────────────────────────────────────
+  {
+    id: 'success_rolls',
+    title: 'Success Rolls',
+    category: 'Dice & Rolls',
+    body: `Procedure:
+1. Take 2D6.
+2. Add any +DICE or -DICE modifiers.
+3. Roll all dice.
+4. Pick the 2 highest (if +DICE) or 2 lowest (if -DICE).
+5. Add the 2 chosen dice together.
+6. Consult the Success Roll Table.
+
+Results:
+• 2–6: Failure
+• 7–11: Success
+• 12+: Critical Success — add +1 INJURY DICE to any resulting Injury Roll`,
+    tags: ['success roll', '2d6', 'dice', 'critical', 'failure', 'success'],
+  },
+  {
+    id: 'dice_modifiers',
+    title: '+DICE and -DICE Modifiers',
+    category: 'Dice & Rolls',
+    body: `• +1 DICE = roll 3 dice, pick 2 highest.
+• +2 DICE = roll 4 dice, pick 2 highest. And so on.
+• -1 DICE = roll 3 dice, pick 2 lowest.
+• -2 DICE = roll 4 dice, pick 2 lowest. And so on.
+
+Combining: Cancel pairs of +DICE and -DICE until one type remains.
+Example: +2 DICE and -1 DICE → net +1 DICE.
+
+Important:
+• +/- DICE only applies to Success Rolls, NOT Injury Rolls.
+• +/- INJURY DICE only applies to Injury Rolls, NOT Success Rolls.`,
+    tags: ['dice', 'modifier', '+dice', '-dice', 'cancel', 'combine'],
+  },
+  {
+    id: 'risky_success_rolls',
+    title: 'Risky Success Rolls',
+    category: 'Dice & Rolls',
+    body: `Same as a normal Success Roll, but with an additional consequence on failure:
+
+• Failure = model's Activation immediately ends.
+• If taken outside the model's Activation, that ACTION immediately ends.
+
+Used for: Dashing, Climbing, Jumping, Dangerous Terrain, and some special abilities.`,
+    tags: ['risky', 'success roll', 'activation ends', 'dangerous'],
+  },
+  {
+    id: 'rerolls',
+    title: 'Re-Rolls',
+    category: 'Dice & Rolls',
+    body: `Roll the same dice again. A die cannot be re-rolled more than once.
+
+For XD6 re-rolls: you must re-roll all dice in the group.`,
+    tags: ['reroll', 're-roll', 'dice'],
+  },
+  {
+    id: 'd3_rolls',
+    title: 'D3 Rolls',
+    category: 'Dice & Rolls',
+    body: `Roll 1D6 and halve the result, rounding up:
+• 1–2 = 1
+• 3–4 = 2
+• 5–6 = 3`,
+    tags: ['d3', 'dice', 'roll', 'half'],
+  },
+  {
+    id: 'roll_off',
+    title: 'Rolling Off',
+    category: 'Dice & Rolls',
+    body: `Each player rolls 1D6. Highest wins. No modifiers apply.
+
+If tied, re-roll.`,
+    tags: ['roll-off', 'tie', 'dice', '1d6'],
+  },
+  {
+    id: 'measuring',
+    title: 'Measuring Distances',
+    category: 'Dice & Rolls',
+    body: `• Always measure from base (or nearest part if no base).
+• "Within" = distance between nearest points ≤ stated distance.
+• Pre-measuring is allowed at any time.
+• Fractions: Retain for distances. Round up for all other values.`,
+    tags: ['measure', 'distance', 'within', 'pre-measure', 'base'],
+  },
+  // ── MOVEMENT ───────────────────────────────────────────────────
+  {
+    id: 'movement_basic',
+    title: 'Basic Movement',
+    category: 'Movement',
+    body: `Pick up the model and move it along a path. Path length ≤ Movement Characteristic.
+
+• Move in any direction/combination, pivot freely.
+• Cannot move across a friendly model unless enough movement to clear it entirely.
+• Cannot move off the battlefield unless a rule allows it.
+• Cannot move within 1" of enemy models (must Charge instead).
+• A model starting within 1" of an enemy can only move if it stays within 1" of every enemy it started near, or Retreats.
+• Terrain up to 1" high is crossed as Open terrain (no penalty).
+• Trench walls up to 3" high are crossed as Open terrain.`,
+    tags: ['movement', 'basic', 'path', 'pivot'],
+  },
+  {
+    id: 'climbing',
+    title: 'Climbing Sheer Surfaces',
+    category: 'Movement',
+    body: `Move within 1" of a wall, then declare a Climb.
+
+• Must have enough movement to clear the entire surface (cannot stop halfway).
+• Take a Risky Success Roll:
+  — Success = move up/down the surface and continue.
+  — Failure = can't move further, Activation ends.`,
+    tags: ['climb', 'wall', 'sheer', 'risky', 'vertical'],
+  },
+  {
+    id: 'jumping_gaps',
+    title: 'Jumping Over Gaps',
+    category: 'Movement',
+    body: `Gap width must be ≤ half the model's Movement Characteristic.
+
+• Move to the gap edge and take a Risky Success Roll.
+  — Success = cross the gap and continue.
+  — Failure = model Falls (opponent chooses which side), Activation ends.
+
+Unequal heights:
+• Jumping to a higher ledge: add the extra height to the horizontal distance.
+• Jumping from higher to lower: apply Jumping Down rules instead.`,
+    tags: ['jump', 'gap', 'risky', 'fall'],
+  },
+  {
+    id: 'jumping_down',
+    title: 'Jumping Down',
+    category: 'Movement',
+    body: `Jumping down is free — it does NOT count against movement distance.
+
+• If jumping down 3" or more, it counts as Falling — make an Injury Roll.`,
+    tags: ['jump', 'down', 'free', 'fall'],
+  },
+  {
+    id: 'falling',
+    title: 'Falling',
+    category: 'Movement',
+    body: `Model moves to the first flat surface directly below.
+
+If the fall is 3" or more, make an Injury Roll with +1 INJURY DICE per 3" fallen:
+• 3–5" = +1 INJURY DICE
+• 6–8" = +2 INJURY DICE
+• 9–11" = +3 INJURY DICE
+• And so on.`,
+    tags: ['fall', 'injury', 'height', 'dice'],
+  },
+  // ── RANGED COMBAT ──────────────────────────────────────────────
+  {
+    id: 'ranged_attack_sequence',
+    title: 'Ranged Attack Sequence',
+    category: 'Ranged Combat',
+    body: `1. Choose Weapon from the model's profile.
+2. Pick Target — must be visible and in range.
+3. Check Line of Sight.
+4. Check Range — base-to-base distance ≤ weapon range.
+5. Determine Modifiers.
+6. Take a Success Roll.
+
+Results:
+• Failure: Miss, no effect.
+• Success: Hit → make an Injury Roll.
+• Critical Success: Hit → Injury Roll with +1 INJURY DICE.`,
+    tags: ['ranged', 'shooting', 'sequence', 'attack', 'hit', 'miss'],
+  },
+  {
+    id: 'line_of_sight',
+    title: 'Line of Sight',
+    category: 'Ranged Combat',
+    body: `Look from behind the attacking model and check if you can see any part of the target model (excluding base, hands, feet, or carried/attached items like weapons or banners).
+
+• Models see 360° and can pivot freely before checking LoS.
+• Partial Line of Sight: Can see part but not all of the target → target is in Cover.
+• Points on battlefield/terrain: Treated as 1mm across, 1mm high.`,
+    tags: ['line of sight', 'los', 'visibility', 'cover', 'partial'],
+  },
+  {
+    id: 'cover',
+    title: 'Cover',
+    category: 'Ranged Combat',
+    body: `A model is in Cover if it is on or in contact with terrain that is:
+• At least ½" high.
+• At least as wide as the model's base.
+• The terrain lies between it and the attacking model, partially blocking Line of Sight.
+
+Being in Cover gives -1 DICE to ranged attacks targeting the model.`,
+    tags: ['cover', 'terrain', 'protection', '-1 dice'],
+  },
+  {
+    id: 'range_bands',
+    title: 'Short & Long Range',
+    category: 'Ranged Combat',
+    body: `• Short Range: Distance ≤ half weapon range. No modifier.
+• Long Range: Distance > half weapon range → -1 DICE to the attack.`,
+    tags: ['range', 'short', 'long', '-1 dice', 'distance'],
+  },
+  {
+    id: 'ranged_modifiers',
+    title: 'Ranged Attack Modifiers',
+    category: 'Ranged Combat',
+    body: `All modifiers are cumulative:
+
+• Elevated Position: +1 DICE if attacker is at least 3" higher than target.
+• Cover: -1 DICE if target is in cover.
+• Long Range: -1 DICE if beyond half weapon range.`,
+    tags: ['ranged', 'modifier', 'elevated', 'cover', 'long range'],
+  },
+  {
+    id: 'shooting_into_melee',
+    title: 'Shooting Into Melee',
+    category: 'Ranged Combat',
+    body: `If the target is within 1" of any friendly models, roll 1D6:
+• 1–3: Must target a friendly model instead.
+• 4–6: Can target the intended enemy model.
+
+This randomization only applies to the initial target pick, NOT to BLAST radius hits or BLOOD MARKER placement.`,
+    tags: ['shooting', 'melee', 'friendly fire', 'randomize', '1d6'],
+  },
+  // ── MELEE COMBAT ───────────────────────────────────────────────
+  {
+    id: 'melee_attack_sequence',
+    title: 'Melee Attack Sequence',
+    category: 'Melee Combat',
+    body: `1. Choose a Melee Weapon from the model's profile.
+2. Choose Target — must be within 1" and in Line of Sight.
+3. Determine Modifiers.
+4. Take a Success Roll.
+
+Results:
+• Failure: Miss, no effect.
+• Success: Hit → make an Injury Roll.
+• Critical Success: Hit → Injury Roll with +1 INJURY DICE.`,
+    tags: ['melee', 'attack', 'sequence', 'close combat', 'fight'],
+  },
+  {
+    id: 'melee_modifiers',
+    title: 'Melee Attack Modifiers',
+    category: 'Melee Combat',
+    body: `All modifiers are cumulative:
+
+• Diving Charge: +1 DICE (jumped down 3"+, passed Risky roll).
+• Defended Obstacle: -1 DICE if target is in cover with terrain between.
+• Off-Hand Weapon: -1 DICE for the second weapon attack.
+• FEAR: -1 DICE if target has FEAR keyword (cancelled if both models have FEAR).`,
+    tags: ['melee', 'modifier', 'diving', 'obstacle', 'off-hand', 'fear'],
+  },
+  {
+    id: 'multiple_melee_weapons',
+    title: 'Multiple Melee Weapons',
+    category: 'Melee Combat',
+    body: `A model with 2 Melee Weapons can use 1 Fight ACTION to make 2 attacks (one with each weapon).
+
+• The second attack uses the Off-Hand Weapon modifier (-1 DICE).
+• Can pick the same or different targets.
+• With CLEAVE: Make all attacks with the first weapon, then all Off-Hand attacks with the second weapon.`,
+    tags: ['multiple', 'melee', 'off-hand', '-1 dice', 'cleave', 'dual wield'],
+  },
+  {
+    id: 'diving_charge',
+    title: 'Diving Charge',
+    category: 'Melee Combat',
+    body: `During a Charge, if the model Jumps Down 3" or more and lands within 1" of the target:
+
+• Take a Risky Success Roll.
+  — Failure: Model is taken Down + make a Falling Injury Roll.
+  — Success: No Falling Injury Roll + gain +1 DICE to the next Melee Attack this activation.`,
+    tags: ['diving', 'charge', 'jump', 'risky', '+1 dice'],
+  },
+  // ── INJURY & DAMAGE ────────────────────────────────────────────
+  {
+    id: 'injury_rolls',
+    title: 'Injury Rolls',
+    category: 'Injury & Damage',
+    body: `Procedure:
+1. Take 2D6.
+2. Add any +/- INJURY DICE modifiers.
+3. Roll all dice.
+4. Pick the 2 highest (if +INJURY DICE) or 2 lowest (if -INJURY DICE).
+5. Add the 2 chosen dice together.
+6. Apply +/- INJURY MODIFIERS (maximum total -INJURY MODIFIER is -3).
+7. Consult the Injury Roll Table.
+
+Injury Roll Table:
+• 1 or less: No Effect — unharmed.
+• 2–6: Minor Hit — place 1 BLOOD MARKER.
+• 7–8: Down — place 1 BLOOD MARKER + mark as Down. If already Down, place 2 BLOOD MARKERS instead.
+• 9+: Out of Action — removed from play.`,
+    tags: ['injury', 'roll', 'damage', 'blood marker', 'down', 'out of action', 'table'],
+  },
+  {
+    id: 'injury_modifiers',
+    title: 'Common Injury Modifiers',
+    category: 'Injury & Damage',
+    body: `All modifiers are cumulative:
+
+• Blessing Markers: Spend to add -1 INJURY DICE each.
+• Blood Markers: Opponent spends to add +1 INJURY DICE each.
+• Critical Success: +1 INJURY DICE.
+• Down target: +1 INJURY DICE for Melee Attacks.
+• Armour Characteristic: Model's built-in -INJURY MODIFIER.
+• Battlekit: -INJURY MODIFIER from Armour, Shield, etc.
+• Abilities/Keywords: As specified.`,
+    tags: ['injury', 'modifier', 'armour', 'blessing', 'blood', 'critical'],
+  },
+  {
+    id: 'bloodbath_rolls',
+    title: 'Bloodbath Rolls',
+    category: 'Injury & Damage',
+    body: `Spend 6 BLOOD MARKERS (or 3 if target is Down) to convert an Injury Roll into a Bloodbath Roll.
+
+• Roll 3D6 and add all 3 together.
+• +/- INJURY DICE: pick the 3 highest or 3 lowest instead of 2.
+• If the attack has the DEADLY keyword: roll 4D6 and add all 4 together (pick 4 highest/lowest).`,
+    tags: ['bloodbath', 'blood marker', '3d6', 'deadly', 'spend'],
+  },
+  {
+    id: 'down_result',
+    title: 'Down Results',
+    category: 'Injury & Damage',
+    body: `When a model is taken Down:
+• Activation ends immediately (if during its Activation).
+• -1 DICE to all Success Rolls for the Down model.
+• +1 INJURY DICE for Melee Attacks against a Down target.
+• Cannot be moved for any reason (unless it Falls).
+• Stands up when next Activated, but Movement Characteristic is halved for that Activation (including Charge Bonus).
+
+Near a ledge (within 1"):
+• Take a Success Roll. Failure = Falls from nearest ledge, then taken Down. Success = Down but doesn't fall.`,
+    tags: ['down', 'prone', 'halved', 'movement', 'ledge', 'activation ends'],
+  },
+  // ── MARKERS (existing + new) ──────────────────────────────────
+  {
+    id: 'blood_markers_core',
+    title: 'Blood Markers',
+    category: 'Markers',
+    body: `Max 6 BLOOD MARKERS per model (ignore further wounds at 6).
+
+Your opponent can spend Blood Markers on your model:
+• On your Success Rolls: spend to add -1 DICE each.
+• On Injury Rolls against the model: spend to add +1 INJURY DICE each.`,
+    tags: ['blood', 'marker', '-1 dice', '+1 injury dice', 'spend', 'opponent'],
+  },
+  {
+    id: 'blessing_markers_core',
+    title: 'Blessing Markers',
+    category: 'Markers',
+    body: `Max 6 BLESSING MARKERS per model.
+
+You can spend Blessing Markers on your own model:
+• On your Success Rolls: spend to add +1 DICE each.
+• On Injury Rolls against the model: spend to add -1 INJURY DICE each.`,
+    tags: ['blessing', 'marker', '+1 dice', '-1 injury dice', 'spend', 'friendly'],
+  },
+  // ── MORALE ─────────────────────────────────────────────────────
+  {
+    id: 'morale_check',
+    title: 'Morale Check',
+    category: 'Morale',
+    body: `If half or more of your models are Down or Out of Action (rounded up), take a Morale Check (Success Roll) during the Morale Phase.
+
+Example: 5-model warband → check at 3+ Down/OoA (half of 5 = 2.5, rounds up to 3).
+
+• +1 DICE to Morale Check if you have a LEADER model on the battlefield (not Down/OoA).
+• Success: Carry on normally.
+• Failure: Warband becomes Shaken.`,
+    tags: ['morale', 'check', 'half', 'leader', '+1 dice', 'shaken'],
+  },
+  {
+    id: 'shaken_warbands',
+    title: 'Shaken Warbands',
+    category: 'Morale',
+    body: `When Shaken:
+• All Success Rolls become Risky Success Rolls (fail = activation ends).
+• Next Turn's Morale Phase: must take another Morale Check even if fewer than half are Down/OoA.
+  — Success: No longer Shaken.
+  — Failure: Warband flees — you immediately lose the game.`,
+    tags: ['shaken', 'risky', 'flee', 'lose', 'morale'],
+  },
+  {
+    id: 'sounding_retreat',
+    title: 'Sounding the Retreat',
+    category: 'Morale',
+    body: `On a failed Morale Check, you may choose to flee immediately (lose the game) instead of becoming Shaken.
+
+This is useful to conserve losses in campaigns.`,
+    tags: ['retreat', 'flee', 'voluntary', 'campaign', 'morale'],
+  },
+  // ── TERRAIN ────────────────────────────────────────────────────
+  {
+    id: 'terrain_types',
+    title: 'Terrain Types',
+    category: 'Terrain',
+    body: `Four terrain types:
+
+• Open: No impediment, free movement.
+• Difficult: Every 1" moved counts as 2" (half speed).
+• Dangerous: On Activation in or moving into, take a Risky Success Roll. Fail = Injury Roll + Activation ends. Success = continue; no more rolls for that keyword during that move. May have keywords in brackets (e.g., DANGEROUS TERRAIN (FIRE) → Injury Rolls get FIRE keyword).
+• Impassable: Models cannot move onto or across it.
+
+Terrain can be both Difficult AND Dangerous.`,
+    tags: ['terrain', 'open', 'difficult', 'dangerous', 'impassable', 'type'],
+  },
+  {
+    id: 'terrain_specific',
+    title: 'Specific Terrain Features',
+    category: 'Terrain',
+    body: `• Landmarks (statues, shrines): Impassable. FLYING models can cross.
+• Hills: Usually Open. Block LoS. May give height advantage.
+• Linear terrain (walls, hedges): Open if ≤1" high. Climb if >1" high.
+• Trench sections: 4–12" long, 2–4" wide. Walls <3" = Open crossing. Walls ≥3" = must Climb/Jump.
+• Ruined buildings: Walls climbed as sheer surfaces. Stairs/floors = Open. Rubble = Difficult.
+• Corner ruins: L or T shaped walls up to 6" each. Rubble = Difficult.
+• Rivers: Dangerous terrain. Must include crossing points (bridges/fords = Open).
+• Streams: Difficult terrain. Must include crossing points.`,
+    tags: ['terrain', 'landmark', 'hill', 'trench', 'ruin', 'river', 'stream'],
+  },
+  {
+    id: 'battlefield_archetypes',
+    title: 'Battlefield Archetypes',
+    category: 'Terrain',
+    body: `1. No Man's Land: Sparse terrain (trenches, ruins, hills, dangerous/difficult areas, landmarks). Each piece 3"+ apart. Trenches only in deployment zones.
+
+2. Decimated Ruins: Dense ruins (6+ ruined buildings minimum). Ruins placed 3–9" apart. Other terrain 3"+ from other pieces.
+
+3. Trench Lines: Interconnected trenches spanning the battlefield edge to edge. Other terrain 1"+ from trenches, 3"+ from other terrain.`,
+    tags: ['battlefield', 'archetype', 'no mans land', 'ruins', 'trench lines', 'setup'],
+  },
+  // ── DEPLOYMENT (core keywords) ─────────────────────────────────
+  {
+    id: 'fireteam',
+    title: 'FIRETEAM',
+    category: 'Deployment',
+    body: `A group of 2 models with the FIRETEAM keyword.
+
+• Can be Activated simultaneously — take actions in any order, switch between models freely.
+• If either model's Activation ends, both end.
+• A model can only be in 1 Fireteam.`,
+    tags: ['fireteam', 'pair', 'simultaneous', 'activation'],
+  },
+  {
+    id: 'flying_keyword',
+    title: 'FLYING',
+    category: 'Deployment',
+    body: `Measure movement path through the air (ignore terrain).
+
+• Must end on the battlefield or a terrain piece.
+• Still take Risky Success Roll for Dangerous terrain.
+• Cannot end on Impassable terrain.
+• No Falling Injury Rolls.`,
+    tags: ['flying', 'fly', 'air', 'terrain', 'ignore', 'no falling'],
+  },
+  // ── KEYWORDS ───────────────────────────────────────────────────
+  {
+    id: 'kw_armour_piercing',
+    title: 'ARMOUR PIERCING',
+    category: 'Keywords',
+    body: `Reduce the target's total -INJURY MODIFIER from Armour and Shields by 1 (minimum 0).`,
+    tags: ['armour piercing', 'ap', 'injury modifier', 'armour', 'shield'],
+  },
+  {
+    id: 'kw_assault',
+    title: 'ASSAULT',
+    category: 'Keywords',
+    body: `Ranged attacks with this weapon don't prevent Charging or Fighting in the same Activation.`,
+    tags: ['assault', 'charge', 'shoot', 'same activation'],
+  },
+  {
+    id: 'kw_automatic',
+    title: 'AUTOMATIC (X)',
+    category: 'Keywords',
+    body: `Make X Ranged Attacks with one Shoot action. All targets must be within 6" of each other.`,
+    tags: ['automatic', 'multiple shots', 'ranged', 'x attacks'],
+  },
+  {
+    id: 'kw_blast',
+    title: 'BLAST (X")',
+    category: 'Keywords',
+    body: `Hit all models within X" of the target with Line of Sight. Friendly models within 1" of hit enemies are also hit.
+
+Miss → nothing happens (unless the weapon also has SCATTER).`,
+    tags: ['blast', 'area', 'aoe', 'radius', 'friendly fire'],
+  },
+  {
+    id: 'kw_block',
+    title: 'BLOCK',
+    category: 'Keywords',
+    body: `-1 DICE to Melee Attacks from models that Charged this turn.`,
+    tags: ['block', 'shield', 'charge', '-1 dice', 'melee defense'],
+  },
+  {
+    id: 'kw_cleave',
+    title: 'CLEAVE (X)',
+    category: 'Keywords',
+    body: `Make X Melee Attacks with one Fight action. Can target different enemies.`,
+    tags: ['cleave', 'multiple attacks', 'melee', 'fight'],
+  },
+  {
+    id: 'kw_critical',
+    title: 'CRITICAL',
+    category: 'Keywords',
+    body: `+2 INJURY DICE on Critical Success (instead of the normal +1).`,
+    tags: ['critical', '+2 injury dice', 'bonus'],
+  },
+  {
+    id: 'kw_cumbersome',
+    title: 'CUMBERSOME',
+    category: 'Keywords',
+    body: `Requires 2 hands even with STRONG. Can still be used with Shield Combo.`,
+    tags: ['cumbersome', 'two-handed', 'strong', 'shield combo'],
+  },
+  {
+    id: 'kw_deadly',
+    title: 'DEADLY',
+    category: 'Keywords',
+    body: `Injury Roll uses 3D6 (add all 3 together). Pick the 3 highest or 3 lowest instead of 2 for +/- INJURY DICE.`,
+    tags: ['deadly', '3d6', 'injury', 'powerful'],
+  },
+  {
+    id: 'kw_fear',
+    title: 'FEAR',
+    category: 'Keywords',
+    body: `-1 DICE to Melee Attacks targeting this model. If both models have FEAR, neither is affected.`,
+    tags: ['fear', '-1 dice', 'melee', 'immune'],
+  },
+  {
+    id: 'kw_fire',
+    title: 'FIRE',
+    category: 'Keywords',
+    body: `After the Injury Roll, place 1 extra BLOOD MARKER on the target (even on a No Effect result).`,
+    tags: ['fire', 'blood marker', 'extra', 'burn'],
+  },
+  {
+    id: 'kw_flamethrower',
+    title: 'FLAMETHROWER',
+    category: 'Keywords',
+    body: `The Ranged Attack is automatically a Success (no roll required). Cannot achieve a Critical Success.`,
+    tags: ['flamethrower', 'auto hit', 'no roll', 'success'],
+  },
+  {
+    id: 'kw_gas',
+    title: 'GAS',
+    category: 'Keywords',
+    body: `After the Injury Roll, place 1 extra BLOOD MARKER on the target (even on a No Effect result).`,
+    tags: ['gas', 'blood marker', 'extra', 'poison'],
+  },
+  {
+    id: 'kw_heavy',
+    title: 'HEAVY',
+    category: 'Keywords',
+    body: `• No Charge Bonus.
+• Cannot make a Ranged Attack and Move/Charge/Retreat/Dash in the same Activation.
+• Maximum of 1 HEAVY item per model.`,
+    tags: ['heavy', 'charge', 'movement', 'restriction'],
+  },
+  {
+    id: 'kw_ignore_armour',
+    title: 'IGNORE ARMOUR',
+    category: 'Keywords',
+    body: `Ignore all -INJURY DICE and -INJURY MODIFIERS from Armour and Shields.`,
+    tags: ['ignore armour', 'pierce', 'bypass', 'armor'],
+  },
+  {
+    id: 'kw_pistol',
+    title: 'PISTOL',
+    category: 'Keywords',
+    body: `Can be used as either a Ranged OR Melee weapon (both in the same Activation).
+
+As Melee: use the weapon's Ranged or Melee Characteristic. Can be used as an Off-Hand weapon.`,
+    tags: ['pistol', 'ranged', 'melee', 'dual', 'off-hand'],
+  },
+  {
+    id: 'kw_reload',
+    title: 'RELOAD',
+    category: 'Keywords',
+    body: `The model's Activation ends after the ACTION that included this attack.`,
+    tags: ['reload', 'activation ends', 'slow'],
+  },
+  {
+    id: 'kw_scatter',
+    title: 'SCATTER',
+    category: 'Keywords',
+    body: `On a BLAST miss: scatter distance = 7 minus the Success Roll result.
+
+Opponent moves the impact point that many inches in a direction of their choice (must have LoS to the original target).`,
+    tags: ['scatter', 'blast', 'miss', 'deviate', 'opponent'],
+  },
+  {
+    id: 'kw_shotgun',
+    title: 'SHOTGUN',
+    category: 'Keywords',
+    body: `At Long Range: -1 INJURY DICE instead of the normal -1 DICE penalty.`,
+    tags: ['shotgun', 'long range', '-1 injury dice'],
+  },
+  {
+    id: 'kw_shrapnel',
+    title: 'SHRAPNEL',
+    category: 'Keywords',
+    body: `After the Injury Roll, place 1 extra BLOOD MARKER on the target (even on a No Effect result).`,
+    tags: ['shrapnel', 'blood marker', 'extra', 'fragment'],
+  },
+  {
+    id: 'kw_skirmisher',
+    title: 'SKIRMISHER',
+    category: 'Keywords',
+    body: `When targeted by a Charge, the model may evade D3" before the charge is resolved. Must end 1"+ from all enemies.
+
+This may create an interposing model situation, forcing the charger to redirect.`,
+    tags: ['skirmisher', 'evade', 'd3', 'charge', 'dodge'],
+  },
+  {
+    id: 'kw_strong',
+    title: 'STRONG',
+    category: 'Keywords',
+    body: `Negates HEAVY restrictions. Can use 1 two-handed Melee Weapon as one-handed.`,
+    tags: ['strong', 'heavy', 'negate', 'one-handed'],
+  },
+  {
+    id: 'kw_tough',
+    title: 'TOUGH',
+    category: 'Keywords',
+    body: `The first Out of Action result is treated as Down instead.`,
+    tags: ['tough', 'survive', 'out of action', 'down'],
+  },
+  {
+    id: 'kw_golem',
+    title: 'GOLEM',
+    category: 'Keywords',
+    body: `• Out of Action results become Down (unless from a Bloodbath Roll).
+• Cannot remove own BLOOD MARKERS.
+• Negates FEAR and GAS.
+• Cannot have TOUGH.`,
+    tags: ['golem', 'undying', 'blood markers', 'fear', 'gas', 'tough'],
+  },
+  // ── PROFILES & BATTLEKIT ───────────────────────────────────────
+  {
+    id: 'model_profiles',
+    title: 'Model Profiles',
+    category: 'Profiles & Battlekit',
+    body: `Each model's profile includes:
+• Movement: Distance in inches + base type (e.g., 6"/Infantry).
+• Ranged: +/- DICE modifier to Ranged Attack Success Rolls.
+• Melee: +/- DICE modifier to Melee Attack Success Rolls.
+• Armour: -INJURY MODIFIER value.
+• Base: Base size (e.g., 25mm).`,
+    tags: ['profile', 'stats', 'movement', 'ranged', 'melee', 'armour', 'base'],
+  },
+  {
+    id: 'battlekit_limits',
+    title: 'Battlekit Limits',
+    category: 'Profiles & Battlekit',
+    body: `• 1× 2-Handed Ranged OR 2× 1-Handed Ranged
+• 1× 2-Handed Melee OR 2× 1-Handed Melee
+• 1× Grenade type
+• 1× Armour
+• 1× Shield (restricts to 1-Handed weapons only; no 2-Handed unless Shield Combo)
+• Any number of unique Equipment/Special items`,
+    tags: ['battlekit', 'loadout', 'limits', 'weapons', 'armour', 'shield', 'grenade'],
+  },
+  {
+    id: 'warband_size',
+    title: 'Warband Size',
+    category: 'Profiles & Battlekit',
+    body: `• Typical warband: 6–20 models.
+• Recommended battlefield: 3'×3' or 4'×4' (minimum 24" between forces).`,
+    tags: ['warband', 'size', 'models', 'battlefield', 'table'],
+  },
   // ── PSYCHIC POWERS ─────────────────────────────────────────────
   {
     id: 'psychic_overview',

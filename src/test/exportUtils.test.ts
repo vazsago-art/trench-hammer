@@ -3,8 +3,8 @@
  * section that was moved here from the UI modals.
  */
 import { exportWarbandAsText, exportWarbandAsJSON } from '../utils/export.js';
-import type { Warband, WarbandUnit, CampaignSkill, BattleScar, EliteTrauma } from '../types/index.js';
-import { makeCampaignSkill, BATTLE_SCARS, ELITE_TRAUMAS, SKILL_TABLE_LABELS } from '../data/campaignProgression.js';
+import type { Warband, WarbandUnit, CampaignSkill, EliteTrauma } from '../types/index.js';
+import { makeCampaignSkill, ELITE_TRAUMAS, SKILL_TABLE_LABELS } from '../data/campaignProgression.js';
 
 // ── Minimal factory helpers ───────────────────────────────────────────────────
 
@@ -277,12 +277,10 @@ describe('exportWarbandAsText – elite progression section', () => {
     expect(out).toContain('roll 7');
   });
 
-  it('lists battle scars by name', () => {
-    const scar: BattleScar = BATTLE_SCARS[3]; // 'Leg Wound'
-    const unit = makeUnit({ unitType: 'elite', battleScars: [scar] });
+  it('lists battle scar count', () => {
+    const unit = makeUnit({ unitType: 'elite', scarCount: 2 });
     const out  = exportWarbandAsText(makeWarband([unit]), 500);
-    expect(out).toContain('Battle Scars:');
-    expect(out).toContain(scar.name);
+    expect(out).toContain('Battle Scars: 2/3');
   });
 
   it('lists traumas by name', () => {
@@ -299,8 +297,8 @@ describe('exportWarbandAsText – elite progression section', () => {
     expect(out).not.toContain('Campaign Skills:');
   });
 
-  it('does not show Battle Scars header when list is empty', () => {
-    const unit = makeUnit({ unitType: 'elite', battleScars: [] });
+  it('does not show Battle Scars line when count is 0', () => {
+    const unit = makeUnit({ unitType: 'elite', scarCount: 0 });
     const out  = exportWarbandAsText(makeWarband([unit]), 500);
     expect(out).not.toContain('Battle Scars:');
   });
@@ -353,14 +351,11 @@ describe('exportWarbandAsJSON – elite progression round-trip', () => {
     expect(parsed.units[0].campaignSkills[0].roll).toBe(8);
   });
 
-  it('serialises and preserves battleScars', () => {
-    const scar: BattleScar = BATTLE_SCARS[1]; // 'Head Wound'
-    const unit = makeUnit({ unitType: 'elite', battleScars: [scar] });
+  it('serialises and preserves scarCount', () => {
+    const unit = makeUnit({ unitType: 'elite', scarCount: 2 });
     const json = exportWarbandAsJSON(makeWarband([unit]));
     const parsed = JSON.parse(json);
-    expect(parsed.units[0].battleScars).toHaveLength(1);
-    expect(parsed.units[0].battleScars[0].id).toBe(scar.id);
-    expect(parsed.units[0].battleScars[0].name).toBe(scar.name);
+    expect(parsed.units[0].scarCount).toBe(2);
   });
 
   it('serialises and preserves traumas', () => {
@@ -381,7 +376,7 @@ describe('exportWarbandAsJSON – elite progression round-trip', () => {
     expect(parsed.units[0].xp).toBeUndefined();
     expect(parsed.units[0].isPromoted).toBeUndefined();
     expect(parsed.units[0].campaignSkills).toBeUndefined();
-    expect(parsed.units[0].battleScars).toBeUndefined();
+    expect(parsed.units[0].scarCount).toBeUndefined();
     expect(parsed.units[0].traumas).toBeUndefined();
   });
 });

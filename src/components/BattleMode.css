@@ -78,6 +78,23 @@
   color: #000;
 }
 
+.bm-rules-ref-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1.5px solid #60a5fa;
+  color: #60a5fa;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.15s, color 0.15s;
+}
+.bm-rules-ref-btn:hover {
+  background: #60a5fa;
+  color: #000;
+}
+
 /* ── Rules Side Buttons ──────────────────────────────────────────────────── */
 
 .bm-rules-side-buttons {
@@ -545,6 +562,52 @@
   color: #000;
 }
 
+/* ── Battle Report button ───────────────────────────────────────────── */
+.bm-report-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1.5px solid #a84cc9;
+  color: #c97ae8;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.15s, color 0.15s;
+}
+.bm-report-btn:hover {
+  background: #2a1040;
+  color: #d8a0f0;
+}
+.bm-report-btn--active {
+  background: #3a1558;
+  border-color: #c97ae8;
+  color: #e0c0f8;
+}
+
+/* ── Battle Report Panel ─────────────────────────────────────────────── */
+.bm-battle-report-panel {
+  background: #13151a;
+  border: 1px solid #4a3060;
+  border-radius: 10px;
+  padding: 0;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+.bm-battle-report-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .75rem 1rem;
+  background: #1c1424;
+  border-bottom: 2px solid #a84cc9;
+}
+.bm-battle-report-panel-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #c97ae8;
+}
+
 /* ── Matchup Loader Panel ───────────────────────────────────────────── */
 .bm-matchup-loader {
   background: #1a1d24;
@@ -996,6 +1059,8 @@
   /* Matchup – print adjustments */
   .bm-matchup-loader { display: none !important; }
   .bm-matchup-btn { display: none !important; }
+  .bm-report-btn { display: none !important; }
+  .bm-battle-report-panel { display: none !important; }
   .bm-army-tabs { display: none !important; }
   .bm-opponent-banner {
     background: #f5f5f5 !important;

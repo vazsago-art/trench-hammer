@@ -5,8 +5,8 @@
  *   - isEliteEligible() helper
  *   - SKILL_TABLES structure and completeness
  *   - makeCampaignSkill() factory
- *   - BATTLE_SCARS / ELITE_TRAUMAS datasets
- *   - CampaignSkill / BattleScar / EliteTrauma type shapes
+ *   - ELITE_TRAUMAS dataset
+ *   - CampaignSkill / EliteTrauma type shapes
  *   - XP field defaulting on WarbandUnit
  */
 
@@ -16,7 +16,6 @@ import {
   makeCampaignSkill,
   SKILL_TABLES,
   SKILL_TABLE_LABELS,
-  BATTLE_SCARS,
   ELITE_TRAUMAS,
 } from '../data/campaignProgression.js';
 import type { CampaignSkillTable } from '../types/index.js';
@@ -162,45 +161,12 @@ describe('makeCampaignSkill', () => {
 });
 
 // ============================================================================
-// BATTLE_SCARS
-// ============================================================================
-
-describe('BATTLE_SCARS', () => {
-  it('has exactly 12 entries', () => {
-    expect(BATTLE_SCARS).toHaveLength(12);
-  });
-
-  it('every entry has a unique id, name, and description', () => {
-    const ids   = new Set<string>();
-    const names = new Set<string>();
-    BATTLE_SCARS.forEach(s => {
-      expect(typeof s.id).toBe('string');
-      expect(s.id.length).toBeGreaterThan(0);
-      expect(typeof s.name).toBe('string');
-      expect(s.name.length).toBeGreaterThan(0);
-      expect(typeof s.description).toBe('string');
-      expect(s.description.length).toBeGreaterThan(0);
-      ids.add(s.id);
-      names.add(s.name);
-    });
-    expect(ids.size).toBe(12);
-    expect(names.size).toBe(12);
-  });
-
-  it('ids follow the scar_N pattern', () => {
-    BATTLE_SCARS.forEach((s, i) => {
-      expect(s.id).toBe(`scar_${i + 1}`);
-    });
-  });
-});
-
-// ============================================================================
 // ELITE_TRAUMAS
 // ============================================================================
 
 describe('ELITE_TRAUMAS', () => {
-  it('has exactly 6 entries', () => {
-    expect(ELITE_TRAUMAS).toHaveLength(6);
+  it('has 16 entries (10 from scar table + 6 from trauma sub-table)', () => {
+    expect(ELITE_TRAUMAS).toHaveLength(16);
   });
 
   it('every entry has a unique id, name, and description', () => {
@@ -216,13 +182,21 @@ describe('ELITE_TRAUMAS', () => {
       ids.add(t.id);
       names.add(t.name);
     });
-    expect(ids.size).toBe(6);
-    expect(names.size).toBe(6);
+    expect(ids.size).toBe(16);
+    expect(names.size).toBe(16);
   });
 
-  it('ids follow the trauma_N pattern', () => {
-    ELITE_TRAUMAS.forEach((t, i) => {
-      expect(t.id).toBe(`trauma_${i + 1}`);
+  it('ids follow the tr_ prefix pattern', () => {
+    ELITE_TRAUMAS.forEach(t => {
+      expect(t.id).toMatch(/^tr_/);
+    });
+  });
+
+  it('canRecover field is a boolean where present', () => {
+    ELITE_TRAUMAS.forEach(t => {
+      if (t.canRecover !== undefined) {
+        expect(typeof t.canRecover).toBe('boolean');
+      }
     });
   });
 });
@@ -431,9 +405,9 @@ describe('WarbandUnit elite progression fields', () => {
     expect(unit.campaignSkills?.length ?? 0).toBe(0);
   });
 
-  it('battleScars defaults to empty array when absent', () => {
-    const unit: { battleScars?: unknown[] } = {};
-    expect(unit.battleScars?.length ?? 0).toBe(0);
+  it('scarCount defaults to 0 when absent using nullish coalescing', () => {
+    const unit: { scarCount?: number } = {};
+    expect(unit.scarCount ?? 0).toBe(0);
   });
 
   it('traumas defaults to empty array when absent', () => {

@@ -8,6 +8,8 @@ interface WargearInfoModalProps {
   catType: 'weapon' | 'armor' | 'equipment';
   costOverride?: number;
   costCurrencyOverride?: 'credits' | 'glory';
+  /** Faction-specific restriction note for this item */
+  factionNote?: string;
   onClose: () => void;
 }
 
@@ -30,7 +32,7 @@ function weaponRangeLabel(w: Weapon): string {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export function WargearInfoModal({ item, catType, costOverride, costCurrencyOverride, onClose }: WargearInfoModalProps) {
+export function WargearInfoModal({ item, catType, costOverride, costCurrencyOverride, factionNote, onClose }: WargearInfoModalProps) {
   const isWeapon = catType === 'weapon';
   const weapon   = isWeapon ? (item as Weapon) : null;
   const gear     = !isWeapon ? (item as WargearOption) : null;
@@ -141,6 +143,11 @@ export function WargearInfoModal({ item, catType, costOverride, costCurrencyOver
                 </p>
               )}
             </section>
+          )}
+
+          {/* ── Faction restriction note ─────────────────────────── */}
+          {factionNote && (
+            <p className="wginfo-faction-note">⚠ <strong>Restriction:</strong> {factionNote}</p>
           )}
 
         </div>

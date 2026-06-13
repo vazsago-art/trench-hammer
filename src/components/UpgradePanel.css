@@ -117,7 +117,8 @@
 .upgrade-panel-body {
   overflow-y: auto;
   padding: 0.75rem 1rem;
-  flex: 1;
+  flex: 1 1 0%;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -249,7 +250,148 @@
 }
 .upgrade-btn-remove:hover { background: #3d0000; }
 
-/* â”€â”€ Panel footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Upgrade group sections (e.g. Background / Specialty) ───── */
+.upgrade-group-section {
+  border: 1.5px solid #3a3a5c;
+  border-radius: 8px;
+  margin-bottom: 0.25rem;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.upgrade-group-header {
+  background: #1a1a2e;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-bottom: 1px solid #3a3a5c;
+}
+
+.upgrade-group-label {
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.upgrade-group-selected {
+  color: #f8fafc;
+  font-size: 0.9rem;
+}
+
+.upgrade-group-none {
+  color: #64748b;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.upgrade-group-note {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0;
+  padding: 0.3rem 0.75rem;
+  background: #12121f;
+  border-bottom: 1px solid #2a2a4c;
+}
+
+/* ── Tab pill bar ──────────────────────────────────────── */
+.upgrade-group-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.5rem 0.6rem;
+  background: #12121f;
+  border-bottom: 1px solid #2a2a4c;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.upgrade-group-tab {
+  background: #1e1e33;
+  border: 1px solid #3a3a5c;
+  border-radius: 20px;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  line-height: 1.4;
+}
+
+.upgrade-group-tab:hover {
+  background: #2a2a4c;
+  border-color: #5a5a8c;
+  color: #e2e8f0;
+}
+
+.upgrade-group-tab--active {
+  background: #2a2a5c;
+  border-color: #7c7cbb;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.upgrade-group-tab--chosen {
+  border-color: #8b6914 !important;
+  color: #f8d56e !important;
+  background: #2a2000 !important;
+}
+
+.upgrade-group-tab--active.upgrade-group-tab--chosen {
+  box-shadow: 0 0 0 1px #8b6914;
+}
+
+.upgrade-group-tab-cost {
+  opacity: 0.65;
+  font-size: 0.7rem;
+  margin-left: 0.15em;
+}
+
+.upgrade-group-tab-check {
+  color: #f8d56e;
+  font-size: 0.7rem;
+}
+
+/* ── Detail card for the previewed/selected group option ── */
+.upgrade-group-detail {
+  padding: 0.65rem 0.75rem;
+  background: #16162a;
+  border-top: 1px solid #2a2a4c;
+}
+
+.upgrade-group-detail--selected {
+  background: #1a1a00;
+  border-left: 3px solid #8b6914;
+}
+
+.upgrade-group-detail-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.upgrade-group-detail-name {
+  font-weight: 600;
+  color: #e2e8f0;
+  font-size: 0.95rem;
+}
+
+.upgrade-group-section .upgrade-card {
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  border-radius: 0;
+  border-bottom: 1px solid #2a2a4c;
+}
+
+.upgrade-group-section .upgrade-card:last-child {
+  border-bottom: none;
+}
+
+/* ─── Panel footer ─────────────────────────────────────── */
 .upgrade-panel-footer {
   border-top: 1px solid #3a3a5c;
   padding: 0.75rem 1rem;

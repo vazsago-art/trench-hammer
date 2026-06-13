@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Battle Report: Ngọn Lửa và Ngàn Con Mắt</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&display=swap');
+
+  :root {
+    --gold: #c9a84c;
+    --gold-dim: #8a7030;
+    --blood: #8b1a1a;
+    --warp-blue: #2a4a7f;
+    --tzeentch: #1a6b8a;
+    --salamander: #2d6b2e;
+    --bg-dark: #0d0d0d;
+    --bg-card: #1a1a1a;
+    --text: #d4d0c8;
+    --text-dim: #8a8578;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text);
+    font-family: 'Merriweather', Georgia, serif;
+    line-height: 1.8;
+    padding: 0;
+  }
+
+  /* Hero Banner */
+  .hero {
+    position: relative;
+    text-align: center;
+    padding: 80px 20px;
+    background: linear-gradient(135deg, #0a0a2e 0%, #1a0a0a 50%, #0a1a0a 100%);
+    border-bottom: 3px solid var(--gold);
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(201,168,76,0.08) 0%, transparent 70%);
+  }
+  .hero h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.8rem, 5vw, 3.5rem);
+    font-weight: 900;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    text-shadow: 0 0 30px rgba(201,168,76,0.3);
+    position: relative;
+  }
+  .hero .subtitle {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    color: var(--text-dim);
+    margin-top: 10px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    position: relative;
+  }
+  .hero .skull {
+    font-size: 2rem;
+    margin: 20px 0 0;
+    position: relative;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* Army Cards */
+  .armies {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 40px auto;
+    max-width: 900px;
+    padding: 0 20px;
+  }
+  @media (max-width: 700px) { .armies { grid-template-columns: 1fr; } }
+
+  .army-card {
+    background: var(--bg-card);
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .army-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+  .army-card.ts::before { background: linear-gradient(90deg, var(--tzeentch), #3aa5d0); }
+  .army-card.sal::before { background: linear-gradient(90deg, var(--salamander), #4a9b4b); }
+
+  .army-card h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .army-card.ts h3 { color: #3aa5d0; }
+  .army-card.sal h3 { color: #4a9b4b; }
+
+  .army-card .credits {
+    font-size: 0.8rem;
+    color: var(--gold-dim);
+    margin-bottom: 14px;
+  }
+
+  .army-card table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .army-card th {
+    text-align: left;
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-weight: 400;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 0;
+    border-bottom: 1px solid #333;
+  }
+  .army-card td {
+    padding: 5px 0;
+    border-bottom: 1px solid #1f1f1f;
+    vertical-align: top;
+  }
+  .army-card td:first-child { font-weight: 700; }
+  .role { color: var(--text-dim); font-size: 0.75rem; }
+  .equip { color: var(--text-dim); font-size: 0.75rem; font-style: italic; }
+
+  /* Turn Headers */
+  .turn-header {
+    text-align: center;
+    margin: 50px 0 30px;
+    position: relative;
+  }
+  .turn-header::before,
+  .turn-header::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 30%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  }
+  .turn-header::before { left: 0; }
+  .turn-header::after { right: 0; }
+
+  .turn-header h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.6rem;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    display: inline-block;
+    background: var(--bg-dark);
+    padding: 0 20px;
+    position: relative;
+  }
+  .turn-header .turn-subtitle {
+    display: block;
+    font-family: 'Merriweather', serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    font-weight: 300;
+    letter-spacing: 0;
+    text-transform: none;
+    margin-top: 4px;
+  }
+
+  /* Activation blocks */
+  .activation {
+    margin: 24px 0;
+    padding: 18px 20px;
+    background: var(--bg-card);
+    border-left: 3px solid #333;
+    border-radius: 0 6px 6px 0;
+  }
+  .activation.highlight { border-left-color: var(--blood); background: #1a1212; }
+  .activation.warp { border-left-color: #6a2aaa; background: #15101f; }
+  .activation.kill { border-left-color: var(--gold); }
+
+  .activation h4 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .activation p { margin-bottom: 10px; }
+  .activation p:last-child { margin-bottom: 0; }
+
+  .quote {
+    font-style: italic;
+    color: var(--gold);
+    padding: 8px 16px;
+    border-left: 2px solid var(--gold-dim);
+    margin: 12px 0;
+    background: rgba(201,168,76,0.03);
+  }
+
+  /* Score boxes */
+  .score-box {
+    text-align: center;
+    margin: 30px 0;
+    padding: 16px;
+    border: 1px solid var(--gold-dim);
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(26,107,138,0.08), rgba(45,107,46,0.08));
+  }
+  .score-box .label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .score-box .score {
+    font-family: 'Cinzel', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--gold);
+    margin: 4px 0;
+  }
+  .score-box .score .ts-color { color: #3aa5d0; }
+  .score-box .score .sal-color { color: #4a9b4b; }
+  .score-box .note {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* Intro / Outro */
+  .narrative {
+    margin: 30px 0;
+    font-size: 0.95rem;
+    line-height: 2;
+  }
+  .narrative p { margin-bottom: 14px; }
+
+  /* Summary */
+  .summary {
+    margin: 50px auto;
+    max-width: 900px;
+    padding: 0 20px;
+  }
+  .summary h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 24px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .stats-table {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 30px;
+    border-collapse: collapse;
+  }
+  .stats-table th {
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.75rem;
+    color: var(--gold);
+    padding: 8px;
+    border-bottom: 2px solid var(--gold-dim);
+  }
+  .stats-table td {
+    text-align: center;
+    padding: 8px;
+    border-bottom: 1px solid #222;
+    font-size: 0.85rem;
+  }
+  .stats-table td:first-child { text-align: left; color: var(--text-dim); }
+
+  .moments {
+    list-style: none;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .moments li {
+    padding: 10px 0 10px 24px;
+    position: relative;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .moments li::before {
+    content: '⚡';
+    position: absolute;
+    left: 0;
+    top: 10px;
+  }
+  .moments .mvp::before { content: '🏆'; }
+  .moments .rip::before { content: '💀'; }
+  .moments .legend::before { content: '🌟'; }
+
+  .footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    border-top: 1px solid #222;
+    margin-top: 40px;
+  }
+
+  strong { color: #e8e0d0; }
+  em { color: #b8b0a0; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<header class="hero">
+  <h1>⚔️ Ngọn Lửa và Ngàn Con Mắt</h1>
+  <div class="subtitle">Báo Cáo Chiến Trường — Sector Vermillion-9</div>
+  <div class="skull">☠</div>
+</header>
+
+<!-- ═══════════════════ ARMIES ═══════════════════ -->
+<section class="armies">
+  <div class="army-card ts">
+    <h3>Thousand Sons</h3>
+    <div class="credits">908 / 900 Credits · 7/8 Glory · 6 Models</div>
+    <table>
+      <tr><th>Model</th><th>Info</th></tr>
+      <tr>
+        <td>Exalted Sorcerer Ahriman <span class="role">Leader</span></td>
+        <td><span class="equip">Disc of Tzeentch, Storm Bolter, Fell Dagger, Psychic</span></td>
+      </tr>
+      <tr>
+        <td>Tzaangor Shaman <span class="role">Elite</span></td>
+        <td><span class="equip">Disc of Tzeentch, Daemon Weapon, Psychic Teleport</span></td>
+      </tr>
+      <tr>
+        <td>Chaos Space Marine <span class="role">Troop</span></td>
+        <td><span class="equip">Rubric Marine, Terminator Armour, Longlas + Scope (Deep Strike)</span></td>
+      </tr>
+      <tr>
+        <td>Tzaangor ×2 <span class="role">Troops</span></td>
+        <td><span class="equip">Melee combat</span></td>
+      </tr>
+      <tr>
+        <td>Sekhetar Robot <span class="role">Troop</span></td>
+        <td><span class="equip">2× Ranged Weapons, INFILTRATOR, TOUGH</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="army-card sal">
+    <h3>Salamanders</h3>
+    <div class="credits">~900 Credits · 7+ Models</div>
+    <table>
+      <tr><th>Model</th><th>Info</th></tr>
+      <tr>
+        <td>Captain <span class="role">Leader</span></td>
+        <td><span class="equip">Terminator Armour, Assault Bolter, Twin Butcher's Chain Cleavers (Deep Strike)</span></td>
+      </tr>
+      <tr>
+        <td>Space Marine ×3 <span class="role">Troops</span></td>
+        <td><span class="equip">INFILTRATOR, Flamers</span></td>
+      </tr>
+      <tr>
+        <td>Scout Marine(s) <span class="role">Troops</span></td>
+        <td><span class="equip">Flamers, hỗ trợ</span></td>
+      </tr>
+      <tr>
+        <td>Space Marine (Sniper) <span class="role">Troop</span></td>
+        <td><span class="equip">Long-range weapon</span></td>
+      </tr>
+      <tr>
+        <td>Gun Servitor <span class="role">Mercenary</span></td>
+        <td><span class="equip">Ranged support</span></td>
+      </tr>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════ PROLOGUE ═══════════════════ -->
+<div class="container">
+  <div class="narrative">
+    <p>Sương mù Warp cuộn xoáy trên mặt đất nứt nẻ của Sector Vermillion-9. Ba cột khói đánh dấu những cứ điểm chiến lược — <em>Objective</em> — mà cả hai phe đều khao khát kiểm soát. Trước khi tiếng súng đầu tiên vang lên, hai đội quân đã âm thầm triển khai các đơn vị xâm nhập.</p>
+    <p>Phía Salamander chiếm ưu thế tuyệt đối — <strong>ba</strong> chiến binh Space Marine mang dấu hiệu INFILTRATOR lướt qua đống đổ nát như những bóng ma trong giáp Mk VII xanh lục. Hai tên cắm mốc ở vùng tranh chấp trung tâm, tên còn lại âm thầm chiếm một cứ điểm ngoài rìa — vị trí an toàn, cách xa tầm giao tranh, nhưng đủ để tích điểm mỗi turn.</p>
+    <p>Phía Thousand Sons chỉ có <strong>một</strong> — nhưng đó là <strong>Sekhetar Robot</strong>. Cỗ máy sát thủ cổ đại, thân xác bọc thép Tzeentchian dày đặc ký tự bùa phép, lầm lũi bước vào trung tâm chiến tuyến với hai khẩu súng sẵn sàng nhả đạn. Đôi mắt đỏ quét qua bóng tối. Nó biết mình cô đơn. Nó không quan tâm.</p>
+  </div>
+
+  <!-- ═══════════════════ TURN 1 ═══════════════════ -->
+  <div class="turn-header">
+    <h2>Turn 1 <span class="turn-subtitle">"Máu đầu tiên"</span></h2>
+  </div>
+
+  <div class="activation highlight">
+    <h4>Activation 1 — Ngọn lửa đầu tiên</h4>
+    <p>Một tên Space Marine Salamander — kẻ được giao nhiệm vụ canh gác Objective trung tâm — vừa lọt vào tầm nhìn đã nhận ra bóng dáng khổng lồ của Sekhetar Robot đang đứng sừng sững giữa đống đổ nát. Không một giây do dự, hắn nâng khẩu Flamethrower lên.</p>
+    <div class="quote">"Burn."</div>
+    <p>Luồng promethium phun ra như cơn thịnh nộ của Vulkan. Hai đòn đánh tự động — không cần ngắm, không cần may mắn — thiêu đốt lớp giáp cổ xưa của Sekhetar Robot. <strong>Bốn Blood Marker</strong> bám lên cỗ máy. Chưa đủ để hạ gục, nhưng đủ để gieo mầm cho Bloodbath. Tên Salamander cười gằn sau mặt nạ phòng độc — <em>kế hoạch đang tiến triển.</em></p>
+  </div>
+
+  <div class="activation">
+    <h4>Activation 2 — Sekhetar Robot đáp trả</h4>
+    <p>Cỗ máy cổ đại không biết sợ. Không biết đau. Nó chỉ biết <em>xả đạn</em>.</p>
+    <p>Hai khẩu súng đồng loạt gầm lên, nhắm thẳng vào tên Space Marine <em>thứ hai</em> — kẻ còn chưa kịp hành động, đang thu mình sau bức tường gạch vỡ. Đạn xuyên qua bê tông, phá vỡ lớp giáp Ceramite, để lại <strong>hai Blood Marker</strong> trên người hắn. <em>Chưa chết, nhưng đã run.</em></p>
+  </div>
+
+  <div class="activation highlight">
+    <h4>Activation 3 — Lửa thiêu lần hai</h4>
+    <p>Tên Flamethrower Salamander không buông tha. Hắn bước thêm vài bước, chĩa vòi phun thẳng vào Sekhetar Robot một lần nữa. Blood Marker chồng chất — và Bloodbath kích hoạt. Cỗ máy ngàn năm tuổi <em>khuỵu xuống</em> lần đầu tiên từ rất sớm, khói và tia lửa phụt ra từ các mối nối. <strong>Down</strong> — nhưng nhờ TOUGH, nó vẫn chưa chết. Chỉ là... <em>tạm nghỉ.</em></p>
+  </div>
+
+  <div class="activation warp">
+    <h4>Activation 4 — Tzaangor Shaman thi triển phép thuật</h4>
+    <p>Từ phía sau chiến tuyến Thousand Sons, Tzaangor Shaman — sinh vật lai giữa thú và quỷ, cưỡi trên tấm Disc of Tzeentch lấp lánh — cảm nhận được năng lượng Warp dâng trào trong huyết quản. Nó nhắm mắt, thì thầm lời nguyện cổ đại, cố gắng thi triển phép <strong>Dịch Chuyển Tức Thời</strong> để xuất hiện sau lưng bè lũ Salamander.</p>
+    <p>Warp mở ra... rồi <em>đóng sập lại.</em></p>
+    <p><strong>Thất bại.</strong> May mắn thay, Perils of the Warp không trừng phạt lần này. Shaman mở mắt, thở hổn hển, vẫn đứng nguyên vị trí cũ.</p>
+  </div>
+
+  <div class="activation kill">
+    <h4>Activation 5 — Hội đồng</h4>
+    <p>Bọn Salamander ngửi thấy mùi máu — <em>mùi dầu máy</em>, nói đúng hơn. Chúng xúm lại, đồng loạt xả đạn vào Sekhetar Robot đang nằm sấp. Mỗi viên đạn, mỗi ngọn lửa đều nhắm vào cùng một mục tiêu. Cỗ máy mất <strong>mạng đầu tiên</strong>. Nhưng TOUGH nghĩa là nó có thể gượng dậy... <em>nếu còn cơ hội.</em></p>
+  </div>
+
+  <div class="activation warp">
+    <h4>Activation 6 — Ahriman xuất trận</h4>
+    <p>Một luồng năng lượng Warp <em>xé toạc</em> không gian. Từ phía sau những tàn tích, một tấm Disc of Tzeentch lao ra như tia chớp xanh — trên đó, <strong>Exalted Sorcerer Ahriman</strong>, kẻ mà ngay cả các Daemon Prince cũng phải kiêng dè.</p>
+    <div class="quote">"Tôi đã nhìn thấy các ngươi qua hàng ngàn con mắt."</div>
+    <p>Storm Bolter gầm lên, kèm theo một <strong>lời nguyền cường hóa chính xác</strong> — viên đạn tìm đúng kẽ hở trong giáp tên Space Marine đã bị Sekhetar Robot làm bị thương. Hắn gục xuống. <strong>Tiêu diệt.</strong></p>
+    <p>Nhưng quyền năng luôn có giá. Warp <em>xoay ngược</em> — <strong>Perils of the Warp</strong> kích hoạt. Một Stun Marker bám lên Ahriman như lời cảnh cáo từ chính Tzeentch: <em>"Lần sau, hãy cẩn thận hơn."</em></p>
+  </div>
+
+  <div class="activation">
+    <h4>Activation 7–10 — Triển khai đội hình</h4>
+    <p>Hai bên lặng lẽ đưa quân vào vị trí. Lính Tzaangor chạy trong bóng tối. Scout Marine len lỏi qua các ngõ hẹp. Tên INFILTRATOR Salamander ngoài rìa vẫn <em>ngồi im</em> — chiếm điểm, không giao tranh. An toàn. Khôn ngoan. <strong>Đáng ghét.</strong></p>
+  </div>
+
+  <div class="score-box">
+    <div class="label">Kết thúc Turn 1</div>
+    <div class="score"><span class="ts-color">Thousand Sons 0</span> — <span class="sal-color">Salamanders 2</span></div>
+    <div class="note">Sekhetar Robot down. Trung tâm thuộc về Salamander. Rìa chiến trường cũng thuộc về chúng.</div>
+  </div>
+
+  <!-- ═══════════════════ TURN 2 ═══════════════════ -->
+  <div class="turn-header">
+    <h2>Turn 2 <span class="turn-subtitle">"Tiếng sấm từ bầu trời"</span></h2>
+  </div>
+
+  <div class="narrative">
+    <p>Bầu trời rung chuyển. <strong>Deep Strike.</strong></p>
+    <p>Phía Salamander, một bóng đen khổng lồ rơi xuống từ trên cao — <strong>Captain</strong>, thủ lĩnh của bọn chúng, bọc trong bộ <strong>Terminator Armour</strong> dày như thành lũy. Tay phải cầm Assault Bolter, tay trái là cặp <strong>Twin Butcher's Chain Cleavers</strong> — hai lưỡi cưa xích quay vù vù, nhỏ giọt dầu mỡ máy. Công thủ toàn diện. <em>Ác mộng trong hình hài sắt thép.</em></p>
+    <p>Bên kia chiến tuyến, Rubric Marine của Thousand Sons cũng đáp xuống — thầm lặng hơn, trong bộ giáp Terminator Armour phủ bụi thời gian. Hắn giương khẩu <strong>Longlas</strong> gắn Scope, nhắm mắt trái, mở mắt phải. <em>Sẵn sàng.</em></p>
+  </div>
+
+  <div class="activation">
+    <h4>Activation 1 — Máu cũ chưa khô</h4>
+    <p>Bọn Salamander quay lại Sekhetar Robot. Bloodbath. Lửa. Đạn. Tất cả dồn vào cỗ máy. Nhưng bằng một phép màu nào đó — hay đúng hơn, bằng lớp giáp Tzeentchian và ý chí của kẻ <em>không có ý chí</em> — <strong>Sekhetar Robot sống sót.</strong></p>
+  </div>
+
+  <div class="activation">
+    <h4>Activation 2 — Cỗ máy đứng dậy</h4>
+    <p>Từ đống đổ nát, tiếng máy rền vang. Đôi mắt đỏ lóe sáng trở lại. Sekhetar Robot <em>gượng dậy</em>, khói bốc từ thân, và ngay lập tức — hai khẩu súng nhả đạn về phía bọn Space Marine và Scout Marine tụm phía sau. Chưa giết được ai, nhưng Blood Marker chồng chất. <em>Tiền đề cho cái chết.</em></p>
+  </div>
+
+  <div class="activation kill">
+    <h4>Activation 3 — Phát súng lạnh lùng</h4>
+    <p>Tay bắn tỉa Salamander — cũng là Space Marine nhưng chọn con đường <em>im lặng và chính xác</em> — nhận ra mục tiêu mới: tên Rubric Marine vừa đáp xuống. Hắn chưa kịp cất bước, chưa kịp giương súng, chưa kịp... <em>thở.</em></p>
+    <div class="quote">BANG.</div>
+    <p>Một viên đạn. Xuyên qua visor. <strong>Tiêu diệt tại chỗ.</strong> Rubric Marine gục xuống trong im lặng tuyệt đối — như thể bụi thời gian cuối cùng đã nuốt chửng hắn.</p>
+  </div>
+
+  <div class="activation">
+    <h4>Activation 4 — Bầy Tzaangor lao vào</h4>
+    <p>Bọn Tzaangor — những sinh vật nửa chim nửa thú, bị biến đổi bởi sức mạnh Tzeentch — cuối cùng cũng đến nơi. Chúng <em>hú lên</em> và lao thẳng vào giáp lá cà với bọn Space Marine. Vũ khí thô sơ va vào giáp Ceramite — <em>keng, keng, keng</em> — sát thương gần như... không đáng kể. Nhưng chúng hoàn thành mục đích: <strong>giữ chân.</strong> Bọn Flamethrower không có vũ khí cận chiến nào khác. Chúng mắc kẹt.</p>
+  </div>
+
+  <div class="activation highlight">
+    <h4>Activation 5 — Lửa thiêu trong hỗn chiến</h4>
+    <p>Một tên Salamander quyết định <em>liều</em> — xả Flamethrower thẳng vào <em>đám hỗn chiến</em>, bất chấp có cả đồng đội ở đó. Ngọn lửa cuộn qua, thiêu cháy mọi thứ trong tầm. Bọn Space Marine nín thở...</p>
+    <p>May mắn. Lửa chỉ thiêu đúng mục tiêu. Một con <strong>Tzaangor gục xuống</strong>, cháy đen. Đồng đội vẫn sống. <em>Vulkan sẽ tự hào.</em></p>
+  </div>
+
+  <div class="activation">
+    <h4>Activation 6 — Ahriman ra tay</h4>
+    <p>Exalted Sorcerer không thể đứng nhìn thêm nữa. Ông phóng Disc of Tzeentch vào giữa trận, Storm Bolter gầm, rồi lao thẳng vào giáp lá cà với đám Scout Marine phía sau — những kẻ tưởng mình an toàn. Cây trượng phép quét qua, đánh gục một tên.</p>
+    <p><em>Nhưng ông đã lộ mình.</em></p>
+  </div>
+
+  <div class="activation highlight">
+    <h4>Activation 7 — Captain ra đòn</h4>
+    <p><em>Rầm.</em></p>
+    <p>Terminator Armour đạp nát gạch vụn. Captain Salamander lao tới như một quả tạ sống, hai lưỡi Chain Cleaver quay với tốc độ điên cuồng. Hắn <em>cấu xé</em> Ahriman — Assault Bolter nhả đạn ở cự ly gần, Chain Cleavers xé qua lớp áo choàng phép thuật, cắt vào giáp bên dưới. Blood Marker chồng lên Ahriman dày đặc. <strong>Bloodbath đang chờ.</strong></p>
+    <div class="quote">"Mày là phù thủy. Ta là lửa. Lửa không sợ ma thuật."</div>
+  </div>
+
+  <div class="activation kill">
+    <h4>Activation 8 — Nước đi của Shaman</h4>
+    <p>Trong khi tất cả đang chìm trong máu và lửa ở trung tâm, Tzaangor Shaman lặng lẽ <em>biến mất</em>.</p>
+    <p>Lần này — phép dịch chuyển <strong>thành công.</strong></p>
+    <p>24 inch. Trong nháy mắt, nó xuất hiện ngay sau lưng tên INFILTRATOR Salamander ngoài rìa — kẻ đã ngồi im suốt trận để ăn điểm miễn phí. Hắn chưa kịp quay đầu.</p>
+    <p><strong>Daemon Weapon</strong> chém xuống. <em>Một nhát.</em> Sức mạnh tuyệt đối từ vũ khí bị quỷ ám xẻ toạc giáp Ceramite như cắt giấy.</p>
+    <p><strong>Tiêu diệt.</strong></p>
+    <p>Tzaangor Shaman đứng trên xác kẻ thù, đặt chân lên cứ điểm Objective, và <em>gầm lên</em> chiến thắng.</p>
+  </div>
+
+  <div class="score-box">
+    <div class="label">Kết thúc Turn 2</div>
+    <div class="score"><span class="ts-color">Thousand Sons 2</span> — <span class="sal-color">Salamanders 2</span></div>
+    <div class="note">Thế trận cân bằng. Nhưng thung lũng máu ở trung tâm vẫn chưa ngã ngũ.</div>
+  </div>
+
+  <!-- ═══════════════════ TURN 3 ═══════════════════ -->
+  <div class="turn-header">
+    <h2>Turn 3 <span class="turn-subtitle">"Ảo ảnh và máu"</span></h2>
+  </div>
+
+  <div class="narrative">
+    <p>Thousand Sons mất quân nhiều hơn. Họ đi trước.</p>
+  </div>
+
+  <div class="activation warp">
+    <h4>Activation 1 — Ahriman chạy trốn <em>theo phong cách</em></h4>
+    <p>Exalted Sorcerer biết rõ — thêm một đòn nữa từ Captain, ông sẽ chết. Bloodbath treo trên đầu như lưỡi hái tử thần. Ông ngắm cây <strong>Fell Dagger</strong> — con dao hồi sinh, được rèn trong Warp — và đâm nó vào kẻ thù. <em>Máu kẻ thù chảy, và máu ông khô.</em> Một Blood Marker biến mất. Vừa đủ. <strong>Bloodbath bị hủy.</strong></p>
+    <p>Rồi ông phóng lên Disc of Tzeentch và <em>bỏ chạy</em>.</p>
+    <p>Captain gầm lên tức giận, vung Chain Cleaver chém theo — <strong>Free Strike</strong> — lưỡi cưa xé qua áo choàng, nhưng <em>chưa đủ.</em> Ahriman thoát vào bóng tối, khuất tầm nhìn, và bắt đầu niệm phép <strong>Tàng Hình</strong>.</p>
+    <p>Warp mở ra... và lại <strong>trừng phạt.</strong></p>
+    <p><strong>Perils of the Warp</strong> — lần thứ hai. Ba Stun Marker <em>bùng nổ</em> trong tâm trí ông. Sáu Blood Marker trên cơ thể. Đau đớn khủng khiếp. Nhưng phép thuật vẫn thành công. Ông <em>biến mất</em> — vô hình, bất khả tương tác. Bọn Salamander mất mục tiêu.</p>
+    <div class="quote">"Các ngươi... tưởng ta chạy ư? Ta chỉ đang... viết lại kịch bản."</div>
+  </div>
+
+  <div class="activation highlight">
+    <h4>Activation 2 — Cơn thịnh nộ của Salamander</h4>
+    <p>Mất mục tiêu thủ lĩnh, bọn Space Marine dồn toàn bộ cơn giận vào đám Tzaangor còn sót lại. Lửa. Đạn. Tiếng hú đau đớn. Vùng tranh chấp tràn ngập xác.</p>
+  </div>
+
+  <div class="activation kill">
+    <h4>Activation 3 — Sát thủ vô hình</h4>
+    <p>Tay bắn tỉa Salamander — kẻ đã tiêu diệt Rubric Marine ở Turn 2 — đang nhìn qua scope tìm kiếm Ahriman. <em>Đâu rồi? Hắn biến đi đâu?</em></p>
+    <p>Hắn không thấy bóng dáng Shaman xuất hiện ngay <em>sau lưng mình</em>.</p>
+    <p>Phép dịch chuyển. Lần thứ hai thành công. Tzaangor Shaman hiện ra từ hư không, Daemon Weapon đã giơ cao.</p>
+    <p><strong>Một nhát.</strong></p>
+    <p>Tay bắn tỉa gục xuống ngay lập tức. Không kịp bóp cò. Không kịp kêu. Chỉ có tiếng <em>rầm</em> của xác va vào mặt đất.</p>
+    <p>Shaman nhảy lên Disc, phóng thẳng về Objective đã chiếm. <em>Cân bằng điểm.</em></p>
+  </div>
+
+  <div class="activation">
+    <h4>Activation 4 — Captain tính toán</h4>
+    <p>Thủ lĩnh Salamander nhận ra — trận chiến không chỉ về <em>giết</em>, mà về <em>chiếm</em>. Hắn quay gót, chạy tới một Objective khác gần đó, chùi máu Ahriman trên Chain Cleaver vào đùi giáp. Tiện đường, hắn xé thêm vài vết thương lên con Tzaangor xấu số bên cạnh. Cố gắng nới điểm cách.</p>
+  </div>
+
+  <div class="activation kill">
+    <h4>Activation 5 — Sekhetar Robot thức giấc</h4>
+    <p>Cỗ máy đã bị đánh, bị thiêu, bị hạ, bị bắn hội đồng — nhưng nó <em>vẫn đứng đó.</em> Lần này, nó xả tất cả. Hai khẩu súng đồng loạt gầm, và đám Scout Marine cuối cùng — những kẻ đã ẩn nấp phía sau suốt trận — <strong>gục xuống hết.</strong></p>
+    <p>Khu vực trung tâm giờ chỉ còn một tên Space Marine đơn độc.</p>
+  </div>
+
+  <div class="activation kill">
+    <h4>Activation 6 — Kẻ ngoài cuộc</h4>
+    <p>Bất ngờ, một bóng dáng mới xuất hiện — <strong>Gun Servitor</strong>, lính đánh thuê, nửa người nửa máy, vũ khí hàn trực tiếp vào cánh tay. Hắn giương nòng súng và bắn hạ con <strong>Tzaangor cuối cùng</strong>.</p>
+  </div>
+
+  <div class="score-box">
+    <div class="label">Kết thúc Turn 3</div>
+    <div class="score"><span class="ts-color">Thousand Sons 3</span> — <span class="sal-color">Salamanders 3</span></div>
+    <div class="note">Máu đỏ chiến tuyến. Nhưng điểm số vẫn ngang nhau. Mọi thứ phụ thuộc vào turn cuối cùng.</div>
+  </div>
+
+  <!-- ═══════════════════ TURN 4 ═══════════════════ -->
+  <div class="turn-header">
+    <h2>Turn 4 — Final Turn <span class="turn-subtitle">"Kết cục không ai ngờ"</span></h2>
+  </div>
+
+  <div class="narrative">
+    <p>Sương Warp dày hơn. Mùi máu, dầu máy, và promethium cháy trộn lẫn trong không khí. Cả hai bên đều kiệt quệ. Nhưng cả hai đều <em>không chịu thua.</em></p>
+  </div>
+
+  <div class="activation">
+    <h4>Activation 1 — Ngọn lửa cuối cùng</h4>
+    <p>Tên Space Marine cuối cùng — kẻ đã chiến đấu từ Activation 1 Turn 1 với khẩu Flamethrower — nhìn Sekhetar Robot. Cỗ máy đầy vết thương, khói bốc từ mọi khe hở, nhưng đôi mắt đỏ vẫn sáng rực. Hắn phun lửa. <em>Lần cuối.</em> Trong vô vọng. Captain của hắn đã bỏ đi chiếm điểm nơi khác. Hắn ở đây <em>một mình.</em></p>
+  </div>
+
+  <div class="activation warp">
+    <h4>Activation 2–3 — Ahriman phản công</h4>
+    <p>Exalted Sorcerer Ahriman bước ra khỏi bóng tối. Phép tàng hình tan dần. Sáu Blood Marker trên người. Ba Stun Marker trong đầu. Cơ thể ông rã rời vì Perils of the Warp.</p>
+    <p><em>Nhưng ông vẫn là Ahriman.</em></p>
+    <p>Ông phóng Disc thẳng vào Gun Servitor — tên lính đánh thuê. Cây trượng phép quật vào, Storm Bolter nhả đạn. Chưa đủ giết, nhưng đủ để <em>khóa chân</em> hắn trong cận chiến. Gun Servitor cố phản công — yếu ớt, vô nghĩa trước sức mạnh của kẻ đã sống ngàn năm.</p>
+  </div>
+
+  <div class="activation kill">
+    <h4>Activation 4–5 — Liên thủ cuối cùng</h4>
+    <p>Tzaangor Shaman dịch chuyển lần cuối — xuất hiện bên cạnh Sekhetar Robot. Hai chiến binh Thousand Sons cuối cùng — một sinh vật bị biến đổi cưỡi đĩa bay và một cỗ máy cổ đại không biết chết — <em>đồng loạt ra tay.</em></p>
+    <p>Daemon Weapon. Hai khẩu súng. Tất cả nhắm vào tên Space Marine Flamethrower cuối cùng.</p>
+    <p>Hắn ngã xuống. <strong>Tiêu diệt.</strong></p>
+    <p>Chiến trường im lặng. Chỉ còn tiếng rầm rì của Disc of Tzeentch và tiếng kẽo kẹt của Sekhetar Robot.</p>
+  </div>
+
+  <!-- ═══════════════════ FINAL SCORE ═══════════════════ -->
+  <div class="score-box" style="border-color: var(--gold); background: linear-gradient(135deg, rgba(201,168,76,0.06), rgba(201,168,76,0.02));">
+    <div class="label">⚔️ Tỉ số chung cuộc ⚔️</div>
+    <div class="score"><span class="ts-color">Thousand Sons 4</span> — <span class="sal-color">Salamanders 4</span></div>
+    <div class="note">HÒA</div>
+  </div>
+
+  <!-- ═══════════════════ EPILOGUE ═══════════════════ -->
+  <div class="narrative">
+    <p>Captain Salamander đứng trên cứ điểm xa, một mình, Chain Cleavers im lặng. Ở phía bên kia chiến tuyến, Ahriman ngồi trên Disc of Tzeentch, nhìn về phía kẻ thù qua màn sương Warp.</p>
+    <p>Cả hai biết rõ — nếu trận chiến kéo dài thêm một turn, Thousand Sons có lợi thế quân số ở trung tâm. Nhưng Captain vẫn còn sống, và Terminator Armour không dễ phá vỡ.</p>
+    <p>Nhưng <em>turn đã hết.</em> Và cả hai bên — kẻ của Ngọn Lửa, người của Ngàn Con Mắt — đều kiệt sức.</p>
+    <p style="text-align: center; margin-top: 30px; font-style: italic; color: var(--gold-dim);">Ahriman thu lại cây trượng, quay Disc, và biến mất trong sương Warp.<br>Captain nhổ một bãi nước bọt lên mặt đất nứt nẻ, quay gót, và bước đi.<br><br><strong>Không ai thắng. Không ai thua. Chỉ có máu — và bữa bò bít tết đang chờ.</strong></p>
+  </div>
+</div>
+
+<!-- ═══════════════════ SUMMARY ═══════════════════ -->
+<section class="summary">
+  <h2>📊 Thống kê trận đấu</h2>
+
+  <table class="stats-table">
+    <tr>
+      <th></th>
+      <th style="color: #3aa5d0;">Thousand Sons</th>
+      <th style="color: #4a9b4b;">Salamanders</th>
+    </tr>
+    <tr><td>Models bắt đầu</td><td>6</td><td>7+</td></tr>
+    <tr><td>Models sống sót</td><td>3</td><td>2</td></tr>
+    <tr><td>Kills</td><td>~5</td><td>~3</td></tr>
+    <tr><td>Perils of the Warp</td><td>2 lần</td><td>—</td></tr>
+    <tr><td>MVP</td><td>🏆 Tzaangor Shaman</td><td>🏆 SM Flamethrower</td></tr>
+    <tr><td><strong>Tỉ số</strong></td><td><strong>4</strong></td><td><strong>4</strong></td></tr>
+  </table>
+
+  <h2>🌟 Khoảnh khắc đáng nhớ</h2>
+  <ul class="moments">
+    <li class="legend"><strong>Sekhetar Robot</strong> — bị đánh hội đồng từ Turn 1 nhưng <em>không chịu chết</em>, sống đến Turn cuối cùng</li>
+    <li class="mvp"><strong>Tzaangor Shaman</strong> — từ thất bại teleport ở T1 đến <em>assassin MVP</em> với 2 kills bằng Daemon Weapon</li>
+    <li class="rip"><strong>Rubric Marine</strong> — đáp Deep Strike rồi bị bắn tỉa chết ngay trước khi làm được bất cứ điều gì</li>
+    <li class="legend"><strong>Ahriman</strong> — ăn 2 Perils, 6 Blood Marker, 3+ Stun Marker, <em>vẫn sống</em> và phản công turn cuối</li>
+  </ul>
+</section>
+
+<footer class="footer">
+  TRENCH HAMMER — Battle Report<br>
+  Thousand Sons vs Salamanders · Sector Vermillion-9 · April 2026<br>
+  Generated by Trench Hammer Army Builder
+</footer>
+
+</body>
+</html>

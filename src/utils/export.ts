@@ -9,38 +9,72 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 
 /**
- * Migration: patch HA variant warbands whose auto-mark cost was previously 0
- * due to markCostBonus being hard-coded to 0. Adds the correct mark cost to
- * baseCostPerModel and recalculates totalCost / totalGloryCost.
+ * Migration: ensure every HA variant warband unit that carries an auto-mark has
+ * the correct mark cost baked into baseCostPerModel — no more, no less.
+ *
+ * Previously this function simply *added* markCost every time it was called,
+ * which caused the cost to accumulate on each load/save cycle.  The rewrite
+ * uses schemaVersion to gate the migration (runs at most once per warband) and
+ * also corrects units that were already over-migrated by a multiple of markCost.
  */
 export function migrateAutoMarkCost(wb: Warband): Warband {
-  if (wb.faction !== 'heretic_astartes' || !wb.subfaction) return wb;
+  // Already at schema v1 or higher — skip entirely.
+  if ((wb.schemaVersion ?? 0) >= 1) return wb;
+
+  if (wb.faction !== 'heretic_astartes' || !wb.subfaction) {
+    return { ...wb, schemaVersion: 1 };
+  }
   const sf = getSubFactionById(wb.faction, wb.subfaction);
-  if (!sf?.autoMark) return wb;
+  if (!sf?.autoMark) {
+    return { ...wb, schemaVersion: 1 };
+  }
+
   const markCost = sf.autoMark.costOverride;
   const eligibleSet = new Set(sf.autoMark.eligibleUnitIds);
+  const factionDef = getFactionById(wb.faction);
+
   let changed = false;
   const units = wb.units.map(unit => {
-    // Only patch units that have the auto-mark wargear with cost 0
+    // Only consider units that carry the locked auto-mark wargear slot.
     const hasAutoMark = unit.selectedWargear.some(
       w => w.slot === 'mark' && w.isDefault && w.cost === 0,
     );
     if (!hasAutoMark || !eligibleSet.has(unit.unitId)) return unit;
+
+    // Look up the unit definition to compute the correct baseCostPerModel.
+    const unitDef = factionDef?.units.find(u => u.id === unit.unitId);
+    if (!unitDef) return unit;
+
+    const subTypeMod = unit.appliedSubType?.creditCostModifier ?? 0;
+    const modCostBonus = (sf.autoModifications ?? [])
+      .filter(m => m.unitIds.includes(unit.unitId))
+      .reduce((sum, m) => sum + (m.costModifier ?? 0), 0);
+
+    const expectedBase = unitDef.baseCost + subTypeMod + markCost + modCostBonus;
+    const actualBase = unit.baseCostPerModel;
+
+    if (actualBase === expectedBase) return unit; // Already correct — nothing to do.
+
+    const diff = actualBase - expectedBase;
+    // Only correct when the discrepancy is an exact multiple of markCost,
+    // which means it was caused by missing or duplicate migrations.
+    if (markCost === 0 || diff % markCost !== 0) return unit;
+
     changed = true;
-    const newBase = unit.baseCostPerModel + markCost;
     const currency = unit.costCurrency ?? 'credits';
     return {
       ...unit,
-      baseCostPerModel: newBase,
+      baseCostPerModel: expectedBase,
       totalCost: currency === 'credits'
-        ? (unit.totalCost - unit.count * unit.baseCostPerModel) + unit.count * newBase
+        ? (unit.totalCost - unit.count * actualBase) + unit.count * expectedBase
         : unit.totalCost,
       totalGloryCost: currency === 'glory'
-        ? (unit.totalGloryCost - unit.count * unit.baseCostPerModel) + unit.count * newBase
+        ? (unit.totalGloryCost - unit.count * actualBase) + unit.count * expectedBase
         : unit.totalGloryCost,
     };
   });
-  return changed ? { ...wb, units } : wb;
+
+  return { ...(changed ? { ...wb, units } : wb), schemaVersion: 1 };
 }
 
 /**
@@ -125,9 +159,8 @@ export function exportWarbandAsText(warband: Warband, pointLimit: number, gloryL
           text += `      - ${s.name} (${SKILL_TABLE_LABELS[s.table]}, roll ${s.roll})\n`
         );
       }
-      if (unit.battleScars?.length) {
-        text += `   Battle Scars:\n`;
-        unit.battleScars.forEach(s => text += `      - ${s.name}\n`);
+      if (unit.scarCount && unit.scarCount > 0) {
+        text += `   Battle Scars: ${unit.scarCount}/3\n`;
       }
       if (unit.traumas?.length) {
         text += `   Traumas:\n`;
@@ -258,12 +291,8 @@ export function exportWarbandAsMD(warband: Warband): string {
         });
         md += '\n';
       }
-      if (unit.battleScars?.length) {
-        md += `**Battle Scars:**\n\n`;
-        unit.battleScars.forEach(s => {
-          md += `- **${s.name}** — ${s.description}\n`;
-        });
-        md += '\n';
+      if (unit.scarCount && unit.scarCount > 0) {
+        md += `**Battle Scars:** ${unit.scarCount}/3\n\n`;
       }
       if (unit.traumas?.length) {
         md += `**Traumas:**\n\n`;
@@ -434,7 +463,9 @@ export function downloadFile(content: string, filename: string, mimeType: string
 }
 
 export function saveWarbandLocal(warband: Warband) {
-  const warbands = getAllWarbands();
+  // Use raw storage to avoid running migrations on every save, which would
+  // accumulate mark costs in other warbands on each save cycle.
+  const warbands = getRawWarbands();
   const existingIdx = warbands.findIndex(w => w.id === warband.id);
   
   if (existingIdx >= 0) {
@@ -451,6 +482,13 @@ export function getAllWarbands(): Warband[] {
   if (!stored) return [];
   const raw: Warband[] = JSON.parse(stored);
   return raw.map(wb => migrateLegacyMarkIds(migrateAutoMarkCost(wb)));
+}
+
+/** Read warbands from storage without applying any migrations. */
+function getRawWarbands(): Warband[] {
+  const stored = localStorage.getItem('trench_hammer_warbands');
+  if (!stored) return [];
+  return JSON.parse(stored) as Warband[];
 }
 
 export function loadWarbandLocal(id: string): Warband | undefined {

@@ -32,6 +32,8 @@ import {
   // Chaos Daemons — Legion of Excess (Slaanesh) Troop models for Emperor's Children Carnival of Excess
   cd_daemonette, cd_seeker,
   nec_flayed_one,
+  // T'au Empire — Auxiliary Cadre extra units
+  tau_auxiliary, tau_vespid_strain_leader,
 } from './factions_complete.js';
 
 export interface SubFaction {
@@ -196,6 +198,9 @@ const AS_BASE_WARGEAR_LIMITS: Record<string, number> = {
   power_weapon: 3,
   hand_flamer: 2,
   inferno_pistol: 2,
+  plasma_pistol: 2,
+  grapnel_launcher: 2,
+  iron_halo: 1,
 };
 
 /** AdMech: power_weapon 1 (shared 2) */
@@ -312,7 +317,7 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'ha_lord_kakophonist',                                // Emperor's Children only
       'ha_renegade_apothecary',                             // Renegade Space Marines only
       'ha_exalted_sorcerer', 'ha_tzaangor_shaman',          // Thousand Sons only
-      'ha_tzaangor', 'ha_sekhetar_robot',                   // Thousand Sons only
+      'ha_tzaangor',                                        // Thousand Sons only
       'ha_master_of_executions', 'ha_slaughterbound',       // World Eaters only
     ],
     rules: [
@@ -335,9 +340,10 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'ha_lord_kakophonist',                                // Emperor's Children only
       'ha_renegade_apothecary',                             // Renegade Space Marines only
       'ha_exalted_sorcerer', 'ha_tzaangor_shaman',          // Thousand Sons only
-      'ha_tzaangor', 'ha_sekhetar_robot',                   // Thousand Sons only
+      'ha_tzaangor',                                        // Thousand Sons only
       'ha_master_of_executions', 'ha_slaughterbound',       // World Eaters only
     ],
+    unitMaxCountOverrides: { ha_possessed: 1 },
     upgradeMaxCountOverrides: {
       mark_of_khorne: 1,
       mark_of_nurgle: 1,
@@ -381,9 +387,10 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'ha_lord_kakophonist',                                // Emperor's Children only
       'ha_renegade_apothecary',                             // Renegade Space Marines only
       'ha_exalted_sorcerer', 'ha_tzaangor_shaman',          // Thousand Sons only
-      'ha_tzaangor', 'ha_sekhetar_robot',                   // Thousand Sons only
+      'ha_tzaangor',                                        // Thousand Sons only
       'ha_master_of_executions', 'ha_slaughterbound',       // World Eaters only
     ],
+    upgradeMaxCountOverrides: { ha_csm_raptor: 0 },
     psychicDisciplineId: 'contagion_discipline',
     autoMark: {
       markId: 'mark_of_nurgle',
@@ -443,9 +450,10 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'ha_poxwalker', 'ha_foetid_blight_drone',            // Death Guard only
       'ha_renegade_apothecary',                             // Renegade Space Marines only
       'ha_exalted_sorcerer', 'ha_tzaangor_shaman',          // Thousand Sons only
-      'ha_tzaangor', 'ha_sekhetar_robot',                   // Thousand Sons only
+      'ha_tzaangor',                                        // Thousand Sons only
       'ha_master_of_executions', 'ha_slaughterbound',       // World Eaters only
     ],
+    upgradeMaxCountOverrides: { ha_csm_shrivetalon: 0 },
     psychicDisciplineId: 'excess_discipline',
     autoMark: {
       markId: 'mark_of_slaanesh',
@@ -491,9 +499,10 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'ha_lord_kakophonist',                                // Emperor's Children only
       'ha_renegade_apothecary',                             // Renegade Space Marines only
       'ha_exalted_sorcerer', 'ha_tzaangor_shaman',          // Thousand Sons only
-      'ha_tzaangor', 'ha_sekhetar_robot',                   // Thousand Sons only
+      'ha_tzaangor',                                        // Thousand Sons only
       'ha_master_of_executions', 'ha_slaughterbound',       // World Eaters only
     ],
+    unitMaxCountOverrides: { ha_warpsmith: 2 },
     upgradeMaxCountOverrides: {
       mark_of_khorne: 1,
       mark_of_nurgle: 1,
@@ -527,7 +536,7 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'ha_lord_kakophonist',                                // Emperor's Children only
       'ha_renegade_apothecary',                             // Renegade Space Marines only
       'ha_exalted_sorcerer', 'ha_tzaangor_shaman',          // Thousand Sons only
-      'ha_tzaangor', 'ha_sekhetar_robot',                   // Thousand Sons only
+      'ha_tzaangor',                                        // Thousand Sons only
       'ha_master_of_executions', 'ha_slaughterbound',       // World Eaters only
     ],
     upgradeMaxCountOverrides: {
@@ -578,7 +587,7 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'ha_poxwalker', 'ha_foetid_blight_drone',            // Death Guard only
       'ha_lord_kakophonist',                                // Emperor's Children only
       'ha_exalted_sorcerer', 'ha_tzaangor_shaman',          // Thousand Sons only
-      'ha_tzaangor', 'ha_sekhetar_robot',                   // Thousand Sons only
+      'ha_tzaangor',                                        // Thousand Sons only
       'ha_master_of_executions', 'ha_slaughterbound',       // World Eaters only
     ],
     upgradeMaxCountOverrides: {
@@ -619,6 +628,7 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
     unitMaxCountOverrides: {
       ha_chaos_sorcerer: 2,
     },
+    upgradeMaxCountOverrides: { ha_csm_raptor: 0 },
     // Exalted: cannot include Chaos Lords, Dark Apostles, Warpsmiths, Raptors, or Possessed.
     // Also hide all other subfaction-exclusive units.
     bannedUnitIds: [
@@ -662,18 +672,6 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'Exalted Sorcerer and Tzaangor Shaman additionally choose one Shared Discipline (Biomancy, Divination, Pyromancy, Technomancy, Telekinesis, or Telepathy).',
       'Optionally form a Changehost, recruiting Chaos Daemons troops.',
     ],
-    variantOption: {
-      label: 'Changehost',
-      rules: [
-        'Cannot include Chaos Cultists or Sekhetar Robots.',
-        'Cannot recruit "Summoned" mercenaries.',
-        'Maximum 4 Chaos Space Marines.',
-        'Can recruit Scintillating Legion Troop models from Chaos Daemons (Blue Horrors, Pink Horrors, Screamers).',
-      ],
-      bannedUnitIds: ['ha_chaos_cultist', 'ha_sekhetar_robot'],
-      unitMaxCountOverrides: { ha_chaos_space_marine: 4 },
-      extraUnits: [cd_blue_horror, cd_pink_horror, cd_screamer],
-    },
     psychicDisciplineIds: [
       'change_discipline',
       'vengeance_discipline',
@@ -694,13 +692,14 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
     wargearLimitOverrides: { ...HA_BASE_WARGEAR_LIMITS },
     psychicDisciplineId: 'malefic_discipline',
     requiredPatron: 'Chaos Undivided (Shared Patron)',
+    unitMaxCountOverrides: { ha_possessed: 5 },
     bannedUnitIds: [
       'ha_chaos_lord',                                      // The Faithful rule
       'ha_poxwalker', 'ha_foetid_blight_drone',            // Death Guard only
       'ha_lord_kakophonist',                                // Emperor's Children only
       'ha_renegade_apothecary',                             // Renegade Space Marines only
       'ha_exalted_sorcerer', 'ha_tzaangor_shaman',          // Thousand Sons only
-      'ha_tzaangor', 'ha_sekhetar_robot',                   // Thousand Sons only
+      'ha_tzaangor',                  // Thousand Sons only
       'ha_master_of_executions', 'ha_slaughterbound',       // World Eaters only
     ],
     upgradeMaxCountOverrides: {
@@ -736,7 +735,7 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
     id: 'world_eaters',
     name: 'World Eaters',
     description: "Khorne's berserkers who know only slaughter, harvesting skulls for the Blood God.",
-    wargearLimitOverrides: { ...HA_BASE_WARGEAR_LIMITS, chain_fist: 2, chain_glaive: 0 },
+    wargearLimitOverrides: { ...HA_BASE_WARGEAR_LIMITS, chain_fist: 2 },
     noDarkPacts: true,
     requiredPatron: 'Khorne (Shared Patron)',
     bannedUnitIds: [
@@ -745,7 +744,7 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'ha_lord_kakophonist',                                // Emperor's Children only
       'ha_renegade_apothecary',                             // Renegade Space Marines only
       'ha_exalted_sorcerer', 'ha_tzaangor_shaman',          // Thousand Sons only
-      'ha_tzaangor', 'ha_sekhetar_robot',                   // Thousand Sons only
+      'ha_tzaangor',                                        // Thousand Sons only
       'ha_raptor', 'ha_havoc',                              // Martial Power rule
     ],
     autoMark: {
@@ -787,15 +786,15 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
         }],
       },
       {
-        // Jakhals: Chaos Cultists automatically become Jakhals — +1" movement, +1 Melee Skill, Chain Blades/Glaives, +15cr
+        // Jakhals: Chaos Cultists automatically become Jakhals — +1" movement, +1 Melee Skill, Chain Blades/Glaives, +10cr
         unitIds: ['ha_chaos_cultist'],
-        costModifier: 15,
+        costModifier: 10,
         movementDelta: 1,
         meleeSkillDelta: 1,
         addAbilities: [{
           id: 'we_jakhals',
           name: 'Jakhal',
-          description: 'Automatically applied (World Eaters). +1" movement speed, +1 Melee Skill, can use Chain Blades and Twin Chain Blades (+15 credits). Up to half (rounded up) can be further upgraded to Goremongers (+5 credits, INFILTRATOR and SKIRMISHER keywords).',
+          description: 'Automatically applied (World Eaters). +1" movement speed, +1 Melee Skill, can use Chain Blades and Twin Chain Blades (+10 credits). Up to half (rounded up) can be further upgraded to Goremongers (+5 credits, INFILTRATOR and SKIRMISHER keywords).',
           cost: 0,
         }],
       },
@@ -807,9 +806,9 @@ const HERETIC_ASTARTES_SUBFACTIONS: SubFaction[] = [
       'The Skull Harvest: replaces Dread Reputation; Elite models gain Claimed Skulls and offer them to Khorne for XP and Glory.',
       "Butcher's Nails: Chaos Lord, Cultists (Jakhals/Goremongers), Chaos Space Marines, and Chaos Terminators gain Blood Surge (2D6 charge, take highest) but cannot use ranged weapons besides Pistols, THROWN weapons, and Blood Harpoons.",
       'Eightbound: Possessed are upgraded (+10 credits) with Mutated Chainblades (CRITICAL, RISKY, SHRAPNEL) and Beacon of Rage.',
-      'Jakhals: Cultists get +1" movement, +1 Melee Skill, Chain Blades/Twin Chain Blades (+15 credits). Up to half can be Goremongers with INFILTRATOR and SKIRMISHER (+5 credits).',
+      'Jakhals: Cultists get +1" movement, +1 Melee Skill, Chain Blades/Twin Chain Blades (+10 credits). Up to half can be Goremongers with INFILTRATOR and SKIRMISHER (+5 credits).',
       'Can recruit a Master of Executions and a Slaughterbound as Elites.',
-      'Adds Twin Chain Blades, Axe of Dismemberment, Blood Harpoon, Heavy Chain Weapon. Can take up to 2 Chain Fists. Chain Glaives are not available.',
+      'Adds Twin Chain Blades, Axe of Dismemberment, Blood Harpoon, Heavy Chain Weapon. Can take up to 2 Chain Fists.',
       'Optionally form a Daemonkin Warband, recruiting Chaos Daemons troops.',
     ],
     variantOption: {
@@ -1004,6 +1003,7 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     id: 'no_variant',
     name: 'No Chapter (Standard)',
     description: 'A standard Space Marine warband with no specific chapter rules.',
+    wargearLimitOverrides: { ...AS_BASE_WARGEAR_LIMITS },
     rules: [
       'And They Shall Know No Fear: your ASTARTES models have NEGATE FEAR (they ignore the FEAR Keyword effect).',
       'Uses the Librarius Psychic Discipline.',
@@ -1015,6 +1015,7 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     description: 'Zealous crusaders who hate psykers and charge without hesitation.',
     bannedUnitIds: ['aa_librarian'],
     unitMaxCountOverrides: { aa_vanguard: 1 },
+    wargearLimitOverrides: { ...AS_BASE_WARGEAR_LIMITS },
     rules: [
       'Templar Vows: replaces And They Shall Know No Fear. At battle start choose one Vow: Suffer Not the Unclean to Live / Uphold the Honour of the Emperor / Abhor the Witch Destroy the Witch / Accept Any Challenge No Matter the Odds.',
       'Sword Brethren: can upgrade 2 additional Astartes to Bladeguards; max 1 Vanguard.',
@@ -1027,6 +1028,7 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     description: 'Noble warriors cursed with the Red Thirst and the Black Rage, fighting with unmatched ferocity.',
     psychicDisciplineId: 'sanguinary',
     unitMaxCountOverrides: { aa_vanguard: 1 },
+    wargearLimitOverrides: { ...AS_BASE_WARGEAR_LIMITS },
     rules: [
       'The Red Thirst: replaces And They Shall Know No Fear. During a Charge activation, all non-Dreadnought ASTARTES models have +1 INJURY DICE in melee against targets with BLOOD MARKERS.',
       'The Black Rage: cannot upgrade models to Primaris at death or Scar. Instead, models can fall to the Black Rage, becoming Death Company with new rules.',
@@ -1039,7 +1041,8 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     name: 'Dark Angels',
     description: 'Secretive Unforgiven who hunt Fallen with Deathwing Terminators and Ravenwing bikers.',
     psychicDisciplineId: 'interromancy',
-    unitMaxCountOverrides: { aa_vanguard: 1 },
+    unitMaxCountOverrides: { aa_vanguard: 1, aa_terminator: 3 },
+    wargearLimitOverrides: { ...AS_BASE_WARGEAR_LIMITS, astartes_bike: 4 },
     rules: [
       'The Unforgiven: do NOT benefit from And They Shall Know No Fear.',
       'Deathwing: can recruit up to 3 Terminators (4 in 1200+ credit warbands), and purchase up to 2 suits of Terminator Armour for Elite models.',
@@ -1056,6 +1059,7 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     description: 'Multi-chapter xenos hunters armed with exotic Special Issue Ammunition.',
     bannedUnitIds: ['aa_scout_marine'],
     psychicDisciplineId: 'xenopurge',
+    wargearLimitOverrides: { ...AS_BASE_WARGEAR_LIMITS },
     rules: [
       'Special Issue Ammunition: replaces And They Shall Know No Fear. Non-Dreadnought ASTARTES can equip up to two AMMUNITION types.',
       '8 ammo types: Derevenant Shells, Dragonfire Bolts, Hellfire Rounds, Inertial Fusion Bolts, Kraken Bolts, Metal Storm Shells, Tempest Bolts, Thermic Acceleration Rounds.',
@@ -1070,6 +1074,7 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     description: 'The secret daemon-hunters of the Imperium, every battle-brother a powerful psyker.',
     bannedUnitIds: ['aa_scout_marine'],
     psychicDisciplineIds: ['dominus', 'sanctus'],
+    wargearLimitOverrides: { ...AS_BASE_WARGEAR_LIMITS },
     autoModifications: [
       {
         // Brotherhood of Psykers: all non-PSYKER ASTARTES gain PSYKER 1
@@ -1097,6 +1102,7 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     description: 'Master builders and siege specialists, their armour impervious.',
     psychicDisciplineId: 'geokinesis',
     unitMaxCountOverrides: { aa_vanguard: 1 },
+    wargearLimitOverrides: { ...AS_BASE_WARGEAR_LIMITS },
     rules: [
       'Architects of War: replaces And They Shall Know No Fear. -1 to Armour for your ASTARTES models has IMPERVIOUS.',
       'Legacy of Dorn: unique campaign system.',
@@ -1165,6 +1171,7 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     name: 'Legion of the Damned',
     description: 'Ghostly warriors who materialise to aid embattled defenders and then vanish.',
     bannedUnitIds: ['aa_terminator', 'aa_dreadnought'],
+    wargearLimitOverrides: { ...AS_BASE_WARGEAR_LIMITS },
     autoModifications: [
       {
         // Burning Specters: all recruitable ASTARTES have NEGATE FEAR and NEGATE FIRE (Terminators/Dreadnoughts are banned)
@@ -1192,6 +1199,7 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     description: 'Masters of stealth who strike from the shadows with jump pack-equipped warriors.',
     psychicDisciplineId: 'umbramancy',
     unitMaxCountOverrides: { aa_devastator: 1, aa_assault_marine: 4 },
+    wargearLimitOverrides: { ...AS_BASE_WARGEAR_LIMITS },
     wargearKeywordGrants: { 'jump_pack': ['DEEP STRIKE'] },
     autoModifications: [
       {
@@ -1226,11 +1234,14 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     name: 'Salamanders',
     description: 'Fire-worshippers immune to flame who specialise in melta and flamer weapons.',
     psychicDisciplineId: 'pyromancy',
+    upgradeMaxCountOverrides: { aa_assault_marine: 0 },
     wargearCostOverrides: {
       melta_gun: { cost: 35, costCurrency: 'credits' },
       multi_melta: { cost: 65, costCurrency: 'credits' },
+      incendiary_grenades: { cost: 15, costCurrency: 'credits' },
     },
     wargearLimitOverrides: {
+      ...AS_BASE_WARGEAR_LIMITS,
       flamer: 3,
       heavy_flamer: 2,
       melta_gun: 2,
@@ -1264,7 +1275,7 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     bannedUnitIds: ['aa_scout_marine', 'aa_apothecary'],
     psychicDisciplineId: 'tempestas',
     unitMaxCountOverrides: { aa_vanguard: 0, aa_assault_marine: 0, aa_bladeguard: 0, aa_devastator: 0 },
-    wargearLimitOverrides: { astartes_bike: 0 },
+    wargearLimitOverrides: { ...AS_BASE_WARGEAR_LIMITS, astartes_bike: 0 },
     extraUnits: [aa_fenrisian_wolf, aa_wulfen],
     autoModifications: [
       {
@@ -1292,6 +1303,7 @@ const ADEPTUS_ASTARTES_SUBFACTIONS: SubFaction[] = [
     name: 'White Scars',
     description: 'Swift cavalry warriors who prize their bike squadrons above all.',
     psychicDisciplineId: 'stormspeaking',
+    wargearLimitOverrides: { ...AS_BASE_WARGEAR_LIMITS, astartes_bike: 6 },
     rules: [
       'Devastating Charge: replaces And They Shall Know No Fear. Astartes Bikes that successfully Charge give one enemy a BLOOD MARKER.',
       'Biker Phalanx: can purchase up to 6 Astartes Bikes.',
@@ -1319,6 +1331,7 @@ const ADEPTUS_MECHANICUS_SUBFACTIONS: SubFaction[] = [
     description: 'Heretek Tech-Priests who have turned to Chaos, twisting machines with daemonic power.',
     wargearLimitOverrides: { ...AMEC_BASE_WARGEAR_LIMITS },
     requiredPatron: 'Heretek Lord (Shared Patron)',
+    unitMaxCountOverrides: { amec_skitarii: 4, amec_sicarian: 1 },
     rules: [
       'Hereteks: counts as a Chaos Warband. Patron must be the Heretek Lord Shared Patron.',
       'Dark Soldiers: max 4 Skitarii and 1 Sicarian; can include any number of Servitors.',
@@ -1333,6 +1346,7 @@ const ADEPTUS_MECHANICUS_SUBFACTIONS: SubFaction[] = [
     wargearLimitOverrides: { ...AMEC_BASE_WARGEAR_LIMITS },
     requiredPatron: 'Fabricator Locum',
     bannedUnitIds: ['amec_skitarii_marshal', 'amec_skitarii', 'amec_sicarian', 'amec_kataphron'],
+    unitMaxCountOverrides: { amec_tech_priest: 3 },
     rules: [
       'Cult Mechanicus: cannot include Skitarii Marshals, Skitarii, Sicarians, or Kataphrons. Patron must be a Fabricator Locum.',
       'Priests of Mars: can include up to 3 Tech-Priests.',
@@ -1348,6 +1362,7 @@ const ADEPTUS_MECHANICUS_SUBFACTIONS: SubFaction[] = [
     wargearLimitOverrides: { ...AMEC_BASE_WARGEAR_LIMITS },
     requiredPatron: 'Skitarii Overseer',
     bannedUnitIds: ['amec_dominus', 'amec_tech_priest', 'amec_servitor', 'amec_electro_priest', 'amec_kastelan_robot'],
+    unitMaxCountOverrides: { amec_kataphron: 2 },
     rules: [
       'Skitarii Alone: cannot include Dominus, Tech-Priests, Servitors, Electro-Priests, or Kastelan Robots. Patron must be Skitarii Overseer.',
       'Sicarian Princeps: must include at least 1 Sicarian; one is a Princeps (+20 credits, +2 Ranged, +2 Melee, ELITE, LEADER/TOUGH).',
@@ -1480,7 +1495,7 @@ const ASTRA_MILITARUM_SUBFACTIONS: SubFaction[] = [
     id: 'death_korp_of_krieg',
     name: 'Death Korp of Krieg',
     description: 'Grim trench warfare specialists who gladly die for the Emperor.',
-    wargearLimitOverrides: { ...AM_BASE_WARGEAR_LIMITS },
+    wargearLimitOverrides: { ...AM_BASE_WARGEAR_LIMITS, blasting_charge: 2 },
     requiredPatron: 'Lord General Militant',
     bannedUnitIds: ['am_ratling_marksman', 'am_ogryn'],
     unitMaxCountOverrides: { am_heavy_weapons_squad: 4 },
@@ -1497,6 +1512,7 @@ const ASTRA_MILITARUM_SUBFACTIONS: SubFaction[] = [
     description: 'Void-born Naval ratings armed with exotic Naval hardware.',
     wargearLimitOverrides: { ...AM_BASE_WARGEAR_LIMITS },
     requiredPatron: 'Lord Admiral',
+    unitMaxCountOverrides: { am_heavy_weapons_squad: 1 },
     rules: [
       'Naval Authority: patron must be a Lord Admiral.',
       'Light Weaponry: max 1 Heavy Weapons Squad; no Heavy Bolters, Heavy Flamers, Mortars, Multi-Meltas, or Twin Heavy Stubbers.',
@@ -1508,7 +1524,7 @@ const ASTRA_MILITARUM_SUBFACTIONS: SubFaction[] = [
     name: 'Ratling Regiment',
     description: 'An entire warband of diminutive Ratlings living high on the hog.',
     wargearLimitOverrides: { ...AM_BASE_WARGEAR_LIMITS },
-    bannedUnitIds: ['am_conscript'],
+    bannedUnitIds: ['am_conscript', 'am_commissar', 'am_heavy_weapons_squad'],
     rules: [
       'Chill Times: no Commissars or Conscripts.',
       'Light Weaponry: no Heavy Weapons Squads.',
@@ -1740,7 +1756,7 @@ const NECROMUNDA_GANG_SUBFACTIONS: SubFaction[] = [
       'Champions: Death Maiden (+1 INJURY DICE with GAS weapons) or Matriarch (+1 INJURY DICE non-Long Range ranged).',
       'Gangers: Sisters. Juves: Little Sisters (upgradeable to Wyld Runners: +1 DICE to Dash).',
       'Hover Bikers: cannot purchase Ridgerunners.',
-      '7 unique Chem Equipment items. Unique animals: Khimerix, Phelynx Cat, Phyrr Cat.',
+      '7 unique Chem Equipment items. Unique animals: Khimerix, Phelynx, Phyrr Cat.',
     ],
   },
   {
@@ -1770,7 +1786,7 @@ const NECROMUNDA_GANG_SUBFACTIONS: SubFaction[] = [
       'Champions: Arms Master (gains LEADER Keyword) or Road Sergeant (self and allies within 4" get +1 DICE to Dash).',
       'Gangers: Gunners. Juves: Greenhorns (upgradeable to Wreckers: Jump Booster FLYING move).',
       'Road Warriors: can purchase up to 3 Ridgerunners.',
-      'Unique troops: Cyber Mastiff, Lugger (ARTIFICIAL/LARGE/STRONG/TOUGH).',
+      'Unique troops: Cyber Mastiff (8" movement, 65 credits), Lugger (ARTIFICIAL/LARGE/STRONG/TOUGH).',
     ],
   },
   {
@@ -1806,7 +1822,7 @@ const NECROMUNDA_GANG_SUBFACTIONS: SubFaction[] = [
     id: 'palanite_enforcers',
     name: 'Palanite Enforcers',
     description: 'The law — heavily-armed Enforcers who operate as an Imperial Warband. Also used as the rules base for Adeptus Arbites (see "Adeptus Arbites" variant below).',
-    wargearLimitOverrides: { ...NG_BASE_WARGEAR_LIMITS },
+    wargearLimitOverrides: { ...NG_BASE_WARGEAR_LIMITS, bolt_carbine: 0, boltgun: 0, nuncio_aquila_enforcers: 0 },
     requiredPatron: 'Administratum Prefectus (Shared Patron)',
     rules: [
       'Imperial Authority: counts as an Imperium Warband. Patron must be the Administratum Prefectus Shared Patron.',
@@ -1815,7 +1831,7 @@ const NECROMUNDA_GANG_SUBFACTIONS: SubFaction[] = [
       'Champions (Sergeants/Heavy Hitter): total +2 Melee Skill.',
       'Gangers: Patrolmen. Juves: Rookies (up to 2 upgradeable to Haunts: PSYKER 1/NO PROMOTION, Telepathy or Telekinesis, up to 3 powers, loses New Kid; up to 2 upgradeable to Hotshots: Headstrong — 2D6 charge, use highest).',
       'Unique troops: Hardcase Cyber Mastiff, Sanctioner Automata (LARGE/REGEN/STRONG/TOUGH).',
-      'Armoury additions: Bolt Carbine (15cr), Boltgun (12cr), Concussion Carbine (15cr, LIMIT 2), Grenade Launcher (40cr, LIMIT 1), Webber (10cr, LIMIT 2), Web Pistol (5cr, LIMIT 3), Seismic Cannon (25cr, LIMIT 1), Electro-Grenades (7cr), Photon Flash Grenades (10cr, LIMIT 2), Power Weapon (15cr, LIMIT 2, Elite Only), Shock Baton (5cr), Shock Stave (7cr, LIMIT 2), Shock Maul (12cr, LIMIT 1), Dum-Dum Ammunition (5cr, LIMIT 2, CONSUMABLE), Shock Ammunition (5cr, LIMIT 1, CONSUMABLE), Magnacles (10cr, LIMIT 3), Nuncio Aquila (10cr, LIMIT 1), Shield (10cr).',
+      'Armoury additions: Concussion Carbine (15cr, LIMIT 2), Grenade Launcher (40cr, LIMIT 1), Webber (10cr, LIMIT 2), Web Pistol (5cr, LIMIT 3), Seismic Cannon (25cr, LIMIT 1), Electro-Grenades (7cr), Photon Flash Grenades (10cr, LIMIT 2), Power Weapon (15cr, LIMIT 2, Elite Only), Shock Baton (5cr), Shock Stave (7cr, LIMIT 2), Shock Maul (10cr, LIMIT 1), Dum-Dum Ammunition (5cr, LIMIT 2, CONSUMABLE), Shock Ammunition (5cr, LIMIT 1, CONSUMABLE), Magnacles (10cr, LIMIT 3), Shield (10cr).',
     ],
   },
   {
@@ -1873,6 +1889,7 @@ const NECROMUNDA_GANG_SUBFACTIONS: SubFaction[] = [
     rules: [
       'Scum: patron must be a Sump Lord.',
       'All Kinds: when recruiting a Leader/Champion/Ganger/Juve, choose another Gang (except Corpsegrinder Cult, Delegation, or Slave Ogryn). That model has the chosen Gang\'s special rules (except Warband type/patron rules). Gang-wide rules apply only to models from that Gang. Can equip from chosen Gang\'s Armoury at recruitment only (no later purchases from that Armoury). Obey highest LIMIT among recruited gangs. House Cawdor: only gain Hold Miracles if Leader is Cawdor. Venators: no Hunter Style, no Hunting Rigs.',
+      'Can include up to 1 Slave Ogryn model.',
       'Scraped Together: can recruit only up to 1 Champion.',
     ],
   },
@@ -1894,7 +1911,7 @@ const NECROMUNDA_GANG_SUBFACTIONS: SubFaction[] = [
     id: 'adeptus_arbites',
     name: 'Adeptus Arbites',
     description: 'The Judge Dredd-style enforcers of Imperial law. Uses all Palanite Enforcer rules — different in-universe name, identical mechanics.',
-    wargearLimitOverrides: { ...NG_BASE_WARGEAR_LIMITS },
+    wargearLimitOverrides: { ...NG_BASE_WARGEAR_LIMITS, bolt_carbine: 0, boltgun: 0, nuncio_aquila_enforcers: 0 },
     requiredPatron: 'Administratum Prefectus (Shared Patron)',
     rules: [
       'Played as Palanite Enforcers: uses all Palanite Enforcer special rules and armoury. The names are re-flavoured for the Arbites theme.',
@@ -1904,7 +1921,7 @@ const NECROMUNDA_GANG_SUBFACTIONS: SubFaction[] = [
       'Champions (Arbitrators/Heavy Hitter): total +2 Melee Skill.',
       'Gangers: Patrolmen (Arbitrators). Juves: Rookies (up to 2 upgradeable to Haunts: PSYKER 1/NO PROMOTION, Telepathy or Telekinesis, up to 3 powers; up to 2 upgradeable to Hotshots: Headstrong — 2D6 charge, use highest).',
       'Unique troops: Hardcase Cyber Mastiff, Sanctioner Automata (LARGE/REGEN/STRONG/TOUGH).',
-      'Armoury: same as Palanite Enforcers — Shock Batons, Shock Staves, Shock Maul, Web Pistol, Webber, Concussion Carbine, Boltgun, Bolt Carbine, Photon Flash Grenades, Power Weapon, Dum-Dum/Shock Ammunition, Magnacles, Nuncio Aquila, Shield, etc.',
+      'Armoury: same as Palanite Enforcers — Shock Batons, Shock Staves, Shock Maul, Web Pistol, Webber, Concussion Carbine, Photon Flash Grenades, Power Weapon, Dum-Dum/Shock Ammunition, Magnacles, Shield, etc.',
     ],
   },];
 
@@ -1915,6 +1932,7 @@ const AELDARI_SUBFACTIONS: SubFaction[] = [
     id: 'no_variant',
     name: 'No Variant (Craftworld)',
     description: 'A standard Craftworld Aeldari warband.',
+    bannedUnitIds: ['ael_dragonlord', 'ael_dragon_knight', 'ael_wraithseer', 'ael_wraithlord'],
     rules: [
       'Standard Aeldari rules: Strands of Fate, Guiding Fate special rules.',
       'Uses the Runes of Battle, Runes of Fate, and Runes of Fortune disciplines.',
@@ -1925,6 +1943,7 @@ const AELDARI_SUBFACTIONS: SubFaction[] = [
     name: 'Corsairs',
     description: 'Aeldari pirates who sail the stars beyond the Web, counting as an Outlaw Warband.',
     requiredPatron: 'Pirate Lord (Shared Patron)',
+    bannedUnitIds: ['ael_wraith', 'ael_dragonlord', 'ael_dragon_knight', 'ael_wraithseer', 'ael_wraithlord'],
     rules: [
       'Outlaws: counts as both an Outlaw Warband and a Xenos (Aeldari) Warband. Patron must be the Pirate Lord Shared Patron.',
       'Pirate Life: cannot recruit Wraiths; up to 5 Guardians can be upgraded to Rangers.',
@@ -1938,6 +1957,7 @@ const AELDARI_SUBFACTIONS: SubFaction[] = [
     id: 'exodites',
     name: 'Exodites',
     description: 'Aeldari colonists who ride mighty creatures and forsook the fall of their kin.',
+    bannedUnitIds: ['ael_autarch', 'ael_aspect_warrior', 'ael_wraith', 'ael_wraithseer', 'ael_wraithlord'],
     rules: [
       'Exiles: cannot recruit Autarchs or Aspect Warriors. Patron cannot be a Phoenix Lord. Windriders lose VEHICLE and gain MOUNTED.',
       'Dragonlord: must include a Dragonlord (LARGE/MOUNTED/LEADER/TOUGH) as Warband leader.',
@@ -1950,6 +1970,8 @@ const AELDARI_SUBFACTIONS: SubFaction[] = [
     id: 'spirit_conclave',
     name: 'Spirit Conclave',
     description: 'A warband built around Wraith constructs guided by a powerful Wraithseer.',
+    bannedUnitIds: ['ael_seer', 'ael_windrider', 'ael_dragonlord', 'ael_dragon_knight'],
+    unitMaxCountOverrides: { ael_aspect_warrior: 3, ael_wraith: 4 },
     rules: [
       'Wraithseer: cannot take Seers; Patron cannot be a Phoenix Lord; can take 1 Wraithseer (PSYKER 2/TOUGH) as Elite.',
       'Wraith Focus: no Windriders; max 3 Aspect Warriors; can take up to 4 Wraiths.',
@@ -1963,7 +1985,7 @@ const AELDARI_SUBFACTIONS: SubFaction[] = [
     description: "Followers of Ynnead who draw strength from the death of all, combining Aeldari, Drukhari, and Harlequins.",
     requiredPatron: 'Ynnead, the Whispering God',
     psychicDisciplineId: 'revenant',
-    bannedUnitIds: ['ael_haemonculus', 'ael_wrack', 'ael_grotesque', 'hq_solitaire', 'ael_mandrake'],
+    bannedUnitIds: ['ael_haemonculus', 'ael_wrack', 'ael_grotesque', 'hq_solitaire', 'ael_mandrake', 'ael_dragonlord', 'ael_dragon_knight', 'ael_wraithseer', 'ael_wraithlord'],
     extraUnits: [
       yn_dr_archon,
       yn_dr_incubus,
@@ -2003,6 +2025,7 @@ const DRUKHARI_SUBFACTIONS: SubFaction[] = [
     name: 'Court of the Archon',
     description: "An Archon's personal retinue of unique and deadly individual champions.",
     bannedUnitIds: ['dr_haemonculus', 'dr_succubus', 'dr_wrack', 'dr_wych'],
+    unitMaxCountOverrides: { dr_incubus: 6 },
     rules: [
       'Court Alone: cannot recruit Haemonculi, Succubi, Wracks, or Wyches. Instead can recruit up to 6 Incubi.',
       'Court Inner Circle: can recruit up to 1 Lhamaean, 1 Medusae, 1 Sslyth, and 1 Ur-Ghul as Elites.',
@@ -2014,8 +2037,8 @@ const DRUKHARI_SUBFACTIONS: SubFaction[] = [
     name: 'Haemonculus Coven',
     description: 'Flesh-sculptors and pain-artists who surround themselves with grotesque creations.',
     requiredPatron: 'Dark Science',
-    bannedUnitIds: ['dr_archon', 'dr_succubus', 'dr_incubus', 'dr_wych'],
-    unitMaxCountOverrides: { dr_wrack: 99 },
+    bannedUnitIds: ['dr_archon', 'dr_succubus', 'dr_incubus', 'dr_wych', 'dr_reaver'],
+    unitMaxCountOverrides: { dr_wrack: 99, dr_haemonculus: 3 },
     rules: [
       'Haemonculi: cannot recruit Archons, Succubi, Incubi, Wyches, or Reavers. Can recruit up to 3 Haemonculi and any number of Wracks. At least 1 Haemonculus required and is the Warband leader (LEADER/TOUGH).',
       'Grotesquerie: can recruit up to 3 Grotesques (LARGE/TOUGH) as Troops.',
@@ -2028,7 +2051,7 @@ const DRUKHARI_SUBFACTIONS: SubFaction[] = [
     description: 'Arena gladiators whose lithe and deadly Wyches fight for the thrill of combat.',
     requiredPatron: 'The Arena (optional)',
     bannedUnitIds: ['dr_archon', 'dr_haemonculus', 'dr_incubus', 'dr_wrack'],
-    unitMaxCountOverrides: { dr_wych: 99 },
+    unitMaxCountOverrides: { dr_wych: 99, dr_succubus: 2 },
     rules: [
       'Wyches: cannot recruit Archons, Haemonculi, Incubi, or Wracks. Can recruit up to 2 Succubi and any number of Wyches. At least 1 Succubus required and is the Warband leader (LEADER/TOUGH).',
       'The Arena: patron can optionally be The Arena.',
@@ -2144,6 +2167,7 @@ const GENESTEALER_CULTS_SUBFACTIONS: SubFaction[] = [
     wargearLimitOverrides: { ...GSC_BASE_WARGEAR_LIMITS },
     requiredPatron: 'The Hive Mind (optional)',
     extraUnits: [fd_barbgaunt, fd_gargoyle, fd_hormagaunt, fd_termagant, fd_warrior, fd_ravener, fd_zoanthrope],
+    unitMaxCountOverrides: { gc_acolyte: 3, gc_aberrant: 2 },
     rules: [
       'Arrival of the Star Children: can recruit up to 5 Gaunts total (max 1 Barbgaunt, no Neurogaunts), 2 Tyranid Warriors, 2 Raveners (no Prime), and 1 Zoanthrope from the Tyranids Faction. Patron can be The Hive Mind.',
       'Hive Mind Expansion: gains Synapse rule from Tyranids.',
@@ -2187,6 +2211,7 @@ const NECRONS_SUBFACTIONS: SubFaction[] = [
     name: 'Canoptek Court',
     description: 'A Cryptek-led research expedition supported by Canoptek constructs.',
     bannedUnitIds: ['nec_necron_lord', 'nec_royal_warden', 'nec_tomb_blade'],
+    unitMaxCountOverrides: { nec_cryptek: 3 },
     rules: [
       'Cryptek Hierarchy: cannot include Necron Lords, Royal Wardens, or Tomb Blades.',
       'Cryptek Leadership: can include up to 3 Crypteks (each different Discipline); one is Warband leader (LEADER/TOUGH).',
@@ -2198,15 +2223,16 @@ const NECRONS_SUBFACTIONS: SubFaction[] = [
     id: 'destroyer_cult',
     name: 'Destroyer Cult',
     description: 'Nihilistic Destroyers driven mad with the desire to exterminate all life.',
-    requiredPatron: 'Obliteration',
+    requiredPatron: 'Nihilarch',
     bannedUnitIds: ['nec_necron_lord', 'nec_cryptek', 'nec_royal_warden', 'nec_scarab_swarm', 'nec_tomb_blade'],
+    unitMaxCountOverrides: { nec_warrior: 4, nec_immortal: 2 },
     rules: [
       'Distrusted: cannot include Necron Lords, Crypteks, Royal Wardens, Canoptek Scarab Swarms, or Tomb Blades. Max 4 Warriors and 2 Immortals.',
       'Destroyer Lords: can include up to 1 Hexmark Destroyer, 1 Lokhust Lord, and 1 Skorpekh Lord as Elites. Must include at least 1 as Warband leader.',
       'Destroyers: can include up to 2 each of Lokhust Destroyers, Ophydian Destroyers, and Skorpekh Destroyers.',
       'Flayer Magnets: can recruit up to 3 Flayed Ones as Troops (70 credits each).',
       'Acceleration: up to 3 Plasmacyte Accelerators; no Plasmacyte Reanimators.',
-      'Patron must be Obliteration. Access to Destroyer-exclusive battlekit.',
+      'Patron must be Nihilarch. Access to Destroyer-exclusive battlekit.',
     ],
     extraUnits: [nec_flayed_one],
   },
@@ -2224,7 +2250,7 @@ const NECRONS_SUBFACTIONS: SubFaction[] = [
       'Flayer Technology: Crypteks must choose the Fleshmancer Discipline (Madness of the Blood/Eviscerating Call).',
     ],
     extraUnits: [nec_flayed_one],
-    unitMaxCountOverrides: { nec_flayed_one: 999 },
+    unitMaxCountOverrides: { nec_flayed_one: 999, nec_warrior: 4, nec_immortal: 2 },
   },
 ];
 
@@ -2245,6 +2271,8 @@ const ORKS_SUBFACTIONS: SubFaction[] = [
     name: 'Da Big Hunt',
     description: 'A Squighog-riding hunting mob that chases the biggest prey across the wastes.',
     bannedUnitIds: ['or_deff_dread'],
+    wargearLimitOverrides: { mega_armour_orks: 0, warbike_orks: 0 },
+    upgradeMaxCountOverrides: { or_mek_boy: 1 },
     rules: [
       'Squig Riders: can recruit up to 3 Squighog Boyz (LARGE/MOUNTED/STRONG/TOUGH) as Troops.',
       'Beast Snaggaz: can recruit up to 4 Squigs.',
@@ -2261,6 +2289,7 @@ const T_AU_EMPIRE_SUBFACTIONS: SubFaction[] = [
     id: 'no_variant',
     name: 'No Variant (Standard)',
     description: "A standard T'au hunter cadre.",
+    bannedUnitIds: ['tau_broadside_battlesuit', 'tau_kill_broker', 'tau_krootox_rider'],
     rules: [
       "Standard T'au rules: For the Greater Good, Markerlight system, Seeker Missiles.",
       'Standard unit roster: Ethereal, Commander, Fire Warriors, Kroot, Battlesuits, Drones.',
@@ -2271,6 +2300,8 @@ const T_AU_EMPIRE_SUBFACTIONS: SubFaction[] = [
     name: 'Auxiliary Cadre',
     description: "A warband of T'au Auxiliary aliens supporting the Greater Good with minimal Fire Warriors.",
     requiredPatron: 'Ethereal Supreme or Farsight Leader',
+    bannedUnitIds: ['tau_ethereal', 'tau_commander', 'tau_broadside_battlesuit', 'tau_kill_broker', 'tau_krootox_rider'],
+    extraUnits: [tau_auxiliary, tau_vespid_strain_leader],
     rules: [
       'Separate Battleforce: cannot take Ethereals or Commanders; can recruit only as many Fire Warriors as T\'au Auxiliaries and Mercenaries combined. Choose an Elite as Warband leader (LEADER/TOUGH).',
       'Auxiliary Leadership: can recruit 1 Vespid Stingwing Strain Leader as an Elite (+2 Ranged, +2 Melee).',
@@ -2285,7 +2316,8 @@ const T_AU_EMPIRE_SUBFACTIONS: SubFaction[] = [
     name: 'Farsight Enclave',
     description: "Tau warriors who follow Commander Farsight's independent military philosophy.",
     requiredPatron: 'Farsight Leader',
-    bannedUnitIds: ['tau_ethereal'],
+    bannedUnitIds: ['tau_ethereal', 'tau_broadside_battlesuit', 'tau_kill_broker', 'tau_krootox_rider'],
+    unitMaxCountOverrides: { tau_commander: 2 },
     rules: [
       'Without Ethereals: cannot recruit Ethereals. Must recruit a Commander as Warband leader (gains LEADER).',
       'Heroes of the Enclave: can recruit a second Commander (+30 credits extra).',
@@ -2298,6 +2330,8 @@ const T_AU_EMPIRE_SUBFACTIONS: SubFaction[] = [
     name: 'Retaliation Cadre',
     description: "An elite battlesuit-heavy cadre focused entirely on Crisis and Stealth Battlesuits.",
     requiredPatron: 'Ethereal Supreme or Farsight Leader',
+    bannedUnitIds: ['tau_ethereal', 'tau_cadre_fireblade', 'tau_kroot_shaper', 'tau_fire_warrior', 'tau_kroot_carnivore', 'tau_kill_broker', 'tau_krootox_rider'],
+    unitMaxCountOverrides: { tau_crisis_battlesuit: 2, tau_stealth_battlesuit: 3 },
     rules: [
       'Battlesuit Cadre: cannot recruit Ethereals, Cadre Fireblades, Kroot Shapers, Fire Warriors, or Kroot Carnivores. Must have Commander as Warband leader.',
       "Farsight Cadres: patron can be Ethereal Supreme or Farsight Leader.",
@@ -2311,6 +2345,14 @@ const T_AU_EMPIRE_SUBFACTIONS: SubFaction[] = [
     name: 'Kroot Kinband',
     description: "A Kroot-only warband of the T'au's mercenary hunter allies.",
     requiredPatron: 'Shaper Chief',
+    bannedUnitIds: ['tau_ethereal', 'tau_commander', 'tau_cadre_fireblade', 'tau_fire_warrior', 'tau_crisis_battlesuit', 'tau_stealth_battlesuit', 'tau_broadside_battlesuit'],
+    unitMaxCountOverrides: { tau_kroot_shaper: 3, tau_kroot_carnivore: 99 },
+    wargearLimitOverrides: {
+      dvorgite_skinner: 2,
+      repeater_cannon_tau: 2,
+      tanglecannon: 2,
+      blast_javelin_tau: 3,
+    },
     rules: [
       'Kroot Alone: cannot include Ethereals, Commanders, Cadre Fireblades, Fire Warriors, Crisis, or Stealth Battlesuits; can recruit unlimited Kroot Carnivores (up to 2/3 as Kroot Gunners). Patron must be a Shaper Chief.',
       'Skirmish Fighters: replaces For the Greater Good; enemies have -1 DICE to Hit KROOT with ranged attacks.',
@@ -2338,6 +2380,8 @@ const TYRANIDS_SUBFACTIONS: SubFaction[] = [
     id: 'assimilation_swarm',
     name: 'Assimilation Swarm',
     description: 'A Malanthrope-led force focused on absorbing biomass from the battlefield.',
+    bannedUnitIds: ['ty_hive_tyrant', 'ty_ravener', 'ty_lictor'],
+    unitMaxCountOverrides: { ty_ripper_swarm: 4 },
     rules: [
       'Assimilators: cannot take a Hive Tyrant; must include a Malanthrope (FLYING/LARGE/LEADER/SYNAPSE/TOUGH) as Warband leader.',
       'Rear Guard: cannot take Raveners or Lictors.',
@@ -2350,6 +2394,8 @@ const TYRANIDS_SUBFACTIONS: SubFaction[] = [
     id: 'hive_guardians',
     name: 'Hive Guardians',
     description: 'A Hive Tyrant surrounded by loyal guards defending the bio-node.',
+    bannedUnitIds: ['ty_lictor', 'ty_ravener'],
+    unitMaxCountOverrides: { ty_tyrant_guard: 2, ty_tyranid_warrior: 4, ty_ripper_swarm: 3 },
     rules: [
       'Royal Guard: cannot recruit Lictors; can recruit up to 2 Tyranid Guards.',
       'Nesting: cannot recruit Raveners; can recruit up to 4 Tyranid Warriors and 3 Ripper Swarms. Ripper Swarms lose DEEP STRIKE but gain +0 Ranged and +1 Melee Skill.',
@@ -2360,6 +2406,8 @@ const TYRANIDS_SUBFACTIONS: SubFaction[] = [
     id: 'subterranean_assault',
     name: 'Subterranean Assault',
     description: 'A Ravener-heavy force that erupts from beneath the ground.',
+    bannedUnitIds: ['ty_hive_tyrant', 'ty_gaunt_barbgaunt', 'ty_gaunt_gargoyle', 'ty_gaunt_neurogaunt'],
+    unitMaxCountOverrides: { ty_tyranid_warrior: 1, ty_ravener: 5, ty_ripper_swarm: 3, ty_spore_mine: 1 },
     rules: [
       'Ravener Hive: cannot recruit Hive Tyrants, Barbgaunts, Gargoyles, or Neurogaunts; max 1 Tyranid Warrior. Can recruit up to 3 Ripper Swarms and 5 Raveners. One Ravener must be Warband leader (Ravener Prime) with ELITE/LEADER/SYNAPSE.',
       'Precise Tunnelers: models with DEEP STRIKE (TUNNEL) are NOT adjusted D3" when deployed.',
@@ -2370,6 +2418,8 @@ const TYRANIDS_SUBFACTIONS: SubFaction[] = [
     id: 'synaptic_nexus',
     name: 'Synaptic Nexus',
     description: 'A psyker-heavy force led by the most powerful psychic predator in the Hive Fleet.',
+    bannedUnitIds: ['ty_hive_tyrant', 'ty_lictor', 'ty_tyrant_guard', 'ty_ravener'],
+    unitMaxCountOverrides: { ty_zoanthrope: 2, ty_spore_mine: 1 },
     rules: [
       'Neurotyrant: cannot take a Hive Tyrant; must take a Neurotyrant (ELITE/FLYING/LARGE/LEADER/PSYKER 3/SYNAPSE/TOUGH) as Warband leader.',
       'Neurolictor: cannot take a Lictor; can recruit 1 Neurolictor (ELITE/LARGE/INFILTRATOR/PSYKER 1/STEALTH/SYNAPSE/TOUGH) as an Elite.',
@@ -2382,6 +2432,8 @@ const TYRANIDS_SUBFACTIONS: SubFaction[] = [
     id: 'vanguard_onslaught',
     name: 'Vanguard Onslaught',
     description: 'A monstrous-hunter force led by terrifying Lictors who preceded the main swarm.',
+    bannedUnitIds: ['ty_hive_tyrant', 'ty_ripper_swarm'],
+    unitMaxCountOverrides: { ty_lictor: 2, ty_tyranid_warrior: 2 },
     rules: [
       'Vanguard: cannot recruit a Hive Tyrant; can recruit up to 2 Lictors. Must recruit at least 1 Lictor as Warband leader (ELITE/LEADER/SYNAPSE).',
       'Forerunners: cannot recruit Ripper Swarms; max 2 Tyranid Warriors. Can recruit up to 3 Von Ryan\'s Leapers Mercenaries (120 credits each) as Troops with access to Tyranids Battlekit.',
@@ -2471,6 +2523,138 @@ export const FACTION_SUBFACTIONS: FactionSubFactions[] = [
     factionId: 'heretic_astartes',
     required: false,
     subFactions: HERETIC_ASTARTES_SUBFACTIONS,
+  },
+  {
+    factionId: 'death_guard',
+    required: false,
+    subFactions: [{
+      id: 'no_variant',
+      name: 'Death Guard',
+      description: 'The Plague Company of Mortarion, spreading Nurgle\'s gifts across the battlefield.',
+      wargearLimitOverrides: { ...HA_BASE_WARGEAR_LIMITS },
+      psychicDisciplineId: 'contagion_discipline',
+      noDarkPacts: true,
+      requiredPatron: 'Nurgle (Shared Patron)',
+      bannedUnitIds: ['dg_dark_apostle', 'dg_warpsmith', 'dg_possessed'],
+      rules: [
+        'Cannot include Dark Apostles, Warpsmiths, Possessed, or Raptors.',
+        'All eligible models automatically have Mark of Nurgle (+15 credits each) and gain Contagion.',
+        'No Dark Pacts. Patron must be the Nurgle Shared Patron.',
+        'Uses the Contagion Psychic Discipline instead of the Heretic Astartes Discipline.',
+      ],
+      variantOption: {
+        label: 'Tallyband',
+        rules: [
+          'Cannot include Chaos Cultists or Helbrutes.',
+          'Cannot recruit "Summoned" mercenaries.',
+          'Maximum 4 Plague Marines.',
+          'Can recruit Plague Legion Troop models from Chaos Daemons (Plaguebearers, Nurgling Swarms, Plague Drone Riders).',
+        ],
+        bannedUnitIds: ['dg_chaos_cultist', 'dg_helbrute'],
+        unitMaxCountOverrides: { dg_plague_marine: 4 },
+        extraUnits: [cd_plaguebearer, cd_nurgling_swarm, cd_plague_drone_rider],
+      },
+    }],
+  },
+  {
+    factionId: 'emperors_children',
+    required: false,
+    subFactions: [{
+      id: 'no_variant',
+      name: "Emperor's Children",
+      description: 'Disciples of Slaanesh who seek sensation and excess above all else.',
+      wargearLimitOverrides: { ...HA_BASE_WARGEAR_LIMITS },
+      psychicDisciplineId: 'excess_discipline',
+      noDarkPacts: true,
+      requiredPatron: 'Slaanesh (Shared Patron)',
+      bannedUnitIds: ['ec_warpsmith'],
+      rules: [
+        'Cannot include Warpsmiths or Shrivetalons.',
+        'All eligible models automatically have Mark of Slaanesh (+10 credits each).',
+        'No Dark Pacts. Patron must be the Slaanesh Shared Patron.',
+        'Uses the Excess Psychic Discipline instead of the Heretic Astartes Discipline.',
+      ],
+      variantOption: {
+        label: 'Carnival of Excess',
+        rules: [
+          'Cannot include Chaos Cultists or Helbrutes.',
+          'Cannot recruit "Summoned" mercenaries.',
+          'Maximum 4 Noise Marines.',
+          'Can recruit Legion of Excess Troop models from Chaos Daemons (Daemonettes, Seekers).',
+        ],
+        bannedUnitIds: ['ec_chaos_cultist', 'ec_helbrute'],
+        unitMaxCountOverrides: { ec_noise_marine: 4 },
+        extraUnits: [cd_daemonette, cd_seeker],
+      },
+    }],
+  },
+  {
+    factionId: 'thousand_sons',
+    required: false,
+    subFactions: [{
+      id: 'no_variant',
+      name: 'Thousand Sons',
+      description: 'Sorcerers of Tzeentch and their enthralled Rubric Marines marching to the will of Magnus.',
+      quote: 'MAGNUS DID NOTHING WRONG.',
+      wargearLimitOverrides: { ...HA_BASE_WARGEAR_LIMITS },
+      noDarkPacts: true,
+      requiredPatron: 'Tzeentch (Shared Patron)',
+      unitMaxCountOverrides: { ts_chaos_sorcerer: 2 },
+      bannedUnitIds: ['ts_dark_apostle', 'ts_warpsmith', 'ts_possessed'],
+      psychicDisciplineIds: [
+        'change_discipline', 'vengeance_discipline', 'heretic_astartes_discipline',
+        'biomancy', 'divination', 'pyromancy', 'technomancy', 'telekinesis', 'telepathy',
+      ],
+      rules: [
+        'Cannot include Dark Apostles, Warpsmiths, Raptors, or Possessed.',
+        'All eligible models automatically have Mark of Tzeentch (+10 credits each).',
+        'No Dark Pacts. Patron must be the Tzeentch Shared Patron.',
+        'Uses Change, Vengeance, or Heretic Astartes Discipline. Exalted Sorcerer may also use one Shared Discipline.',
+      ],
+      variantOption: {
+        label: 'Changehost',
+        rules: [
+          'Cannot include Tzeentch Cultists or Sekhetar Robots.',
+          'Cannot recruit "Summoned" mercenaries.',
+          'Maximum 4 Rubric Marines.',
+          'Can recruit Scintillating Legion Troop models from Chaos Daemons (Blue Horrors, Pink Horrors, Screamers).',
+        ],
+        bannedUnitIds: ['ts_tzeentch_cultist', 'ts_sekhetar_robot'],
+        unitMaxCountOverrides: { ts_rubric_marine: 4 },
+        extraUnits: [cd_blue_horror, cd_pink_horror, cd_screamer],
+      },
+    }],
+  },
+  {
+    factionId: 'world_eaters',
+    required: false,
+    subFactions: [{
+      id: 'no_variant',
+      name: 'World Eaters',
+      description: "Khorne's berserkers who know only slaughter, harvesting skulls for the Blood God.",
+      wargearLimitOverrides: { ...HA_BASE_WARGEAR_LIMITS, chain_fist: 2 },
+      noDarkPacts: true,
+      requiredPatron: 'Khorne (Shared Patron)',
+      bannedUnitIds: ['we_chaos_sorcerer', 'we_warpsmith'],
+      rules: [
+        'Cannot include Chaos Sorcerers or Warpsmiths.',
+        'All eligible models automatically have Mark of Khorne (+10 credits each).',
+        'No Dark Pacts. Patron must be the Khorne Shared Patron.',
+        'Blood Surge: models roll 2D6 for charge, take highest. Restricted to Pistols/THROWN/Blood Harpoons for ranged weapons.',
+      ],
+      variantOption: {
+        label: 'Daemonkin',
+        rules: [
+          'Cannot include Jakhals.',
+          'Cannot recruit "Summoned" mercenaries.',
+          'Maximum 4 Berzerkers.',
+          'Can recruit Blood Legion Troop models from Chaos Daemons (Bloodletters, Flesh Hounds).',
+        ],
+        bannedUnitIds: ['we_jakhal'],
+        unitMaxCountOverrides: { we_berzerker: 4 },
+        extraUnits: [cd_bloodletter, cd_flesh_hound],
+      },
+    }],
   },
   {
     factionId: 'chaos_daemons',

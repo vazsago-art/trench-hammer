@@ -35,6 +35,8 @@ export interface Weapon {
    * For Elite Battlesuit Only: ['ELITE', 'VEHICLE'].
    */
   restrictedTo?: string[];
+  /** IDs of weapons/wargear that cannot be equipped alongside this weapon */
+  conflictsWith?: string[];
 }
 
 /**
@@ -82,6 +84,12 @@ export interface WargearOption {
    * (e.g. Astartes Bike uses 1 hand to steer, leaving 1 free hand for other weapons).
    */
   occupiesHands?: number;
+  /**
+   * Increases the ranged hand pool by this amount when equipped.
+   * Used for Built-In Weapon abilities (e.g. Atalan Quad grants 1 extra ranged slot
+   * that does not consume any hands).
+   */
+  grantsExtraRangedSlots?: number;
   /**
    * Whether a model equipped with this item can hold TWO-HANDED weapons despite having only
    * 1 free hand (via Shield Combo rule). E.g. bike riders can still hold Shield Combo weapons.
@@ -145,6 +153,12 @@ export interface UnitUpgrade {
   maxCountLarge?: number;
   /** Keywords the model gains when upgraded */
   grantedKeywords?: string[];
+  /**
+   * Optional list of other upgrade IDs this upgrade also counts as for
+   * warband-wide maxCount checks in the Upgrade panel.
+   * Example: Inceptor counts as Assault Marine for upgrade limits.
+   */
+  countsAsUpgradeIds?: string[];
   /** Keywords for the upgrade itself (e.g. 'MARK') to categorize it in the UI/Logic */
   keywords?: string[];
   /** Stat changes applied to the model when this upgrade is active (e.g. +1 Melee Skill) */
@@ -169,6 +183,20 @@ export interface UnitUpgrade {
    * Use for mutually exclusive upgrades (e.g. Depredator vs Warp Talon).
    */
   conflictsWithUpgradeIds?: string[];
+  /**
+   * Optional group name for mutually-exclusive upgrades within the group.
+   * Only one upgrade per group can be active on a unit at a time.
+   * Upgrades with upgradeGroup are treated as stackable (not cleared by class-upgrade clearing),
+   * but clear all other members of the same group when selected.
+   * Example: 'background' or 'specialty' for Pirate Crew faction upgrades.
+   */
+  upgradeGroup?: string;
+  /**
+   * Per-model weapon limit overrides granted by this upgrade.
+   * When active, these override the weapon's global `limit` field for this specific model.
+   * Example: Inceptor allows up to 2 Plasma Pistols on a single model.
+   */
+  perModelWargearLimits?: Record<string, number>;
 }
 
 /**
@@ -377,6 +405,12 @@ export interface Warband {
   totalModels: number;
   /** Persistent campaign state (only populated when campaign mode is active). */
   campaign?: CampaignState;
+  /**
+   * Schema version used to gate one-time migrations.
+   * Absent / 0 = legacy warband that may need cost migrations.
+   * 1+         = warband created or fully migrated by current code.
+   */
+  schemaVersion?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -402,18 +436,22 @@ export interface CampaignSkill {
   name: string;
   /** Full skill description */
   description: string;
+  /** If 'patron', this skill was chosen from the warband's Patron (rolled 2 or 12). */
+  source?: 'patron';
 }
 
-export interface BattleScar {
-  id: string;
-  name: string;
-  description: string;
-}
+/**
+ * Battle Scars are just a count. At 3 scars the model is permanently removed.
+ * The named mechanical effects from rolling on the Scar table are all Traumas.
+ */
+export type BattleScarCount = number;
 
 export interface EliteTrauma {
   id: string;
   name: string;
   description: string;
+  /** If true, this Trauma can be naturally cleared between battles (but the scar count remains). */
+  canRecover?: boolean;
 }
 
 export interface WarbandUnit {
@@ -456,10 +494,21 @@ export interface WarbandUnit {
   xp?: number;
   /** Campaign Skills gained by this Elite model (rolled from skill tables). */
   campaignSkills?: CampaignSkill[];
-  /** Battle Scars suffered by this Elite model. */
-  battleScars?: BattleScar[];
-  /** Traumas suffered by this Elite model (companion to Battle Scars). */
+  /**
+   * Number of Battle Scars this Elite model has suffered.
+   * Each scar is just a counter — at 3 the model dies.
+   * The named mechanical effects from the scar table are Traumas.
+   */
+  scarCount?: number;
+  /** Traumas suffered by this Elite model (named mechanical effects from the scar/trauma tables). */
   traumas?: EliteTrauma[];
+  /** Astra Militarum only: Commendation IDs awarded to this model. */
+  commendations?: string[];
+  /**
+   * Campaign mission participation counter.
+   * Used for Adepta Sororitas Novitiates: promotion is eligible after 2 missions.
+   */
+  missionCount?: number;
 }
 
 export interface PsychicPower {

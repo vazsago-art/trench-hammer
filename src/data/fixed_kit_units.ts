@@ -224,10 +224,9 @@ const HERETIC_ASTARTES: FixedKitUnit[] = [
     canEquipOtherWeapons: true,
   },
   {
-    id: "ha_sekhetar_robot",
+    id: "ts_sekhetar_robot",
     displayName: "Sekhetar Automata",
-    faction: "Heretic Astartes",
-    subfaction: "Thousand Sons",
+    faction: "Thousand Sons",
     fixedWeapons: [
       {
         name: "Hellfyre Missile Rack",
@@ -824,10 +823,10 @@ const NECROMUNDA_GANG: FixedKitUnit[] = [
         keywords: ["AUTOMATIC 2", "FLAMETHROWER", "IGNORE ARMOUR", "-1 INJURY DICE", "GAS"],
       },
       {
-        name: "Sharp Talon",
+        name: "Claws",
         type: "Melee",
-        keywords: ["CRITICAL"],
-        notes: "Two talons; IGNORE OFF-HAND",
+        keywords: ["CLEAVE 2", "CRITICAL"],
+        notes: "Khimerix melee profile uses CLEAVE 2.",
       },
     ],
     canEquipOtherWeapons: false,
@@ -835,7 +834,7 @@ const NECROMUNDA_GANG: FixedKitUnit[] = [
   },
   {
     id: "ng_phelynx_cat",
-    displayName: "Phelynx Cat",
+    displayName: "Phelynx",
     faction: "Necromunda Gang",
     subfaction: "House Escher",
     fixedWeapons: [
@@ -980,7 +979,7 @@ const NECROMUNDA_GANG: FixedKitUnit[] = [
       {
         name: "Savage Bite",
         type: "Melee",
-        keywords: ["ARMOUR PIERCING 1"],
+        keywords: ["ARMOUR PIERCING 1", "NEGATE GAS"],
       },
     ],
     fixedArmour: { name: "Heavy Plating", modifier: -2, notes: "Included in statistics" },

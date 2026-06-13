@@ -1,12 +1,13 @@
 /**
  * EliteProgressionModal
  *
- * Campaign progression tracker for an individual Elite (or promoted) model.
+ * Campaign progression tracker for any model in a warband.
  * Displays and edits:
- *   - XP counter (with quick +1 / +5 buttons)
- *   - Campaign Skills gained from skill tables
- *   - Battle Scars
- *   - Elite Traumas
+ *   - Battle Scars (simple count — at 3 the model dies) — ALL units
+ *   - Traumas (named mechanical effects; cleared independently of scars) — ALL units
+ *   - Astra Militarum Commendations — ALL AM units
+ *   - XP counter (with quick +1 / +5 buttons) — Elite-eligible only
+ *   - Campaign Skills gained from skill tables — Elite-eligible only
  *
  * All changes are propagated back via `onChange(updatedUnit)`.
  */
@@ -15,23 +16,32 @@ import { useState } from 'react';
 import type {
   WarbandUnit,
   CampaignSkill,
-  BattleScar,
   EliteTrauma,
   CampaignSkillTable,
 } from '../types/index.js';
 import {
   SKILL_TABLES,
   SKILL_TABLE_LABELS,
-  BATTLE_SCARS,
   ELITE_TRAUMAS,
+  ASTRA_MILITARUM_COMMENDATIONS,
   makeCampaignSkill,
 } from '../data/campaignProgression.js';
+import { getPatronById, filterAbilitiesForSubfaction } from '../data/patrons.js';
+import type { PatronAbility } from '../data/patrons.js';
 import './EliteProgressionModal.css';
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
 interface EliteProgressionModalProps {
   unit: WarbandUnit;
+  /** Faction id string, e.g. 'astra_militarum'. Used to show faction-specific sections. */
+  factionId?: string;
+  /** Patron id from the warband, e.g. 'ecclesiastic_cardinal'. */
+  patronId?: string;
+  /** Display name of the selected subfaction, used to filter patron abilities. */
+  subfactionName?: string;
+  /** Whether this unit is Elite-eligible (controls XP + Campaign Skills visibility). */
+  isElite?: boolean;
   onChange: (updated: WarbandUnit) => void;
   onClose: () => void;
 }
@@ -60,26 +70,18 @@ function XpCounter({
 
 function SkillRow({ skill, onRemove }: { skill: CampaignSkill; onRemove: () => void }) {
   const tableLabel = SKILL_TABLE_LABELS[skill.table];
+  const isPatron = skill.source === 'patron';
   return (
     <li className="ep-list-item ep-skill-item">
       <div className="ep-item-header">
-        <span className="ep-item-name">{skill.name}</span>
+        <span className="ep-item-name">
+          {isPatron && <span className="ep-patron-badge" title="Patron Skill">⚜</span>}
+          {skill.name}
+        </span>
         <span className="ep-item-tag">{tableLabel} — Roll {skill.roll}</span>
         <button className="ep-remove-btn" onClick={onRemove} title="Remove skill">✕</button>
       </div>
       <p className="ep-item-desc">{skill.description}</p>
-    </li>
-  );
-}
-
-function ScarRow({ scar, onRemove }: { scar: BattleScar; onRemove: () => void }) {
-  return (
-    <li className="ep-list-item ep-scar-item">
-      <div className="ep-item-header">
-        <span className="ep-item-name">{scar.name}</span>
-        <button className="ep-remove-btn" onClick={onRemove} title="Remove scar">✕</button>
-      </div>
-      <p className="ep-item-desc">{scar.description}</p>
     </li>
   );
 }
@@ -89,6 +91,7 @@ function TraumaRow({ trauma, onRemove }: { trauma: EliteTrauma; onRemove: () => 
     <li className="ep-list-item ep-trauma-item">
       <div className="ep-item-header">
         <span className="ep-item-name">{trauma.name}</span>
+        {trauma.canRecover && <span className="ep-item-tag ep-tag-recoverable">Recoverable</span>}
         <button className="ep-remove-btn" onClick={onRemove} title="Remove trauma">✕</button>
       </div>
       <p className="ep-item-desc">{trauma.description}</p>
@@ -96,13 +99,125 @@ function TraumaRow({ trauma, onRemove }: { trauma: EliteTrauma; onRemove: () => 
   );
 }
 
+// ── Patron keyword filter ──────────────────────────────────────────────────────
+
+function isAbilityAvailableForModel(condition: string | undefined, unitKeywords: string[]): boolean {
+  if (!condition) return true;
+  const kws = unitKeywords.map(k => k.toUpperCase());
+  if (condition.includes('Psyker Only')) return kws.some(k => k.startsWith('PSYKER'));
+  if (condition.includes('Leader Only')) return kws.includes('LEADER');
+  if (/non-Daemon Only/i.test(condition)) return !kws.includes('DAEMON');
+  if (condition.includes('Daemon Only')) return kws.includes('DAEMON');
+  if (condition.includes('Synapse Only')) return kws.includes('SYNAPSE');
+  // Warband-level conditions (LIMIT, Radical, Puritan, faction-specific) → always show
+  return true;
+}
+
+// ── Patron skill picker ────────────────────────────────────────────────────────
+
+interface PatronSkillPickerProps {
+  triggerTable: CampaignSkillTable;
+  triggerRoll: number;
+  patronId?: string;
+  factionId?: string;
+  subfactionName?: string;
+  unitKeywords: string[];
+  alreadyPickedNames: string[];
+  onAdd: (skill: CampaignSkill) => void;
+}
+
+function PatronSkillPicker({
+  triggerTable, triggerRoll, patronId, factionId, subfactionName,
+  unitKeywords, alreadyPickedNames, onAdd,
+}: PatronSkillPickerProps) {
+  const patron = patronId ? getPatronById(patronId, factionId) : undefined;
+
+  if (!patron) {
+    return (
+      <div className="ep-patron-picker ep-patron-picker--empty">
+        <span className="ep-patron-picker-icon">⚜</span>
+        <p>No Patron selected. Set a Patron in the Army Builder to pick Patron Skills.</p>
+      </div>
+    );
+  }
+
+  const allAbilities: PatronAbility[] = filterAbilitiesForSubfaction(patron.abilities, subfactionName);
+  const available = allAbilities.filter(a =>
+    !alreadyPickedNames.includes(a.name) &&
+    isAbilityAvailableForModel(a.condition, unitKeywords)
+  );
+  const alreadyTaken = allAbilities.filter(a => alreadyPickedNames.includes(a.name));
+
+  function pickAbility(ability: PatronAbility) {
+    onAdd({
+      id: `patron_${ability.name.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}`,
+      table: triggerTable,
+      roll: triggerRoll,
+      name: ability.name,
+      description: ability.description,
+      source: 'patron',
+    });
+  }
+
+  return (
+    <div className="ep-patron-picker">
+      <div className="ep-patron-picker-header">
+        <span className="ep-patron-picker-icon">⚜</span>
+        <span className="ep-patron-picker-name">{patron.name}</span>
+      </div>
+      {available.length === 0 ? (
+        <p className="ep-patron-picker-empty">
+          This model has already picked all available Patron Skills.
+        </p>
+      ) : (
+        <ul className="ep-patron-skill-list">
+          {available.map((ability, i) => (
+            <li key={i} className="ep-patron-skill-option">
+              <div className="ep-patron-skill-option-top">
+                <div>
+                  <strong className="ep-patron-skill-option-name">{ability.name}</strong>
+                  {ability.condition && (
+                    <span className="ep-patron-skill-condition">{ability.condition}</span>
+                  )}
+                </div>
+                <button className="ep-patron-skill-pick-btn" onClick={() => pickAbility(ability)}>
+                  Pick ⚜
+                </button>
+              </div>
+              <p className="ep-patron-skill-desc">{ability.description}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+      {alreadyTaken.length > 0 && (
+        <p className="ep-patron-picker-taken">
+          Already taken: {alreadyTaken.map(a => a.name).join(', ')}
+        </p>
+      )}
+    </div>
+  );
+}
+
 // ── Skill adder panel ─────────────────────────────────────────────────────────
 
-function AddSkillPanel({ onAdd }: { onAdd: (skill: CampaignSkill) => void }) {
+interface AddSkillPanelProps {
+  onAdd: (skill: CampaignSkill) => void;
+  patronId?: string;
+  factionId?: string;
+  subfactionName?: string;
+  unitKeywords: string[];
+  alreadyPickedPatronSkillNames: string[];
+}
+
+function AddSkillPanel({
+  onAdd, patronId, factionId, subfactionName, unitKeywords, alreadyPickedPatronSkillNames,
+}: AddSkillPanelProps) {
   const [table, setTable] = useState<CampaignSkillTable>('melee');
   const [roll, setRoll] = useState<number>(7);
 
   const tableKeys = Object.keys(SKILL_TABLE_LABELS) as CampaignSkillTable[];
+  const currentEntry = SKILL_TABLES[table].find(e => e.roll === roll);
+  const isPatronSkill = currentEntry?.name === 'Patron Skill';
 
   return (
     <div className="ep-add-panel">
@@ -131,50 +246,40 @@ function AddSkillPanel({ onAdd }: { onAdd: (skill: CampaignSkill) => void }) {
           ))}
         </select>
       </div>
-      <button
-        className="ep-add-btn"
-        onClick={() => onAdd(makeCampaignSkill(table, roll))}
-      >
-        Add Skill
-      </button>
-    </div>
-  );
-}
-
-function AddScarPanel({ onAdd }: { onAdd: (scar: BattleScar) => void }) {
-  const [selectedId, setSelectedId] = useState<string>(BATTLE_SCARS[0].id);
-  const selected = BATTLE_SCARS.find(s => s.id === selectedId) ?? BATTLE_SCARS[0];
-
-  return (
-    <div className="ep-add-panel">
-      <h4 className="ep-add-title">Add Battle Scar</h4>
-      <div className="ep-add-row">
-        <label className="ep-add-label">Scar</label>
-        <select
-          className="ep-add-select"
-          value={selectedId}
-          onChange={e => setSelectedId(e.target.value)}
+      {isPatronSkill ? (
+        <PatronSkillPicker
+          triggerTable={table}
+          triggerRoll={roll}
+          patronId={patronId}
+          factionId={factionId}
+          subfactionName={subfactionName}
+          unitKeywords={unitKeywords}
+          alreadyPickedNames={alreadyPickedPatronSkillNames}
+          onAdd={onAdd}
+        />
+      ) : (
+        <button
+          className="ep-add-btn"
+          onClick={() => onAdd(makeCampaignSkill(table, roll))}
         >
-          {BATTLE_SCARS.map(s => (
-            <option key={s.id} value={s.id}>{s.name}</option>
-          ))}
-        </select>
-      </div>
-      {selected && <p className="ep-add-preview">{selected.description}</p>}
-      <button className="ep-add-btn" onClick={() => onAdd({ ...selected, id: `${selected.id}_${Date.now()}` })}>
-        Add Scar
-      </button>
+          Add Skill
+        </button>
+      )}
     </div>
   );
 }
 
-function AddTraumaPanel({ onAdd }: { onAdd: (trauma: EliteTrauma) => void }) {
-  const [selectedId, setSelectedId] = useState<string>(ELITE_TRAUMAS[0].id);
-  const selected = ELITE_TRAUMAS.find(t => t.id === selectedId) ?? ELITE_TRAUMAS[0];
+function AddTraumaPanel({ onAdd, existing: _existing }: { onAdd: (trauma: EliteTrauma) => void; existing: EliteTrauma[] }) {
+  const options = ELITE_TRAUMAS; // show all; player decides duplicates
+  const [selectedId, setSelectedId] = useState<string>(options[0]?.id ?? '');
+  const selected = options.find(t => t.id === selectedId) ?? options[0];
 
   return (
     <div className="ep-add-panel">
       <h4 className="ep-add-title">Add Trauma</h4>
+      <p className="ep-add-hint">
+        Adding a Trauma also adds 1 Battle Scar. Removing a Trauma does <em>not</em> remove the scar.
+      </p>
       <div className="ep-add-row">
         <label className="ep-add-label">Trauma</label>
         <select
@@ -182,14 +287,16 @@ function AddTraumaPanel({ onAdd }: { onAdd: (trauma: EliteTrauma) => void }) {
           value={selectedId}
           onChange={e => setSelectedId(e.target.value)}
         >
-          {ELITE_TRAUMAS.map(t => (
-            <option key={t.id} value={t.id}>{t.name}</option>
+          {options.map(t => (
+            <option key={t.id} value={t.id}>{t.name}{t.canRecover ? ' ✦' : ''}</option>
           ))}
         </select>
       </div>
       {selected && <p className="ep-add-preview">{selected.description}</p>}
-      <button className="ep-add-btn" onClick={() => onAdd({ ...selected, id: `${selected.id}_${Date.now()}` })}>
-        Add Trauma
+      <button className="ep-add-btn" onClick={() => {
+        if (selected) onAdd({ ...selected, id: `${selected.id}_${Date.now()}` });
+      }}>
+        Add Trauma (+1 Scar)
       </button>
     </div>
   );
@@ -197,14 +304,17 @@ function AddTraumaPanel({ onAdd }: { onAdd: (trauma: EliteTrauma) => void }) {
 
 // ── Main modal ────────────────────────────────────────────────────────────────
 
-export function EliteProgressionModal({ unit, onChange, onClose }: EliteProgressionModalProps) {
+export function EliteProgressionModal({ unit, factionId, patronId, subfactionName, isElite = false, onChange, onClose }: EliteProgressionModalProps) {
   const xp = unit.xp ?? 0;
   const skills = unit.campaignSkills ?? [];
-  const scars = unit.battleScars ?? [];
+  const scarCount = unit.scarCount ?? 0;
   const traumas = unit.traumas ?? [];
+  const commendations = unit.commendations ?? [];
+  const isAM = factionId === 'astra_militarum';
 
   // ---- local section tab state ----
-  const [activeTab, setActiveTab] = useState<'skills' | 'scars' | 'traumas'>('skills');
+  type Tab = 'skills' | 'scars' | 'traumas' | 'commendations';
+  const [activeTab, setActiveTab] = useState<Tab>(isElite ? 'skills' : 'scars');
 
   // ---- helpers ----
   function update(patch: Partial<WarbandUnit>) {
@@ -216,31 +326,50 @@ export function EliteProgressionModal({ unit, onChange, onClose }: EliteProgress
   }
 
   function addSkill(skill: CampaignSkill) {
-    update({ campaignSkills: [...skills, skill] });
+    const isPsychicAwakening = skill.name === 'Psychic Awakening';
+    const alreadyPsyker = unit.keywords.some(k => /^PSYKER\s+\d+$/i.test(k));
+    const newKws = isPsychicAwakening && !alreadyPsyker
+      ? [...unit.keywords, 'PSYKER 1']
+      : unit.keywords;
+    update({ campaignSkills: [...skills, skill], keywords: newKws });
   }
 
   function removeSkill(idx: number) {
-    update({ campaignSkills: skills.filter((_, i) => i !== idx) });
+    const removedSkill = skills[idx];
+    const wasPsychicAwakening = removedSkill?.name === 'Psychic Awakening';
+    const remainingSkills = skills.filter((_, i) => i !== idx);
+    const stillHasPA = remainingSkills.some(s => s.name === 'Psychic Awakening');
+    const newKws = wasPsychicAwakening && !stillHasPA
+      ? unit.keywords.filter(k => k !== 'PSYKER 1')
+      : unit.keywords;
+    update({ campaignSkills: remainingSkills, keywords: newKws });
   }
 
-  function addScar(scar: BattleScar) {
-    update({ battleScars: [...scars, scar] });
-  }
-
-  function removeScar(idx: number) {
-    update({ battleScars: scars.filter((_, i) => i !== idx) });
+  function adjustScarCount(delta: number) {
+    update({ scarCount: Math.max(0, scarCount + delta) });
   }
 
   function addTrauma(trauma: EliteTrauma) {
-    update({ traumas: [...traumas, trauma] });
+    // Each Trauma also adds 1 Battle Scar
+    update({ traumas: [...traumas, trauma], scarCount: scarCount + 1 });
   }
 
   function removeTrauma(idx: number) {
+    // Removing a Trauma does NOT remove a scar — scar count stays
     update({ traumas: traumas.filter((_, i) => i !== idx) });
+  }
+
+  function toggleCommendation(id: string) {
+    if (commendations.includes(id)) {
+      update({ commendations: commendations.filter(c => c !== id) });
+    } else {
+      update({ commendations: [...commendations, id] });
+    }
   }
 
   const isPromotedLabel = unit.isPromoted ? ' (Promoted)' : '';
   const unitTypeLabel = unit.unitType === 'elite' ? 'Elite' : 'Troop';
+  const isDead = scarCount >= 3;
 
   return (
     <div className="modal-overlay ep-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
@@ -257,32 +386,36 @@ export function EliteProgressionModal({ unit, onChange, onClose }: EliteProgress
           <button className="modal-close-btn ep-close" onClick={onClose} aria-label="Close">✕</button>
         </div>
 
-        {/* ── XP Counter ── */}
-        <div className="ep-xp-section">
-          <XpCounter
-            xp={xp}
-            onAdd={adjustXp}
-            onRemove={delta => adjustXp(-delta)}
-          />
-          <p className="ep-xp-hint">
-            Elites earn XP from battles, Glorious Deeds, and campaign events.
-            Spend XP to roll on Campaign Skill tables.
-          </p>
-        </div>
+        {/* ── XP Counter (Elite-eligible only) ── */}
+        {isElite && (
+          <div className="ep-xp-section">
+            <XpCounter
+              xp={xp}
+              onAdd={adjustXp}
+              onRemove={delta => adjustXp(-delta)}
+            />
+            <p className="ep-xp-hint">
+              Elites earn XP from battles, Glorious Deeds, and campaign events.
+              Spend XP to roll on Campaign Skill tables.
+            </p>
+          </div>
+        )}
 
         {/* ── Tabs ── */}
         <div className="ep-tabs">
-          <button
-            className={`ep-tab ${activeTab === 'skills' ? 'ep-tab--active' : ''}`}
-            onClick={() => setActiveTab('skills')}
-          >
-            Campaign Skills {skills.length > 0 && <span className="ep-badge">{skills.length}</span>}
-          </button>
+          {isElite && (
+            <button
+              className={`ep-tab ${activeTab === 'skills' ? 'ep-tab--active' : ''}`}
+              onClick={() => setActiveTab('skills')}
+            >
+              Campaign Skills {skills.length > 0 && <span className="ep-badge">{skills.length}</span>}
+            </button>
+          )}
           <button
             className={`ep-tab ${activeTab === 'scars' ? 'ep-tab--active' : ''}`}
             onClick={() => setActiveTab('scars')}
           >
-            Battle Scars {scars.length > 0 && <span className="ep-badge">{scars.length}</span>}
+            Battle Scars <span className={`ep-badge ${isDead ? 'ep-badge--danger' : ''}`}>{scarCount}/3</span>
           </button>
           <button
             className={`ep-tab ${activeTab === 'traumas' ? 'ep-tab--active' : ''}`}
@@ -290,14 +423,29 @@ export function EliteProgressionModal({ unit, onChange, onClose }: EliteProgress
           >
             Traumas {traumas.length > 0 && <span className="ep-badge">{traumas.length}</span>}
           </button>
+          {isAM && (
+            <button
+              className={`ep-tab ${activeTab === 'commendations' ? 'ep-tab--active' : ''}`}
+              onClick={() => setActiveTab('commendations')}
+            >
+              Commendations {commendations.length > 0 && <span className="ep-badge">{commendations.length}</span>}
+            </button>
+          )}
         </div>
 
         {/* ── Tab content ── */}
         <div className="ep-tab-content">
 
-          {activeTab === 'skills' && (
+          {isElite && activeTab === 'skills' && (
             <div className="ep-section">
-              <AddSkillPanel onAdd={addSkill} />
+              <AddSkillPanel
+                onAdd={addSkill}
+                patronId={patronId}
+                factionId={factionId}
+                subfactionName={subfactionName}
+                unitKeywords={unit.keywords}
+                alreadyPickedPatronSkillNames={skills.filter(s => s.source === 'patron').map(s => s.name)}
+              />
               {skills.length === 0
                 ? <p className="ep-empty">No campaign skills yet.</p>
                 : (
@@ -313,23 +461,47 @@ export function EliteProgressionModal({ unit, onChange, onClose }: EliteProgress
 
           {activeTab === 'scars' && (
             <div className="ep-section">
-              <AddScarPanel onAdd={addScar} />
-              {scars.length === 0
-                ? <p className="ep-empty">No battle scars yet.</p>
-                : (
-                  <ul className="ep-list">
-                    {scars.map((s, i) => (
-                      <ScarRow key={s.id} scar={s} onRemove={() => removeScar(i)} />
-                    ))}
-                  </ul>
-                )
-              }
+              <div className="ep-scar-counter-block">
+                <p className="ep-scar-rule">
+                  Battle Scars are a count. At <strong>3 Battle Scars</strong> the model is permanently removed from your roster.
+                  The named mechanical effects from rolling on the injury table are <strong>Traumas</strong> (see Traumas tab).
+                </p>
+                <div className="ep-scar-counter">
+                  <button
+                    className="ep-xp-btn ep-btn-minus"
+                    onClick={() => adjustScarCount(-1)}
+                    disabled={scarCount <= 0}
+                    title="Remove 1 Battle Scar"
+                  >−</button>
+                  <span className={`ep-scar-value ${isDead ? 'ep-scar-value--dead' : scarCount === 2 ? 'ep-scar-value--warning' : ''}`}>
+                    {scarCount}
+                  </span>
+                  <button
+                    className="ep-xp-btn ep-btn-plus"
+                    onClick={() => adjustScarCount(1)}
+                    title="Add 1 Battle Scar"
+                  >+</button>
+                </div>
+                {isDead && (
+                  <div className="ep-scar-death-warning">
+                    ⚠ 3 Battle Scars — this model is permanently removed from your roster.
+                  </div>
+                )}
+                {!isDead && scarCount === 2 && (
+                  <div className="ep-scar-caution">
+                    ⚠ 2 Battle Scars — one more scar and this model dies!
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
           {activeTab === 'traumas' && (
             <div className="ep-section">
-              <AddTraumaPanel onAdd={addTrauma} />
+              <AddTraumaPanel onAdd={addTrauma} existing={traumas} />
+              <p className="ep-trauma-note">
+                ✦ = Recoverable trauma (may be cleared between battles; scar count remains). Removing a Trauma here does <em>not</em> reduce the Battle Scar count.
+              </p>
               {traumas.length === 0
                 ? <p className="ep-empty">No traumas yet.</p>
                 : (
@@ -340,6 +512,39 @@ export function EliteProgressionModal({ unit, onChange, onClose }: EliteProgress
                   </ul>
                 )
               }
+            </div>
+          )}
+
+          {activeTab === 'commendations' && isAM && (
+            <div className="ep-section">
+              <p className="ep-commendation-intro">
+                Astra Militarum Commendations are awarded after each battle. A model may hold multiple commendations but only one of each.
+                Tick a commendation to record it for this model.
+              </p>
+              <ul className="ep-list ep-commendation-list">
+                {ASTRA_MILITARUM_COMMENDATIONS.map(cm => {
+                  const held = commendations.includes(cm.id);
+                  return (
+                    <li key={cm.id} className={`ep-list-item ep-commendation-item ${held ? 'ep-commendation-item--held' : ''}`}>
+                      <div className="ep-item-header">
+                        <label className="ep-commendation-label">
+                          <input
+                            type="checkbox"
+                            className="ep-commendation-check"
+                            checked={held}
+                            onChange={() => toggleCommendation(cm.id)}
+                          />
+                          <span className="ep-item-name">{cm.name}</span>
+                        </label>
+                        {cm.uniquePerWarband && <span className="ep-item-tag ep-tag-unique">Once per warband</span>}
+                      </div>
+                      {cm.restrictions && <p className="ep-item-restriction">Eligible: {cm.restrictions}</p>}
+                      <p className="ep-item-req"><strong>Requirement:</strong> {cm.requirements}</p>
+                      <p className="ep-item-benefit"><strong>Benefit:</strong> {cm.benefit}</p>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
           )}
 
@@ -354,3 +559,4 @@ export function EliteProgressionModal({ unit, onChange, onClose }: EliteProgress
     </div>
   );
 }
+

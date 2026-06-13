@@ -1,6 +1,6 @@
 {
   "name": "trench-hammer-army-builder",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Army builder for the Trench Hammer wargame - combining Trench Crusade mechanics with Warhammer 40K universe",
   "type": "module",
   "homepage": "https://vazsago-art.github.io/trench-hammer",
@@ -33,6 +33,7 @@
     "@vitest/coverage-v8": "^4.0.18",
     "gh-pages": "^6.3.0",
     "jsdom": "^28.1.0",
+    "puppeteer": "^24.42.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vitest": "^4.0.18"

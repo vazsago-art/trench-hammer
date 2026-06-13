@@ -8,9 +8,16 @@
 
 .builder-header {
   background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
-  padding: 2rem;
+  padding: 1.2rem 2rem;
   border-bottom: 3px solid #00b4db;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.builder-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .builder-header h1 {
@@ -39,6 +46,55 @@
   padding: 1.5rem;
   overflow-y: auto;
   box-shadow: 2px 0 6px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── About panel ──────────────────────────────────────────────────────────── */
+.builder-about {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid #333;
+}
+
+.builder-about h3 {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.builder-about-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px 12px;
+  align-items: center;
+}
+
+.builder-about-label {
+  font-size: 0.75rem;
+  color: #666;
+  white-space: nowrap;
+}
+
+.builder-about-value {
+  font-size: 0.78rem;
+  color: #aaa;
+  line-height: 1.3;
+}
+
+.builder-version-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  background: rgba(0, 180, 219, 0.12);
+  border: 1px solid rgba(0, 180, 219, 0.35);
+  border-radius: 10px;
+  font-size: 0.75rem;
+  color: #00b4db;
+  letter-spacing: 0.03em;
+  font-weight: 600;
 }
 
 .builder-sidebar h2 {
@@ -234,6 +290,10 @@
 .btn-share-url { background: #2d6a4f; color: #fff; }
 .btn-rules { background: #5a4fcf; color: #fff; }
 .btn-campaign { background: #7c3aed; color: #fff; }
+.btn-terrain  { background: #2d6a3a; color: #fff; }
+.btn-tactical { background: #b45309; color: #fff; }
+.btn-tactical:disabled { background: #555; color: #999; cursor: not-allowed; opacity: 0.6; }
+.btn-quickbuild { background: #0f4c75; color: #7dd3fc; }
 
 .army-io-msg {
   margin-top: 0.6rem;
@@ -490,6 +550,22 @@
   gap: 1rem;
 }
 
+.selected-units-section-header {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #888;
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid #333;
+  margin-top: 0.25rem;
+  margin-bottom: -0.25rem;
+}
+
+.selected-units-section-header:first-child {
+  margin-top: 0;
+}
+
 .selected-unit {
   background-color: #242424;
   border: 1px solid #444;
@@ -565,8 +641,12 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
-.btn-rename-trigger {
-  background: transparent;
+.unit-count-badge { display: inline-flex; align-items: center; gap: 2px; margin: 0 6px; }
+.unit-count-num { font-weight: bold; font-size: 0.9em; min-width: 2ch; text-align: center; }
+.btn-count-adj { width: 20px; height: 20px; border: 1px solid #555; background: #333; color: #ccc; cursor: pointer; border-radius: 3px; padding: 0; font-size: 0.85em; line-height: 1; }
+.btn-count-adj:hover { background: #555; }
+
+.btn-rename-trigger {  background: transparent;
   border: none;
   color: #a0916a;
   font-size: 0.85rem;
@@ -675,6 +755,50 @@
   color: #fff;
 }
 
+/* ── Promote / Demote Elite buttons ── */
+.btn-promote-elite {
+  background: #0a2a1a;
+  border: 1px solid #3aaa6a;
+  color: #6adea0;
+  padding: 0.26rem 0.65rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.btn-promote-elite:hover {
+  background: #1a4a30;
+  border-color: #6adea0;
+  color: #fff;
+}
+.btn-demote-elite {
+  background: #2a1a0a;
+  border: 1px solid #aa7a3a;
+  color: #dea06a;
+  padding: 0.26rem 0.65rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.btn-demote-elite:hover {
+  background: #4a2a10;
+  border-color: #dea06a;
+  color: #fff;
+}
+
 .unit-cost {
   background-color: #00b4db;
   color: #1a1a1a;
@@ -758,6 +882,126 @@
 
 .btn-wargear:active {
   transform: scale(0.95);
+}
+
+/* ── Sisterhood Path banner (Adepta Sororitas progression chain) ── */
+.sisterhood-chain-banner {
+  margin: 0.4rem 0.6rem 0.1rem;
+  padding: 0.5rem 0.75rem;
+  background: #160e1e;
+  border: 1px solid #7c3a8844;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.sisterhood-chain-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #c9a0dc;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.3rem;
+  text-transform: uppercase;
+}
+
+.sisterhood-chain-steps {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.sisterhood-step {
+  padding: 0.1rem 0.5rem;
+  border-radius: 10px;
+  border: 1px solid #3a2a4a;
+  background: #1f1430;
+  color: #888;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.sisterhood-step-active {
+  background: #3a1a55;
+  border-color: #c9a0dc88;
+  color: #e0c0f0;
+}
+
+.sisterhood-step-arrow {
+  color: #7c3a88;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.sisterhood-chain-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sisterhood-mission-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.2rem;
+}
+
+.sisterhood-mission-label {
+  color: #aaa;
+}
+
+.sisterhood-mission-btn {
+  background: #2a1a3a;
+  border: 1px solid #7c3a8866;
+  color: #c9a0dc;
+  border-radius: 4px;
+  width: 1.5rem;
+  height: 1.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.sisterhood-mission-btn:disabled { opacity: 0.35; cursor: default; }
+.sisterhood-mission-btn:hover:not(:disabled) { background: #3a1a55; border-color: #c9a0dc; }
+
+.sisterhood-mission-count {
+  min-width: 1.5rem;
+  text-align: center;
+  font-weight: 700;
+  color: #c9a0dc;
+  font-size: 0.95rem;
+}
+
+.sisterhood-mission-ready {
+  color: #7ccc9a;
+}
+
+.sisterhood-condition {
+  color: #aaa;
+  line-height: 1.4;
+}
+
+.sisterhood-condition strong {
+  color: #e0c0f0;
+}
+
+.sisterhood-condition-met {
+  color: #7ccc9a;
+}
+
+.sisterhood-condition-met strong {
+  color: #a0ecc0;
+}
+
+.sisterhood-note {
+  color: #666;
+  font-size: 0.72rem;
+  font-style: italic;
+  line-height: 1.35;
 }
 
 /* Wargear tags displayed on selected unit cards */
@@ -1067,12 +1311,12 @@
 
 .faction-rules {
   margin: 0 0 0.8rem;
-  padding: 0.6rem 0.75rem;
+  padding: 0.4rem 0.75rem 0.6rem;
   background: rgba(30, 60, 100, 0.15);
   border: 1px solid rgba(70, 130, 180, 0.35);
   border-radius: 6px;
   font-size: 0.82em;
-  overflow: hidden;
+  flex-shrink: 0;
   box-sizing: border-box;
 }
 
@@ -1081,8 +1325,31 @@
   font-weight: 700;
   font-size: 0.9em;
   letter-spacing: 0.03em;
-  margin-bottom: 0.45rem;
+  padding: 0.2rem 0 0.45rem;
   text-transform: uppercase;
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  user-select: none;
+}
+
+.faction-rules-title::marker,
+.faction-rules-title::-webkit-details-marker {
+  display: none;
+}
+
+.faction-rules-title::before {
+  content: '▶';
+  font-size: 0.7em;
+  color: #5a9fd4;
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+details.faction-rules[open] .faction-rules-title::before {
+  transform: rotate(90deg);
 }
 
 .faction-rules-list {

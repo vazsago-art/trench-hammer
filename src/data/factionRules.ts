@@ -4,9 +4,26 @@
  * in the Army Builder. Format: rule name in **bold.** followed by description.
  */
 
+import { UnitOption } from "../types";
+import { cd_blue_horror, cd_pink_horror, cd_screamer } from "./factions_complete";
+
 export interface FactionSpecialRulesData {
   title: string;
   rules: string[];
+  quote?: string;
+
+  variantOption?: {
+      /** Checkbox label shown to the player (e.g. "Changehost", "Daemonkin") */
+      label: string;
+      /** Rules summary lines shown when the variant is active */
+      rules: string[];
+      /** Unit IDs additionally banned when the variant is active */
+      bannedUnitIds: string[];
+      /** Additional per-unit maxCount overrides merged with the subfaction's own overrides */
+      unitMaxCountOverrides: Record<string, number>;
+      /** Extra units from other factions made available when the variant is active */
+      extraUnits: UnitOption[];
+    };
 }
 
 /** Map from faction ID → special rules block. */
@@ -91,14 +108,20 @@ export const FACTION_RULES: Record<string, FactionSpecialRulesData> = {
   grey_knights: {
     title: 'Grey Knights Special Rules',
     rules: [
-      'Grey Knights are an **Adeptus Astartes Warband Variant**. They follow the Adeptus Astartes Special Rules (And They Shall Know No Fear, The Rubicon Primaris, Gene Seeds) plus the Grey Knights subfaction-specific modifications.',
+      '**Daemon Hunters.** All GREY KNIGHTS models are immune to FEAR and have +1 DICE to Hit when fighting DAEMON models.',
+      '**And They Shall Know No Fear.** Grey Knights treat Down results from the Injury Roll Table as Minor Hits instead (Black Carapace).',
+      '**Psychic Mastery.** Grey Knights use the Dominus and Sanctus psychic disciplines. All Grey Knights are highly resistant to daemonic corruption.',
+      '**Gene Seeds** (Campaign). Track Gene Seed quality. Each victory and Glorious Deed increases quality; injuries that affect ASTARTES models decrease it. High quality unlocks special campaign bonuses.',
     ],
   },
 
   adeptus_arbites: {
     title: 'Adeptus Arbites Special Rules',
     rules: [
-      'Adeptus Arbites use the **Necromunda Gang (Palanite Enforcers)** rules. They follow the Necromunda Gang Special Rules (Gang, Fast Learners) plus the Palanite Enforcers gang-specific modifications.',
+      '**Law and Order.** Adeptus Arbites models have the ARBITES Keyword. Their Hardcase Cyber Mastiffs have NEGATE GAS on their Bite attack.',
+      '**Gang.** GANGER models can promote to Elites through campaign XP.',
+      '**Fast Learners.** GANGER Juves that survive battles gain XP at double the normal rate.',
+      '**Enforcer Tactics.** Adeptus Arbites have access to Palanite Enforcer-specific wargear and campaign rules.',
     ],
   },
 
@@ -109,6 +132,94 @@ export const FACTION_RULES: Record<string, FactionSpecialRulesData> = {
     rules: [
       '**Dark Pacts.** As an Action (Success Roll), any HERETIC ASTARTES model can make a Dark Pact. On success, it gains +1 DICE to Hit or +1 INJURY DICE with all weapons until end of Activation. Regardless, it gains 1 BLOOD MARKER at end of Activation.',
       '**Dread Reputation** (Campaign). Track Personal, Dark Gods, and Warfleet Reputations (each starts at 4, range 1–8). All decrease by 1 per battle; increase for Glorious Deeds, wins, ties. Favoured (7–8) grants bonus XP, free Marks of Chaos, or Exploration Skills. Forsaken (1–2) can cause leadership challenges, forced Elite Trauma rolls, or prevents spending Glory on battlekit/Mercenaries.',
+      '**Choose a Warband Variant (Legion):** Alpha Legion, Death Guard, Emperor\'s Children, Iron Warriors, Night Lords, Renegade Space Marines, Thousand Sons, Word Bearers, World Eaters (or no variant).',
+    ],
+  },
+
+  death_guard: {
+    title: 'Death Guard Special Rules',
+    rules: [
+      '**Patron.** Your Patron must be the Nurgle Shared Patron.',
+      '**Mark of Nurgle.** All HERETIC ASTARTES models automatically have Mark of Nurgle (included in unit cost). Ranged attacks against this model or allies within 3" have -1 DICE to Hit; melee attacks have +1 INJURY MODIFIER.',
+      '**Contagion.** HERETIC ASTARTES models with Mark of Nurgle: enemy models within 1" of this model that have 1+ INFECTION MARKERS have -1 DICE to Hit with all attacks (spending all INFECTION MARKERS negates this).',
+      '**Spreaders of Disease** (Campaign). Replaces Dread Reputation with a Virulence Points system. Accumulate INFECTION MARKERS on enemies to generate VP.',
+      '**No Dark Pacts.** Cannot make Dark Pacts. Cannot include Dark Apostles, Warpsmiths, Possessed, or Raptors.',
+      '**Contagion Psychic Discipline.** Uses the Contagion Psychic Discipline instead of the standard Heretic Astartes Discipline.',
+      '**Poxwalkers.** Can take Poxwalkers as Troops. Can take a Foetid Blight-Drone instead of a Helbrute.',
+      '**Tallyband Variant.** Optionally form a Tallyband: Cannot include Chaos Cultists or Helbrutes; max 4 Plague Marines; can recruit Plague Legion Daemon Troop models.',
+    ],
+  },
+
+  emperors_children: {
+    title: "Emperor's Children Special Rules",
+    rules: [
+      '**Patron.** Your Patron must be the Slaanesh Shared Patron.',
+      '**Mark of Slaanesh.** All HERETIC ASTARTES models have Mark of Slaanesh (included in unit cost). +2" movement, +1 DICE to all Dash Success Rolls, +1 INJURY MODIFIER to ranged attacks.',
+      '**No Dark Pacts.** Cannot make Dark Pacts. Cannot include Warpsmiths or Shrivetalon upgrades.',
+      '**Combat Elixirs** (Campaign). Replaces Dread Reputation; collect Ingredient markers and craft powerful consumables.',
+      '**Flawless Blades.** Up to 2 (or 3) Noise Marines can be upgraded to Flawless Blades: +1 DICE to Hit in melee, Pistols/Grenades only for ranged.',
+      '**Lord Kakophonist.** Can recruit a Lord Kakophonist as an Elite.',
+      '**Excess Psychic Discipline.** Uses the Excess Psychic Discipline.',
+      '**Carnival of Excess Variant.** Optionally form a Carnival of Excess: cannot include Chaos Cultists or Helbrutes; max 4 Noise Marines; can recruit Legion of Excess Daemon Troop models.',
+    ],
+  },
+
+  thousand_sons: {
+    title: 'Thousand Sons Special Rules',
+    quote: 'MAGNUS DID NOTHING WRONG.',
+    rules: [
+      '**Aspiring Sorcerers.** Any model you promote to an Elite gains the PSYKER 1 Keyword, and its cost is increased by 10 for the purposes of credit limits. When the model is promoted, choose the Change or Vengeance Psychic Discipline. That model may purchase up to two powers from the chosen discipline. It must be equipped with a PSYCHIC Weapon in order to use any Psychic Power.',
+      '**Cabal of Sorcerers** (Battle). Keep track of your Cabal Points during each battle, beginning at 0 at the start of the battle. At the start of each Turn, you gain Cabal Points equal to the combined total PSYKER X values of all of your HERETIC ASTARTES TZEENTCH models on the battlefield. You can spend the listed Cabal Points to perform one of the following Rituals when one of your HERETIC ASTARTES TZEENTCH takes the Cast Action, before any Success Roll:'
+      + '\n - Cabbalistic Focus (3 Cabal Points). Enemies cannot Deny the Witch against the power.'
+      + '\n - Echoes From The Warp (5 Cabal Points). If the result of the Success roll is 10 or higher, the caster gains 1 BLESSING MARKER.'
+      + '\n - Imbued Manifestation (4 Cabal Points). If the power has a range of 6” or more, you can increase its range by 6”.'
+      + '\n - Kindred Sorcerers (2 Cabal Points). The caster has +1 DICE to Success Rolls for this power.'
+      + '\n - Malevolent Charge (4 Cabal Points). If the power inflicts any injuries, those injuries have +1 INJURY DICE.'
+      + '\n - Pact From Beyond (5 Cabal Points). The caster does not suffer Perils of the Warp on a result of 12 for this power. The PERILOUS Keyword only applies to numbers between 2 and 2 plus the PERILOUS X value for it.'
+      + '\n - Psychic Maelstrom (5 Cabal Points). The caster can use a power that any other friendly TZEENTCH PSYKER on the battlefield knows, as if it knew that power.'
+      + '\n - Warp Sight (3 Cabal Points). If the power requires the caster to see one or more models, you can choose another friendly TZEENTCH model on the battlefield. You can use that model’s line of sight instead of the caster’s for this power. This does not affect range.'
+      + '\n - Wrath Of The Immaterium (5 Cabal Points). The caster has +1 DICE to Success Rolls for this power, and reduce the X value of the PERILOUS X Keyword for the Success Roll by 2, to a minimum of 0.',
+      '**Discover the Arcane** (Campaign). Instead of the Dread Reputation special rule, during a campaign, keep track of your Arcane Points, beginning at 0. At the start of each battle, before deployment, your opponent places three 1” Arcana markers anywhere that is exactly half the battlefield size away from your deployment zone (18” away for 3’x3’ board, 24” away for a 4’x4’ board), but not within 6” of a battlefield edge or another marker, or on Impassable Terrain or completely surrounded by it.'
+      +'\nAt any point during the battle, one of your PSYKER models can make a Success Roll to try to study an Arcana marker while it is in contact with it. On a success, remove the marker and you earn 1 Arcane Point.'
+      +'\nDuring the quartermaster step between battles, you can empower one of your Elite PSYKER models with arcane knowledge. It gains a benefit depending on how many Arcane Points you have, then reset your Arcane points to 0. The benefit is either an Arcane Relic, which functions as battlekit but cannot be removed or sold, or an Arcane Power, which is an additional psychic power the model knows, which does not count towards its limit. Each model can gain only up to 1 Arcane Relic and up to 1 Arcane Power in this way.'
+      +'\n - 5-9 Arcane Points:'
+      +'\n     - Arcane Relic: Text Of Warp-Blown Ash. Once per battle, when the bearer would suffer Perils of the Warp, you can choose for it to ignore that Perils of the Warp.'
+      +'\n     - Arcane Power: Thief Of Fate. 18”, AUTOMATIC 3, PSYCHIC, RISKY. All attacks must target the same model.'
+      +'\n - 10-14 Arcane Points:'
+      +'\n     - Arcane Relic: Boonstone. Once per battle, the bearer can gain +2 DICE to any PSYCHIC Success Roll it takes, including an attack.'
+      +'\n     - Arcane Power: Visions Of Doom. As an Action with a Risky Success Roll with +1 DICE, the caster can choose one enemy within 18” of it that it can see. On a success, the target suffers -1 DICE to all Success Rolls and Injury rolls have +1 DICE against it until the end of the current Turn.'
+      +'\n - 15+ Arcane Points:'
+      +'\n     - Arcane Relic: Mesmeric Stave. +1 INJURY DICE against targets with DAEMON or PSYKER Keyword, PSYCHIC, HELD'
+      +'\n          - Strike: Melee, +1 INJURY DICE'
+      +'\n          - Shoot: 18”, +1 INJURY DICE, ASSAULT'
+      +'\n     - Arcane Power: Binding Flames. As an Action with a Risky Success Roll with +1 DICE, the caster can choose itself or one ally within 18” of it that it can see. On a success, until the end of the current Turn, attacks against the target have -1 DICE to Hit and -1 INJURY DICE against the chosen model.',
+      '**Patron.** Your Patron must be the Tzeentch Shared Patron.',
+      '**Warband Variant: Changehost** Optionally form a Changehost: cannot include Tzeentch Cultists or Sekhetar Robots; max 4 Rubric Marines; can recruit Scintillating Legion Daemon Troop models.'
+      +'\n - Limited Recruits. You cannot take any Tzeentch Cultists or Sekhetar Robots, and you cannot recruit any Summoned Mercenaries. You can take a maximum of 4 Rubric Marines.'
+      +'\n - Daemon Support. You can recruit Scintillating Legion Troop models from the Chaos Daemons faction.',
+    ],
+    variantOption: {
+        label: 'Warband Variant: Changehost',
+        rules: [
+          '**Limited Recruits.** You cannot take any Tzeentch Cultists or Sekhetar Robots, and you cannot recruit any Summoned Mercenaries. You can take a maximum of 4 Rubric Marines.',
+          '**Daemon Support.** You can recruit Scintillating Legion Troop models from the Chaos Daemons faction.',
+        ],
+        bannedUnitIds: ['ts_chaos_cultist', 'ts_sekhetar_robot'],
+        unitMaxCountOverrides: { ts_rubric_marine: 4 },
+        extraUnits: [cd_blue_horror, cd_pink_horror, cd_screamer],
+      },
+  },
+
+  world_eaters: {
+    title: 'World Eaters Special Rules',
+    rules: [
+      '**Patron.** Your Patron must be the Khorne Shared Patron.',
+      '**Mark of Khorne.** All HERETIC ASTARTES models have Mark of Khorne (included in unit cost). Melee attacks have +1 INJURY MODIFIER.',
+      '**No Dark Pacts.** Cannot make Dark Pacts. Cannot include Chaos Sorcerers, Warpsmiths, Raptors, or Havocs.',
+      '**Blood Surge (Butcher\'s Nails).** HERETIC ASTARTES KHORNE Berzerkers and Jakhals: when Charging, roll 2D6 instead of 1D6 and add the highest die. Cannot equip ranged weapons besides Pistols, THROWN weapons, and Blood Harpoons.',
+      '**Eightbound.** Possessed become Eightbound (+10cr): replace Mutated Claw with Mutated Chainblade (CRITICAL, RISKY, SHRAPNEL). All Eightbound and allies within 3" have +1 DICE to Hit enemies with 1+ BLOOD MARKERS.',
+      '**World Eaters Terminators.** Do not have Blood Surge and can take any ranged weapons.',
+      '**Daemonkin Variant.** Optionally form a Daemonkin: can recruit Blood Legion Daemon Troop models (Bloodletters, Flesh Hounds).',
     ],
   },
 
@@ -167,7 +278,7 @@ export const FACTION_RULES: Record<string, FactionSpecialRulesData> = {
     title: 'Genestealer Cults Special Rules',
     rules: [
       '**Cult Ambush.** Before deployment, choose up to half your GENESTEALER CULTS models (rounded up) to Ambush. They gain DEEP STRIKE. Place four 32mm Cult Ambush markers (8″+ from enemies, not in line of sight). Models in reserve using DEEP STRIKE must deploy within 3″ of one of these markers and 1″+ from enemies.',
-      '**Infiltration** (Campaign). Choose a target Institution (Community/Industry/Military/Politics/Religion/Resources) or roll randomly. Track Infiltration Points (earn 1 when the battle\'s condition is met). After gaining 3 Infiltration Points, Control that Institution and gain its permanent Reward (extra models, +50 credits, Elite XP, leader skill choice, 2 Glory, or Campaign Shop access), then reset and choose a new target.',
+      '**Infiltration** (Campaign). Choose a target Institution (Community/Industry/Military/Politics/Religion/Resources) or roll randomly. Track Infiltration Points (earn 1 when the battle\'s condition is met). After gaining 3 Infiltration Points, Control that Institution and gain its permanent Reward (extra models, +25 credits, Elite XP, leader skill choice, 2 Glory, or Campaign Shop access), then reset and choose a new target.',
     ],
   },
 

@@ -4,6 +4,20 @@ All notable changes to the Trench Hammer Army Builder application are documented
 
 ---
 
+## [1.4.2] - 2026-05-30
+
+### Fixed
+- **Foetid Blight-Drone weapon mutual exclusion**: The Drone's three integrated weapon options (Fleshmower, Twin Plague Spewers, Twin Blight Launchers) can now only be equipped one at a time — adding any one of them blocks the other two, matching the "choose one" rule from the Death Guard roster. Added `conflictsWith` support to the `Weapon` type and extended `validateAddWargear` / `validateLoadout` in `wargearSlotValidation.ts` to enforce weapon-level conflicts.
+
+---
+
+## [1.4.1] - 2026-05-27
+
+### Fixed
+- **Astartes Bike NaN cost bug (mobile)**: Equipping an Astartes Bike on any unit in the mobile layout (`MobileApp.tsx`) caused the unit's price to display "NaN Cr." and contribute 0 to the warband total. Root cause: the auto-added Twin Boltgun bonus weapon was pushed into `selectedWargear` without a `quantity` field, causing `w.cost * w.quantity = 0 * undefined = NaN` in `recalcUnitCosts`. Fixed by building the full `SelectedWargear` object (with `quantity: 1`, `type`, `costCurrency`, `grantsKeywords`) to match the desktop implementation in `ArmyBuilder.tsx`.
+
+---
+
 ## [1.0.5] - 2026-03-02
 
 ### Added

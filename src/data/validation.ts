@@ -1,5 +1,13 @@
 import { Warband, ValidationResult, ValidationError, ValidationWarning } from '../types/index.js';
 
+const CAPPED_CULTIST_UNIT_IDS = new Set([
+  'ha_chaos_cultist',
+  'dg_chaos_cultist',
+  'ec_chaos_cultist',
+  'ts_tzeentch_cultist',
+  'we_jakhal',
+]);
+
 // Game rule constants
 const GAME_RULES = {
   minPointLimit: 200,
@@ -27,6 +35,29 @@ export function calculateWarbandGlory(warband: Warband): number {
 
 export function calculateTotalModels(warband: Warband): number {
   return warband.units.reduce((total, unit) => total + (unit.count || 1), 0);
+}
+
+function isCultistCapUnit(unitId: string): boolean {
+  return CAPPED_CULTIST_UNIT_IDS.has(unitId);
+}
+
+function countCultistModels(warband: Warband, excludedUnitIndex?: number): number {
+  return warband.units.reduce((total, unit, index) => {
+    if (excludedUnitIndex != null && index === excludedUnitIndex) return total;
+    if (!isCultistCapUnit(unit.unitId)) return total;
+    return total + (unit.count || 1);
+  }, 0);
+}
+
+export function getCultistMaxCountForWarband(warband: Warband, excludedUnitIndex?: number): number {
+  const totalModels = calculateTotalModels(warband);
+  const cultistModels = countCultistModels(warband, excludedUnitIndex);
+  return Math.max(0, totalModels - cultistModels);
+}
+
+export function getUnitMaxCountForWarband(warband: Warband, unitId: string, fallbackMax: number, excludedUnitIndex?: number): number {
+  if (!isCultistCapUnit(unitId)) return fallbackMax;
+  return Math.min(fallbackMax, getCultistMaxCountForWarband(warband, excludedUnitIndex));
 }
 
 export function calculateUnitCost(
@@ -104,6 +135,18 @@ export function validateWarband(warband: Warband): ValidationResult {
     warnings.push({
       code: 'MIN_TROOPS',
       message: `Recommended minimum ${GAME_RULES.minTroops} troop(s), you have ${troopCount}`,
+    });
+  }
+
+  const cultistModels = warband.units.reduce((total, unit) => (
+    isCultistCapUnit(unit.unitId) ? total + (unit.count || 1) : total
+  ), 0);
+  const nonCultistModels = totalModels - cultistModels;
+  if (cultistModels > nonCultistModels) {
+    errors.push({
+      code: 'CULTIST_MAX_EXCEEDED',
+      message: `Cultist models exceed the number of other non-merc models: ${cultistModels} / ${nonCultistModels}`,
+      severity: 'error',
     });
   }
 

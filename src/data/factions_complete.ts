@@ -1,4 +1,4 @@
-import { Faction, UnitOption } from '../types/index.js';
+import { Faction, UnitOption, UnitUpgrade } from '../types/index.js';
 
 import { unitAbilitiesMap } from './unit_abilities.js';
 
@@ -14,6 +14,13 @@ function applyAbilities(units: UnitOption[]): UnitOption[] {
   return units.map(wa);
 }
 
+/**
+ * Creates a copy of a UnitOption remapped to a new faction, optionally filtering upgrades.
+ * Used to create standalone faction unit definitions from HA variant templates.
+ */
+
+/** Strips requiredSubfactionId from an upgrade (makes it universally available within a faction). */
+
 
 // ==========================================================================
 // ADEPTUS ASTARTES
@@ -21,7 +28,7 @@ function applyAbilities(units: UnitOption[]): UnitOption[] {
 export const aa_captain: UnitOption = {
   id: 'aa_captain', name: 'Captain', baseCost: 110, minCount: 1, maxCount: 1,
   stats: { movement: 6, rangedSkill: 3, meleeSkill: 3, armourSave: -2, toughness: 'NORMAL' },
-  keywords: ['ASTARTES', 'ELITE', 'LARGE', 'LEADER', 'TOUGH'],
+  keywords: ['ASTARTES', 'ELITE', 'LEADER', 'TOUGH'],
   baseSize: '40mm',
   faction: 'adeptus_astartes', unitType: 'elite',
   description: 'Mandatory leader of the Space Marine warband. (70cr base + 40cr Power Armour)',
@@ -34,7 +41,7 @@ export const aa_captain: UnitOption = {
     { id: 'aa_standard_armour_swap', name: 'Standard Armour', cost: -25, maxCount: 99,
       statModifiers: { armourSave: 1 },
       requiredSubfactionId: 'space_wolves',
-      description: 'Wolves of Winter: replaces Power Armour with Standard Armour (−1 Armour Save, saves 25 credits). Up to half of your Astartes (rounded down) may take this option.' },
+      description: 'Wolves of Winter: replaces Power Armour with Standard Armour (Ã¢Ë†â€™1 Armour Save, saves 25 credits). Up to half of your Astartes (rounded down) may take this option.' },
     { id: 'aa_primaris', name: 'Primaris', cost: 5, maxCount: 99, statModifiers: { movement: 1 },
       description: '+1" movement. Can be purchased even after recruitment.' },
   ],
@@ -42,7 +49,7 @@ export const aa_captain: UnitOption = {
 export const aa_apothecary: UnitOption = {
   id: 'aa_apothecary', name: 'Apothecary', baseCost: 110, minCount: 0, maxCount: 1,
   stats: { movement: 6, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
-  keywords: ['ASTARTES', 'ELITE', 'LARGE'],
+  keywords: ['ASTARTES', 'ELITE'],
   baseSize: '40mm',
   faction: 'adeptus_astartes', unitType: 'elite',
   description: 'Healer and gene-seed harvester.',
@@ -52,7 +59,7 @@ export const aa_apothecary: UnitOption = {
       statModifiers: { armourSave: -2 } },
     { id: 'aa_narthecium', name: 'Narthecium', type: 'melee', cost: 0, handedness: 'one-handed',
       keywords: ['ARMOUR PIERCING 1', 'HELD'],
-      description: 'HELD — occupies a hand but functions as a medical tool. Enables the Apothecary\'s healing abilities.' },
+      description: 'HELD Ã¢â‚¬â€ occupies a hand but functions as a medical tool. Enables the Apothecary\'s healing abilities.' },
   ], availableWargear: [],
   upgrades: [
     { id: 'aa_primaris', name: 'Primaris', cost: 5, maxCount: 99, statModifiers: { movement: 1 },
@@ -62,7 +69,7 @@ export const aa_apothecary: UnitOption = {
 export const aa_chaplain: UnitOption = {
   id: 'aa_chaplain', name: 'Chaplain', baseCost: 120, minCount: 0, maxCount: 1,
   stats: { movement: 6, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
-  keywords: ['ASTARTES', 'ELITE', 'LARGE'],
+  keywords: ['ASTARTES', 'ELITE'],
   baseSize: '40mm',
   faction: 'adeptus_astartes', unitType: 'elite',
   description: 'Spiritual leader of the Chapter. (80cr base + 40cr Power Armour)',
@@ -71,14 +78,14 @@ export const aa_chaplain: UnitOption = {
       keywords: ['-2 INJURY MODIFIER'], description: 'Mandatory Power Armour (included in unit cost).',
       statModifiers: { armourSave: -2 } },
     { id: 'aa_crozius_arcanum', name: 'Crozius Arcanum', type: 'melee', cost: 0, handedness: 'one-handed',
-      keywords: ['ARMOUR PIERCING 2', 'LEADER'],
+      keywords: ['ARMOUR PIERCING 2', 'ICON'],
       description: 'Ritual weapon of the Chaplain, a symbol of faith and fury.' },
   ], availableWargear: [],
   upgrades: [
     { id: 'aa_standard_armour_swap', name: 'Standard Armour', cost: -25, maxCount: 99,
       statModifiers: { armourSave: 1 },
       requiredSubfactionId: 'space_wolves',
-      description: 'Wolves of Winter: replaces Power Armour with Standard Armour (−1 Armour Save, saves 25 credits). Up to half of your Astartes (rounded down) may take this option.' },
+      description: 'Wolves of Winter: replaces Power Armour with Standard Armour (Ã¢Ë†â€™1 Armour Save, saves 25 credits). Up to half of your Astartes (rounded down) may take this option.' },
     { id: 'aa_primaris', name: 'Primaris', cost: 5, maxCount: 99, statModifiers: { movement: 1 },
       description: '+1" movement. Can be purchased even after recruitment.' },
   ],
@@ -86,7 +93,7 @@ export const aa_chaplain: UnitOption = {
 export const aa_librarian: UnitOption = {
   id: 'aa_librarian', name: 'Librarian', baseCost: 115, minCount: 0, maxCount: 1,
   stats: { movement: 6, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
-  keywords: ['ASTARTES', 'ELITE', 'LARGE', 'PSYKER 2'],
+  keywords: ['ASTARTES', 'ELITE', 'PSYKER 2'],
   baseSize: '40mm',
   faction: 'adeptus_astartes', unitType: 'elite',
   description: 'Psyker warrior of the Chapter.',
@@ -99,7 +106,7 @@ export const aa_librarian: UnitOption = {
     { id: 'aa_standard_armour_swap', name: 'Standard Armour', cost: -25, maxCount: 99,
       statModifiers: { armourSave: 1 },
       requiredSubfactionId: 'space_wolves',
-      description: 'Wolves of Winter: replaces Power Armour with Standard Armour (−1 Armour Save, saves 25 credits). Up to half of your Astartes (rounded down) may take this option.' },
+      description: 'Wolves of Winter: replaces Power Armour with Standard Armour (Ã¢Ë†â€™1 Armour Save, saves 25 credits). Up to half of your Astartes (rounded down) may take this option.' },
     { id: 'aa_primaris', name: 'Primaris', cost: 5, maxCount: 99, statModifiers: { movement: 1 },
       description: '+1" movement. Can be purchased even after recruitment.' },
   ],
@@ -137,6 +144,13 @@ export const aa_space_marine: UnitOption = {
     { id: 'aa_assault_marine', name: 'Assault Marine', cost: 5, maxCount: 2, maxCountLarge: 3,
       grantedKeywords: ['SKIRMISHER'],
       description: 'Can be equipped with a Jump Pack. While wearing a Jump Pack, gains the SKIRMISHER Keyword. Up to 2 per warband (3 in a warband of 1,200 credits or more).' },
+    { id: 'aa_inceptor', name: 'Inceptor', cost: 15, maxCount: 1, countsAsUpgradeIds: ['aa_assault_marine'],
+      grantedKeywords: ['SKIRMISHER'],
+      perModelWargearLimits: { plasma_pistol: 2 },
+      description: 'Grants Assault Marine benefits and counts toward Assault Marine limits. Pistoleer: if equipped with 2 PISTOL weapons it can Shoot with one then immediately Shoot with the other; PISTOL weapons gain IGNORE OFF-HAND WEAPON. Can be equipped with up to 2 Plasma Pistols.' },
+    { id: 'aa_suppressor', name: 'Suppressor', cost: 15, maxCount: 1, countsAsUpgradeIds: ['aa_assault_marine', 'aa_devastator'],
+      grantedKeywords: ['SKIRMISHER'],
+      description: 'Grants Assault Marine and Devastator benefits and counts toward both limits. Can carry one HEAVY ranged weapon while equipped with a Jump Pack.' },
     { id: 'aa_bladeguard', name: 'Bladeguard', cost: 5, maxCount: 2, maxCountLarge: 3,
       description: 'When making a Charge roll, roll 2D6 and use the highest result. Up to 2 per warband (3 in a warband of 1,200 credits or more).' },
     { id: 'aa_devastator', name: 'Devastator', cost: 5, maxCount: 2, maxCountLarge: 3,
@@ -147,7 +161,7 @@ export const aa_space_marine: UnitOption = {
     { id: 'aa_standard_armour_swap', name: 'Standard Armour', cost: -25, maxCount: 99,
       statModifiers: { armourSave: 1 },
       requiredSubfactionId: 'space_wolves',
-      description: 'Wolves of Winter: replaces Power Armour with Standard Armour (−1 Armour Save, saves 25 credits). Up to half of your Astartes (rounded down) may take this option.' },
+      description: 'Wolves of Winter: replaces Power Armour with Standard Armour (Ã¢Ë†â€™1 Armour Save, saves 25 credits). Up to half of your Astartes (rounded down) may take this option.' },
     { id: 'aa_primaris', name: 'Primaris', cost: 5, maxCount: 99, statModifiers: { movement: 1 },
       description: '+1" movement. Can be purchased even after recruitment.' },
   ],
@@ -172,10 +186,15 @@ export const aa_terminator: UnitOption = {
 export const aa_dreadnought: UnitOption = {
   id: 'aa_dreadnought', name: 'Dreadnought', baseCost: 170, minCount: 0, maxCount: 1,
   stats: { movement: 6, rangedSkill: 3, meleeSkill: 3, armourSave: -3, toughness: 'NORMAL' },
-  keywords: ['ASTARTES', 'FEAR', 'LARGE', 'NEGATE SHRAPNEL', 'NO PROMOTION', 'STRONG', 'TOUGH', 'VEHICLE'],
+  keywords: ['ASTARTES', 'DREADNOUGHT_CHASSIS', 'FEAR', 'LARGE', 'NEGATE SHRAPNEL', 'NO PROMOTION', 'STRONG', 'TOUGH', 'VEHICLE'],
+  description: 'Ancient warrior entombed in a walking combat platform. Can be equipped with up to 2 TWO-HANDED or HEAVY weapons (melee or ranged). Cannot equip equipment, armour (beyond chassis plating), or thrown weapons.',
   baseSize: '60mm',
   faction: 'adeptus_astartes', unitType: 'troop',
-  description: 'Ancient warrior entombed in a walking combat platform.',
+  abilities: [
+    { id: 'aa_dreadnought_armaments', name: 'Dreadnought Armaments', description: 'While equipped with two ranged weapons, the Dreadnought can make a Shoot Action with both of them during its Activation.', type: 'passive' },
+    { id: 'aa_dreadnought_wisdom', name: 'Wisdom of the Ancients', description: 'Other friendly ASTARTES models within 3" of the Dreadnought have +1 DICE to Hit with all attacks.', type: 'aura' },
+    { id: 'aa_dreadnought_ccw', name: 'Unarmed Chassis', description: 'If the Dreadnought is equipped with only ranged weapons and no melee weapons, it also counts as being equipped with a Close Combat Weapon.', type: 'passive' },
+  ],
   defaultWargear: [
     { id: 'heavy_armour_plating', name: 'Heavy Armour Plating', type: 'armor', slot: 'body-armour', cost: 0,
       keywords: ['-3 INJURY MODIFIER'], description: 'Heavy armour plating built into the Dreadnought chassis (included in unit cost).',
@@ -186,7 +205,7 @@ export const aa_dreadnought: UnitOption = {
 export const aa_fenrisian_wolf: UnitOption = {
   id: 'aa_fenrisian_wolf', name: 'Fenrisian Wolf', baseCost: 60, minCount: 0, maxCount: 3,
   stats: { movement: 10, rangedSkill: 0, meleeSkill: 1, armourSave: 0, toughness: 'NORMAL' },
-  keywords: ['ASTARTES', 'BEAST', 'LARGE', 'NO PROMOTION'],
+  keywords: ['BEAST', 'LARGE', 'NO PROMOTION'],
   baseSize: '40mm',
   faction: 'adeptus_astartes', unitType: 'troop',
   description: 'Loyal predatory beast of Fenris. Cannot be equipped with any weapons, armour, or equipment.',
@@ -250,7 +269,7 @@ export const am_primaris_psyker: UnitOption = {
   defaultWargear: [], availableWargear: [],
 };
 export const am_conscript: UnitOption = {
-  id: 'am_conscript', name: 'Conscript', baseCost: 18, minCount: 0, maxCount: 99,
+  id: 'am_conscript', name: 'Conscript', baseCost: 16, minCount: 0, maxCount: 99,
   stats: { movement: 6, rangedSkill: -1, meleeSkill: -1, armourSave: 0, toughness: 'NORMAL' },
   keywords: ['FIRETEAM', 'MILITARUM', 'NO PROMOTION'],
   baseSize: '25mm',
@@ -331,7 +350,7 @@ export const am_ogryn: UnitOption = {
 export const ac_shield_captain: UnitOption = {
   id: 'ac_shield_captain', name: 'Shield-Captain', baseCost: 175, minCount: 0, maxCount: 1,
   stats: { movement: 6, rangedSkill: 3, meleeSkill: 3, armourSave: -3, toughness: 'NORMAL' },
-  keywords: ['CUSTODES', 'ELITE', 'LARGE', 'LEADER', 'STRONG', 'TOUGH'],
+  keywords: ['CUSTODES', 'ELITE', 'LARGE', 'LEADER', 'STRONG'],
   baseSize: '40mm',
   faction: 'adeptus_custodes', unitType: 'elite',
   description: 'Golden warrior leading the Custodes warband.',
@@ -380,7 +399,7 @@ export const ac_custodian_guard: UnitOption = {
     { id: 'ac_allarus', name: 'Allarus Custodian', cost: 15, maxCount: 2,
       grantedKeywords: ['DEEP STRIKE'],
       description: 'Gains DEEP STRIKE (From Golden Light) and +1 INJURY DICE with attacks against enemy ELITE models (Slayer of Tyrants).' },
-    { id: 'ac_warden', name: 'Custodian Warden', cost: 10, maxCount: 2,
+    { id: 'ac_warden', name: 'Custodian Warden', cost: 15, maxCount: 2,
       grantedKeywords: ['NEGATE FEAR'],
       description: 'Gains NEGATE FEAR and Living Fortress: the first -1 of its Armour gains IMPERVIOUS.' },
     { id: 'ac_venatari', name: 'Venatari Custodian', cost: 5, maxCount: 2,
@@ -389,7 +408,7 @@ export const ac_custodian_guard: UnitOption = {
   ],
 };
 export const ac_aquilon_terminator: UnitOption = {
-  id: 'ac_aquilon_terminator', name: 'Aquilon Terminator', baseCost: 160, minCount: 0, maxCount: 1,
+  id: 'ac_aquilon_terminator', name: 'Aquilon Terminator', baseCost: 165, minCount: 0, maxCount: 1,
   stats: { movement: 6, rangedSkill: 2, meleeSkill: 3, armourSave: -3, toughness: 'NORMAL' },
   keywords: ['CUSTODES', 'DEEP STRIKE', 'LARGE', 'STRONG', 'VEHICLE'],
   baseSize: '50mm',
@@ -457,6 +476,33 @@ export const as_novitiate: UnitOption = {
   faction: 'adepta_sororitas', unitType: 'troop',
   description: 'Trainee Sister of Battle.',
   defaultWargear: [], availableWargear: [],
+  upgrades: [
+    // Campaign: Novice ability Ã¢â‚¬â€ promotes to Battle Sister
+    { id: 'as_novitiate_promoted', name: 'Promoted to Battle Sister (Novice)', cost: 0, maxCount: 99,
+      statModifiers: { rangedSkill: 1 },
+      description: 'Campaign: Novice ability triggered. This model is now a Battle Sister (+1 Ranged Skill). LIMITED POTENTIAL no longer applies Ã¢â‚¬â€ she is eligible for promotion immediately. SPECIAL: She permanently retains her Impetuous Fervor ability even as a Battle Sister. Must be equipped with Power Armour (purchase separately, 40 credits) before the next mission. Ã¢Å¡Â  Credit limit note: she uses the Battle Sister cost (75cr) for mission credit calculations regardless of which mode she is in Ã¢â‚¬â€ use the higher of the two costs at all times.' },
+    // Battle Sister upgrades (only available after promotion) Ã¢â‚¬â€ share warband limits with Battle Sisters
+    { id: 'as_mortisanctus', name: 'Mortisanctus', cost: 5, maxCount: 1,
+      requiredUpgradeId: 'as_novitiate_promoted',
+      statModifiers: { meleeSkill: 1, rangedSkill: -1 },
+      description: '+1 Melee Skill, -1 Ranged Skill. May ignore the HEAVY Keyword of one melee weapon it wields (not TWO-HANDED). Up to 1 per warband.' },
+    { id: 'as_retributor', name: 'Retributor', cost: 5, maxCount: 2, maxCountLarge: 3,
+      requiredUpgradeId: 'as_novitiate_promoted',
+      description: 'May ignore the HEAVY Keyword of one ranged weapon it carries. Up to 2 per warband (3 in a warband of 1,200 credits or more).' },
+    { id: 'as_sacresant', name: 'Sacresant', cost: 10, maxCount: 2, maxCountLarge: 3,
+      requiredUpgradeId: 'as_novitiate_promoted',
+      statModifiers: { meleeSkill: 1 },
+      description: '+1 Melee Skill. Gains BODYGUARD: if any ally within 1" is hit by a ranged or melee weapon (excluding BLAST), you may redirect the hit to this Sacresant instead. Up to 2 per warband (3 in a warband of 1,200 credits or more).' },
+    { id: 'as_seraphim', name: 'Seraphim', cost: 15, maxCount: 2,
+      requiredUpgradeId: 'as_novitiate_promoted',
+      grantedKeywords: ['SKIRMISHER'],
+      description: 'May be equipped with a Jump Pack (purchased separately). While equipped with a Jump Pack, gains SKIRMISHER. While armed with two PISTOL weapons + Jump Pack: may Shoot with one then immediately Shoot with the other; PISTOL weapons gain IGNORE OFF-HAND WEAPON. Up to 2 per warband.' },
+    { id: 'as_zephyrim', name: 'Zephyrim', cost: 10, maxCount: 2,
+      requiredUpgradeId: 'as_novitiate_promoted',
+      statModifiers: { meleeSkill: 1 },
+      grantedKeywords: ['SKIRMISHER'],
+      description: 'May be equipped with a Jump Pack and Power Weapons (purchased separately). While equipped with a Jump Pack, gains SKIRMISHER and +1 Melee Skill. Up to 2 per warband.' },
+  ],
 };
 export const as_battle_sister: UnitOption = {
   id: 'as_battle_sister', name: 'Battle Sister', baseCost: 75, minCount: 0, maxCount: 99,
@@ -471,6 +517,10 @@ export const as_battle_sister: UnitOption = {
       statModifiers: { armourSave: -2 } },
   ], availableWargear: [],
   upgrades: [
+    // Campaign: Penitence of Cowardice Ã¢â‚¬â€ tracks that this Battle Sister has been demoted to Repentia
+    { id: 'as_demoted_repentia', name: 'Demoted to Repentia (Penitence)', cost: 0, maxCount: 99,
+      statModifiers: { movement: 2, rangedSkill: -1, meleeSkill: 1 },
+      description: 'Campaign: Penitence of Cowardice triggered. This model is now a Repentia (Move +2", +1 Melee, Ã¢Ë†â€™1 Ranged). She loses Battle Sister upgrades and Power Armour (armour is reserved in armoury Ã¢â‚¬â€ cannot be sold/equipped until she returns). Uses Repentia cost for mission credit calculations. Upgrade her back via the Repentance ability when eligible.' },
     { id: 'as_mortisanctus', name: 'Mortisanctus', cost: 5, maxCount: 1,
       statModifiers: { meleeSkill: 1, rangedSkill: -1 },
       description: '+1 Melee Skill, -1 Ranged Skill. May ignore the HEAVY Keyword of one melee weapon it wields (not TWO-HANDED). Up to 1 per warband.' },
@@ -481,7 +531,7 @@ export const as_battle_sister: UnitOption = {
       description: '+1 Melee Skill. Gains BODYGUARD: if any ally within 1" is hit by a ranged or melee weapon (excluding BLAST), you may redirect the hit to this Sacresant instead. Up to 2 per warband (3 in a warband of 1,200 credits or more).' },
     { id: 'as_seraphim', name: 'Seraphim', cost: 15, maxCount: 2,
       grantedKeywords: ['SKIRMISHER'],
-      description: 'May be equipped with a Jump Pack (purchased separately). While equipped with a Jump Pack, gains SKIRMISHER. While armed with two PISTOL weapons + Jump Pack: may Shoot with one then immediately Shoot with the other; all PISTOL weapons also gain ASSAULT and IGNORE OFF-HAND WEAPON. Up to 2 per warband.' },
+      description: 'May be equipped with a Jump Pack (purchased separately). While equipped with a Jump Pack, gains SKIRMISHER. While armed with two PISTOL weapons + Jump Pack: may Shoot with one then immediately Shoot with the other; PISTOL weapons gain IGNORE OFF-HAND WEAPON. Up to 2 per warband.' },
     { id: 'as_zephyrim', name: 'Zephyrim', cost: 10, maxCount: 2,
       statModifiers: { meleeSkill: 1 },
       grantedKeywords: ['SKIRMISHER'],
@@ -496,6 +546,34 @@ export const as_repentia: UnitOption = {
   faction: 'adepta_sororitas', unitType: 'troop',
   description: 'Penitent warriors seeking absolution through glorious death.',
   defaultWargear: [], availableWargear: [],
+  upgrades: [
+    // Campaign: Repentance ability Ã¢â‚¬â€ promotes to Battle Sister
+    { id: 'as_repentia_promoted', name: 'Promoted to Battle Sister (Repentance)', cost: 0, maxCount: 99,
+      grantedKeywords: ['NEGATE FEAR'],
+      statModifiers: { movement: -2, rangedSkill: 1, meleeSkill: -1 },
+      description: 'Campaign: Repentance ability triggered. This model is now a Battle Sister (Move Ã¢Ë†â€™2", +1 Ranged Skill, Melee returns to +0). She permanently retains NEGATE FEAR (already present). NO PROMOTION no longer applies Ã¢â‚¬â€ use the Ã¢â€ â€˜ Promote button to mark her eligible for Elite promotion. Must pay 20 credits for Power Armour (discounted) or take a reserved suit from armoury. If ever demoted back, Power Armour becomes "reserved" in armoury. Ã¢Å¡Â  Credit limit note: always use the HIGHER cost (Battle Sister = 75cr) for mission credit calculations, even while in Repentia mode.' },
+    // Battle Sister upgrades (only available after promotion) Ã¢â‚¬â€ share warband limits with Battle Sisters
+    { id: 'as_mortisanctus', name: 'Mortisanctus', cost: 5, maxCount: 1,
+      requiredUpgradeId: 'as_repentia_promoted',
+      statModifiers: { meleeSkill: 1, rangedSkill: -1 },
+      description: '+1 Melee Skill, -1 Ranged Skill. May ignore the HEAVY Keyword of one melee weapon it wields (not TWO-HANDED). Up to 1 per warband.' },
+    { id: 'as_retributor', name: 'Retributor', cost: 5, maxCount: 2, maxCountLarge: 3,
+      requiredUpgradeId: 'as_repentia_promoted',
+      description: 'May ignore the HEAVY Keyword of one ranged weapon it carries. Up to 2 per warband (3 in a warband of 1,200 credits or more).' },
+    { id: 'as_sacresant', name: 'Sacresant', cost: 10, maxCount: 2, maxCountLarge: 3,
+      requiredUpgradeId: 'as_repentia_promoted',
+      statModifiers: { meleeSkill: 1 },
+      description: '+1 Melee Skill. Gains BODYGUARD: if any ally within 1" is hit by a ranged or melee weapon (excluding BLAST), you may redirect the hit to this Sacresant instead. Up to 2 per warband (3 in a warband of 1,200 credits or more).' },
+    { id: 'as_seraphim', name: 'Seraphim', cost: 15, maxCount: 2,
+      requiredUpgradeId: 'as_repentia_promoted',
+      grantedKeywords: ['SKIRMISHER'],
+      description: 'May be equipped with a Jump Pack (purchased separately). While equipped with a Jump Pack, gains SKIRMISHER. While armed with two PISTOL weapons + Jump Pack: may Shoot with one then immediately Shoot with the other; PISTOL weapons gain IGNORE OFF-HAND WEAPON. Up to 2 per warband.' },
+    { id: 'as_zephyrim', name: 'Zephyrim', cost: 10, maxCount: 2,
+      requiredUpgradeId: 'as_repentia_promoted',
+      statModifiers: { meleeSkill: 1 },
+      grantedKeywords: ['SKIRMISHER'],
+      description: 'May be equipped with a Jump Pack and Power Weapons (purchased separately). While equipped with a Jump Pack, gains SKIRMISHER and +1 Melee Skill. Up to 2 per warband.' },
+  ],
 };
 export const as_paragon_warsuit: UnitOption = {
   id: 'as_paragon_warsuit', name: 'Paragon Warsuit', baseCost: 110, minCount: 0, maxCount: 2,
@@ -520,10 +598,10 @@ export const as_penitent_engine: UnitOption = {
   defaultWargear: [
     { id: 'as_penitent_buzz_blades', name: 'Penitent Buzz-Blades', type: 'melee', cost: 0, handedness: 'two-handed',
       keywords: ['HEAVY', 'IGNORE ARMOUR', 'RISKY', 'TWO-HANDED'],
-      description: 'Chosen at recruitment — mutually exclusive with Penitent Flails.' },
+      description: 'Chosen at recruitment Ã¢â‚¬â€ mutually exclusive with Penitent Flails.' },
     { id: 'as_penitent_flails', name: 'Penitent Flails', type: 'melee', cost: 0, handedness: 'two-handed',
       keywords: ['+1 INJURY MODIFIER', 'HEAVY', 'TWO-HANDED'],
-      description: 'Chosen at recruitment — mutually exclusive with Penitent Buzz-Blades.' },
+      description: 'Chosen at recruitment Ã¢â‚¬â€ mutually exclusive with Penitent Buzz-Blades.' },
   ], availableWargear: [],
   upgrades: [
     { id: 'as_mortifier', name: 'Mortifier', cost: 10, maxCount: 99,
@@ -711,12 +789,12 @@ export const amin_battle_cherub: UnitOption = {
   defaultWargear: [], availableWargear: [],
 };
 export const amin_miraculist: UnitOption = {
-  id: 'amin_miraculist', name: 'Miraculist', baseCost: 115, minCount: 0, maxCount: 1,
+  id: 'amin_miraculist', name: 'Miraculist', baseCost: 125, minCount: 0, maxCount: 1, maxCountLarge: 2,
   stats: { movement: 6, rangedSkill: 3, meleeSkill: 0, armourSave: 0, toughness: 'NORMAL' },
-  keywords: ['ECCLESIARCHY', 'NO PROMOTION', 'ORATOR'],
+  keywords: ['ECCLESIARCHY', 'NEGATE FIRE', 'NO PROMOTION', 'ORATOR'],
   baseSize: '25-28mm',
   faction: 'adeptus_ministorum', unitType: 'troop',
-  description: 'Living saint suffused with holy power.',
+  description: 'Living saint suffused with holy power. Has NEGATE FIRE and Levitate ability. Can take 2 in warbands of 1200cr+.',
   defaultWargear: [
     { id: 'amin_burning_hands', name: 'Burning Hands', type: 'melee', cost: 0, handedness: 'no-hands',
       keywords: ['+1 INJURY DICE', 'IGNORE ARMOUR', 'FIRE'],
@@ -755,7 +833,7 @@ export const oa_callidus: UnitOption = {
 export const oa_culexus: UnitOption = {
   id: 'oa_culexus', name: 'Culexus Assassin', baseCost: 150, minCount: 0, maxCount: 1,
   stats: { movement: 8, rangedSkill: 2, meleeSkill: 2, armourSave: 0, toughness: 'NORMAL' },
-  keywords: ['ASSASSINORUM', 'ELITE', 'FEAR', 'DEEP STRIKE', 'LEADER', 'STEALTH', 'TOUGH'],
+  keywords: ['ANATHEMA', 'ASSASSINORUM', 'ELITE', 'FEAR', 'DEEP STRIKE', 'LEADER', 'STEALTH', 'TOUGH'],
   baseSize: '32mm',
   faction: 'officio_assassinorum', unitType: 'elite',
   description: 'Culexus Temple soul-drinker, anathema to psykers.',
@@ -852,7 +930,7 @@ export const rt_navigator_scion: UnitOption = {
   defaultWargear: [
     { id: 'rt_third_eye', name: 'Third Eye', type: 'ranged', range: 12, cost: 0, handedness: 'no-hands',
       keywords: ['IGNORE ARMOUR', 'PSYCHIC', 'RISKY'],
-      description: 'The Third Eye opens to blast the target\'s mind. RISKY — take a Risky Success Roll when fired.' },
+      description: 'The Third Eye opens to blast the target\'s mind. RISKY Ã¢â‚¬â€ take a Risky Success Roll when fired.' },
   ], availableWargear: [],
 };
 export const rt_voidsman: UnitOption = {
@@ -886,7 +964,7 @@ export const inq_inquisitor: UnitOption = {
       grantedKeywords: ['STRONG'],
       description: 'Gains the STRONG Keyword.' },
     { id: 'inq_pistoleer', name: 'Pistoleer', cost: 10, maxCount: 1,
-      description: 'May shoot twice with PISTOL weapons in one Shoot Action; both pistols gain ASSAULT and IGNORE OFF-HAND WEAPON.' },
+      description: 'May shoot twice with PISTOL weapons in one Shoot Action; both pistols gain IGNORE OFF-HAND WEAPON.' },
     { id: 'inq_psyker', name: 'Psyker', cost: 5, maxCount: 1,
       grantedKeywords: ['PSYKER 1'],
       description: 'Gains the PSYKER 1 Keyword, access to one Shared Psychic Discipline, and may know up to 4 psychic powers. Requires a PSYCHIC weapon to be equipped.' },
@@ -955,7 +1033,7 @@ export const inq_daemonhost: UnitOption = {
 export const gk_captain: UnitOption = {
   id: 'gk_captain', name: 'Captain', baseCost: 110, minCount: 1, maxCount: 1,
   stats: { movement: 6, rangedSkill: 3, meleeSkill: 3, armourSave: -2, toughness: 'NORMAL' },
-  keywords: ['ASTARTES', 'ELITE', 'LARGE', 'LEADER', 'TOUGH'],
+  keywords: ['ASTARTES', 'ELITE', 'LEADER', 'TOUGH'],
   baseSize: '40mm',
   faction: 'grey_knights', unitType: 'elite',
   description: 'Mandatory leader of the Grey Knights warband. (70cr base + 40cr Power Armour)',
@@ -968,7 +1046,7 @@ export const gk_captain: UnitOption = {
 export const gk_apothecary: UnitOption = {
   id: 'gk_apothecary', name: 'Apothecary', baseCost: 110, minCount: 0, maxCount: 1,
   stats: { movement: 6, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
-  keywords: ['ASTARTES', 'ELITE', 'LARGE'],
+  keywords: ['ASTARTES', 'ELITE'],
   baseSize: '40mm',
   faction: 'grey_knights', unitType: 'elite',
   description: 'Healer and gene-seed harvester.',
@@ -978,13 +1056,13 @@ export const gk_apothecary: UnitOption = {
       statModifiers: { armourSave: -2 } },
     { id: 'gk_narthecium', name: 'Narthecium', type: 'melee', cost: 0, handedness: 'one-handed',
       keywords: ['ARMOUR PIERCING 1', 'HELD'],
-      description: 'HELD — occupies a hand but functions as a medical tool. Enables the Apothecary\'s healing abilities.' },
+      description: 'HELD Ã¢â‚¬â€ occupies a hand but functions as a medical tool. Enables the Apothecary\'s healing abilities.' },
   ], availableWargear: [],
 };
 export const gk_chaplain: UnitOption = {
   id: 'gk_chaplain', name: 'Chaplain', baseCost: 120, minCount: 0, maxCount: 1,
   stats: { movement: 6, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
-  keywords: ['ASTARTES', 'ELITE', 'LARGE'],
+  keywords: ['ASTARTES', 'ELITE'],
   baseSize: '40mm',
   faction: 'grey_knights', unitType: 'elite',
   description: 'Spiritual leader of the Chapter. (80cr base + 40cr Power Armour)',
@@ -993,14 +1071,14 @@ export const gk_chaplain: UnitOption = {
       keywords: ['-2 INJURY MODIFIER'], description: 'Mandatory Power Armour (included in unit cost).',
       statModifiers: { armourSave: -2 } },
     { id: 'gk_crozius_arcanum', name: 'Crozius Arcanum', type: 'melee', cost: 0, handedness: 'one-handed',
-      keywords: ['ARMOUR PIERCING 2', 'LEADER'],
+      keywords: ['ARMOUR PIERCING 2', 'ICON'],
       description: 'Ritual weapon of the Chaplain, a symbol of faith and fury.' },
   ], availableWargear: [],
 };
 export const gk_librarian: UnitOption = {
   id: 'gk_librarian', name: 'Librarian', baseCost: 115, minCount: 0, maxCount: 1,
   stats: { movement: 6, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
-  keywords: ['ASTARTES', 'ELITE', 'LARGE', 'PSYKER 2'],
+  keywords: ['ASTARTES', 'ELITE', 'PSYKER 2'],
   baseSize: '40mm',
   faction: 'grey_knights', unitType: 'elite',
   description: 'Psyker warrior of the Chapter.',
@@ -1052,10 +1130,15 @@ export const gk_terminator: UnitOption = {
 export const gk_dreadnought: UnitOption = {
   id: 'gk_dreadnought', name: 'Dreadnought', baseCost: 170, minCount: 0, maxCount: 1,
   stats: { movement: 6, rangedSkill: 3, meleeSkill: 3, armourSave: -3, toughness: 'NORMAL' },
-  keywords: ['ASTARTES', 'FEAR', 'LARGE', 'NEGATE SHRAPNEL', 'NO PROMOTION', 'STRONG', 'TOUGH', 'VEHICLE'],
+  keywords: ['ASTARTES', 'DREADNOUGHT_CHASSIS', 'FEAR', 'LARGE', 'NEGATE SHRAPNEL', 'NO PROMOTION', 'STRONG', 'TOUGH', 'VEHICLE'],
   baseSize: '60mm',
   faction: 'grey_knights', unitType: 'troop',
-  description: 'Ancient warrior entombed in a walking combat platform.',
+  description: 'Ancient warrior entombed in a walking combat platform. Can be equipped with up to 2 TWO-HANDED or HEAVY weapons (melee or ranged). Cannot equip equipment, armour (beyond chassis plating), or thrown weapons.',
+  abilities: [
+    { id: 'gk_dreadnought_armaments', name: 'Dreadnought Armaments', description: 'While equipped with two ranged weapons, the Dreadnought can make a Shoot Action with both of them during its Activation.', type: 'passive' },
+    { id: 'gk_dreadnought_wisdom', name: 'Wisdom of the Ancients', description: 'Other friendly ASTARTES models within 3" of the Dreadnought have +1 DICE to Hit with all attacks.', type: 'aura' },
+    { id: 'gk_dreadnought_ccw', name: 'Unarmed Chassis', description: 'If the Dreadnought is equipped with only ranged weapons and no melee weapons, it also counts as being equipped with a Close Combat Weapon.', type: 'passive' },
+  ],
   defaultWargear: [
     { id: 'heavy_armour_plating', name: 'Heavy Armour Plating', type: 'armor', slot: 'body-armour', cost: 0,
       keywords: ['-3 INJURY MODIFIER'], description: 'Heavy armour plating built into the Dreadnought chassis (included in unit cost).',
@@ -1105,7 +1188,7 @@ export const arb_ganger: UnitOption = {
 export const arb_cyber_mastiff: UnitOption = {
   id: 'arb_cyber_mastiff', name: 'Hardcase Cyber Mastiff', baseCost: 95, minCount: 0, maxCount: 2,
   stats: { movement: 6, rangedSkill: 0, meleeSkill: 1, armourSave: -2, toughness: 'NORMAL' },
-  keywords: ['ARTIFICIAL', 'NO PROMOTION'],
+  keywords: ['ARTIFICIAL', 'NEGATE GAS', 'NO PROMOTION'],
   baseSize: '25mm',
   faction: 'adeptus_arbites', unitType: 'troop',
   description: 'Cybernetic attack dog.',
@@ -1145,11 +1228,26 @@ export const ha_chaos_lord: UnitOption = {
       keywords: ['-2 INJURY MODIFIER'], description: 'Included in cost. Can be swapped to Terminator Armour (+25cr).',
       statModifiers: { armourSave: -2 } },
   ], availableWargear: [],
+  upgrades: [
+    // Death Guard: Lord of Rot upgrades (Chaos Lord takes one of these)
+    { id: 'dg_shroud_of_disease', name: 'Shroud of Disease', cost: 20, maxCount: 1,
+      requiredSubfactionId: 'death_guard',
+      upgradeGroup: 'dg_lord_of_rot',
+      description: 'Death Guard only. Ranged attacks made against this model or any of its allies within 3" have -1 DICE to Hit.' },
+    { id: 'dg_vector_of_disease', name: 'Vector of Disease', cost: 10, maxCount: 1,
+      requiredSubfactionId: 'death_guard',
+      upgradeGroup: 'dg_lord_of_rot',
+      description: 'Death Guard only. When this model Charges, or an ally ends a Charge within 3" of it, that model gains +1 INJURY DICE with its melee attacks during that Activation.' },
+    { id: 'dg_virulent_aura', name: 'Virulent Aura', cost: 15, maxCount: 1,
+      requiredSubfactionId: 'death_guard',
+      upgradeGroup: 'dg_lord_of_rot',
+      description: 'Death Guard only. The ranged weapons of this model and each of its allies within 3" of it gain the CRITICAL Keyword. Attacks that automatically hit or that already have CRITICAL instead have +1 INJURY DICE.' },
+  ],
 };
 export const ha_dark_apostle: UnitOption = {
   id: 'ha_dark_apostle', name: 'Dark Apostle', baseCost: 130, minCount: 0, maxCount: 1,
   stats: { movement: 6, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
-  keywords: ['ELITE', 'HERETIC ASTARTES', 'LARGE'],
+  keywords: ['ELITE', 'HERETIC ASTARTES'],
   baseSize: '40mm',
   faction: 'heretic_astartes', unitType: 'elite',
   description: 'Chaos preacher bearing the dark word. (70cr + 40cr Power Armour + 20cr Crozius; or swap to Terminator Armour +25cr)',
@@ -1165,7 +1263,7 @@ export const ha_dark_apostle: UnitOption = {
 export const ha_chaos_sorcerer: UnitOption = {
   id: 'ha_chaos_sorcerer', name: 'Chaos Sorcerer', baseCost: 115, minCount: 0, maxCount: 1,
   stats: { movement: 6, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
-  keywords: ['ELITE', 'HERETIC ASTARTES', 'LARGE', 'PSYKER 2'],
+  keywords: ['ELITE', 'HERETIC ASTARTES', 'PSYKER 2'],
   baseSize: '40mm',
   faction: 'heretic_astartes', unitType: 'elite',
   description: 'Warp-wielding sorcerer of Chaos. (75cr + 40cr Power Armour; or swap to Terminator Armour +25cr)',
@@ -1189,7 +1287,7 @@ export const ha_warpsmith: UnitOption = {
   ], availableWargear: [],
 };
 export const ha_chaos_cultist: UnitOption = {
-  id: 'ha_chaos_cultist', name: 'Chaos Cultist', baseCost: 25, minCount: 0, maxCount: 99,
+  id: 'ha_chaos_cultist', name: 'Chaos Cultist', baseCost: 35, minCount: 0, maxCount: 99,
   stats: { movement: 6, rangedSkill: -1, meleeSkill: -1, armourSave: 0, toughness: 'NORMAL' },
   keywords: ['FOLLOWER', 'HERETIC ASTARTES'],
   baseSize: '25-28mm',
@@ -1226,14 +1324,14 @@ export const ha_chaos_space_marine: UnitOption = {
     { id: 'ha_csm_shrivetalon', name: 'Shrivetalon', cost: 10, maxCount: 2, maxCountLarge: 3,
       forbiddenSubfactionIds: ['emperors_children'],
       grantedKeywords: ['FEAR'],
-      description: 'Grants the FEAR Keyword. (Not available to Emperor\'s Children — Elegance rule)' },
+      description: 'Grants the FEAR Keyword. (Not available to Emperor\'s Children Ã¢â‚¬â€ Elegance rule)' },
     { id: 'ha_csm_raptor', name: 'Raptor', cost: 5, maxCount: 2, maxCountLarge: 3,
       forbiddenSubfactionIds: ['death_guard', 'world_eaters'],
       grantedKeywords: ['SKIRMISHER'],
       description: 'Can be equipped with Jump Packs and Warp Claws (purchased separately). While equipped with a Jump Pack, gains the SKIRMISHER Keyword. (Not available to Death Guard or World Eaters)' },
     { id: 'ha_csm_saboteur', name: 'Saboteur', cost: 10, maxCount: 2, maxCountLarge: 3,
       requiredSubfactionId: 'alpha_legion',
-      description: 'Alpha Legion only. Ignores the HEAVY Keyword of Blast Charges. Has NEGATE MINED. Mine Layer ability: As an Action (+2 DICE), mine a touched terrain piece (≤8"×8") — on success it is MINED.' },
+      description: 'Alpha Legion only. Ignores the HEAVY Keyword of Blast Charges. Has NEGATE MINED. Mine Layer ability: As an Action (+2 DICE), mine a touched terrain piece (Ã¢â€°Â¤8"Ãƒâ€”8") Ã¢â‚¬â€ on success it is MINED.' },
     { id: 'ha_csm_flawless_blade', name: 'Flawless Blade', cost: 5, maxCount: 2, maxCountLarge: 3,
       requiredSubfactionId: 'emperors_children',
       description: "Emperor's Children only. +1 DICE to Hit with melee attacks. Cannot use ranged weapons besides Pistols and Grenades." },
@@ -1250,6 +1348,32 @@ export const ha_chaos_space_marine: UnitOption = {
       conflictsWithUpgradeIds: ['nl_depredator'],
       grantedKeywords: ['DEEP STRIKE'],
       description: 'Night Lords only (Requires Raptor). Grants DEEP STRIKE.' },
+    // Death Guard: Plague Marine Champion upgrades (each grants ELITE; model takes one, max 2 per warband)
+    { id: 'dg_plague_champ_extraction', name: 'Extraction of Fresh Disease', cost: 15, maxCount: 2,
+      requiredSubfactionId: 'death_guard',
+      grantedKeywords: ['ELITE'],
+      upgradeGroup: 'dg_plague_champion',
+      description: 'Death Guard only. Plague Marine Champion (gains ELITE). When this model takes an enemy model Out of Action in melee, one other enemy within 6" of it suffers 1 INFECTION MARKER.' },
+    { id: 'dg_plague_champ_malicious', name: 'Malicious Calculations', cost: 15, maxCount: 2,
+      requiredSubfactionId: 'death_guard',
+      grantedKeywords: ['ELITE'],
+      upgradeGroup: 'dg_plague_champion',
+      description: 'Death Guard only. Plague Marine Champion (gains ELITE). BLOOD MARKERS cannot be spent on the attacks of this model or any of its allies within 3" of it.' },
+    { id: 'dg_plague_champ_putrefying', name: 'Putrefying Stink', cost: 15, maxCount: 2,
+      requiredSubfactionId: 'death_guard',
+      grantedKeywords: ['ELITE'],
+      upgradeGroup: 'dg_plague_champion',
+      description: 'Death Guard only. Plague Marine Champion (gains ELITE). Enemy models that charge this model or one of its allies within 3" of it do not add a D6 to their charge roll and must use only their normal movement distance.' },
+    { id: 'dg_plague_champ_narthecium', name: 'Tainted Narthecium', cost: 10, maxCount: 2,
+      requiredSubfactionId: 'death_guard',
+      grantedKeywords: ['ELITE'],
+      upgradeGroup: 'dg_plague_champion',
+      description: 'Death Guard only. Plague Marine Champion (gains ELITE). As an Action (+1 DICE Success Roll), heal itself or a NURGLE model within 1": remove 1 BLOOD MARKER (or 3 on critical success).' },
+    { id: 'dg_plague_champ_tocsin', name: 'Tocsin of Misery', cost: 15, maxCount: 2,
+      requiredSubfactionId: 'death_guard',
+      grantedKeywords: ['ELITE'],
+      upgradeGroup: 'dg_plague_champion',
+      description: 'Death Guard only. Plague Marine Champion (gains ELITE). At the end of each Turn, each enemy within 3" of this model that has at least 1 BLOOD MARKER gains an additional BLOOD MARKER.' },
   ],
 };
 export const ha_possessed: UnitOption = {
@@ -1261,7 +1385,7 @@ export const ha_possessed: UnitOption = {
   description: 'Daemon-possessed Chaos Marine. (55cr + 40cr Power Armour; can also equip melee weapons, armour, equipment, or Marks of Chaos)',
   defaultWargear: [
     { id: 'power_armour', name: 'Power Armour', type: 'armor', slot: 'body-armour', cost: 0,
-      keywords: ['-2 INJURY MODIFIER', 'IMPERVIOUS'], description: 'Included in cost. Daemonic Armour — Power Armour has IMPERVIOUS.',
+      keywords: ['-2 INJURY MODIFIER', 'IMPERVIOUS'], description: 'Included in cost. Daemonic Armour Ã¢â‚¬â€ Power Armour has IMPERVIOUS.',
       statModifiers: { armourSave: -2 } },
     { id: 'ha_mutated_claw', name: 'Mutated Claw', type: 'melee', cost: 0, handedness: 'one-handed',
       keywords: ['CRITICAL'],
@@ -1293,7 +1417,7 @@ export const ha_chaos_terminator: UnitOption = {
 export const ha_helbrute: UnitOption = {
   id: 'ha_helbrute', name: 'Helbrute', baseCost: 165, minCount: 0, maxCount: 1,
   stats: { movement: 6, rangedSkill: 2, meleeSkill: 3, armourSave: -3, toughness: 'NORMAL' },
-  keywords: ['FEAR', 'FOLLOWER', 'HERETIC ASTARTES', 'LARGE', 'NO PROMOTION', 'STRONG', 'TOUGH', 'VEHICLE'],
+  keywords: ['DAEMON', 'FEAR', 'FOLLOWER', 'HERETIC ASTARTES', 'LARGE', 'NO PROMOTION', 'STRONG', 'TOUGH', 'VEHICLE'],
   baseSize: '60mm',
   faction: 'heretic_astartes', unitType: 'troop',
   description: 'Insane warrior entombed in a corrupted Dreadnought. (Armour plating included in cost)',
@@ -1310,7 +1434,7 @@ export const ha_helbrute: UnitOption = {
 
 // -- Heretic Astartes Warband Variant: Death Guard --
 export const ha_poxwalker: UnitOption = {
-  id: 'ha_poxwalker', name: 'Poxwalker', baseCost: 40, minCount: 0, maxCount: 99,
+  id: 'ha_poxwalker', name: 'Poxwalker', baseCost: 35, minCount: 0, maxCount: 99,
   stats: { movement: 6, rangedSkill: 0, meleeSkill: 0, armourSave: 0, toughness: 'NORMAL' },
   keywords: ['FEAR', 'FOLLOWER', 'HERETIC ASTARTES', 'NEGATE GAS', 'NO PROMOTION', 'NURGLE'],
   baseSize: '25-28mm',
@@ -1331,6 +1455,9 @@ export const ha_foetid_blight_drone: UnitOption = {
       keywords: ['INFECTION MARKERS'],
       description: 'Equipped when no other melee weapon is taken.' },
   ], availableWargear: [],
+  weaponReplacementRules: [
+    { replacedDefaultId: 'ha_blight_drone_slam', whenAddingWeaponType: 'melee' },
+  ],
 };
 
 // -- Heretic Astartes Warband Variant: Emperor's Children --
@@ -1342,7 +1469,7 @@ export const ha_lord_kakophonist: UnitOption = {
   faction: 'heretic_astartes', unitType: 'elite',
   description: "Emperor's Children only. (65cr + 40cr Power Armour + Mark of Slaanesh; or swap to Terminator Armour +25cr)",
   defaultWargear: [
-    { id: 'mark_of_slaanesh', name: 'Mark of Slaanesh', type: 'equipment', slot: 'mark', cost: 0,
+    { id: 'ha_mark_slaanesh_kak', name: 'Mark of Slaanesh', type: 'equipment', slot: 'mark', cost: 0,
       keywords: ['MARK OF CHAOS', 'SLAANESH'], description: '+2" movement speed, +1 DICE to all Dash Success Rolls. Grants SLAANESH keyword. Included in base cost.',
       statModifiers: { movement: 2 }, grantsKeywords: ['SLAANESH'] },
     { id: 'power_armour', name: 'Power Armour', type: 'armor', slot: 'body-armour', cost: 0,
@@ -1376,7 +1503,7 @@ export const ha_exalted_sorcerer: UnitOption = {
   keywords: ['ELITE', 'HERETIC ASTARTES', 'LARGE', 'LEADER', 'PSYKER 3', 'TOUGH', 'TZEENTCH'],
   baseSize: '40mm',
   faction: 'heretic_astartes', unitType: 'elite',
-  description: 'Thousand Sons only — mandatory Warband leader. (85cr + 40cr Power Armour + Mark of Tzeentch; or swap to Terminator Armour +25cr)',
+  description: 'Thousand Sons only Ã¢â‚¬â€ mandatory Warband leader. (85cr + 40cr Power Armour + Mark of Tzeentch; or swap to Terminator Armour +25cr)',
   defaultWargear: [
     { id: 'mark_of_tzeentch', name: 'Mark of Tzeentch', type: 'equipment', slot: 'mark', cost: 0,
       keywords: ['MARK OF CHAOS', 'TZEENTCH'], description: 'Ranged attacks have +1 INJURY MODIFIER. Grants TZEENTCH keyword. Included in base cost.',
@@ -1396,7 +1523,7 @@ export const ha_tzaangor_shaman: UnitOption = {
   defaultWargear: [
     { id: 'ha_baleful_devolution', name: 'Baleful Devolution', type: 'equipment', slot: 'equipment', cost: 0,
       keywords: ['PSYCHIC'],
-      description: 'Psychic ability (Effect): 12", One Enemy, Immediate — target gains 1 STUN MARKER (or D3 on Critical Success).' },
+      description: 'Psychic ability (Effect): 12", One Enemy, Immediate Ã¢â‚¬â€ target gains 1 STUN MARKER (or D3 on Critical Success).' },
   ], availableWargear: [],
 };
 export const ha_tzaangor: UnitOption = {
@@ -1407,22 +1534,6 @@ export const ha_tzaangor: UnitOption = {
   faction: 'heretic_astartes', unitType: 'troop',
   description: 'Thousand Sons only. Can equip Pistols, melee weapons, armour (including Shields), or equipment from HA Armoury.',
   defaultWargear: [], availableWargear: [],
-};
-export const ha_sekhetar_robot: UnitOption = {
-  id: 'ha_sekhetar_robot', name: 'Sekhetar Robot', baseCost: 170, minCount: 0, maxCount: 1,
-  stats: { movement: 6, rangedSkill: 1, meleeSkill: 1, armourSave: -2, toughness: 'NORMAL' },
-  keywords: ['ARTIFICIAL', 'FOLLOWER', 'HERETIC ASTARTES', 'INFILTRATOR', 'NEGATE GAS', 'NO PROMOTION', 'SEKHETAR_ROBOT', 'STEALTH', 'STRONG', 'TOUGH', 'TZEENTCH'],
-  baseSize: '40mm',
-  faction: 'heretic_astartes', unitType: 'troop',
-  description: 'Thousand Sons only. Armour plating and Hellfyre Missile Rack included in cost. Can carry up to two TWO-HANDED ranged weapons (max 1 HEAVY). Cannot hold TWO-HANDED melee in one hand. HEAVY ranged blocks melee on that hand. Heavy Flamer ignores normal limits.',
-  defaultWargear: [
-    { id: 'ha_armour_plating_sekhetar', name: 'Armour Plating', type: 'armor', slot: 'body-armour', cost: 0,
-      keywords: ['-2 INJURY MODIFIER'], description: 'Included in cost.',
-      statModifiers: { armourSave: -2 } },
-    { id: 'ha_hellfyre_missile_rack', name: 'Hellfyre Missile Rack', type: 'ranged', cost: 0, handedness: 'no-hands',
-      keywords: ['36"', 'IGNORE COVER', 'FIRE'],
-      description: 'Included in cost. 36", IGNORE COVER, FIRE. Cannot be fired with another weapon.' } as unknown as import('../types/index.js').Weapon,
-  ], availableWargear: [],
 };
 
 // -- Heretic Astartes Warband Variant: World Eaters --
@@ -1463,8 +1574,481 @@ export const ha_slaughterbound: UnitOption = {
 };
 
 // ==========================================================================
-// CHAOS CULT
+// DEATH GUARD (standalone faction Ã¢â‚¬â€ formerly Heretic Astartes variant)
 // ==========================================================================
+// All Death Guard Heretic Astartes models auto-include Mark of Nurgle (+15cr, included in baseCost).
+// Contagion ability baked directly into applicable units.
+// MARK OF NURGLE default wargear Ã¢â‚¬â€ shared definition
+const DG_MARK_NURGLE = { id: 'mark_of_nurgle', name: 'Mark of Nurgle', type: 'equipment' as const, slot: 'mark' as const, cost: 0,
+  keywords: ['MARK OF CHAOS', 'NURGLE'], description: 'Melee attacks have +1 INJURY MODIFIER. Grants NURGLE keyword. Included in base cost.',
+  grantsKeywords: ['NURGLE'] };
+const DG_PA = { id: 'power_armour', name: 'Power Armour', type: 'armor' as const, slot: 'body-armour' as const, cost: 0,
+  keywords: ['-2 INJURY MODIFIER'], description: 'Mandatory Power Armour (included in unit cost).', statModifiers: { armourSave: -2 } };
+const DG_CONTAGION_ABILITY = { id: 'dg_contagion', name: 'Contagion', type: 'aura' as const,
+  description: 'Enemy models within 1" of this model that have 1 or more INFECTION MARKERS have -1 DICE to Hit with all attacks (spending all INFECTION MARKERS on that attack negates this penalty).' };
+
+export const dg_chaos_lord: UnitOption = {
+  id: 'dg_chaos_lord', name: 'Chaos Lord', baseCost: 130, minCount: 1, maxCount: 1,
+  stats: { movement: 6, rangedSkill: 3, meleeSkill: 3, armourSave: -2, toughness: 'NORMAL' },
+  keywords: ['ELITE', 'HERETIC ASTARTES', 'LARGE', 'LEADER', 'NURGLE', 'TOUGH'],
+  baseSize: '40mm', faction: 'death_guard', unitType: 'elite',
+  description: 'Death Guard warband lord. Mandatory leader. (75cr + 40cr Power Armour + 15cr Mark of Nurgle)',
+  abilities: [DG_CONTAGION_ABILITY],
+  defaultWargear: [DG_MARK_NURGLE, DG_PA], availableWargear: [],
+  upgrades: [
+    { id: 'dg_shroud_of_disease', name: 'Shroud of Disease', cost: 20, maxCount: 1, upgradeGroup: 'dg_lord_of_rot',
+      description: 'Ranged attacks made against this model or any of its allies within 3" have -1 DICE to Hit.' },
+    { id: 'dg_vector_of_disease', name: 'Vector of Disease', cost: 10, maxCount: 1, upgradeGroup: 'dg_lord_of_rot',
+      description: 'When this model Charges, or an ally ends a Charge within 3" of it, that model gains +1 INJURY DICE with its melee attacks during that Activation.' },
+    { id: 'dg_virulent_aura', name: 'Virulent Aura', cost: 15, maxCount: 1, upgradeGroup: 'dg_lord_of_rot',
+      description: 'The ranged weapons of this model and each of its allies within 3" of it gain the CRITICAL Keyword. Attacks that automatically hit or that already have CRITICAL instead have +1 INJURY DICE.' },
+  ],
+};
+export const dg_chaos_sorcerer: UnitOption = {
+  id: 'dg_chaos_sorcerer', name: 'Chaos Sorcerer', baseCost: 130, minCount: 0, maxCount: 1,
+  stats: { movement: 6, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
+  keywords: ['ELITE', 'HERETIC ASTARTES', 'NURGLE', 'PSYKER 2'],
+  baseSize: '40mm', faction: 'death_guard', unitType: 'elite',
+  description: 'Death Guard psyker sorcerer. (75cr + 40cr Power Armour + 15cr Mark of Nurgle)',
+  defaultWargear: [DG_MARK_NURGLE, DG_PA], availableWargear: [],
+};
+export const dg_plague_marine: UnitOption = {
+  id: 'dg_plague_marine', name: 'Plague Marine', baseCost: 110, minCount: 0, maxCount: 99,
+  stats: { movement: 6, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
+  keywords: ['HERETIC ASTARTES', 'NURGLE'],
+  baseSize: '32mm', faction: 'death_guard', unitType: 'troop',
+  description: 'Death Guard Chaos Space Marine. (55cr + 40cr Power Armour + 15cr Mark of Nurgle)',
+  abilities: [DG_CONTAGION_ABILITY],
+  defaultWargear: [DG_MARK_NURGLE, DG_PA], availableWargear: [],
+  upgrades: [
+    { id: 'dg_csm_havoc', name: 'Havoc', cost: 5, maxCount: 2, maxCountLarge: 3,
+      description: 'Ignore the HEAVY Keyword of one ranged weapon they carry.' },
+    { id: 'dg_plague_champ_extraction', name: 'Extraction of Fresh Disease', cost: 15, maxCount: 2, grantedKeywords: ['ELITE'], upgradeGroup: 'dg_plague_champion',
+      description: 'Plague Marine Champion (gains ELITE). When this model takes an enemy model Out of Action in melee, one other enemy within 6" of it suffers 1 INFECTION MARKER.' },
+    { id: 'dg_plague_champ_malicious', name: 'Malicious Calculations', cost: 15, maxCount: 2, grantedKeywords: ['ELITE'], upgradeGroup: 'dg_plague_champion',
+      description: 'Plague Marine Champion (gains ELITE). BLOOD MARKERS cannot be spent on the attacks of this model or any of its allies within 3" of it.' },
+    { id: 'dg_plague_champ_putrefying', name: 'Putrefying Stink', cost: 15, maxCount: 2, grantedKeywords: ['ELITE'], upgradeGroup: 'dg_plague_champion',
+      description: 'Plague Marine Champion (gains ELITE). Enemy models that charge this model or one of its allies within 3" of it do not add a D6 to their charge roll.' },
+    { id: 'dg_plague_champ_narthecium', name: 'Tainted Narthecium', cost: 10, maxCount: 2, grantedKeywords: ['ELITE'], upgradeGroup: 'dg_plague_champion',
+      description: 'Plague Marine Champion (gains ELITE). As an Action (+1 DICE), heal itself or a NURGLE model within 1": remove 1 BLOOD MARKER (or 3 on critical success).' },
+    { id: 'dg_plague_champ_tocsin', name: 'Tocsin of Misery', cost: 15, maxCount: 2, grantedKeywords: ['ELITE'], upgradeGroup: 'dg_plague_champion',
+      description: 'Plague Marine Champion (gains ELITE). At the end of each Turn, each enemy within 3" of this model that has at least 1 BLOOD MARKER gains an additional BLOOD MARKER.' },
+  ],
+};
+export const dg_plague_terminator: UnitOption = {
+  id: 'dg_plague_terminator', name: 'Plague Terminator', baseCost: 160, minCount: 0, maxCount: 2, maxCountLarge: 3,
+  stats: { movement: 6, rangedSkill: 2, meleeSkill: 3, armourSave: -3, toughness: 'NORMAL' },
+  keywords: ['DEEP STRIKE', 'HERETIC ASTARTES', 'LARGE', 'NURGLE', 'STRONG', 'VEHICLE'],
+  baseSize: '40mm', faction: 'death_guard', unitType: 'troop',
+  description: 'Death Guard Terminator. (75cr + 70cr Terminator Armour + 15cr Mark of Nurgle; 0-3 at 1200cr+)',
+  abilities: [DG_CONTAGION_ABILITY],
+  defaultWargear: [DG_MARK_NURGLE,
+    { id: 'terminator_armour', name: 'Terminator Armour', type: 'armor' as const, slot: 'body-armour' as const, cost: 0,
+      keywords: ['-3 INJURY MODIFIER', 'DEEP STRIKE', 'STRONG', 'VEHICLE', 'LARGE'],
+      description: 'Included in cost. This armour does not count towards any LIMIT.',
+      grantsKeywords: ['DEEP STRIKE', 'STRONG', 'VEHICLE', 'LARGE'], statModifiers: { armourSave: -3 } },
+  ], availableWargear: [],
+};
+export const dg_helbrute: UnitOption = {
+  id: 'dg_helbrute', name: 'Helbrute', baseCost: 180, minCount: 0, maxCount: 1,
+  stats: { movement: 6, rangedSkill: 2, meleeSkill: 3, armourSave: -3, toughness: 'NORMAL' },
+  keywords: ['DAEMON', 'FEAR', 'FOLLOWER', 'HERETIC ASTARTES', 'LARGE', 'NO PROMOTION', 'NURGLE', 'STRONG', 'TOUGH', 'VEHICLE'],
+  baseSize: '60mm', faction: 'death_guard', unitType: 'troop',
+  description: 'Death Guard Helbrute daemon engine. (Armour plating + 15cr Mark of Nurgle included in cost)',
+  abilities: [DG_CONTAGION_ABILITY],
+  defaultWargear: [DG_MARK_NURGLE,
+    { id: 'dg_helbrute_fists', name: 'Helbrute Fists', type: 'melee' as const, cost: 0, handedness: 'two-handed' as const,
+      keywords: ['+1 INJURY MODIFIER', 'HEAVY', 'TWO-HANDED'],
+      description: 'Count as Two-Handed Hammers in melee.' },
+  ], availableWargear: [],
+  weaponReplacementRules: [{ replacedDefaultId: 'dg_helbrute_fists', whenAddingWeaponType: 'melee' }],
+};
+export const dg_chaos_cultist: UnitOption = {
+  id: 'dg_chaos_cultist', name: 'Chaos Cultist', baseCost: 50, minCount: 0, maxCount: 99,
+  stats: { movement: 6, rangedSkill: 0, meleeSkill: 0, armourSave: 0, toughness: 'NORMAL' },
+  keywords: ['FOLLOWER', 'HERETIC ASTARTES', 'NURGLE'],
+  baseSize: '25-28mm', faction: 'death_guard', unitType: 'troop',
+  description: 'Chaos Cultist devoted to Nurgle. (+0/+0, 35cr + 15cr Mark of Nurgle. Max = number of other non-merc models.)',
+  defaultWargear: [DG_MARK_NURGLE], availableWargear: [],
+};
+export const dg_poxwalker: UnitOption = {
+  id: 'dg_poxwalker', name: 'Poxwalker', baseCost: 35, minCount: 0, maxCount: 99,
+  stats: { movement: 6, rangedSkill: 0, meleeSkill: 0, armourSave: 0, toughness: 'NORMAL' },
+  keywords: ['FEAR', 'FOLLOWER', 'HERETIC ASTARTES', 'NEGATE GAS', 'NO PROMOTION', 'NURGLE'],
+  baseSize: '25-28mm', faction: 'death_guard', unitType: 'troop',
+  description: 'Shambling plague-zombie. Cannot take any weapons, armour, or equipment (counts as Close Combat Weapon).',
+  defaultWargear: [], availableWargear: [], cannotEquip: true,
+};
+export const dg_foetid_blight_drone: UnitOption = {
+  ...ha_foetid_blight_drone,
+  id: 'dg_foetid_blight_drone', faction: 'death_guard',
+};
+
+// ==========================================================================
+// EMPEROR'S CHILDREN (standalone faction Ã¢â‚¬â€ formerly Heretic Astartes variant)
+// ==========================================================================
+const EC_MARK_SLAANESH = { id: 'mark_of_slaanesh', name: 'Mark of Slaanesh', type: 'equipment' as const, slot: 'mark' as const, cost: 0,
+  keywords: ['MARK OF CHAOS', 'SLAANESH'], description: '+2" movement speed, +1 DICE to all Dash Success Rolls. Grants SLAANESH keyword. Included in base cost.',
+  statModifiers: { movement: 2 }, grantsKeywords: ['SLAANESH'] };
+const EC_PA = { ...DG_PA };
+
+export const ec_chaos_lord: UnitOption = {
+  id: 'ec_chaos_lord', name: 'Chaos Lord', baseCost: 125, minCount: 1, maxCount: 1,
+  stats: { movement: 8, rangedSkill: 3, meleeSkill: 3, armourSave: -2, toughness: 'NORMAL' },
+  keywords: ['ELITE', 'HERETIC ASTARTES', 'LARGE', 'LEADER', 'SLAANESH', 'TOUGH'],
+  baseSize: '40mm', faction: 'emperors_children', unitType: 'elite',
+  description: "Emperor's Children warband lord. Mandatory leader. (75cr + 40cr Power Armour + 10cr Mark of Slaanesh)",
+  defaultWargear: [EC_MARK_SLAANESH, EC_PA], availableWargear: [],
+};
+export const ec_dark_apostle: UnitOption = {
+  id: 'ec_dark_apostle', name: 'Dark Apostle', baseCost: 140, minCount: 0, maxCount: 1,
+  stats: { movement: 8, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
+  keywords: ['ELITE', 'HERETIC ASTARTES', 'SLAANESH'],
+  baseSize: '40mm', faction: 'emperors_children', unitType: 'elite',
+  description: "Dark Apostle. (70cr + 40cr Power Armour + 20cr Accursed Crozius + 10cr Mark of Slaanesh)",
+  defaultWargear: [EC_MARK_SLAANESH, EC_PA,
+    { id: 'ha_accursed_crozius', name: 'Accursed Crozius', type: 'melee' as const, cost: 0, handedness: 'one-handed' as const,
+      keywords: ['ARMOUR PIERCING 2'], description: 'The bearer gains the FEAR Keyword.' },
+  ], availableWargear: [],
+};
+export const ec_chaos_sorcerer: UnitOption = {
+  id: 'ec_chaos_sorcerer', name: 'Chaos Sorcerer', baseCost: 125, minCount: 0, maxCount: 1,
+  stats: { movement: 8, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
+  keywords: ['ELITE', 'HERETIC ASTARTES', 'PSYKER 2', 'SLAANESH'],
+  baseSize: '40mm', faction: 'emperors_children', unitType: 'elite',
+  description: "Emperor's Children sorcerer. (75cr + 40cr Power Armour + 10cr Mark of Slaanesh)",
+  defaultWargear: [EC_MARK_SLAANESH, EC_PA], availableWargear: [],
+};
+export const ec_noise_marine: UnitOption = {
+  id: 'ec_noise_marine', name: 'Noise Marine', baseCost: 105, minCount: 0, maxCount: 99,
+  stats: { movement: 8, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
+  keywords: ['HERETIC ASTARTES', 'SLAANESH'],
+  baseSize: '32mm', faction: 'emperors_children', unitType: 'troop',
+  description: "Slaaneshi Chaos Space Marine. (55cr + 40cr Power Armour + 10cr Mark of Slaanesh)",
+  defaultWargear: [EC_MARK_SLAANESH, EC_PA], availableWargear: [],
+  upgrades: [
+    { id: 'ec_csm_havoc', name: 'Havoc', cost: 5, maxCount: 2, maxCountLarge: 3,
+      description: 'Ignore the HEAVY Keyword of one ranged weapon they carry.' },
+    { id: 'ec_csm_raptor', name: 'Raptor', cost: 5, maxCount: 2, maxCountLarge: 3, grantedKeywords: ['SKIRMISHER'],
+      description: 'Can be equipped with Jump Packs and Warp Claws (purchased separately). While equipped with a Jump Pack, gains the SKIRMISHER Keyword.' },
+    { id: 'ec_csm_flawless_blade', name: 'Flawless Blade', cost: 5, maxCount: 2, maxCountLarge: 3,
+      description: "+1 DICE to Hit with melee attacks. Cannot use ranged weapons besides Pistols and Grenades." },
+  ],
+};
+export const ec_possessed: UnitOption = {
+  id: 'ec_possessed', name: 'Possessed', baseCost: 105, minCount: 0, maxCount: 3,
+  stats: { movement: 8, rangedSkill: 0, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
+  keywords: ['DAEMON', 'HERETIC ASTARTES', 'LARGE', 'LIMITED POTENTIAL', 'SLAANESH'],
+  baseSize: '40mm', faction: 'emperors_children', unitType: 'troop',
+  description: "Daemon-possessed Slaaneshi Marine. (55cr + 40cr Power Armour + 10cr Mark of Slaanesh)",
+  defaultWargear: [EC_MARK_SLAANESH, EC_PA,
+    { id: 'ha_mutated_claw', name: 'Mutated Claw', type: 'melee' as const, cost: 0, handedness: 'one-handed' as const,
+      keywords: ['CRITICAL'], description: 'Daemonic natural weapon. Takes up one hand.' },
+  ], availableWargear: [],
+};
+export const ec_chaos_terminator: UnitOption = {
+  id: 'ec_chaos_terminator', name: 'Chaos Terminator', baseCost: 155, minCount: 0, maxCount: 2, maxCountLarge: 3,
+  stats: { movement: 8, rangedSkill: 2, meleeSkill: 3, armourSave: -3, toughness: 'NORMAL' },
+  keywords: ['DEEP STRIKE', 'HERETIC ASTARTES', 'LARGE', 'SLAANESH', 'STRONG', 'VEHICLE'],
+  baseSize: '40mm', faction: 'emperors_children', unitType: 'troop',
+  description: "Emperor's Children Terminator. (75cr + 70cr Terminator Armour + 10cr Mark of Slaanesh; 0-3 at 1200cr+)",
+  defaultWargear: [EC_MARK_SLAANESH,
+    { id: 'terminator_armour', name: 'Terminator Armour', type: 'armor' as const, slot: 'body-armour' as const, cost: 0,
+      keywords: ['-3 INJURY MODIFIER', 'DEEP STRIKE', 'STRONG', 'VEHICLE', 'LARGE'],
+      description: 'Included in cost. This armour does not count towards any LIMIT.',
+      grantsKeywords: ['DEEP STRIKE', 'STRONG', 'VEHICLE', 'LARGE'], statModifiers: { armourSave: -3 } },
+  ], availableWargear: [],
+};
+export const ec_helbrute: UnitOption = {
+  id: 'ec_helbrute', name: 'Helbrute', baseCost: 175, minCount: 0, maxCount: 1,
+  stats: { movement: 8, rangedSkill: 2, meleeSkill: 3, armourSave: -3, toughness: 'NORMAL' },
+  keywords: ['DAEMON', 'FEAR', 'FOLLOWER', 'HERETIC ASTARTES', 'LARGE', 'NO PROMOTION', 'SLAANESH', 'STRONG', 'TOUGH', 'VEHICLE'],
+  baseSize: '60mm', faction: 'emperors_children', unitType: 'troop',
+  description: "Emperor's Children Helbrute. (Armour plating + 10cr Mark of Slaanesh included in cost)",
+  defaultWargear: [EC_MARK_SLAANESH,
+    { id: 'ec_helbrute_fists', name: 'Helbrute Fists', type: 'melee' as const, cost: 0, handedness: 'two-handed' as const,
+      keywords: ['+1 INJURY MODIFIER', 'HEAVY', 'TWO-HANDED'], description: 'Count as Two-Handed Hammers in melee.' },
+  ], availableWargear: [],
+  weaponReplacementRules: [{ replacedDefaultId: 'ec_helbrute_fists', whenAddingWeaponType: 'melee' }],
+};
+export const ec_chaos_cultist: UnitOption = {
+  id: 'ec_chaos_cultist', name: 'Chaos Cultist', baseCost: 45, minCount: 0, maxCount: 99,
+  stats: { movement: 8, rangedSkill: 0, meleeSkill: 0, armourSave: 0, toughness: 'NORMAL' },
+  keywords: ['FOLLOWER', 'HERETIC ASTARTES', 'SLAANESH'],
+  baseSize: '25-28mm', faction: 'emperors_children', unitType: 'troop',
+  description: "Slaaneshi Chaos Cultist. (+0/+0, 35cr + 10cr Mark of Slaanesh. Max = number of other non-merc models.)",
+  defaultWargear: [EC_MARK_SLAANESH], availableWargear: [],
+};
+export const ec_lord_kakophonist: UnitOption = {
+  ...ha_lord_kakophonist,
+  id: 'ec_lord_kakophonist', faction: 'emperors_children',
+};
+
+// ==========================================================================
+// THOUSAND SONS (standalone faction Ã¢â‚¬â€ formerly Heretic Astartes variant)
+// ==========================================================================
+// Based on 2026-06-07 full writeup. All HERETIC ASTARTES TZEENTCH units include Mark of Tzeentch.
+const TS_MARK_TZEENTCH = { id: 'mark_of_tzeentch', name: 'Mark of Tzeentch', type: 'equipment' as const, slot: 'mark' as const, cost: 0,
+  keywords: ['MARK OF CHAOS', 'TZEENTCH'], description: 'Ranged attacks have +1 INJURY MODIFIER. Grants TZEENTCH keyword. Included in base cost.',
+  grantsKeywords: ['TZEENTCH'] };
+const TS_PA = { id: 'power_armour', name: 'Power Armour', type: 'armor' as const, slot: 'body-armour' as const, cost: 0,
+  keywords: ['-2 INJURY MODIFIER'], description: 'Mandatory Power Armour (included in unit cost).', statModifiers: { armourSave: -2 } };
+const TS_TA = { id: 'terminator_armour', name: 'Terminator Armour', type: 'armor' as const, slot: 'body-armour' as const, cost: 0,
+  keywords: ['-3 INJURY MODIFIER', 'DEEP STRIKE', 'STRONG', 'VEHICLE', 'LARGE'],
+  description: 'Included in cost. This armour does not count towards any LIMIT.',
+  grantsKeywords: ['DEEP STRIKE', 'STRONG', 'VEHICLE', 'LARGE'], statModifiers: { armourSave: -3 } };
+
+export const ts_exalted_sorcerer: UnitOption = {
+  id: 'ts_exalted_sorcerer', name: 'Exalted Sorcerer', baseCost: 155, minCount: 1, maxCount: 1,
+  stats: { movement: 6, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
+  keywords: ['ELITE', 'HERETIC ASTARTES', 'LARGE', 'LEADER', 'PSYKER 3', 'TOUGH', 'TZEENTCH'],
+  baseSize: '40mm', faction: 'thousand_sons', unitType: 'elite',
+  description: 'Thousand Sons mandatory warband leader. (115cr + 40cr Power Armour). Can swap to Terminator Armour for +25cr.\nMay purchase up to five powers from the Change Psychic Discipline and/or Vengeance Psychic Discipline, and must purchase at least 2 powers in total.',
+  abilities: [
+    { id: 'ts_arcane_shield', name: 'Arcane Shield', type: 'aura' as const,
+      description: 'The first -1 of the Exalted Sorcerer\'s Armour, and the first -1 of the Armour of its TZEENTCH allies within 6" of it, have IMPERVIOUS.' },
+    { id: 'ts_black_carapace', name: 'Black Carapace', type: 'passive' as const,
+      description: 'This model treats any Down result from the Injury Roll Table as a Minor Hit instead. This does not apply to Down results that already replaced another result.' },
+    { id: 'ts_mark_of_tzeentch', name: 'Mark of Tzeentch', type: 'passive' as const,
+      description: 'The model’s ranged attacks have +1 INJURY MODIFIER.' },
+  ],
+  defaultWargear: [TS_PA], availableWargear: [],
+};
+export const ts_chaos_sorcerer: UnitOption = {
+  id: 'ts_chaos_sorcerer', name: 'Chaos Sorcerer', baseCost: 135, minCount: 0, maxCount: 2,
+  stats: { movement: 6, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
+  keywords: ['ELITE', 'HERETIC ASTARTES', 'PSYKER 2', 'TZEENTCH'],
+  baseSize: '40mm', faction: 'thousand_sons', unitType: 'elite',
+  description: 'Thousand Sons sorcerer (up to 2). (95cr + 40cr Power Armour). Can swap to Terminator Armour for +25cr.\nMay purchase up to four powers from the Change Psychic Discipline or Vengeance Psychic Discipline, and must purchase at least 1 power in total.',
+  abilities: [
+    { id: 'ts_cs_black_carapace', name: 'Black Carapace', type: 'passive' as const,
+      description: 'This model treats any Down result from the Injury Roll Table as a Minor Hit instead.' },
+    { id: 'ts_mark_of_tzeentch', name: 'Mark of Tzeentch', type: 'passive' as const,
+      description: 'The model’s ranged attacks have +1 INJURY MODIFIER.' },
+  ],
+  defaultWargear: [TS_PA], availableWargear: [],
+};
+export const ts_tzaangor_shaman: UnitOption = {
+  id: 'ts_tzaangor_shaman', name: 'Tzaangor Shaman', baseCost: 65, minCount: 0, maxCount: 1,
+  stats: { movement: 6, rangedSkill: 1, meleeSkill: 1, armourSave: 0, toughness: 'NORMAL' },
+  keywords: ['BEASTMEN', 'ELITE', 'HERETIC ASTARTES', 'PSYKER 1', 'TZEENTCH'],
+  baseSize: '32-40mm', faction: 'thousand_sons', unitType: 'elite',
+  description: 'Thousand Sons beastman psyker. Must equip exactly one PSYCHIC weapon.\nMay purchase up to three powers from the Change Psychic Discipline or Vengeance Psychic Discipline, and must purchase at least 1 power in total.',
+  abilities: [
+    { id: 'ts_bestial_prophet', name: 'Bestial Prophet', type: 'aura' as const,
+      description: 'Each other friendly BEASTMEN model within 6" of the Tzaangor Shaman has +1 DICE to Hit with all attacks.' },
+    { id: 'ts_sacrificial_blessing', name: 'Sacrificial Blessing', type: 'action' as const,
+      description: 'When this model takes a PSYCHIC Success Roll or makes a PSYCHIC attack, you can choose one friendly BEASTMEN model within 1" to sacrifice (taken Out of Action). The Tzaangor Shaman has +2 DICE to the Success Roll.' },
+  ],
+  defaultWargear: [
+    { id: 'ts_baleful_devolution', name: 'Baleful Devolution', type: 'equipment' as const, slot: 'equipment' as const, cost: 0,
+      keywords: ['PSYCHIC'], description: 'Psychic ability (Effect): 12", One Enemy, Immediate Ã¢â‚¬â€ target gains 1 STUN MARKER (or D3 on Critical Success).' },
+  ], availableWargear: [],
+};
+export const ts_tzeentch_cultist: UnitOption = {
+  id: 'ts_tzeentch_cultist', name: 'Tzeentch Cultist', baseCost: 30, minCount: 0, maxCount: 99,
+  stats: { movement: 6, rangedSkill: 0, meleeSkill: 0, armourSave: 0, toughness: 'NORMAL' },
+  keywords: ['HERETIC ASTARTES', 'TZEENTCH'],
+  baseSize: '25-28mm', faction: 'thousand_sons', unitType: 'troop',
+  description: 'Chaos Cultist devoted to Tzeentch (30cr, mark included). Max = number of other non-merc models.',
+  abilities: [
+    { id: 'ts_expendable', name: 'Expendable', type: 'passive' as const,
+      description: 'The Tzeentch Cultist is not counted as part of your Warband for the purposes of Morale.' },
+    { id: 'ts_for_the_lord_of_change', name: 'For the Lord of Change!', type: 'passive' as const,
+      description: 'When the Tzeentch Cultist is taken Out of Action, you can give a BLESSING MARKER to one other friendly TZEENTCH model on the battlefield.' },
+  ],
+  defaultWargear: [TS_MARK_TZEENTCH], availableWargear: [],
+};
+export const ts_tzaangor: UnitOption = {
+  id: 'ts_tzaangor', name: 'Tzaangor', baseCost: 40, minCount: 0, maxCount: 99,
+  stats: { movement: 6, rangedSkill: 1, meleeSkill: 1, armourSave: 0, toughness: 'NORMAL' },
+  keywords: ['BEASTMEN', 'HERETIC ASTARTES', 'LIMITED POTENTIAL', 'SKIRMISHER', 'TZEENTCH'],
+  baseSize: '32mm', faction: 'thousand_sons', unitType: 'troop',
+  description: 'Beastman mutant of Tzeentch. Can equip Pistols, Fatecater Greatbow, melee weapons, armour including Shields, or equipment from the Thousand Sons Armoury.',
+  defaultWargear: [], availableWargear: [],
+};
+export const ts_rubric_marine: UnitOption = {
+  id: 'ts_rubric_marine', name: 'Rubric Marine', baseCost: 105, minCount: 0, maxCount: 99,
+  stats: { movement: 5, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
+  keywords: ['HERETIC ASTARTES', 'TZEENTCH'],
+  baseSize: '32mm', faction: 'thousand_sons', unitType: 'troop',
+  description: 'Thousand Sons Rubric Marine. (65cr + 40cr Power Armour, movement 5")',
+  abilities: [
+    { id: 'ts_rm_black_carapace', name: 'Black Carapace', type: 'passive' as const,
+      description: 'The Chaos Space Marine treats any Down result from the Injury Roll Table as a Minor Hit instead. This does not apply to Down results that already replaced another result, such as with TOUGH.' },
+    { id: 'ts_mark_of_tzeentch', name: 'Mark of Tzeentch', type: 'passive' as const,
+      description: 'The model’s ranged attacks have +1 INJURY MODIFIER.' },
+    { id: 'ts_rm_sorcery_powered', name: 'Sorcery Powered', type: 'passive' as const,
+      description: 'When Activated, if the Rubric Marine is within 6” of one of your PSYKER models (including itself), it has +1 DICE to all Dash actions during that Activation.' },
+  ],
+  defaultWargear: [TS_PA], availableWargear: [],
+  upgrades: [
+    { id: 'ts_csm_havoc', name: 'Havoc', cost: 5, maxCount: 2, maxCountLarge: 3,
+      description: 'Ignore the HEAVY Keyword of one ranged weapon they carry.' },
+  ],
+};
+export const ts_scarab_occult_terminator: UnitOption = {
+  id: 'ts_scarab_occult_terminator', name: 'Scarab Occult Terminator', baseCost: 145, minCount: 0, maxCount: 2, maxCountLarge: 3,
+  stats: { movement: 6, rangedSkill: 2, meleeSkill: 3, armourSave: -3, toughness: 'NORMAL' },
+  keywords: ['DEEP STRIKE', 'HERETIC ASTARTES', 'LARGE', 'STRONG', 'TZEENTCH', 'VEHICLE'],
+  baseSize: '40mm', faction: 'thousand_sons', unitType: 'troop',
+  description: 'Terminator-armoured Thousand Sons warrior. (80cr + 65cr Terminator Armour; 0-3 at 1200cr+)\nCan be equipped with a Hellfyre Missile Rack only if it already has another ranged weapon, and it cannot attack with both at the same time',
+  abilities: [
+    { id: 'ts_sot_black_carapace', name: 'Black Carapace', type: 'passive' as const,
+      description: 'The Scarab Occult Terminator treats any Down result from the Injury Roll Table as a Minor Hit instead. This does not apply to Down results that already replaced another result, such as with TOUGH.' },
+    { id: 'ts_rites_of_coalescence', name: 'Rites of Coalescence', type: 'passive' as const,
+      description: 'While the Scarab Occult Terminator is within 6” of one of your PSYKER models (including itself), Critical Hits do not grant the normal +1 INJURY DICE against it. The CRITICAL Keyword still functions normally.' },
+    { id: 'ts_mark_of_tzeentch', name: 'Mark of Tzeentch', type: 'passive' as const,
+      description: 'The model’s ranged attacks have +1 INJURY MODIFIER.' },
+    { id: 'ts_terminator_armour', name: 'Terminator Armour', type: 'passive' as const,
+      description: 'The Scarab Occult Terminator can wield a TWO-HANDED ranged weapon in one hand instead of a TWO-HANDED melee weapon due to its STRONG Keyword. Due to the bulk of its armour, the Chaos Terminator rolls only a D3 for extra charge distance instead of a D6.' },
+  ],
+  defaultWargear: [TS_TA], availableWargear: [],
+};
+export const ts_sekhetar_robot: UnitOption = {
+  id: 'ts_sekhetar_robot', name: 'Sekhetar Robot', baseCost: 170, minCount: 0, maxCount: 1,
+  stats: { movement: 6, rangedSkill: 1, meleeSkill: 1, armourSave: -2, toughness: 'NORMAL' },
+  keywords: ['ARTIFICIAL', 'HERETIC ASTARTES', 'INFILTRATOR', 'LARGE', 'NEGATE GAS', 'NO PROMOTION', 'SEKHETAR_ROBOT', 'STEALTH', 'STRONG', 'TOUGH', 'TZEENTCH'],
+  baseSize: '40mm',
+  faction: 'thousand_sons', unitType: 'troop',
+  description: 'The Sekhetar Robot is equipped with armour plating and a Hellfyre Missile Rack, included in its cost and statistics above. It can be equipped with any Basic melee weapons, a Power Claw, and any ranged weapons from the Thousand Sons Armoury. It can carry up to two TWO-HANDED ranged weapons, only one of which can be HEAVY, but cannot hold a TWO-HANDED melee weapon in one hand, and if it carries a HEAVY ranged weapon in one hand, that hand cannot hold a melee weapon. It can be equipped with a Heavy Flamer, ignoring the normal limits.',
+  abilities: [
+    { id: 'ts_robotic_armaments', name: 'Robotic Armaments', type: 'passive' as const,
+      description: 'While equipped with two ranged weapons besides its Hellfyre Missile Rack, the Sekhetar Robot can make a Shoot Action with both of them during its Activation. It cannot fire any other weapon if it attacks with its Hellfyre Missile Rack.' },
+    { id: 'ts_prophetic_sentinel', name: 'Prophetic Sentinel', type: 'passive' as const,
+      description: 'When an enemy model Charges this model, it can make a single ranged attack against that enemy before it moves with a weapon other than its Hellfyre Missile Rack.' },
+  ],
+  defaultWargear: [
+    { id: 'armour_plating_sekhetar_ts', name: 'Armour Plating', type: 'armor', slot: 'body-armour', cost: 0,
+      keywords: ['-2 INJURY MODIFIER'], description: 'Included in cost.',
+      statModifiers: { armourSave: -2 } },
+    { id: 'hellfyre_missile_rack_ts', name: 'Hellfyre Missile Rack', type: 'ranged', cost: 0, handedness: 'no-hands',
+      keywords: ['36"', 'IGNORE COVER', 'FIRE', 'HEAVY', 'THROWN'],
+      description: 'Included in cost. 36", IGNORE COVER, FIRE. Cannot be fired with another weapon.' } as unknown as import('../types/index.js').Weapon,
+  ], availableWargear: [],
+};
+export const ts_helbrute: UnitOption = {
+  id: 'ts_helbrute', name: 'Helbrute', baseCost: 175, minCount: 0, maxCount: 1,
+  stats: { movement: 6, rangedSkill: 2, meleeSkill: 3, armourSave: -3, toughness: 'NORMAL' },
+  keywords: ['DAEMON', 'FEAR', 'HERETIC ASTARTES', 'LARGE', 'NO PROMOTION', 'STRONG', 'TOUGH', 'TZEENTCH', 'VEHICLE'],
+  baseSize: '60mm', faction: 'thousand_sons', unitType: 'troop',
+  description: 'The Helbrute’s plating provides it armour, included in the statistics above. Its empty fists count as Two-Handed Hammers in melee. It can optionally be equipped with either a Helbrute Hammer or Power Scourge, replacing one of its fists, and up to one HEAVY ranged weapon, which must be purchased separately. It cannot use any other weapons, armour, or equipment.',
+  abilities: [
+    { id: 'ts_hb_crazed', name: 'Crazed', type: 'passive' as const, description: 'The Helbrute cannot Retreat from melee combat.' },
+    { id: 'ts_mark_of_tzeentch', name: 'Mark of Tzeentch', type: 'passive' as const,
+      description: 'The model’s ranged attacks have +1 INJURY MODIFIER.' },
+  ],
+  defaultWargear: [
+    { id: 'ts_helbrute_fists', name: 'Helbrute Fists', type: 'melee' as const, cost: 0, handedness: 'two-handed' as const,
+      keywords: ['+1 INJURY MODIFIER', 'HEAVY', 'TWO-HANDED'], description: 'Count as Two-Handed Hammers in melee.' },
+  ], availableWargear: [],
+  weaponReplacementRules: [{ replacedDefaultId: 'ts_helbrute_fists', whenAddingWeaponType: 'melee' }],
+};
+
+// ==========================================================================
+// WORLD EATERS (standalone faction Ã¢â‚¬â€ formerly Heretic Astartes variant)
+// ==========================================================================
+const WE_MARK_KHORNE = { id: 'mark_of_khorne', name: 'Mark of Khorne', type: 'equipment' as const, slot: 'mark' as const, cost: 0,
+  keywords: ['MARK OF CHAOS', 'KHORNE'], description: 'Melee attacks have +1 INJURY MODIFIER. Grants KHORNE keyword. Included in base cost.',
+  grantsKeywords: ['KHORNE'] };
+const WE_PA = { id: 'power_armour', name: 'Power Armour', type: 'armor' as const, slot: 'body-armour' as const, cost: 0,
+  keywords: ['-2 INJURY MODIFIER'], description: 'Mandatory Power Armour (included in unit cost).', statModifiers: { armourSave: -2 } };
+const WE_BLOOD_SURGE = { id: 'we_butchers_nails', name: "Butcher's Nails Ã¢â‚¬â€ Blood Surge", type: 'passive' as const,
+  description: "When this model Charges, roll 2D6 instead of 1D6 and add the highest die to its charge move. Cannot be equipped with ranged weapons besides Pistols, THROWN weapons, and Blood Harpoons." };
+
+export const we_chaos_lord: UnitOption = {
+  id: 'we_chaos_lord', name: 'Chaos Lord', baseCost: 125, minCount: 1, maxCount: 1,
+  stats: { movement: 6, rangedSkill: 3, meleeSkill: 3, armourSave: -2, toughness: 'NORMAL' },
+  keywords: ['ELITE', 'HERETIC ASTARTES', 'KHORNE', 'LARGE', 'LEADER', 'TOUGH'],
+  baseSize: '40mm', faction: 'world_eaters', unitType: 'elite',
+  description: 'World Eaters warband lord. Mandatory leader. (75cr + 40cr Power Armour + 10cr Mark of Khorne)',
+  abilities: [WE_BLOOD_SURGE],
+  defaultWargear: [WE_MARK_KHORNE, WE_PA], availableWargear: [],
+};
+export const we_dark_apostle: UnitOption = {
+  id: 'we_dark_apostle', name: 'Dark Apostle', baseCost: 140, minCount: 0, maxCount: 1,
+  stats: { movement: 6, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
+  keywords: ['ELITE', 'HERETIC ASTARTES', 'KHORNE'],
+  baseSize: '40mm', faction: 'world_eaters', unitType: 'elite',
+  description: 'World Eaters Dark Apostle. (70cr + 40cr Power Armour + 20cr Crozius + 10cr Mark of Khorne)',
+  defaultWargear: [WE_MARK_KHORNE, WE_PA,
+    { id: 'we_accursed_crozius', name: 'Accursed Crozius', type: 'melee' as const, cost: 0, handedness: 'one-handed' as const,
+      keywords: ['ARMOUR PIERCING 2'], description: 'The bearer gains the FEAR Keyword.' },
+  ], availableWargear: [],
+};
+export const we_berzerker: UnitOption = {
+  id: 'we_berzerker', name: 'Berzerker', baseCost: 105, minCount: 0, maxCount: 99,
+  stats: { movement: 6, rangedSkill: 2, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
+  keywords: ['HERETIC ASTARTES', 'KHORNE'],
+  baseSize: '32mm', faction: 'world_eaters', unitType: 'troop',
+  description: 'World Eaters Berzerker. (55cr + 40cr Power Armour + 10cr Mark of Khorne)',
+  abilities: [WE_BLOOD_SURGE],
+  defaultWargear: [WE_MARK_KHORNE, WE_PA], availableWargear: [],
+};
+export const we_jakhal: UnitOption = {
+  id: 'we_jakhal', name: 'Jakhal', baseCost: 45, minCount: 0, maxCount: 99,
+  stats: { movement: 6, rangedSkill: 0, meleeSkill: 0, armourSave: 0, toughness: 'NORMAL' },
+  keywords: ['FOLLOWER', 'HERETIC ASTARTES', 'KHORNE'],
+  baseSize: '25-28mm', faction: 'world_eaters', unitType: 'troop',
+  description: 'World Eaters Jakhal (Chaos Cultist). (+0/+0, 35cr + 10cr Mark of Khorne. Max = number of other non-merc models.)',
+  abilities: [WE_BLOOD_SURGE],
+  defaultWargear: [WE_MARK_KHORNE], availableWargear: [],
+  upgrades: [
+    { id: 'we_jakhal_goremonger', name: 'Goremonger', cost: 5, maxCount: 99, grantedKeywords: ['INFILTRATOR', 'SKIRMISHER'],
+      description: 'Up to half of your Jakhals (rounded up) can be upgraded to Goremongers (+5cr). Grants the INFILTRATOR and SKIRMISHER keywords.' },
+  ],
+};
+export const we_eightbound: UnitOption = {
+  id: 'we_eightbound', name: 'Eightbound', baseCost: 115, minCount: 0, maxCount: 3,
+  stats: { movement: 6, rangedSkill: 0, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
+  keywords: ['DAEMON', 'HERETIC ASTARTES', 'KHORNE', 'LARGE', 'LIMITED POTENTIAL'],
+  baseSize: '40mm', faction: 'world_eaters', unitType: 'troop',
+  description: 'Daemon-possessed World Eaters Possessed (Eightbound). (55cr + 40cr PA + 10cr Mark + 10cr Eightbound)',
+  abilities: [
+    { id: 'we_beacon_of_rage', name: 'Beacon of Rage', type: 'aura' as const,
+      description: 'The Eightbound and each of its allies within 3" of it have +1 DICE to Hit any enemy that has 1 or more BLOOD MARKERS.' },
+  ],
+  defaultWargear: [WE_MARK_KHORNE, WE_PA,
+    { id: 'we_mutated_chainblade', name: 'Mutated Chainblade', type: 'melee' as const, cost: 0, handedness: 'one-handed' as const,
+      keywords: ['CRITICAL', 'RISKY', 'SHRAPNEL'], description: 'Eightbound daemonic chain weapon.' },
+  ], availableWargear: [],
+};
+export const we_chaos_terminator: UnitOption = {
+  id: 'we_chaos_terminator', name: 'Chaos Terminator', baseCost: 155, minCount: 0, maxCount: 2, maxCountLarge: 3,
+  stats: { movement: 6, rangedSkill: 2, meleeSkill: 3, armourSave: -3, toughness: 'NORMAL' },
+  keywords: ['DEEP STRIKE', 'HERETIC ASTARTES', 'KHORNE', 'LARGE', 'STRONG', 'VEHICLE'],
+  baseSize: '40mm', faction: 'world_eaters', unitType: 'troop',
+  description: 'World Eaters Terminator. (75cr + 70cr Terminator Armour + 10cr Mark of Khorne; 0-3 at 1200cr+). Do not have Blood Surge. Can take any ranged weapons.',
+  defaultWargear: [WE_MARK_KHORNE,
+    { id: 'terminator_armour', name: 'Terminator Armour', type: 'armor' as const, slot: 'body-armour' as const, cost: 0,
+      keywords: ['-3 INJURY MODIFIER', 'DEEP STRIKE', 'STRONG', 'VEHICLE', 'LARGE'],
+      description: 'Included in cost. This armour does not count towards any LIMIT.',
+      grantsKeywords: ['DEEP STRIKE', 'STRONG', 'VEHICLE', 'LARGE'], statModifiers: { armourSave: -3 } },
+  ], availableWargear: [],
+};
+export const we_helbrute: UnitOption = {
+  id: 'we_helbrute', name: 'Helbrute', baseCost: 175, minCount: 0, maxCount: 1,
+  stats: { movement: 6, rangedSkill: 2, meleeSkill: 3, armourSave: -3, toughness: 'NORMAL' },
+  keywords: ['DAEMON', 'FEAR', 'FOLLOWER', 'HERETIC ASTARTES', 'KHORNE', 'LARGE', 'NO PROMOTION', 'STRONG', 'TOUGH', 'VEHICLE'],
+  baseSize: '60mm', faction: 'world_eaters', unitType: 'troop',
+  description: 'World Eaters Helbrute. (Armour plating + 10cr Mark of Khorne included in cost)',
+  defaultWargear: [WE_MARK_KHORNE,
+    { id: 'we_helbrute_fists', name: 'Helbrute Fists', type: 'melee' as const, cost: 0, handedness: 'two-handed' as const,
+      keywords: ['+1 INJURY MODIFIER', 'HEAVY', 'TWO-HANDED'], description: 'Count as Two-Handed Hammers in melee.' },
+  ], availableWargear: [],
+  weaponReplacementRules: [{ replacedDefaultId: 'we_helbrute_fists', whenAddingWeaponType: 'melee' }],
+};
+export const we_master_of_executions: UnitOption = {
+  ...ha_master_of_executions,
+  id: 'we_master_of_executions', faction: 'world_eaters',
+};
+export const we_slaughterbound: UnitOption = {
+  ...ha_slaughterbound,
+  id: 'we_slaughterbound', faction: 'world_eaters',
+};
+
+// ==========================================================================
+// CHAOS CULT
 export const cc_cult_demagogue: UnitOption = {
   id: 'cc_cult_demagogue', name: 'Cult Demagogue', baseCost: 75, minCount: 1, maxCount: 1,
   stats: { movement: 6, rangedSkill: 2, meleeSkill: 2, armourSave: 0, toughness: 'NORMAL' },
@@ -1626,7 +2210,7 @@ export const cd_chaos_furie: UnitOption = {
   faction: 'chaos_daemons', unitType: 'troop',
   description: 'Winged undivided lesser daemon.',
   defaultWargear: [
-    { id: 'cd_daemonic_claw', name: 'Daemonic Claw ×2', type: 'melee', cost: 0, handedness: 'no-hands',
+    { id: 'cd_daemonic_claw', name: 'Daemonic Claw Ãƒâ€”2', type: 'melee', cost: 0, handedness: 'no-hands',
       keywords: ['IGNORE OFF-HAND'],
       description: 'Two natural claws requiring no hand slots. No off-hand penalty when attacking with both.' },
   ], availableWargear: [],
@@ -1679,7 +2263,6 @@ export const cd_flesh_hound: UnitOption = {
     { id: 'cd_gore_drenched_fangs', name: 'Gore-Drenched Fangs', type: 'melee', cost: 0, handedness: 'no-hands',
       keywords: ['+1 INJURY DICE'] },
   ], availableWargear: [],
-  cannotEquip: true,
 };
 export const cd_infernal_enrapturess: UnitOption = {
   id: 'cd_infernal_enrapturess', name: 'Infernal Enrapturess', baseCost: 115, minCount: 0, maxCount: 1,
@@ -1691,8 +2274,8 @@ export const cd_infernal_enrapturess: UnitOption = {
   defaultWargear: [
     { id: 'cd_heartstring_lyre', name: 'Heartstring Lyre', type: 'ranged', range: 24, cost: 0, handedness: 'two-handed',
       keywords: ['TWO-HANDED'],
-      description: 'Choose one mode — Cacophonous Melody: 18", IGNORE COVER, ASSAULT, BLAST 2"; or Euphonic Blast: 24", IGNORE ARMOUR, IGNORE COVER.' },
-    { id: 'cd_slashing_claw_enrap', name: 'Slashing Claw ×2', type: 'melee', cost: 0, handedness: 'no-hands',
+      description: 'Choose one mode Ã¢â‚¬â€ Cacophonous Melody: 18", IGNORE COVER, ASSAULT, BLAST 2"; or Euphonic Blast: 24", IGNORE ARMOUR, IGNORE COVER.' },
+    { id: 'cd_slashing_claw_enrap', name: 'Slashing Claw Ãƒâ€”2', type: 'melee', cost: 0, handedness: 'no-hands',
       keywords: ['CRITICAL', 'IGNORE OFF-HAND'],
       description: 'Two claws, no hands required. No off-hand penalty.' },
   ], availableWargear: [],
@@ -1709,7 +2292,7 @@ export const cd_tranceweaver: UnitOption = {
   faction: 'chaos_daemons', unitType: 'elite',
   description: 'Psyker Herald of Slaanesh. (+ powers)',
   defaultWargear: [
-    { id: 'cd_slashing_claw_trw', name: 'Slashing Claw ×2', type: 'melee', cost: 0, handedness: 'no-hands',
+    { id: 'cd_slashing_claw_trw', name: 'Slashing Claw Ãƒâ€”2', type: 'melee', cost: 0, handedness: 'no-hands',
       keywords: ['CRITICAL', 'IGNORE OFF-HAND'],
       description: 'Two claws, no hands required. No off-hand penalty.' },
   ], availableWargear: [],
@@ -1725,7 +2308,7 @@ export const cd_daemonette: UnitOption = {
   faction: 'chaos_daemons', unitType: 'troop',
   description: 'Daemon foot soldier of Slaanesh.',
   defaultWargear: [
-    { id: 'cd_slashing_claw_daem', name: 'Slashing Claw ×2', type: 'melee', cost: 0, handedness: 'no-hands',
+    { id: 'cd_slashing_claw_daem', name: 'Slashing Claw Ãƒâ€”2', type: 'melee', cost: 0, handedness: 'no-hands',
       keywords: ['CRITICAL', 'IGNORE OFF-HAND'],
       description: 'Two claws, no hands required. No off-hand penalty.' },
   ], availableWargear: [],
@@ -1744,7 +2327,7 @@ export const cd_seeker: UnitOption = {
     { id: 'cd_lashing_tongue', name: 'Lashing Tongue', type: 'melee', cost: 0, handedness: 'no-hands',
       keywords: [],
       description: 'The Seeker can make an extra melee attack with this weapon when it takes the Fight Action.' },
-    { id: 'cd_slashing_claw_seek', name: 'Slashing Claw ×2', type: 'melee', cost: 0, handedness: 'no-hands',
+    { id: 'cd_slashing_claw_seek', name: 'Slashing Claw Ãƒâ€”2', type: 'melee', cost: 0, handedness: 'no-hands',
       keywords: ['CRITICAL', 'IGNORE OFF-HAND'],
       description: 'Two claws, no hands required. No off-hand penalty.' },
   ], availableWargear: [],
@@ -1777,7 +2360,7 @@ export const cd_poxbringer: UnitOption = {
 export const cd_spoilpox_scrivener: UnitOption = {
   id: 'cd_spoilpox_scrivener', name: 'Spoilpox Scrivener', baseCost: 70, minCount: 0, maxCount: 1,
   stats: { movement: 6, rangedSkill: 1, meleeSkill: 1, armourSave: 0, toughness: 'NORMAL' },
-  keywords: ['DAEMON', 'LARGE', 'NURGLE'],
+  keywords: ['DAEMON', 'ELITE', 'NURGLE'],
   baseSize: '40mm',
   faction: 'chaos_daemons', unitType: 'elite',
   description: 'Herald of Nurgle keeping the death tally.',
@@ -1829,7 +2412,7 @@ export const cd_changecaster: UnitOption = {
   defaultWargear: [
     { id: 'cd_arcane_fireball', name: 'Arcane Fireball', type: 'ranged', range: 18, cost: 0, handedness: 'one-handed',
       keywords: ['FIRE', 'PSYCHIC', 'RISKY'],
-      description: 'Uses the ranged hand. RISKY — take a Risky Success Roll when firing.' },
+      description: 'Uses the ranged hand. RISKY Ã¢â‚¬â€ take a Risky Success Roll when firing.' },
   ], availableWargear: [],
 };
 export const cd_flamer: UnitOption = {
@@ -1862,7 +2445,6 @@ export const cd_blue_horror: UnitOption = {
     { id: 'cd_blue_claws', name: 'Blue Claws', type: 'melee', cost: 0, handedness: 'two-handed',
       keywords: ['-1 INJURY DICE', 'TWO-HANDED'] },
   ], availableWargear: [],
-  cannotEquip: true,
 };
 export const cd_pink_horror: UnitOption = {
   id: 'cd_pink_horror', name: 'Pink Horror', baseCost: 150, minCount: 0, maxCount: 3,
@@ -1932,7 +2514,7 @@ export const ver_skavenslave: UnitOption = {
   keywords: ['FIRETEAM', 'NO PROMOTION', 'SKAVEN'],
   baseSize: '25mm',
   faction: 'the_vermintide', unitType: 'troop',
-  description: 'Skaven cannon fodder. Max 2 per MASTER model. Cost 20cr + weapon. Must be equipped with at least one weapon (melee, pistol, armour, or equipment ≤10cr).',
+  description: 'Skaven cannon fodder. Max 2 per MASTER model. Cost 20cr + weapon. Must be equipped with at least one weapon (melee, pistol, armour, or equipment Ã¢â€°Â¤10cr).',
   defaultWargear: [], availableWargear: [],
 };
 export const ver_clanrat: UnitOption = {
@@ -1989,8 +2571,8 @@ export const ver_doom_flayer: UnitOption = {
 // ORKS
 // ==========================================================================
 export const or_warboss: UnitOption = {
-  id: 'or_warboss', name: 'Warboss', baseCost: 85, minCount: 1, maxCount: 1,
-  stats: { movement: 6, rangedSkill: 1, meleeSkill: 3, armourSave: 0, toughness: 'NORMAL' },
+  id: 'or_warboss', name: 'Warboss', baseCost: 80, minCount: 1, maxCount: 1,
+  stats: { movement: 6, rangedSkill: 0, meleeSkill: 3, armourSave: 0, toughness: 'NORMAL' },
   keywords: ['ELITE', 'LARGE', 'LEADER', 'ORK', 'STRONG', 'TOUGH'],
   baseSize: '40mm',
   faction: 'orks', unitType: 'elite',
@@ -2020,7 +2602,7 @@ export const or_weirdboy: UnitOption = {
   defaultWargear: [
     { id: 'or_weirdboy_staff', name: 'Weirdboy Staff', type: 'melee', cost: 0, handedness: 'one-handed',
       keywords: ['+1 DICE', 'HELD', 'PSYCHIC'],
-      description: 'MAIN HAND ONLY. +1 Injury Dice vs DAEMON and PSYKER targets. HELD — occupies a hand slot. Included in unit cost.' },
+      description: 'MAIN HAND ONLY. +1 Injury Dice vs DAEMON and PSYKER targets. HELD Ã¢â‚¬â€ occupies a hand slot. Included in unit cost.' },
   ], availableWargear: [],
 };
 export const or_gretchin: UnitOption = {
@@ -2186,16 +2768,16 @@ export const dr_reaver: UnitOption = {
 };
 export const dr_cronos: UnitOption = {
   id: 'dr_cronos', name: 'Cronos', baseCost: 150, minCount: 0, maxCount: 1,
-  stats: { movement: 7, rangedSkill: 2, meleeSkill: 1, armourSave: -2, toughness: 'NORMAL' },
+  stats: { movement: 7, rangedSkill: 1, meleeSkill: 1, armourSave: -2, toughness: 'NORMAL' },
   keywords: ['ARTIFICIAL', 'DRUKHARI', 'FLYING', 'LARGE', 'NO PROMOTION', 'STRONG', 'TOUGH'],
   baseSize: '60mm',
   faction: 'drukhari', unitType: 'troop',
-  description: 'Haemonculus spirit-engine harvesting pain tokens.',
+  description: 'Haemonculus spirit-engine. Gains Pain tokens for friendly models within 9" going Down. +1 Ranged.',
   defaultWargear: [], availableWargear: [],
 };
 export const dr_talos: UnitOption = {
   id: 'dr_talos', name: 'Talos', baseCost: 150, minCount: 0, maxCount: 1,
-  stats: { movement: 7, rangedSkill: 1, meleeSkill: 2, armourSave: -2, toughness: 'NORMAL' },
+  stats: { movement: 7, rangedSkill: 1, meleeSkill: 1, armourSave: -2, toughness: 'NORMAL' },
   keywords: ['ARTIFICIAL', 'DRUKHARI', 'FLYING', 'LARGE', 'NO PROMOTION', 'STRONG', 'TOUGH'],
   baseSize: '60mm',
   faction: 'drukhari', unitType: 'troop',
@@ -2216,7 +2798,7 @@ export const dr_clawed_fiend: UnitOption = {
   cannotEquip: true,
 };
 export const dr_khymera: UnitOption = {
-  id: 'dr_khymera', name: 'Khymera', baseCost: 75, minCount: 0, maxCount: 2,
+  id: 'dr_khymera', name: 'Khymera', baseCost: 90, minCount: 0, maxCount: 2,
   stats: { movement: 8, rangedSkill: 0, meleeSkill: 1, armourSave: 0, toughness: 'NORMAL' },
   keywords: ['BEAST', 'DAEMON', 'DRUKHARI', 'FEAR', 'LARGE', 'NO PROMOTION'],
   baseSize: '40mm',
@@ -2278,7 +2860,7 @@ export const ty_tyrant_guard: UnitOption = {
 export const ty_gaunt_barbgaunt: UnitOption = {
   id: 'ty_gaunt_barbgaunt', name: 'Barbgaunt', baseCost: 50, minCount: 0, maxCount: 99,
   stats: { movement: 6, rangedSkill: 0, meleeSkill: 0, armourSave: -1, toughness: 'NORMAL' },
-  keywords: ['LARGE', 'NO PROMOTION', 'TYRANID'],
+  keywords: ['NO PROMOTION', 'TYRANID'],
   baseSize: '40mm',
   faction: 'tyranids', unitType: 'troop',
   description: 'Artillery biomorph gaunt strain.',
@@ -2340,7 +2922,7 @@ export const ty_ravener: UnitOption = {
   keywords: ['BURROW', 'DEEP STRIKE (TUNNEL)', 'LARGE', 'TOUGH', 'TYRANID'],
   baseSize: '40mm',
   faction: 'tyranids', unitType: 'troop',
-  description: 'Fast burrowing Tyranid predator. (DEEP STRIKE – TUNNEL)',
+  description: 'Fast burrowing Tyranid predator. (DEEP STRIKE Ã¢â‚¬â€œ TUNNEL)',
   defaultWargear: [], availableWargear: [],
   upgrades: [
     { id: 'ty_ravener_wrecker', name: 'Wrecker', cost: 5, maxCount: 1,
@@ -2353,7 +2935,7 @@ export const ty_ripper_swarm: UnitOption = {
   keywords: ['BURROW', 'DEEP STRIKE (TUNNEL)', 'FEAR', 'LARGE', 'NO PROMOTION', 'SWARM', 'TOUGH', 'TYRANID'],
   baseSize: '40mm',
   faction: 'tyranids', unitType: 'troop',
-  description: 'Devouring swarm of tiny bioforms. (DEEP STRIKE – TUNNEL)',
+  description: 'Devouring swarm of tiny bioforms. (DEEP STRIKE Ã¢â‚¬â€œ TUNNEL)',
   defaultWargear: [
     { id: 'ty_spinemaws', name: 'Spinemaws', type: 'ranged', range: 8, cost: 0, handedness: 'no-hands',
       keywords: ['AUTOMATIC 2', 'ASSAULT'],
@@ -2449,40 +3031,38 @@ export const gc_acolyte: UnitOption = {
   description: 'Close-combat hybrid fighter.',
   defaultWargear: [], availableWargear: [],
   upgrades: [
-    { id: 'gc_metamorph', name: 'Metamorph', cost: 15, maxCount: 99,
-      description: 'Gains Metamorph Talon: Melee, CLEAVE 2, HELD. Up to half of your Acolytes (rounded down) can be Metamorphs.' },
+    { id: 'gc_metamorph', name: 'Metamorph', cost: 10, maxCount: 99,
+      description: 'Gains Metamorph Talon: Melee, CLEAVE 2, HELD. Up to half of your Acolytes (rounded up) can be Metamorphs.' },
     { id: 'gc_acolyte_miner', name: 'Acolyte Miner', cost: 10, maxCount: 2,
       grantedKeywords: ['STRONG'],
       description: 'Gains the STRONG Keyword.' },
   ],
 };
 export const gc_aberrant: UnitOption = {
-  id: 'gc_aberrant', name: 'Aberrant', baseCost: 60, minCount: 0, maxCount: 3,
+  id: 'gc_aberrant', name: 'Aberrant', baseCost: 45, minCount: 0, maxCount: 3,
   stats: { movement: 6, rangedSkill: 0, meleeSkill: 2, armourSave: 0, toughness: 'NORMAL' },
   keywords: ['GENESTEALER CULTS', 'LIMITED POTENTIAL', 'STRONG'],
   baseSize: '32mm',
   faction: 'genestealer_cults', unitType: 'troop',
-  description: 'Musclebound hybrid brute. (50cr + 10cr hammer)',
-  defaultWargear: [
-    { id: 'gc_two_handed_hammer', name: 'Two-Handed Hammer', type: 'melee', cost: 0, handedness: 'two-handed',
-      keywords: ['+1 INJURY MODIFIER', 'HEAVY', 'TWO-HANDED'],
-      description: 'Included in cost at recruitment.' },
-  ], availableWargear: [],
-  cannotEquip: true,
+  description: 'Musclebound hybrid brute. Must equip a Heavy Power Weapon, Thunder Hammer, or Two-Handed Hammer (+weapon cost). Cannot equip other items.',
+  defaultWargear: [], availableWargear: [],
+  upgrades: [
+    { id: 'gc_hypermorph', name: 'Hypermorph', cost: 10, maxCount: 1,
+      description: 'Up to one Aberrant can be a Hypermorph. Gains Hypermorph Tail: Melee, ASSAULT, WHIP 3", takes no hands, can be used in addition to other weapons with no off-hand penalties.' },
+  ],
 };
 export const gc_abominant: UnitOption = {
-  id: 'gc_abominant', name: 'Abominant', baseCost: 115, minCount: 0, maxCount: 1,
+  id: 'gc_abominant', name: 'Abominant', baseCost: 100, minCount: 0, maxCount: 1,
   stats: { movement: 6, rangedSkill: 0, meleeSkill: 3, armourSave: 0, toughness: 'NORMAL' },
-  keywords: ['GENESTEALER CULTS', 'LARGE', 'NEGATE FEAR', 'NO PROMOTION', 'REGENERATE 1', 'STRONG', 'TOUGH'],
+  keywords: ['GENESTEALER CULTS', 'FEAR', 'LARGE', 'NO PROMOTION', 'REGENERATE 1', 'STRONG', 'TOUGH'],
   baseSize: '40mm',
   faction: 'genestealer_cults', unitType: 'troop',
-  description: 'Alpha mutant leading Aberrant packs. (95cr + 20cr hammer)',
+  description: 'Alpha mutant leading Aberrant packs. Includes Familiar weapon. Must equip Heavy Power Weapon or Thunder Hammer (+weapon cost).',
   defaultWargear: [
-    { id: 'gc_thunder_hammer', name: 'Thunder Hammer', type: 'melee', cost: 0, handedness: 'two-handed',
-      keywords: ['+1 INJURY MODIFIER', 'HEAVY', 'TWO-HANDED'],
-      description: 'Included in cost at recruitment.' },
+    { id: 'gc_familiar', name: 'Familiar', type: 'melee', cost: 0, handedness: 'no-hands',
+      keywords: ['-1 INJURY DICE', 'CLEAVE 2'],
+      description: 'Included in cost. Melee, -1 INJURY DICE, CLEAVE 2, takes no hands, can be used in addition to any other weapons when taking the Fight Action, with no off-hand penalties.' } as unknown as import('../types/index.js').Weapon,
   ], availableWargear: [],
-  cannotEquip: true,
 };
 
 // -- Genestealer Cults Warband Variant: Broodcoven --
@@ -2492,9 +3072,9 @@ export const gc_patriarch: UnitOption = {
   keywords: ['ELITE', 'FEAR', 'GENESTEALER CULTS', 'LARGE', 'LEADER', 'PSYKER 2', 'STRONG', 'TOUGH'],
   baseSize: '50mm',
   faction: 'genestealer_cults', unitType: 'elite',
-  description: 'Broodcoven only — mandatory Warband leader. (160cr + cost of psychic powers; includes heavy carapace; ranged N/A)',
+  description: 'Broodcoven only Ã¢â‚¬â€ mandatory Warband leader. (160cr + cost of psychic powers; includes heavy carapace; ranged N/A)',
   defaultWargear: [
-    { id: 'gc_patriarch_claws', name: 'Patriarch Claws ×2', type: 'melee', cost: 0, handedness: 'no-hands',
+    { id: 'gc_patriarch_claws', name: 'Patriarch Claws Ãƒâ€”2', type: 'melee', cost: 0, handedness: 'no-hands',
       keywords: ['VICIOUS 10', '+1 INJURY DICE', 'CRITICAL', 'IGNORE OFF-HAND'],
       description: 'Two Patriarch Claws included in cost. IGNORE OFF-HAND when fighting with both claws. Cannot equip Headgear, Medicae Kit, Grapnel Launcher, or hand-occupying equipment.' },
     { id: 'gc_heavy_carapace', name: 'Heavy Carapace', type: 'armor', slot: 'body-armour', cost: 0,
@@ -2511,7 +3091,7 @@ export const gc_genestealer_troop: UnitOption = {
   faction: 'genestealer_cults', unitType: 'troop',
   description: 'Broodcoven only (Purestrain). Recruited as normal Troop for 75 credits. Max 5.',
   defaultWargear: [
-    { id: 'gc_rending_claws', name: 'Rending Claws ×4', type: 'melee', cost: 0, handedness: 'no-hands',
+    { id: 'gc_rending_claws', name: 'Rending Claws Ãƒâ€”4', type: 'melee', cost: 0, handedness: 'no-hands',
       keywords: ['+1 INJURY DICE', 'CRITICAL', 'IGNORE ARMOUR', 'IGNORE OFF-HAND'],
       description: 'Four scything claws. No hand slots required. IGNORE OFF-HAND when attacking with multiple claws.' },
   ], availableWargear: [],
@@ -2525,7 +3105,7 @@ export const gc_coalesce: UnitOption = {
   keywords: ['ELITE', 'FEAR', 'FLYING', 'GENESTEALER CULTS', 'LARGE', 'PSYKER 2', 'TOUGH'],
   baseSize: '40mm',
   faction: 'genestealer_cults', unitType: 'elite',
-  description: 'Malstrain only — psychic leader option. (100cr + cost of powers; includes light carapace; ranged N/A; movement 6"/Flying). Can equip Wild Mutations and Psychic Familiar. Must purchase 2-5 powers from Broodmind and/or Tyranids discipline.',
+  description: 'Malstrain only Ã¢â‚¬â€ psychic leader option. (100cr + cost of powers; includes light carapace; ranged N/A; movement 6"/Flying). Can equip Wild Mutations and Psychic Familiar. Must purchase 2-5 powers from Broodmind and/or Tyranids discipline.',
   defaultWargear: [
     { id: 'gc_feeder_tendrils', name: 'Feeder Tendrils', type: 'melee', cost: 0, handedness: 'no-hands',
       keywords: ['CLEAVE 2'],
@@ -2543,7 +3123,7 @@ export const gc_malstrain_alpha: UnitOption = {
   keywords: ['ELITE', 'FEAR', 'GENESTEALER CULTS', 'LARGE', 'LEADER', 'STRONG', 'TOUGH'],
   baseSize: '40mm',
   faction: 'genestealer_cults', unitType: 'elite',
-  description: 'Malstrain only — melee leader option. (130cr; includes heavy carapace; ranged N/A). Can equip Wild Mutations. Ability: Vanguard Predator (+1 DICE to Dash, auto-succeed Climb).',
+  description: 'Malstrain only Ã¢â‚¬â€ melee leader option. (130cr; includes heavy carapace; ranged N/A). Can equip Wild Mutations. Ability: Vanguard Predator (+1 DICE to Dash, auto-succeed Climb).',
   defaultWargear: [
     { id: 'gc_alpha_claw_l', name: 'Alpha Claw (Left)', type: 'melee', cost: 0, handedness: 'one-handed',
       keywords: ['+1 INJURY DICE', 'CRITICAL'],
@@ -2564,7 +3144,7 @@ export const gc_malstrain_tyramite: UnitOption = {
   keywords: ['FLYING', 'GENESTEALER CULTS'],
   baseSize: '25-28mm',
   faction: 'genestealer_cults', unitType: 'troop',
-  description: 'Malstrain only — agile tunnel creatures. Can equip Wild Mutations. Ability: Dodge (-1 DICE to Hit against this model).',
+  description: 'Malstrain only Ã¢â‚¬â€ agile tunnel creatures. Can equip Wild Mutations. Ability: Dodge (-1 DICE to Hit against this model).',
   defaultWargear: [
     { id: 'gc_stinger', name: 'Stinger', type: 'melee', cost: 0, handedness: 'one-handed',
       keywords: ['GAS', 'ARMOUR PIERCING 1'],
@@ -2578,9 +3158,9 @@ export const gc_malstrain_genestealer: UnitOption = {
   keywords: ['FEAR', 'GENESTEALER CULTS', 'LARGE', 'STRONG'],
   baseSize: '25-28mm',
   faction: 'genestealer_cults', unitType: 'troop',
-  description: 'Malstrain only — unlimited Genestealers as Troops (75cr each). Lose INFILTRATOR, gain FEAR and LARGE. Can equip Wild Mutations. Up to 2 can be given ELITE keyword.',
+  description: 'Malstrain only Ã¢â‚¬â€ unlimited Genestealers as Troops (75cr each). Lose INFILTRATOR, gain FEAR and LARGE. Can equip Wild Mutations. Up to 2 can be given ELITE keyword.',
   defaultWargear: [
-    { id: 'gc_rending_claws_malstrain', name: 'Rending Claws ×4', type: 'melee', cost: 0, handedness: 'no-hands',
+    { id: 'gc_rending_claws_malstrain', name: 'Rending Claws Ãƒâ€”4', type: 'melee', cost: 0, handedness: 'no-hands',
       keywords: ['+1 INJURY DICE', 'CRITICAL', 'IGNORE ARMOUR', 'IGNORE OFF-HAND'],
       description: 'Four scything claws. No hand slots required. IGNORE OFF-HAND when attacking with multiple claws.' },
   ], availableWargear: [],
@@ -2740,7 +3320,7 @@ export const lv_kahl: UnitOption = {
   defaultWargear: [], availableWargear: [],
 };
 export const lv_brokhyr_iron_master: UnitOption = {
-  id: 'lv_brokhyr_iron_master', name: 'Brôkhyr Iron-Master', baseCost: 50, minCount: 0, maxCount: 1,
+  id: 'lv_brokhyr_iron_master', name: 'BrÃƒÂ´khyr Iron-Master', baseCost: 50, minCount: 0, maxCount: 1,
   stats: { movement: 5, rangedSkill: 1, meleeSkill: 1, armourSave: 0, toughness: 'NORMAL' },
   keywords: ['ELITE', 'VOTANN'],
   baseSize: '32mm',
@@ -2785,7 +3365,7 @@ export const lv_einhyr_hearthguard: UnitOption = {
   defaultWargear: [], availableWargear: [],
 };
 export const lv_brokhyr_thunderkyn: UnitOption = {
-  id: 'lv_brokhyr_thunderkyn', name: 'Brôkhyr Thunderkyn', baseCost: 90, minCount: 0, maxCount: 2,
+  id: 'lv_brokhyr_thunderkyn', name: 'BrÃƒÂ´khyr Thunderkyn', baseCost: 90, minCount: 0, maxCount: 2,
   stats: { movement: 5, rangedSkill: 1, meleeSkill: 0, armourSave: -2, toughness: 'NORMAL' },
   keywords: ['LARGE', 'VEHICLE', 'VOTANN'],
   baseSize: '40mm',
@@ -3000,7 +3580,7 @@ export const nec_scarab_swarm: UnitOption = {
   defaultWargear: [
     { id: 'nec_feeder_mandibles', name: 'Feeder Mandibles', type: 'melee', cost: 0, handedness: 'no-hands',
       keywords: ['SWEEPING'],
-      description: 'SWEEPING — hits all models in base contact simultaneously. No hand slots required.' },
+      description: 'SWEEPING Ã¢â‚¬â€ hits all models in base contact simultaneously. No hand slots required.' },
   ], availableWargear: [],
   cannotEquip: true,
 };
@@ -3055,7 +3635,7 @@ export const nec_ophydian_destroyer: UnitOption = {
   keywords: ['BURROW', 'DEEP STRIKE (TUNNEL)', 'LARGE', 'NECRON', 'NEGATE GAS', 'STEALTH'],
   baseSize: '50mm',
   faction: 'necrons', unitType: 'troop',
-  description: 'Destroyer Cult variant: burrowing destroyer. (DEEP STRIKE – TUNNEL)',
+  description: 'Destroyer Cult variant: burrowing destroyer. (DEEP STRIKE Ã¢â‚¬â€œ TUNNEL)',
   defaultWargear: [], availableWargear: [],
 };
 export const nec_skorpekh_destroyer: UnitOption = {
@@ -3167,7 +3747,7 @@ export const ael_guardian: UnitOption = {
   description: 'Citizen-soldier of the Craftworld.',
   defaultWargear: [], availableWargear: [],
   upgrades: [
-    { id: 'ael_ranger', name: 'Ranger', cost: 10, maxCount: 99,
+    { id: 'ael_ranger', name: 'Ranger', cost: 15, maxCount: 99,
       grantedKeywords: ['INFILTRATOR', 'SKIRMISHER', 'STEALTH'],
       description: 'Gains INFILTRATOR, SKIRMISHER, and STEALTH Keywords. Up to half of your Guardians (rounded down) can be Rangers.' },
   ],
@@ -3425,11 +4005,11 @@ export const tau_drone: UnitOption = {
     { id: 'missile', name: 'Missile Drone', creditCostModifier: 15, limit: 2,
       description: 'Equipped with a Missile Pod.' },
     { id: 'pulse_accelerator', name: 'Pulse Accelerator Drone', creditCostModifier: 0, limit: 1,
-      description: 'Equipped with a Pulse Accelerator. The “Pulse” weapons of friendly models within 3" of this drone have +6" to their range.' },
+      description: 'Equipped with a Pulse Accelerator. The Ã¢â‚¬Å“PulseÃ¢â‚¬Â weapons of friendly models within 3" of this drone have +6" to their range.' },
     { id: 'recon', name: 'Recon Drone', creditCostModifier: 60, limit: 1,
-      grantedKeywords: ['INFILTRATOR'],
+      grantedKeywords: ['INFILTRATOR', 'LARGE'],
       statModifiers: { armourSave: -1 },
-      description: 'Equipped with a Burst Cannon and heavy armour plating (-2 armour instead of -1). Has +1 DICE to Hit with all attacks (+1 to Ranged, +0 to Melee) and the INFILTRATOR Keyword.' },
+      description: 'Equipped with a Burst Cannon and heavy armour plating (-2 armour instead of -1). Has +1 DICE to Hit with all attacks (+1 to Ranged, +0 to Melee), the INFILTRATOR Keyword, and the LARGE Keyword.' },
     { id: 'shield', name: 'Shield Drone', creditCostModifier: 5,
       description: 'Equipped with an Energy Shield and has the Interpose ability. If any ally within 1" is hit by a ranged or melee weapon (excluding BLAST), you can redirect the hit to this drone instead.' },
     { id: 'sniper', name: 'Sniper Drone', creditCostModifier: 25, limit: 3,
@@ -3461,7 +4041,7 @@ export const tau_stealth_battlesuit: UnitOption = {
   keywords: ['FLYING', 'INFILTRATOR', 'MARKERLIGHT', 'STEALTH', 'T\'AU', 'VEHICLE'],
   baseSize: '32mm',
   faction: 't_au_empire', unitType: 'troop',
-  description: 'XV25 Stealth battlesuit. Battlekit: Battlesuit Plating (built-in), any 1 Battlesuit Only weapon, any Battlesuit Only equipment. Treated as equipped with a Close Combat Weapon if 2 free hands in melee. Abilities: Cloaking Field (Risky Action +1 DICE: hide behind any line-of-sight blocking scenery the model touches — blocks ranged targeting/Charges until model moves, shoots, or enemy comes within 1.5"), Homing Beacon (allies with DEEP STRIKE or INFILTRATOR can deploy fully within 3" of this model even if visible or near enemies; DEEP STRIKE not adjusted by D3").',
+  description: 'XV25 Stealth battlesuit. Battlekit: Battlesuit Plating (built-in), any 1 Battlesuit Only weapon, any Battlesuit Only equipment. Treated as equipped with a Close Combat Weapon if 2 free hands in melee. Abilities: Cloaking Field (Risky Action +1 DICE: hide behind any line-of-sight blocking scenery the model touches Ã¢â‚¬â€ blocks ranged targeting/Charges until model moves, shoots, or enemy comes within 1.5"), Homing Beacon (allies with DEEP STRIKE or INFILTRATOR can deploy fully within 3" of this model even if visible or near enemies; DEEP STRIKE not adjusted by D3").',
   defaultWargear: [], availableWargear: [],
 };
 export const tau_crisis_battlesuit: UnitOption = {
@@ -3488,7 +4068,7 @@ export const tau_kill_broker: UnitOption = {
   keywords: ['ELITE', 'KROOT', 'STEALTH', 'T\'AU'],
   baseSize: '25-28mm',
   faction: 't_au_empire', unitType: 'elite',
-  description: 'Kroot Kinband variant: mercenary leader. Battlekit: Any melee weapons, Kroot Only ranged weapons, or Kroot Only equipment. Abilities: Call the Kill (Action/no roll: mark one visible enemy — all KROOT attacks vs that mark gain ARMOUR PIERCING 1 this Turn, stacking with other sources), Long Stride (+1 DICE to all Dash Success Rolls), Victory Shriek (when mark is taken OoA: immediately use Call the Kill again, then up to 1 KROOT ally within 6" gains +1 Injury Dice with all attacks until end of its next Activation).',
+  description: 'Kroot Kinband variant: mercenary leader. Battlekit: Any melee weapons, Kroot Only ranged weapons, or Kroot Only equipment. Abilities: Call the Kill (Action/no roll: mark one visible enemy Ã¢â‚¬â€ all KROOT attacks vs that mark gain ARMOUR PIERCING 1 this Turn, stacking with other sources), Long Stride (+1 DICE to all Dash Success Rolls), Victory Shriek (when mark is taken OoA: immediately use Call the Kill again, then up to 1 KROOT ally within 6" gains +1 Injury Dice with all attacks until end of its next Activation).',
   defaultWargear: [], availableWargear: [],
 };
 export const tau_krootox_rider: UnitOption = {
@@ -3497,7 +4077,7 @@ export const tau_krootox_rider: UnitOption = {
   keywords: ['LARGE', 'KROOT', 'LIMITED POTENTIAL', 'MOUNTED', 'T\'AU', 'TOUGH'],
   baseSize: '50mm',
   faction: 't_au_empire', unitType: 'troop',
-  description: 'Kroot Kinband variant: Kroot mounted on Krootox (0-3 in warband worth 1200cr+). Battlekit: Thick Hide and 2 Krootox Fists (Melee, +1 Injury Modifier, no hands) built-in; can equip Kroot Only weapons or equipment using 1 hand (two-handed items allowed via Shield Combo). Ability: Long Stride (+1 DICE to all Dash Success Rolls). Upgrades: Rampager (+10cr, Linebreaker — enemy suffers 1 Blood Marker on successful Charge), Thunderer (+10cr, Weapon Mount — can equip 1 Two-Handed ranged weapon ignoring HEAVY).',
+  description: 'Kroot Kinband variant: Kroot mounted on Krootox (0-3 in warband worth 1200cr+). Battlekit: Thick Hide and 2 Krootox Fists (Melee, +1 Injury Modifier, no hands) built-in; can equip Kroot Only weapons or equipment using 1 hand (two-handed items allowed via Shield Combo). Ability: Long Stride (+1 DICE to all Dash Success Rolls). Upgrades: Rampager (+10cr, Linebreaker Ã¢â‚¬â€ enemy suffers 1 Blood Marker on successful Charge), Thunderer (+10cr, Weapon Mount Ã¢â‚¬â€ can equip 1 Two-Handed ranged weapon ignoring HEAVY).',
   defaultWargear: [], availableWargear: [],
   upgrades: [
     { id: 'tau_rampager', name: 'Rampager', cost: 10, maxCount: 1,
@@ -3505,6 +4085,57 @@ export const tau_krootox_rider: UnitOption = {
     { id: 'tau_thunderer', name: 'Thunderer', cost: 10, maxCount: 1,
       description: 'Gains Weapon Mount: can be equipped with a single TWO-HANDED ranged weapon, ignoring its HEAVY Keyword.' },
   ],
+};
+export const tau_auxiliary: UnitOption = {
+  id: 'tau_auxiliary', name: "T'au Auxiliary", baseCost: 30, minCount: 0, maxCount: 99,
+  stats: { movement: 6, rangedSkill: 0, meleeSkill: 0, armourSave: 0, toughness: 'NORMAL' },
+  keywords: ['MARKERLIGHT', "T'AU"],
+  baseSize: '25-28mm',
+  faction: 't_au_empire', unitType: 'troop',
+  description: "Auxiliary Cadre variant: alien troops of the Greater Good. Battlekit: Any weapons, armour, or equipment from the T'au Empire Battlekit list. Choose a Species when recruited.",
+  defaultWargear: [], availableWargear: [],
+  unitSubTypes: [
+    { id: 'tau_aux_demiurg', name: 'Demiurg', creditCostModifier: -5,
+      description: 'The Demiurg has -1" to its movement speed. Heavily Armoured: The first -1 of the Demiurg\'s Armour, if any, has IMPERVIOUS.' },
+    { id: 'tau_aux_guevesa', name: "Gue'vesa", creditCostModifier: 0,
+      description: 'The Gue\'vesa has no special modifications.' },
+    { id: 'tau_aux_hrenian', name: 'Hrenian', creditCostModifier: 10,
+      statModifiers: { rangedSkill: 1 },
+      description: 'The Hrenian has +1 Ranged Skill.' },
+    { id: 'tau_aux_morralian', name: 'Morralian', creditCostModifier: 10,
+      statModifiers: { meleeSkill: 1 },
+      description: 'The Morralian has +1 Melee Skill.' },
+    { id: 'tau_aux_tarellian', name: 'Tarellian', creditCostModifier: 10,
+      statModifiers: { movement: 2 },
+      description: 'The Tarellian has +2" movement speed.' },
+    { id: 'tau_aux_thraxian', name: 'Thraxian', creditCostModifier: 10,
+      description: 'Multi-Armed: The Thraxian has an additional hand for both melee and ranged combat. It can attack with an additional weapon whenever it takes the Fight or Shoot Action, without off-hand penalties.' },
+  ],
+  upgrades: [
+    { id: 'tau_auxiliary_veteran', name: 'Veteran', cost: 20, maxCount: 3,
+      description: 'Grants +1 Ranged Skill and +1 Melee Skill. Up to 3 of your T\'au Auxiliaries can be Veterans.' },
+  ],
+};
+export const tau_vespid_strain_leader: UnitOption = {
+  id: 'tau_vespid_strain_leader', name: 'Vespid Stingwing (Strain Leader)', baseCost: 130, minCount: 0, maxCount: 1,
+  stats: { movement: 8, rangedSkill: 3, meleeSkill: 3, armourSave: -1, toughness: 'NORMAL' },
+  keywords: ['ELITE', 'FLYING', 'INFILTRATOR', 'SKIRMISHER', "T'AU", 'VESPID'],
+  baseSize: '25mm',
+  faction: 't_au_empire', unitType: 'elite',
+  cannotEquip: true,
+  description: "Auxiliary Cadre variant: Vespid Strain Leader (Auxiliary Leadership). Does not count towards the limit of Vespid Stingwing Mercenaries. Hard carapace armour is included in its statistics. You cannot change its battlekit in any way.",
+  abilities: [
+    { id: 'tau_vespid_airborne_agility', name: 'Airborne Agility', description: 'The Vespid Stingwing has +1 DICE to all Dash Success Rolls.', type: 'passive' },
+  ],
+  defaultWargear: [
+    { id: 'neutron_blaster_vespid', name: 'Neutron Blaster', type: 'ranged', range: 18, cost: 0, handedness: 'two-handed',
+      keywords: ['ARMOUR PIERCING 1', 'ASSAULT', 'CRITICAL', 'TWO-HANDED'],
+      description: '18", ARMOUR PIERCING 1 if wielder moved at least 5" during this Activation, ASSAULT, CRITICAL, TWO-HANDED.' },
+    { id: 'stingwing_claws_vespid', name: 'Stingwing Claws', type: 'melee', cost: 0, handedness: 'two-handed',
+      keywords: ['ARMOUR PIERCING 1', 'TWO-HANDED'],
+      description: 'Melee, ARMOUR PIERCING 1, TWO-HANDED.' },
+  ],
+  availableWargear: [],
 };
 
 // ==========================================================================
@@ -3553,7 +4184,7 @@ export const ng_ganger: UnitOption = {
 export const ng_cyber_mastiff: UnitOption = {
   id: 'ng_cyber_mastiff', name: 'Hardcase Cyber Mastiff', baseCost: 95, minCount: 0, maxCount: 2,
   stats: { movement: 6, rangedSkill: 0, meleeSkill: 1, armourSave: -2, toughness: 'NORMAL' },
-  keywords: ['ARTIFICIAL', 'NO PROMOTION'],
+  keywords: ['ARTIFICIAL', 'NEGATE GAS', 'NO PROMOTION'],
   baseSize: '25mm',
   faction: 'necromunda_gang', unitType: 'troop',
   description: 'Palanite Enforcers variant: cybernetic attack dog.',
@@ -3581,6 +4212,126 @@ export const ng_sanctioner_automata: UnitOption = {
 // ==========================================================================
 // PIRATE CREW
 // ==========================================================================
+// Backgrounds (mutually exclusive Ã¢â‚¬â€ each PIRATE model chooses exactly one)
+const PC_BG: UnitUpgrade[] = [
+  { id: 'pc_bg_beastman', name: 'Beastman', cost: 0, maxCount: 99, upgradeGroup: 'background',
+    grantedKeywords: ['BEASTMEN'],
+    description: 'On a successful Charge, give one enemy model that was engaged BLOOD MARKER.' },
+  { id: 'pc_bg_dark_eldar', name: 'Dark Eldar', cost: 5, maxCount: 99, upgradeGroup: 'background',
+    grantedKeywords: ['DRUKHARI'],
+    statModifiers: { movement: 1 },
+    description: '+1" Move. When an enemy model within 6" has a BLOOD MARKER, you may spend it to gain +1 DICE on any Action. Access to Drukhari battlekit.' },
+  { id: 'pc_bg_death_worlder', name: 'Death Worlder', cost: 0, maxCount: 99, upgradeGroup: 'background',
+    grantedKeywords: ['NEGATE FIRE', 'NEGATE GAS'],
+    description: 'Gains NEGATE FIRE and NEGATE GAS.' },
+  { id: 'pc_bg_eldar_corsair', name: 'Eldar Corsair', cost: 5, maxCount: 99, upgradeGroup: 'background',
+    grantedKeywords: ['AELDARI'],
+    statModifiers: { movement: 1 },
+    description: '+1" Move. +1 DICE to Dash. Access to Aeldari battlekit (limited availability).' },
+  { id: 'pc_bg_feral_worlder', name: 'Feral Worlder', cost: 0, maxCount: 99, upgradeGroup: 'background',
+    grantedKeywords: ['STEALTH'],
+    description: 'Ignores movement penalties for Difficult Terrain. +1 DICE to Climb.' },
+  { id: 'pc_bg_forge_worlder', name: 'Forge Worlder', cost: 0, maxCount: 99, upgradeGroup: 'background',
+    description: 'The first time each battle this model would receive a DOWN marker, ignore it.' },
+  { id: 'pc_bg_gretchin_freebooter', name: 'Gretchin Freebooter', cost: -5, maxCount: 99, upgradeGroup: 'background',
+    grantedKeywords: ['ORK', 'STEALTH'],
+    statModifiers: { rangedSkill: 1, meleeSkill: -1 },
+    description: '+1 Ranged Skill, -1 Melee Skill. Cannot use HEAVY weapons. Charging is RISKY. Access to Ork battlekit.' },
+  { id: 'pc_bg_hive_worlder', name: 'Hive Worlder', cost: 0, maxCount: 99, upgradeGroup: 'background',
+    description: 'Friendly models ignore this model when choosing targets for ranged attacks into its melee combats.' },
+  { id: 'pc_bg_kin', name: 'Kin', cost: -5, maxCount: 99, upgradeGroup: 'background',
+    grantedKeywords: ['VOTANN'],
+    statModifiers: { movement: -1 },
+    description: '-1" Move. The first -1 Armour penalty this model suffers per attack has IMPERVIOUS. Access to Votann battlekit.' },
+  { id: 'pc_bg_kroot', name: 'Kroot', cost: 5, maxCount: 99, upgradeGroup: 'background',
+    grantedKeywords: ['KROOT', 'STEALTH'],
+    description: '+1 DICE to Dash. Access to Kroot-specific battlekit.' },
+  { id: 'pc_bg_noble', name: 'Noble', cost: 0, maxCount: 99, upgradeGroup: 'background',
+    description: 'Friendly models within 1" gain +1 DICE to melee attack rolls against targets this model is also fighting.' },
+  { id: 'pc_bg_ogryn', name: 'Ogryn', cost: 35, maxCount: 99, upgradeGroup: 'background',
+    grantedKeywords: ['LARGE', 'LIMITED POTENTIAL', 'STRONG', 'TOUGH'],
+    description: 'Gains LARGE, LIMITED POTENTIAL, STRONG, and TOUGH. Pirate Captain pays +5 instead of +35.' },
+  { id: 'pc_bg_ork_freebooter', name: 'Ork Freebooter', cost: 0, maxCount: 99, upgradeGroup: 'background',
+    grantedKeywords: ['ORK'],
+    statModifiers: { meleeSkill: 1, rangedSkill: -1 },
+    description: '+1 Melee Skill, -1 Ranged Skill. Access to Ork battlekit (including Kommando, Mek, and Stormboy upgrade lists).' },
+  { id: 'pc_bg_piscean', name: 'Piscean', cost: 0, maxCount: 99, upgradeGroup: 'background',
+    grantedKeywords: ['SKIRMISHER'],
+    description: 'Ignores all attack penalties except those from Cover, Long Range, and BLOOD MARKERS.' },
+  { id: 'pc_bg_ratling', name: 'Ratling', cost: 0, maxCount: 99, upgradeGroup: 'background',
+    grantedKeywords: ['SKIRMISHER'],
+    statModifiers: { rangedSkill: 1, meleeSkill: -1 },
+    description: '+1 Ranged Skill, -1 Melee Skill. +1 DICE to Climb. Cannot use HEAVY weapons.' },
+  { id: 'pc_bg_slanni_brave', name: 'Slanni Brave', cost: -5, maxCount: 99, upgradeGroup: 'background',
+    grantedKeywords: ['SLANN'],
+    description: 'Gains VICIOUS 11 against targets with 1 or more BLOOD MARKERS. Access to Slanni battlekit.' },
+  { id: 'pc_bg_slanni_brute', name: 'Slanni Brute', cost: 20, maxCount: 99, upgradeGroup: 'background',
+    grantedKeywords: ['LARGE', 'SLANN', 'STRONG'],
+    statModifiers: { meleeSkill: 1 },
+    description: 'Gains LARGE, SLANN, and STRONG. When attacking with a HEAVY melee weapon, may target 2 separate enemy models. +1 Melee Skill. -1 to Injury roll modifier.' },
+  { id: 'pc_bg_slanni_skirmisher', name: 'Slanni Skirmisher', cost: -5, maxCount: 99, upgradeGroup: 'background',
+    grantedKeywords: ['SKIRMISHER', 'SLANN'],
+    statModifiers: { meleeSkill: -1 },
+    description: '+2 DICE to Climb and Jump. Never suffers falling damage. +1 DICE to Diving Charge. -1 Melee Skill. Access to Slanni battlekit.' },
+  { id: 'pc_bg_tarellian', name: 'Tarellian', cost: 0, maxCount: 99, upgradeGroup: 'background',
+    statModifiers: { movement: 2 },
+    description: '+2" Movement.' },
+  { id: 'pc_bg_voidborn', name: 'Voidborn', cost: 0, maxCount: 99, upgradeGroup: 'background',
+    description: 'Begins each battle with a BLESSING MARKER.' },
+  { id: 'pc_bg_zoat', name: 'Zoat', cost: 40, maxCount: 99, upgradeGroup: 'background',
+    grantedKeywords: ['FEAR', 'LARGE'],
+    description: 'Gains FEAR and LARGE. Cannot wear non-shield armour. Gains -2 Armour from natural scales (in addition to equipped armour).' },
+];
+// Pirate Captain pays +5 for Ogryn instead of +35
+const PC_CAPTAIN_BG: UnitUpgrade[] = PC_BG.map(bg =>
+  bg.id === 'pc_bg_ogryn'
+    ? { ...bg, cost: 5, description: 'Gains LARGE, LIMITED POTENTIAL, STRONG, and TOUGH.' }
+    : bg
+);
+// Specialties (optional Ã¢â‚¬â€ each PIRATE model may choose at most one; per-warband limits apply)
+const PC_SP: UnitUpgrade[] = [
+  { id: 'pc_sp_cannoneer', name: 'Cannoneer', cost: 15, maxCount: 1, upgradeGroup: 'specialty',
+    description: '+1 INJURY DICE with TWO-HANDED ranged weapons on the first ranged attack each turn. LIMIT: 1 per warband.' },
+  { id: 'pc_sp_duelist', name: 'Duelist', cost: 10, maxCount: 2, upgradeGroup: 'specialty',
+    description: 'When an enemy model Charges this model, make one free melee attack against it before it attacks. LIMIT: 2 per warband.' },
+  { id: 'pc_sp_grenadier', name: 'Grenadier', cost: 5, maxCount: 99, upgradeGroup: 'specialty',
+    description: '+4" range to THROWN weapons.' },
+  { id: 'pc_sp_grot_boss', name: 'Grot Boss', cost: 5, maxCount: 1, upgradeGroup: 'specialty',
+    description: 'ELITE only. Must be Gretchin Freebooter or Ork Freebooter background. Gretchin models within 6" may Charge normally. LIMIT: 1 per warband.' },
+  { id: 'pc_sp_heavy', name: 'Heavy', cost: 10, maxCount: 3, upgradeGroup: 'specialty',
+    grantedKeywords: ['STRONG'],
+    description: 'Gains STRONG. Non-Ogryn only. LIMIT: 3 per warband.' },
+  { id: 'pc_sp_heretek', name: 'Heretek', cost: 10, maxCount: 2, upgradeGroup: 'specialty',
+    grantedKeywords: ['MECHANICUS'],
+    description: 'Gains MECHANICUS. Requires Death Worlder, Forge Worlder, Hive Worlder, Noble, or Voidborn background. Gains one extra hand for simultaneously carrying melee and ranged weapons. May also take the Mechanic specialty without counting it towards the specialty limit. LIMIT: 2 per warband.' },
+  { id: 'pc_sp_hunter', name: 'Hunter', cost: 5, maxCount: 1, upgradeGroup: 'specialty',
+    description: '+1 DICE to Hit rolls against enemy models that have already activated this turn. LIMIT: 1 per warband.' },
+  { id: 'pc_sp_knife_fighter', name: 'Knife Fighter', cost: 10, maxCount: 3, upgradeGroup: 'specialty',
+    description: '+1 INJURY DICE with Close Combat Weapons and Throwing Knives. LIMIT: 3 per warband.' },
+  { id: 'pc_sp_mechanic', name: 'Mechanic', cost: 10, maxCount: 1, upgradeGroup: 'specialty',
+    description: 'Action: remove 1 BLOOD MARKER from an ARTIFICIAL, MECHANICUS, or VEHICLE ally, or an ally with -2 or worse Armour, within 1". Herekets may take this in addition to their regular specialty. LIMIT: 1 per warband.' },
+  { id: 'pc_sp_pistoleer', name: 'Pistoleer', cost: 10, maxCount: 2, upgradeGroup: 'specialty',
+    description: 'If armed with two PISTOL weapons: may Shoot with both in a single Activation. All PISTOL weapons gain IGNORE OFF-HAND WEAPON. LIMIT: 2 per warband.' },
+  { id: 'pc_sp_psyker', name: 'Psyker', cost: 5, maxCount: 1, upgradeGroup: 'specialty',
+    grantedKeywords: ['PSYKER 1'],
+    description: 'ELITE only. Gains PSYKER 1 and access to one Shared Discipline (3 powers). Some racial keywords alter discipline access. Add psychic power costs separately. LIMIT: 1 per warband.' },
+  { id: 'pc_sp_reaver', name: 'Reaver', cost: 10, maxCount: 3, upgradeGroup: 'specialty',
+    description: 'After Downing or taking Out of Action an enemy in melee: immediately move up to 3" and Charge a new target, gaining 1 extra melee attack. Once per Turn. LIMIT: 3 per warband.' },
+  { id: 'pc_sp_rigger', name: 'Rigger', cost: 5, maxCount: 99, upgradeGroup: 'specialty',
+    description: '+1 DICE to Climb, Jump, and Diving Charge. May attempt a roll to avoid falling damage.' },
+  { id: 'pc_sp_sapper', name: 'Sapper', cost: 10, maxCount: 1, upgradeGroup: 'specialty',
+    grantedKeywords: ['NEGATE MINED'],
+    description: 'Gains NEGATE MINED. May place Mines on terrain as an Action. LIMIT: 1 per warband.' },
+  { id: 'pc_sp_sneak', name: 'Sneak', cost: 10, maxCount: 3, upgradeGroup: 'specialty',
+    grantedKeywords: ['INFILTRATOR', 'STEALTH'],
+    description: 'Gains INFILTRATOR and STEALTH. Costs +5 instead if this model has the Feral Worlder, Gretchin Freebooter, or Kroot background. LIMIT: 3 per warband.' },
+  { id: 'pc_sp_tactician', name: 'Tactician', cost: 10, maxCount: 1, upgradeGroup: 'specialty',
+    grantedKeywords: ['FIRETEAM'],
+    description: 'Gains FIRETEAM. May form a Fireteam with any 1 warband model. LIMIT: 1 per warband.' },
+  { id: 'pc_sp_void_terror', name: 'Void Terror', cost: 10, maxCount: 1, upgradeGroup: 'specialty',
+    grantedKeywords: ['FEAR'],
+    description: 'Non-Zoat ELITE only. Gains FEAR. LIMIT: 1 per warband.' },
+];
 export const pc_pirate_captain: UnitOption = {
   id: 'pc_pirate_captain', name: 'Pirate Captain', baseCost: 65, minCount: 1, maxCount: 1,
   stats: { movement: 6, rangedSkill: 2, meleeSkill: 2, armourSave: 0, toughness: 'NORMAL' },
@@ -3589,6 +4340,7 @@ export const pc_pirate_captain: UnitOption = {
   faction: 'pirate_crew', unitType: 'elite',
   description: 'Mandatory captain commanding the pirate crew.',
   defaultWargear: [], availableWargear: [],
+  upgrades: [...PC_CAPTAIN_BG, ...PC_SP],
 };
 export const pc_first_mate: UnitOption = {
   id: 'pc_first_mate', name: 'First Mate', baseCost: 50, minCount: 0, maxCount: 1,
@@ -3598,6 +4350,7 @@ export const pc_first_mate: UnitOption = {
   faction: 'pirate_crew', unitType: 'elite',
   description: 'Second-in-command of the pirate vessel.',
   defaultWargear: [], availableWargear: [],
+  upgrades: [...PC_BG, ...PC_SP],
 };
 export const pc_pirate_champion: UnitOption = {
   id: 'pc_pirate_champion', name: 'Pirate Champion', baseCost: 45, minCount: 0, maxCount: 2,
@@ -3607,6 +4360,7 @@ export const pc_pirate_champion: UnitOption = {
   faction: 'pirate_crew', unitType: 'elite',
   description: 'Experienced pirate officer.',
   defaultWargear: [], availableWargear: [],
+  upgrades: [...PC_BG, ...PC_SP],
 };
 export const pc_pirate: UnitOption = {
   id: 'pc_pirate', name: 'Pirate', baseCost: 35, minCount: 0, maxCount: 99,
@@ -3616,6 +4370,7 @@ export const pc_pirate: UnitOption = {
   faction: 'pirate_crew', unitType: 'troop',
   description: 'Standard voidborn pirate.',
   defaultWargear: [], availableWargear: [],
+  upgrades: [...PC_BG, ...PC_SP],
 };
 export const pc_pirate_veteran: UnitOption = {
   id: 'pc_pirate_veteran', name: 'Pirate Veteran', baseCost: 45, minCount: 0, maxCount: 99,
@@ -3625,6 +4380,7 @@ export const pc_pirate_veteran: UnitOption = {
   faction: 'pirate_crew', unitType: 'troop',
   description: 'Seasoned pirate with battle experience.',
   defaultWargear: [], availableWargear: [],
+  upgrades: [...PC_BG, ...PC_SP],
 };
 
 // ============================================================================
@@ -3707,7 +4463,7 @@ export const faction_grey_knights: Faction = {
   id: 'grey_knights',
   name: 'Grey Knights',
   keywords: [],
-  description: 'Adeptus Astartes warband variant. Daemon-hunting Space Marines of the Grey Knights Chapter.',
+  description: 'Daemon-hunting Space Marines of the Grey Knights Chapter. Fight against the supernatural.',
   units: applyAbilities([gk_captain, gk_apothecary, gk_chaplain, gk_librarian, gk_scout_marine, gk_space_marine, gk_terminator, gk_dreadnought]),
 };
 
@@ -3715,7 +4471,7 @@ export const faction_adeptus_arbites: Faction = {
   id: 'adeptus_arbites',
   name: 'Adeptus Arbites',
   keywords: [],
-  description: 'Necromunda Gang (Palanite Enforcers) variant. The law-enforcers of the Imperium.',
+  description: 'The Adeptus Arbites Ã¢â‚¬â€ Imperial law-enforcers maintaining order across the Imperium.',
   units: applyAbilities([arb_gang_leader, arb_gang_champion, arb_juve, arb_ganger, arb_cyber_mastiff, arb_sanctioner_automata]),
 };
 
@@ -3723,21 +4479,53 @@ export const faction_heretic_astartes: Faction = {
   id: 'heretic_astartes',
   name: 'Heretic Astartes',
   keywords: [],
-  description: 'Traitor Space Marines and their cultist followers.',
+  description: 'Traitor Space Marines and their cultist followers. Choose a Warband Variant (Legion) as a subfaction.',
   units: applyAbilities([
     ha_chaos_lord, ha_dark_apostle, ha_chaos_sorcerer, ha_warpsmith,
     ha_chaos_cultist, ha_chaos_space_marine, ha_possessed, ha_chaos_terminator, ha_helbrute,
-    // Death Guard warband variant
+    // Renegade Space Marines warband variant
+    ha_renegade_apothecary,
+    // Death Guard warband variant (shown only when death_guard subfaction is selected)
     ha_poxwalker, ha_foetid_blight_drone,
     // Emperor's Children warband variant
     ha_lord_kakophonist,
-    // Renegade Space Marines warband variant
-    ha_renegade_apothecary,
     // Thousand Sons warband variant
-    ha_exalted_sorcerer, ha_tzaangor_shaman, ha_tzaangor, ha_sekhetar_robot,
+    ha_exalted_sorcerer, ha_tzaangor_shaman, ha_tzaangor, ts_sekhetar_robot,
     // World Eaters warband variant
     ha_master_of_executions, ha_slaughterbound,
   ]),
+};
+
+export const faction_death_guard: Faction = {
+  id: 'death_guard',
+  name: 'Death Guard',
+  keywords: [],
+  description: "Servants of Nurgle who spread plague and pestilence. Patron must be Nurgle (Shared Patron).",
+  units: applyAbilities([dg_chaos_lord, dg_chaos_sorcerer, dg_plague_marine, dg_plague_terminator, dg_helbrute, dg_chaos_cultist, dg_poxwalker, dg_foetid_blight_drone]),
+};
+
+export const faction_emperors_children: Faction = {
+  id: 'emperors_children',
+  name: "Emperor's Children",
+  keywords: [],
+  description: "Disciples of Slaanesh who seek sensation and excess above all else. Patron must be Slaanesh (Shared Patron).",
+  units: applyAbilities([ec_chaos_lord, ec_dark_apostle, ec_chaos_sorcerer, ec_noise_marine, ec_possessed, ec_chaos_terminator, ec_helbrute, ec_chaos_cultist, ec_lord_kakophonist]),
+};
+
+export const faction_thousand_sons: Faction = {
+  id: 'thousand_sons',
+  name: 'Thousand Sons',
+  keywords: [],
+  description: "Sorcerers of Tzeentch and their Rubric Marine legions. Patron must be Tzeentch (Shared Patron).",
+  units: applyAbilities([ts_exalted_sorcerer, ts_chaos_sorcerer, ts_tzaangor_shaman, ts_tzeentch_cultist, ts_tzaangor, ts_rubric_marine, ts_scarab_occult_terminator, ts_sekhetar_robot, ts_helbrute]),
+};
+
+export const faction_world_eaters: Faction = {
+  id: 'world_eaters',
+  name: 'World Eaters',
+  keywords: [],
+  description: "Khorne's berserkers who know only slaughter, harvesting skulls for the Blood God. Patron must be Khorne (Shared Patron).",
+  units: applyAbilities([we_chaos_lord, we_dark_apostle, we_berzerker, we_jakhal, we_eightbound, we_chaos_terminator, we_helbrute, we_master_of_executions, we_slaughterbound]),
 };
 
 export const faction_chaos_cult: Faction = {
@@ -3860,6 +4648,7 @@ export const faction_pirate_crew: Faction = {
   units: applyAbilities([pc_pirate_captain, pc_first_mate, pc_pirate_champion, pc_pirate, pc_pirate_veteran]),
 };
 
+
 export const allFactions: Faction[] = [
   faction_adeptus_astartes,
   faction_astra_militarum,
@@ -3873,6 +4662,10 @@ export const allFactions: Faction[] = [
   faction_grey_knights,
   faction_adeptus_arbites,
   faction_heretic_astartes,
+  faction_death_guard,
+  faction_emperors_children,
+  faction_thousand_sons,
+  faction_world_eaters,
   faction_chaos_cult,
   faction_chaos_daemons,
   faction_the_vermintide,

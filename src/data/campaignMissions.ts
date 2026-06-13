@@ -153,8 +153,8 @@ const COMMON_LOCATIONS: ExplorationLocation[] = [
   {
     result: 11, name: 'Relic Cache',
     universalChoices: [
-      { name: 'Supplies', description: 'Now or during any quartermaster step, you can purchase a single piece of battlekit from your Campaign Shop that costs up to 5 Glory, paying for it as normal.' },
-      { name: 'Relics', description: 'You earn 1 Glory.' },
+      { name: 'Powerful Relic', description: 'Now or during any quartermaster step, you can purchase a single piece of battlekit from your Campaign Shop that costs up to 5 Glory, paying for it, but its cost is reduced by 1 Glory.' },
+      { name: 'Rare Relics', description: 'You earn 1 Glory.' },
     ],
     factionChoices: [
       { name: 'Arcane Secrets', description: 'You earn 2 additional Arcane Points.', condition: ['heretic_astartes:thousand_sons'], conditionLabel: '(Thousand Sons Only)' },
@@ -164,15 +164,37 @@ const COMMON_LOCATIONS: ExplorationLocation[] = [
   {
     result: 14, name: 'Survivor',
     universalChoices: [
-      { name: 'Recruit Survivor', description: 'You can add a faction-specific survivor model to your Warband, even if it would exceed normal limits. Check your faction\'s survivor entry for the specific model and loadout.' },
     ],
-    factionChoices: [],
+    factionChoices: [
+      { name: 'Adepta Sororitas', description: 'A Novitiate with a Condemnor Boltgun and a Close Combat Weapon.', condition: ['adepta_sororitas'], conditionLabel: '(Adepta Sororitas Only)' },
+      { name: 'Adeptus Astartes', description: 'A Scout Marine with Standard Armour, a Bolt Pistol, and a Chain Blade.', condition: ['adeptus_astartes'], conditionLabel: '(Adeptus Astartes Only)' },
+      { name: 'Adeptus Custodes', description: 'An Anathema Psykana with an Executioner Greatblade.', condition: ['adeptus_custodes'], conditionLabel: '(Adeptus Custodes Only)' },
+      { name: 'Adeptus Mechanicus', description: 'A Skitarii with a Galvanic Rifle and a Close Combat Weapon.', condition: ['adeptus_mechanicus'], conditionLabel: '(Adeptus Mechanicus Only)' },
+      { name: 'Adeptus Ministorum', description: 'A Crusader with Standard Armour, a Shield, and a Blade.', condition: ['adeptus_ministorum'], conditionLabel: '(Adeptus Ministorum Only)' },
+      { name: 'Astra Militarum', description: 'A veteran Guardsman with a Las Pistol and a Regiment Flag.', condition: ['astra_militarum'], conditionLabel: '(Astra Militarum Only)' },
+      { name: 'The Inquisition', description: 'An Acolyte with a Stakethrower and a Shock Stave.', condition: ['the_inquisition'], conditionLabel: '(The Inquisition Only)' },
+      { name: 'Officio Assassinorum', description: 'An Assassin Aspirant with Throwing Knives and a Poison Blade.', condition: ['officio_assassinorum'], conditionLabel: '(Officio Assassinorum Only)' },
+      { name: 'Rogue Trader', description: 'Randomly choose a survivor from among other Imperial Factions. (There are 8 total.) That model can be equipped from its normal Armoury or Battlekit List.', condition: ['rogue_trader'], conditionLabel: '(Rogue Trader Only)' },
+      { name: 'Chaos Cult', description: 'Cult Rabble with an Autogun and a Bludgeon.', condition: ['chaos_cult'], conditionLabel: '(Chaos Cult Only)' },
+      { name: 'Chaos Daemons', description: 'Varies depending on your Warband leader\'s Keywords: KHORNE: A Bloodletter with a Blade of Blood. NURGLE: A Poxbringer with a Foul Balesword. SLAANESH: A Daemonette with a Rapturous Standard. TZEENTCH: A Blue Horror and a Blasted Standard. UNDIVIDED: A Chaos Furie with an Icon of Vengeance.', condition: ['chaos_daemons'], conditionLabel: '(Chaos Daemons Only)' },
+      { name: 'Heretic Astartes', description: 'A Chaos Cultist with an Autogun and a Bludgeon.', condition: ['heretic_astartes'], conditionLabel: '(Heretic Astartes Only)' },
+      { name: 'The Vermintide', description: 'A Clanrat with a Warpfuel Rifle and a Close Combat Weapon.', condition: ['the_vermintide'], conditionLabel: '(The Vermintide Only)' },
+      { name: 'Aeldari', description: 'A Guardian with the Ranger upgrade, a Shuriken Catapult, and a Blade.', condition: ['aeldari'], conditionLabel: '(Aeldari Only)' },
+      { name: 'Drukhari', description: 'A Kabalite Warrior with a Shredder and a Blade.', condition: ['drukhari'], conditionLabel: '(Drukhari Only)' },
+      { name: 'Genestealer Cults', description: 'A Neophyte with the Miner upgrade and a Two-Handed Hammer.', condition: ['genestealer_cults'], conditionLabel: '(Genestealer Cults Only)' },
+      { name: 'Harlequins', description: 'A Mime with a Flip Belt, a Shuriken Pistol, Hallucinogen Grenades, and a Blade.', condition: ['harlequins'], conditionLabel: '(Harlequins Only)' },
+      { name: 'Leagues of Votann', description: 'A Hearthkyn with Standard Armour, a Boltgun, and a Plasma Blade.', condition: ['leagues_of_votann'], conditionLabel: '(Leagues of Votann Only)' },
+      { name: 'Necrons', description: 'A Necron Warrior with a Plasmacyte Reanimator.', condition: ['necrons'], conditionLabel: '(Necrons Only)' },
+      { name: 'Orks', description: 'A Boy with a Kustom Shoota and a Choppa.', condition: ['orks'], conditionLabel: '(Orks Only)' },
+      { name: 'T\'au Empire', description: 'A Fire Warrior with the Pathfinder upgrade and a Pulse Blaster.', condition: ['tau_empire'], conditionLabel: '(T\'au Empire Only)' },
+      { name: 'Tyranids', description: 'A Termagant with two Chitinous Claws, a Strangleweb, and Adrenal Glands.', condition: ['tyranids'], conditionLabel: '(Tyranids Only)' },
+    ],
   },
   {
     result: 16, name: 'City Ruins',
     universalChoices: [
       { name: 'Find Vantage', description: 'During your next Exploration, you have the Set Dice Exploration Skill twice.' },
-      { name: 'Scavenge', description: 'Now or during any quartermaster step, you can purchase a single piece of battlekit from your Campaign Shop that costs up to 4 Glory, paying for it as normal.' },
+      { name: 'Scavenge', description: 'Now or during any quartermaster step, you can purchase a single piece of battlekit from your Campaign Shop that costs up to 4 Glory, paying for it, but its cost is reduced by 1 Glory.' },
       { name: 'Recuperate', description: 'You can purchase models and battlekit until you have total credits worth up to your next mission\'s credit limit, without paying for it.' },
     ],
     factionChoices: [
@@ -362,27 +384,53 @@ const LEGENDARY_LOCATIONS: ExplorationLocation[] = [
   {
     result: 15, name: 'Lost Champion',
     universalChoices: [
-      { name: 'Recruit Champion', description: 'You can add a faction-specific champion model to your Warband, even if it would exceed normal limits. If you have room for another Elite, you can immediately promote it. Check your faction\'s lost champion entry for the specific model and loadout.' },
+      { name: 'Recruit Champion', description: 'You can add a faction-specific champion model to your Warband, even if it would exceed normal limits. If you have room for another Elite model, you can immediately promote it to Elite. If it normally has NO PROMOTION, it has LIMITED POTENTIAL instead.' },
     ],
-    factionChoices: [],
+    factionChoices: [
+      { name: 'Adepta Sororitas', description: 'A Battle Sister with the Impetuous Fervor ability and the NEGATE FEAR keyword, with Power Armour, a Melta Gun, Frag Grenades, a Chain Blade, a Close Combat Weapon, and a Combat Helmet.', condition: ['adepta_sororitas'], conditionLabel: '(Adepta Sororitas Only)' },
+      { name: 'Adeptus Astartes', description: 'An Astartes with Power Armour, a Plasma Gun, Krak Grenades, a Chain Blade, a Close Combat Weapon, Sindexterous Cyberteknika, and a Combat Helmet.', condition: ['adeptus_astartes'], conditionLabel: '(Adeptus Astartes Only)' },
+      { name: 'Adeptus Custodes', description: 'A Custodian Guard with Auramite Armour, a Heavy Shield, a Guardian Spear, and a Combat Helmet.', condition: ['adeptus_custodes'], conditionLabel: '(Adeptus Custodes Only)' },
+      { name: 'Adeptus Mechanicus', description: 'An Electro-Priest with Standard Armour, Electrostatic Gauntlets, Vascular Cyberteknika, and a Combat Helmet.', condition: ['adeptus_mechanicus'], conditionLabel: '(Adeptus Mechanicus Only)' },
+      { name: 'Adeptus Ministorum', description: 'A Death Cult Assassin with Standard Armour, Incendiary Grenades, a Hand Flamer, a Blade, a Combat Helmet, Filter Plugs, and a Grapnel Launcher.', condition: ['adeptus_ministorum'], conditionLabel: '(Adeptus Ministorum Only)' },
+      { name: 'Astra Militarum', description: 'A Veteran Guardsman considered upgraded from a Conscript, with the Drop Trooper Upgrade, Standard Armour, an Automatic Shotgun, Krak Grenades, two Close Combat Weapons, a Combat Helmet, and a Medicae Kit.', condition: ['astra_militarum'], conditionLabel: '(Astra Militarum Only)' },
+      { name: 'The Inquisition', description: 'A Jokaero Weaponsmith with Standard Armour, Digital Weapons, Frag Grenades, a Two-Handed Blade, and a Combat Helmet.', condition: ['the_inquisition'], conditionLabel: '(The Inquisition Only)' },
+      { name: 'Officio Assassinorum', description: 'An Assassin Aspirant with Standard Armour, a Longlas, Krak Grenades, Paired Blades, a Combat Helmet, a Grapnel Launcher, and Photo Goggles.', condition: ['officio_assassinorum'], conditionLabel: '(Officio Assassinorum Only)' },
+      { name: 'Rogue Trader', description: 'Randomly choose a champion from among other Imperial Factions. (There are 8 total.) That model can be equipped from its normal Armoury.', condition: ['rogue_trader'], conditionLabel: '(Rogue Trader Only)' },
+      { name: 'Chaos Cult', description: 'A Chaos Devotee with an additional Permanent Mutation (roll twice and choose one), Standard Armour, a Heavy Stubber, Toxin Grenades, a Butcher\'s Cleaver, a Close Combat Weapon, and a Covert Disguise.', condition: ['chaos_cult'], conditionLabel: '(Chaos Cult Only)' },
+      { name: 'Chaos Daemons', description: 'Varies by leader keywords: KHORNE: Flesh Hound with a Collar of Khorne. NURGLE: Plaguebearer with a Plaguesword, Death\'s Heads, a Mischievous Nurgling, and a Sloppity Bilepipe. SLAANESH: Seeker with Lashes of Torment. TZEENTCH: Pink Horror with an Icon of Tzeentch. UNDIVIDED: one of the above at random.', condition: ['chaos_daemons'], conditionLabel: '(Chaos Daemons Only)' },
+      { name: 'Heretic Astartes', description: 'A Heretic Astartes with Power Armour, a Heavy Stubber, Krak Grenades, a Chain Blade, a Close Combat Weapon, and a Combat Helmet.', condition: ['heretic_astartes'], conditionLabel: '(Heretic Astartes Only)' },
+      { name: 'The Vermintide', description: 'A Stormvermin with Power Armour, a Plasma Gun, Plasma Bombs, a Taser Goad, and a Combat Helmet.', condition: ['the_vermintide'], conditionLabel: '(The Vermintide Only)' },
+      { name: 'Aeldari', description: 'An Aspect Warrior with the Striking Scorpion Aspect, Aspect Armour, Paired Chainsabres, Plasma Grenades, an Aeldari Helmet, and a Flip Belt.', condition: ['aeldari'], conditionLabel: '(Aeldari Only)' },
+      { name: 'Drukhari', description: 'An Incubus with an Incubus Warsuit, a Tormentor Helm, Demiklaives, Antitox, and Gruesome Talismens.', condition: ['drukhari'], conditionLabel: '(Drukhari Only)' },
+      { name: 'Genestealer Cults', description: 'An Acolyte with the Acolyte Miner Upgrade, Standard Armour, a Mining Laser, and a Heavy Rock Drill.', condition: ['genestealer_cults'], conditionLabel: '(Genestealer Cults Only)' },
+      { name: 'Harlequins', description: 'A Player with a Holo Suit, a Flip Belt, Hallucinogen Grenades, a Harlequin\'s Kiss, and a Fusion Pistol.', condition: ['harlequins'], conditionLabel: '(Harlequins Only)' },
+      { name: 'Leagues of Votann', description: 'An Einhyr Hearthguard with Power Armour, a Volkanite Disintegrator, Frag Grenades, Twin Concussion Gauntlets, an Exoarmour Grenade Launcher, and a Teleport Crest.', condition: ['leagues_of_votann'], conditionLabel: '(Leagues of Votann Only)' },
+      { name: 'Necrons', description: 'An Immortal with the Lychguard Upgrade, a Tesla Carbine, a Warscythe, and Necrodermal Plating.', condition: ['necrons'], conditionLabel: '(Necrons Only)' },
+      { name: 'Orks', description: 'A Nob with Eavy Armour, a Rokkit Launcha, Firey Stikkbombs, a Killsaw, and an Ammo Runt.', condition: ['orks'], conditionLabel: '(Orks Only)' },
+      { name: 'T\'au Empire', description: 'A Kroot Carnivore with a Kroot Scattergun, Hunting Javelins, a Bladestave, a Kroothawk Flock, and a Medical Kit. You also gain a Missile Drone, which cannot become Elite or replace its NO PROMOTION keyword.', condition: ['tau_empire'], conditionLabel: '(T\'au Empire Only)' },
+      { name: 'Tyranids', description: 'A Tyranid Warrior with a Bonesword, a Lash Whip, a Deathspitter, and Dermic Symbiosis.', condition: ['tyranids'], conditionLabel: '(Tyranids Only)' },
+      { name: 'Necromunda Gang', description: 'A Ganger Veteran from your Gang with Standard Armour, a Longlas, Krak Grenades, a Las Cutter, a Close Combat Weapon, a Combat Helmet, and a Grapnel Launcher.', condition: ['necromunda_gang'], conditionLabel: '(Necromunda Gang Only)' },
+      { name: 'Pirate Crew', description: 'A Pirate Veteran with a random Background and random Specialty, a Plasma Gun, Incendiary Grenades, Paired Blades, Blade Venom, and a Combat Helmet.', condition: ['pirate_crew'], conditionLabel: '(Pirate Crew Only)' },
+    ],
   },
   {
     result: 17, name: 'Derelict Ship',
     universalChoices: [
-      { name: 'Salvage', description: 'Now or during any quartermaster step, you can purchase any single piece of battlekit from your Campaign Shop that costs up to 8 Glory, paying for it as normal.' },
+      { name: 'Salvage', description: 'Now or during any quartermaster step, you can purchase any single piece of battlekit from your Campaign Shop that costs up to 8 Glory, paying for it, but its cost is reduced by 2 Glory.' },
     ],
     factionChoices: [
       { name: 'Send to Fleet', description: 'You earn 1 Glory. Add D3 to your Warfleet Reputation.', condition: ['heretic_astartes'], conditionLabel: '(Heretic Astartes Only)' },
       { name: 'Loot', description: 'You earn 5 additional Raid Spoils.', condition: ['drukhari'], conditionLabel: '(Drukhari Only)' },
       { name: 'Acquire', description: 'You earn 100 Energy Sources.', condition: ['leagues_of_votann'], conditionLabel: '(Leagues of Votann Only)' },
+      { name: 'Decorate', description: 'You earn 2 Glory.', condition: ['necromunda_gang'], conditionLabel: '(Necromunda Gang Only)' },
     ],
   },
   {
     result: 18, name: 'Blackstone Deposit',
     universalChoices: [
       { name: 'Sell', description: 'You earn an additional 200 credits.' },
-      { name: 'Upgrade', description: 'Up to 2 pieces of armour or models with -1+ armour gain NEGATE FIRE, NEGATE GAS, or NEGATE SHRAPNEL (your choice).' },
-      { name: 'Craft', description: 'Now or during any quartermaster step, you can purchase any amount of battlekit from your Campaign Shop up to a total cost of 7 Glory, paying for it as normal.' },
+      { name: 'Upgrade', description: 'Up to 2 pieces of armour you own, or models with an armour value of -1 or higher in your Warband, permanently gain your choice of NEGATE FIRE, NEGATE GAS, or NEGATE SHRAPNEL.' },
+      { name: 'Craft', description: 'Now or during any quartermaster step, you can purchase any amount of battlekit from your Campaign Shop up to a total cost of 7 Glory, paying for it, but the cost of the first item you purchase is reduced by 2 Glory.' },
     ],
     factionChoices: [
       { name: 'Acquire', description: 'You earn 100 Raw Minerals.', condition: ['leagues_of_votann'], conditionLabel: '(Leagues of Votann Only)' },
@@ -392,7 +440,7 @@ const LEGENDARY_LOCATIONS: ExplorationLocation[] = [
     result: 20, name: 'War Machine',
     universalChoices: [
       { name: 'Claim', description: 'You earn 2 Glory.' },
-      { name: 'Disassemble', description: 'Now or during any quartermaster step, you can purchase any single piece of battlekit from your Campaign Shop, paying for it as normal.' },
+      { name: 'Disassemble', description: 'Now or during any quartermaster step, you can purchase any single piece of battlekit from your Campaign Shop, paying for it, but its cost is reduced by 2 Glory.' },
     ],
     factionChoices: [
       { name: 'Extract', description: 'You find two pieces of archeotech, randomly chosen from among any type(s) you choose.', condition: ['adeptus_mechanicus'], conditionLabel: '(Adeptus Mechanicus Only)' },
@@ -405,22 +453,22 @@ const LEGENDARY_LOCATIONS: ExplorationLocation[] = [
     universalChoices: [],
     factionChoices: [
       { name: 'Burn', description: 'You earn 3 Glory.', condition: ['NOT:chaos'], conditionLabel: '(non-Chaos Only)' },
-      { name: 'Anoint', description: 'One Elite model of your choice earns an additional 5 XP.', condition: ['chaos'], conditionLabel: '(Chaos Only)' },
-      { name: 'Blood Ritual', description: 'Each eligible model can roll for an additional Permanent Mutation, and each Elite model earns 1 XP.', condition: ['chaos_cult'], conditionLabel: '(Chaos Cult Only)' },
+      { name: 'Anoint', description: 'One Elite model of your choice in your Warband earns an additional 5 XP.', condition: ['chaos'], conditionLabel: '(Chaos Only)' },
+      { name: 'Blood Ritual', description: 'Each of your eligible models can roll for an additional Permanent Mutation, and each of your Elite models earns an additional 1 XP.', condition: ['chaos_cult'], conditionLabel: '(Chaos Cult Only)' },
       { name: 'Blood for the Blood God', description: 'You earn 2 Glory. Add 4 to the Ascendancy of Khorne.', condition: ['chaos_daemons'], conditionLabel: '(Chaos Daemons Only)' },
       { name: 'Claim', description: 'You earn 1 Glory. Add D3 to your Dark Gods Reputation.', condition: ['heretic_astartes'], conditionLabel: '(Heretic Astartes Only)' },
-      { name: 'Bathe', description: 'One Elite model gains 20 Claimed Skulls.', condition: ['heretic_astartes:world_eaters'], conditionLabel: '(World Eaters Only)' },
-      { name: 'Deconsecrate', description: 'Up to three Elite models each earn 2 additional XP.', condition: ['adepta_sororitas', 'adeptus_ministorum', 'heretic_astartes:grey_knights', 'the_inquisition:ordo_malleus'], conditionLabel: '(Adepta Sororitas, Adeptus Ministorum, Grey Knights, or Ordo Malleus Only)' },
+      { name: 'Bathe', description: 'One Elite model of your choice in your Warband gains 20 Claimed Skulls.', condition: ['heretic_astartes:world_eaters'], conditionLabel: '(World Eaters Only)' },
+      { name: 'Deconsecrate', description: 'Up to three Elite models of your choice in your Warband each earn 2 additional XP.', condition: ['adepta_sororitas', 'adeptus_ministorum', 'heretic_astartes:grey_knights', 'the_inquisition:ordo_malleus'], conditionLabel: '(Adepta Sororitas, Adeptus Ministorum, Grey Knights, or Ordo Malleus Only)' },
       { name: 'Acquire', description: 'You earn 100 Biomatter.', condition: ['leagues_of_votann'], conditionLabel: '(Leagues of Votann Only)' },
     ],
   },
   {
     result: 30, name: 'Secret Library',
     universalChoices: [
-      { name: 'Secret Weakness', description: 'Choose one Elite model and one type (Imperial, Chaos, Xenos, Outlaw). That model has +1 INJURY DICE against that type for the rest of the campaign.' },
+      { name: 'Secret Weakness', description: 'Choose one Elite model in your Warband and one of the following: Imperial, Chaos, Xenos, Outlaw. For the remainder of the campaign, that model has +1 INJURY DICE with all attacks against models in the chosen type of Warband.' },
     ],
     factionChoices: [
-      { name: 'Psychic Knowledge', description: 'Choose one PSYKER model. It learns a random Shared Psychic Power for free, ignoring normal limits.', condition: ['HAS_PSYKER'], conditionLabel: '(requires PSYKER model)' },
+      { name: 'Psychic Knowledge', description: 'Choose one PSYKER model in your Warband. Randomly select a Shared Psychic Power (roll a D6 for Discipline and a D6 for power), rerolling powers the chosen model already knows. The chosen model learns that power without paying for it, which does not count towards its normal limits or towards your credit limit for a mission.', condition: ['HAS_PSYKER'], conditionLabel: '(requires PSYKER model)' },
       { name: 'Knowledge for Tzeentch', description: 'You earn 2 Glory. Add 4 to the Ascendancy of Tzeentch.', condition: ['chaos_daemons'], conditionLabel: '(Chaos Daemons Only)' },
       { name: 'Arcane Knowledge', description: 'You earn 5 additional Arcane Points.', condition: ['heretic_astartes:thousand_sons'], conditionLabel: '(Thousand Sons Only)' },
       { name: 'Prophecies', description: 'Reduce your current Threat to 0.', condition: ['aeldari'], conditionLabel: '(Aeldari Only)' },
@@ -447,12 +495,13 @@ export const EXPLORATION_TABLES: Record<'common' | 'rare' | 'legendary', { label
 // ============================================================================
 
 export const EXPLORATION_SKILL_DEFS: Record<string, string> = {
+  'Delete': 'After you roll, select any Exploration Die and remove it from your roll.',
   'Duplicate': 'After you roll, select any Exploration Die and add another die with an identical result, including any modifications, to your total.',
-  'Careful': 'You may roll 1 fewer Exploration Die, to a minimum of 1.',
+  'Careful': 'You may roll 1 fewer Exploration Die, to a minimum of 1. You earn D6×10 credits for each Exploration Die you do not roll in this way.',
   'Circle Back': 'Modify one Exploration Die result by -1.',
   'Extra Dice': 'You may roll 1 extra Exploration Die.',
   'Lucky': 'Roll an extra Exploration Die that is paired with one of your other dice. After you roll, choose one die in the pair to keep and one to discard.',
   'Reroll': 'Reroll any single Exploration Die once.',
   'Seek': 'Modify one Exploration Die result by +1.',
-  'Set Dice': 'Before rolling, select any one Exploration Die and set it to a number you want instead of rolling it.',
+  'Set Dice': 'After rolling, select any one Exploration Die and set it to a number you want instead of rolling it.',
 };

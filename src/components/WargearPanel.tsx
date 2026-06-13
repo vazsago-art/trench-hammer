@@ -62,6 +62,10 @@ interface WargearPanelProps {
   warbandWeaponCounts?: Record<string, number>;
   /** Optional subfaction limit overrides by weapon ID (warband-wide). */
   wargearLimitOverrides?: Record<string, number>;
+  /** Optional per-model weapon limit overrides from active unit upgrades (e.g. Inceptor: plasma_pistol → 2). */
+  perModelWargearLimits?: Record<string, number>;
+  /** Faction-specific restriction notes per weapon/equipment ID. */
+  factionNotes?: Record<string, string>;
   onAdd: (item: SelectedItem) => void;
   onRemove: (id: string) => void;
   onClose: () => void;
@@ -95,8 +99,11 @@ export function WargearPanel({
   wargearCostOverrides,
   warbandWeaponCounts,
   wargearLimitOverrides,
+  perModelWargearLimits,
+  factionNotes = {},
 }: WargearPanelProps) {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
+  const [openCampaignCategory, setOpenCampaignCategory] = useState<string | null>(null);
   const [infoItem, setInfoItem] = useState<{ item: Weapon | WargearOption; catType: 'weapon' | 'armor' | 'equipment' } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -192,16 +199,22 @@ export function WargearPanel({
   const factionMarkItems   = factionUpgradeItems.filter(i => i.slot === 'mark');
   const factionEquipItems  = factionUpgradeItems.filter(i => i.type !== 'armor' && i.slot !== 'mark');
 
-  const factionEquipNames  = new Set(factionEquipItems.map(i => i.name));
-  const factionArmourNames = new Set(factionArmourItems.map(i => i.name));
+  // Separate campaign shop (glory-cost) items from regular wargear
+  const factionCsArmour  = factionArmourItems.filter(i => i.costCurrency === 'glory');
+  const factionCsEquip   = factionEquipItems.filter(i => i.costCurrency === 'glory');
+  const factionRegArmour = factionArmourItems.filter(i => i.costCurrency !== 'glory');
+  const factionRegEquip  = factionEquipItems.filter(i => i.costCurrency !== 'glory');
+
+  const factionEquipNames  = new Set(factionRegEquip.map(i => i.name));
+  const factionArmourNames = new Set(factionRegArmour.map(i => i.name));
 
   const mergedArmour = [
     ...armourOptions.filter(i => !factionArmourNames.has(i.name)),
-    ...factionArmourItems,
+    ...factionRegArmour,
   ];
   const mergedEquip = [
     ...equipmentOptions.filter(i => !factionEquipNames.has(i.name)),
-    ...factionEquipItems,
+    ...factionRegEquip,
   ];
 
   // Faction-specific weapons that belong to this faction's wargear pool.
@@ -211,12 +224,17 @@ export function WargearPanel({
     ? allWeapons.filter(w => factionSpecificWeaponIds.has(w.id) && allowedSet.has(w.id))
     : [];
 
-  const fwPistol      = factionAllowedWeapons.filter(w => w.keywords.includes('PISTOL'));
-  const fwHeavyRanged = factionAllowedWeapons.filter(w => w.type === 'ranged' && w.keywords.includes('HEAVY') && !w.keywords.includes('PISTOL'));
-  const fwSpecRanged  = factionAllowedWeapons.filter(w => w.type === 'ranged' && !w.keywords.includes('HEAVY') && !w.keywords.includes('PISTOL'));
-  const fwThrown      = factionAllowedWeapons.filter(w => w.type === 'thrown');
-  const fwHeavyMelee  = factionAllowedWeapons.filter(w => w.type === 'melee' && w.keywords.includes('HEAVY'));
-  const fwSpecMelee   = factionAllowedWeapons.filter(w => w.type === 'melee' && !w.keywords.includes('HEAVY'));
+  // Separate campaign shop weapons (glory-cost) from regular faction weapons
+  const factionCsWeaponIds = new Set(
+    factionAllowedWeapons.filter(w => w.costCurrency === 'glory').map(w => w.id)
+  );
+
+  const fwPistol      = factionAllowedWeapons.filter(w => !factionCsWeaponIds.has(w.id) && w.keywords.includes('PISTOL'));
+  const fwHeavyRanged = factionAllowedWeapons.filter(w => !factionCsWeaponIds.has(w.id) && w.type === 'ranged' && w.keywords.includes('HEAVY') && !w.keywords.includes('PISTOL'));
+  const fwSpecRanged  = factionAllowedWeapons.filter(w => !factionCsWeaponIds.has(w.id) && w.type === 'ranged' && !w.keywords.includes('HEAVY') && !w.keywords.includes('PISTOL'));
+  const fwThrown      = factionAllowedWeapons.filter(w => !factionCsWeaponIds.has(w.id) && w.type === 'thrown');
+  const fwHeavyMelee  = factionAllowedWeapons.filter(w => !factionCsWeaponIds.has(w.id) && w.type === 'melee' && w.keywords.includes('HEAVY'));
+  const fwSpecMelee   = factionAllowedWeapons.filter(w => !factionCsWeaponIds.has(w.id) && w.type === 'melee' && !w.keywords.includes('HEAVY'));
 
   // Collect all IDs already covered by faction-specific weapon arrays so we can
   // deduplicate them from the shared category arrays.  This prevents weapons like
@@ -269,6 +287,26 @@ export function WargearPanel({
     { label: 'Equipment',         items: filterRestricted(mergedEquip),   type: 'equipment' },
     { label: 'Marks of Chaos',    items: filterRestricted(factionMarkItems), type: 'equipment' },
   ];
+
+  // Campaign shop categories (glory items only, faction-specific)
+  const csWeapons     = factionAllowedWeapons.filter(w => factionCsWeaponIds.has(w.id));
+  const csPistol      = csWeapons.filter(w => w.keywords.includes('PISTOL'));
+  const csHeavyRanged = csWeapons.filter(w => w.type === 'ranged' && w.keywords.includes('HEAVY') && !w.keywords.includes('PISTOL'));
+  const csSpecRanged  = csWeapons.filter(w => w.type === 'ranged' && !w.keywords.includes('HEAVY') && !w.keywords.includes('PISTOL'));
+  const csThrown      = csWeapons.filter(w => w.type === 'thrown');
+  const csHeavyMelee  = csWeapons.filter(w => w.type === 'melee' && w.keywords.includes('HEAVY'));
+  const csSpecMelee   = csWeapons.filter(w => w.type === 'melee' && !w.keywords.includes('HEAVY'));
+
+  const CAMPAIGN_CATEGORIES: Category[] = [
+    { label: 'Ranged Weapons',    items: filterRestricted([...csSpecRanged, ...csPistol]),  type: 'weapon' },
+    { label: 'Heavy Ranged',      items: filterRestricted(csHeavyRanged),                  type: 'weapon' },
+    { label: 'Thrown / Grenades', items: filterRestricted(csThrown),                       type: 'weapon' },
+    { label: 'Melee Weapons',     items: filterRestricted(csSpecMelee),                    type: 'weapon' },
+    { label: 'Heavy Melee',       items: filterRestricted(csHeavyMelee),                   type: 'weapon' },
+    { label: 'Armour',            items: filterRestricted(factionCsArmour),                type: 'armor' },
+    { label: 'Equipment',         items: filterRestricted(factionCsEquip),                 type: 'equipment' },
+  ];
+  const CAMPAIGN_CATEGORIES_VISIBLE = CAMPAIGN_CATEGORIES.filter(cat => cat.items.length > 0);
   /**
    * Returns the error message if adding this item is not allowed,
    * or null if it can be added.
@@ -291,7 +329,7 @@ export function WargearPanel({
 
     // For all other slot / hand conflicts, only count purchased items (not defaults that would be replaced).
     // Default marks are included so built-in marks block buying additional marks.
-    const errors = validateAddWargear([...defaultMarks, ...selectedItems], item.id, modelKeywords);
+    const errors = validateAddWargear([...defaultMarks, ...selectedItems], item.id, modelKeywords, 1, perModelWargearLimits);
     if (errors.length === 0) return null;
     return errors.map(e => e.message).join(' ');
   }
@@ -348,11 +386,13 @@ export function WargearPanel({
 
         {/* ── Slot usage bar ─────────────────────────────────────── */}
         {!cannotEquip && <div className="wg-slot-bar">
-          <div className={`wg-slot-pill ${usage.rangedHandsUsed >= usage.maxRangedHands ? 'slot-full' : ''}`}>
-            🎯 Ranged {usage.rangedHandsUsed}/{usage.maxRangedHands}
+          <div className={`wg-slot-pill ${usage.rangedHandsUsed >= usage.maxRangedHands ? 'slot-full' : ''}`}
+               title={usage.heldRangedPenalty > 0 ? `${usage.heldRangedPenalty} hand(s) blocked by HELD melee weapon(s)` : undefined}>
+            🎯 Ranged {usage.rangedHandsUsed}/{usage.maxRangedHands}{usage.heldRangedPenalty > 0 ? ` (${usage.heldRangedPenalty} held)` : ''}
           </div>
-          <div className={`wg-slot-pill ${usage.meleeHandsUsed >= usage.maxMeleeHands ? 'slot-full' : ''}`}>
-            ⚔ Melee {usage.meleeHandsUsed}/{usage.maxMeleeHands}
+          <div className={`wg-slot-pill ${usage.meleeHandsUsed >= usage.maxMeleeHands ? 'slot-full' : ''}`}
+               title={usage.heldMeleePenalty > 0 ? `${usage.heldMeleePenalty} hand(s) blocked by HELD ranged weapon(s)` : undefined}>
+            ⚔ Melee {usage.meleeHandsUsed}/{usage.maxMeleeHands}{usage.heldMeleePenalty > 0 ? ` (${usage.heldMeleePenalty} held)` : ''}
           </div>
           <div className={`wg-slot-pill ${usage.hasShield ? 'slot-used' : ''} ${usage.hasTwoHandedRanged ? 'slot-blocked' : ''}`}>
             🛡 Shield {usage.hasShield ? '✓' : usage.hasTwoHandedRanged ? '✗' : '○'}
@@ -409,7 +449,7 @@ export function WargearPanel({
                             const limit = getEffectiveLimit(item.id);
                             const globalCount = warbandWeaponCounts?.[item.id] ?? 0;
                             if (limit !== undefined && globalCount >= limit) return true;
-                            return validateAddWargear([...defaultMarks, ...selectedItems], item.id, modelKeywords).length > 0;
+                            return validateAddWargear([...defaultMarks, ...selectedItems], item.id, modelKeywords, unitCount, perModelWargearLimits).length > 0;
                           })()}
                           onClick={() => onAdd({ ...item, quantity: item.quantity + 1 })}
                         >+</button>
@@ -499,6 +539,9 @@ export function WargearPanel({
                           />
                           {item.keywords.filter(k => !['TWO-HANDED', 'ONE-HANDED', 'THROWN', 'PISTOL'].includes(k)).length > 3 && ' …'}
                         </div>
+                        {factionNotes[item.id] && (
+                          <div className="wg-faction-note">⚠ {factionNotes[item.id]}</div>
+                        )}
                         {isBlocked && (
                           <div className="wg-block-reason">⛔ {blockReason}</div>
                         )}
@@ -521,7 +564,7 @@ export function WargearPanel({
                                   const limit = getEffectiveLimit(item.id);
                                   const globalCount = warbandWeaponCounts?.[item.id] ?? 0;
                                   if (limit !== undefined && globalCount >= limit) return true;
-                                  return validateAddWargear([...defaultMarks, ...selectedItems], item.id, modelKeywords).length > 0;
+                                  return validateAddWargear([...defaultMarks, ...selectedItems], item.id, modelKeywords, unitCount, perModelWargearLimits).length > 0;
                                 })()}
                                 onClick={() => onAdd({ ...existing, quantity: existing.quantity + 1 })}
                               >+</button>
@@ -553,6 +596,127 @@ export function WargearPanel({
           })}
         </div>}{/* /wargear-categories */}
 
+        {/* ── Campaign Shop ─────────────────────────────────────── */}
+        {!cannotEquip && CAMPAIGN_CATEGORIES_VISIBLE.length > 0 && (
+          <div className="campaign-shop-section">
+            <div className="campaign-shop-header">
+              <span className="campaign-shop-title">⚔ Campaign Shop</span>
+              <span className="campaign-shop-subtitle">Purchased with Glory</span>
+            </div>
+            <div className="wargear-categories">
+              {CAMPAIGN_CATEGORIES_VISIBLE.map(cat => {
+                const visibleItems = filterItems(cat.items);
+                if (visibleItems.length === 0) return null;
+                const isOpen = searchQuery.trim() ? visibleItems.length > 0 : openCampaignCategory === cat.label;
+                return (
+                  <div key={`cs-${cat.label}`} className={`wargear-category${isOpen ? ' open' : ''}`}>
+                    <div
+                      className="wargear-cat-header"
+                      role="button"
+                      onClick={() => { if (!searchQuery.trim()) setOpenCampaignCategory(prev => prev === cat.label ? null : cat.label); }}
+                    >
+                      {cat.label} <span className="wg-cat-count">({visibleItems.length})</span>
+                    </div>
+                    {isOpen && <div className="wargear-item-grid">
+                      {visibleItems.map(item => {
+                        const existing    = selectedMap.get(item.id);
+                        const blockReason = existing ? null : getAddBlockReason(item);
+                        const isBlocked   = blockReason !== null;
+                        return (
+                          <div
+                            key={item.id}
+                            className={`wargear-item ${existing ? 'wg-active' : ''} ${isBlocked ? 'wg-blocked' : ''} ${factionSpecificIds.has(item.id) ? 'wg-variant-item' : ''}`}
+                            title={isBlocked ? blockReason ?? undefined : undefined}
+                          >
+                            {factionSpecificIds.has(item.id) && (
+                              <div className="wg-variant-ribbon">VARIANT</div>
+                            )}
+                            <div className="wg-item-header">
+                              <span className="wg-item-name">{item.name}</span>
+                              <button
+                                className="btn-wg-info"
+                                title={`View ${item.name} details`}
+                                onClick={e => { e.stopPropagation(); setInfoItem({ item, catType: cat.type }); }}
+                              >👁</button>
+                            </div>
+                            {cat.type === 'weapon' && (
+                              <div className="wg-item-badges">
+                                {(() => {
+                                  const kws = item.keywords;
+                                  if (kws.includes('TWO-HANDED'))   return <span className="wg-badge badge-two">2H</span>;
+                                  if (kws.includes('PISTOL') || (item as Weapon).type === 'thrown' || kws.includes('THROWN'))
+                                    return <span className="wg-badge badge-one">1H</span>;
+                                  if (kws.includes('MAIN HAND ONLY')) return <span className="wg-badge badge-main">MH</span>;
+                                  return <span className="wg-badge badge-one">1H</span>;
+                                })()}
+                              </div>
+                            )}
+                            <div className="wg-item-keywords">
+                              <KeywordList
+                                keywords={item.keywords.filter(k => !['TWO-HANDED', 'ONE-HANDED', 'THROWN', 'PISTOL'].includes(k)).slice(0, 3)}
+                                hide={new Set()}
+                              />
+                              {item.keywords.filter(k => !['TWO-HANDED', 'ONE-HANDED', 'THROWN', 'PISTOL'].includes(k)).length > 3 && ' …'}
+                            </div>
+                            {factionNotes[item.id] && (
+                              <div className="wg-faction-note">⚠ {factionNotes[item.id]}</div>
+                            )}
+                            {isBlocked && (
+                              <div className="wg-block-reason">⛔ {blockReason}</div>
+                            )}
+                            <div className="wg-item-footer">
+                              <span className="wg-item-cost">
+                                {getEffectiveCost(item)} {getEffectiveCostCurrency(item) === 'glory' ? 'Glory' : 'Credits'}
+                              </span>
+                              {existing ? (
+                                <div className="wg-item-controls">
+                                  <button onClick={() => {
+                                    if (existing.quantity > 1) {
+                                      onAdd({ ...existing, quantity: existing.quantity - 1 });
+                                    } else {
+                                      onRemove(item.id);
+                                    }
+                                  }}>−</button>
+                                  <span>{existing.quantity}</span>
+                                  <button
+                                    disabled={(() => {
+                                      const limit = getEffectiveLimit(item.id);
+                                      const globalCount = warbandWeaponCounts?.[item.id] ?? 0;
+                                      if (limit !== undefined && globalCount >= limit) return true;
+                                      return validateAddWargear([...defaultMarks, ...selectedItems], item.id, modelKeywords, unitCount, perModelWargearLimits).length > 0;
+                                    })()}
+                                    onClick={() => onAdd({ ...existing, quantity: existing.quantity + 1 })}
+                                  >+</button>
+                                </div>
+                              ) : (
+                                <button
+                                  className="btn-add-wg"
+                                  disabled={isBlocked}
+                                  onClick={() => !isBlocked && onAdd({
+                                    id: item.id,
+                                    name: item.name,
+                                    cost: getEffectiveCost(item),
+                                    costCurrency: getEffectiveCostCurrency(item),
+                                    type: cat.type,
+                                    quantity: 1,
+                                    grantsKeywords: (item as any).grantsKeywords,
+                                  })}
+                                >
+                                  Add
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         </div>{/* /wargear-scroll-body */}
       </div>
     </div>
@@ -562,6 +726,7 @@ export function WargearPanel({
         catType={infoItem.catType}
         costOverride={wargearCostOverrides?.[infoItem.item.id]?.cost}
         costCurrencyOverride={wargearCostOverrides?.[infoItem.item.id]?.costCurrency}
+        factionNote={factionNotes[infoItem.item.id]}
         onClose={() => setInfoItem(null)}
       />
     )}

@@ -148,20 +148,20 @@ describe('Necrons faction – detailed verification', () => {
     expect(u.stats.armourSave).toBe(-2);
   });
 
-  it('Necron Warrior: baseCost 45, ranged +0, melee +0, armour -2', () => {
+  it('Necron Warrior: baseCost 45, ranged +0, melee +0, armour -1', () => {
     const u = faction!.units.find(u => u.id === 'nec_warrior')!;
     expect(u.baseCost).toBe(45);
     expect(u.stats.rangedSkill).toBe(0);
     expect(u.stats.meleeSkill).toBe(0);
-    expect(u.stats.armourSave).toBe(-2);
+    expect(u.stats.armourSave).toBe(-1);
   });
 
-  it('Immortal: baseCost 90, ranged +1, melee +1, armour -3', () => {
+  it('Immortal: baseCost 90, ranged +1, melee +1, armour -2', () => {
     const u = faction!.units.find(u => u.id === 'nec_immortal')!;
     expect(u.baseCost).toBe(90);
     expect(u.stats.rangedSkill).toBe(1);
     expect(u.stats.meleeSkill).toBe(1);
-    expect(u.stats.armourSave).toBe(-3);
+    expect(u.stats.armourSave).toBe(-2);
   });
 
   it('Canoptek Scarab Swarm: baseCost 70, movement 8, armour 0', () => {
@@ -430,33 +430,33 @@ describe('Leagues of Votann faction – detailed verification', () => {
   });
 
   // ── Stat checks ────────────────────────────────────────────────────────────
-  it('Kâhl: baseCost 55, ranged +2, melee +2, armour 0', () => {
+  it('Kâhl: baseCost 60, ranged +2, melee +2, armour 0', () => {
     const u = faction!.units.find(u => u.id === 'lv_kahl')!;
-    expect(u.baseCost).toBe(55);
+    expect(u.baseCost).toBe(60);
     expect(u.stats.rangedSkill).toBe(2);
     expect(u.stats.meleeSkill).toBe(2);
     expect(u.stats.armourSave).toBe(0);
   });
 
-  it('Brôkhyr Iron-Master: baseCost 45, ranged +1, melee +1, armour 0', () => {
+  it('Brôkhyr Iron-Master: baseCost 50, ranged +1, melee +1, armour 0', () => {
     const u = faction!.units.find(u => u.id === 'lv_brokhyr_iron_master')!;
-    expect(u.baseCost).toBe(45);
+    expect(u.baseCost).toBe(50);
     expect(u.stats.rangedSkill).toBe(1);
     expect(u.stats.meleeSkill).toBe(1);
     expect(u.stats.armourSave).toBe(0);
   });
 
-  it('Grimnyr: baseCost 55, ranged +1, melee +1, armour 0', () => {
+  it('Grimnyr: baseCost 60, ranged +1, melee +1, armour 0', () => {
     const u = faction!.units.find(u => u.id === 'lv_grimnyr')!;
-    expect(u.baseCost).toBe(55);
+    expect(u.baseCost).toBe(60);
     expect(u.stats.rangedSkill).toBe(1);
     expect(u.stats.meleeSkill).toBe(1);
     expect(u.stats.armourSave).toBe(0);
   });
 
-  it('Hearthkyn: baseCost 25, ranged +0, melee +0', () => {
+  it('Hearthkyn: baseCost 30, ranged +0, melee +0', () => {
     const u = faction!.units.find(u => u.id === 'lv_hearthkyn')!;
-    expect(u.baseCost).toBe(25);
+    expect(u.baseCost).toBe(30);
     expect(u.stats.rangedSkill).toBe(0);
     expect(u.stats.meleeSkill).toBe(0);
   });
@@ -468,33 +468,33 @@ describe('Leagues of Votann faction – detailed verification', () => {
     expect(u.maxCount).toBe(4);
   });
 
-  it('Einhyr Hearthguard: baseCost 85, ranged +1, melee +1, armour -2', () => {
+  it('Einhyr Hearthguard: baseCost 90, ranged +1, melee +1, armour -2', () => {
     const u = faction!.units.find(u => u.id === 'lv_einhyr_hearthguard')!;
-    expect(u.baseCost).toBe(85);
+    expect(u.baseCost).toBe(90);
     expect(u.stats.rangedSkill).toBe(1);
     expect(u.stats.meleeSkill).toBe(1);
     expect(u.stats.armourSave).toBe(-2);
   });
 
-  it('Brôkhyr Thunderkyn: baseCost 85, ranged +1, melee +0, armour -2', () => {
+  it('Brôkhyr Thunderkyn: baseCost 90, ranged +1, melee +0, armour -2', () => {
     const u = faction!.units.find(u => u.id === 'lv_brokhyr_thunderkyn')!;
-    expect(u.baseCost).toBe(85);
+    expect(u.baseCost).toBe(90);
     expect(u.stats.rangedSkill).toBe(1);
     expect(u.stats.meleeSkill).toBe(0);
     expect(u.stats.armourSave).toBe(-2);
   });
 
-  it('Ironkin Steeljack: baseCost 115, ranged +1, melee +2, armour -3', () => {
+  it('Ironkin Steeljack: baseCost 120, ranged +1, melee +2, armour -3', () => {
     const u = faction!.units.find(u => u.id === 'lv_ironkin_steeljack')!;
-    expect(u.baseCost).toBe(115);
+    expect(u.baseCost).toBe(120);
     expect(u.stats.rangedSkill).toBe(1);
     expect(u.stats.meleeSkill).toBe(2);
     expect(u.stats.armourSave).toBe(-3);
   });
 
-  it('Hernkyn Pioneer: baseCost 135, movement 8, ranged +1, melee +1, armour -2', () => {
+  it('Hernkyn Pioneer: baseCost 140, movement 8, ranged +1, melee +1, armour -2', () => {
     const u = faction!.units.find(u => u.id === 'lv_hernkyn_pioneer')!;
-    expect(u.baseCost).toBe(135);
+    expect(u.baseCost).toBe(140);
     expect(u.stats.movement).toBe(8);
     expect(u.stats.rangedSkill).toBe(1);
     expect(u.stats.meleeSkill).toBe(1);

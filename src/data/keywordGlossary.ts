@@ -88,6 +88,8 @@ export const KEYWORD_GLOSSARY: Record<string, string> = {
     'Requires two hands to use, even for STRONG models. Can still be used alongside a Shield if the weapon has the Shield Combo property. (TrenchHammer) Also prevents a STRONG model from wielding a TWO-HANDED HELD weapon in one hand for melee.',
 
   // ── D ────────────────────────────────────────────────────────────────────
+  'DANGEROUS':
+    '(TrenchHammer) When the model misses with this weapon (or in the context stated), make an Injury Roll against the model itself. Replaces older "injure self on a miss" phrasing. DANGEROUS (+X INJURY DICE) adds extra dice to the self-injury roll.',
   'DANGEROUS TERRAIN':
     'When a model Activates in this terrain or moves into it, take a Risky Success Roll. On a Success, continue as normal (no further rolls for moving through more DANGEROUS TERRAIN this move). On a Failure, make an Injury Roll for the model and its Activation ends. DANGEROUS TERRAIN (KEYWORD) adds that keyword to any resulting Injury Rolls.',
   'DEADLY':
@@ -122,6 +124,8 @@ export const KEYWORD_GLOSSARY: Record<string, string> = {
     'When making a move, the model measures its path through the air, ignoring intervening models and terrain (but must start and end on a legal surface). Must still take Risky Success Rolls for Dangerous Terrain if activated or ending there. Cannot end its move on Impassable Terrain. Does not make an Injury Roll if it falls.',
   'FOLLOWER':
     '(TrenchHammer) Heretic Astartes sub-type tag. Marks a model as a cultist, bound creature, or devoted minion serving the Chaos warband (distinct from full Chaos Space Marines). The Dark Apostle\u2019s \u201cDark Zealotry\u201d Action targets FOLLOWER models: on a Risky Success Roll with +1 DICE, all friendly FOLLOWER models that are Down and within 12\u201d of the Dark Apostle may immediately stand up. Appears on Cultists, Plague Beasts, Tzaangors, Sekhetar Robots, and similar bound/devoted units.',
+  'FUMBLE':
+    '(TrenchHammer) If the Attack Roll with this weapon results in the lowest possible value (a 1 by default, or a higher range if specified — e.g. FUMBLE (2-4) means a roll of 2, 3, or 4 causes a Fumble), the weapon malfunctions: instead of resolving normally, the attack deviates and the thrower itself (and any other models within the blast radius of the new position) may be affected as if hit. Grenade-type THROWN weapons across all factions have this Keyword.',
 
   // ── G ────────────────────────────────────────────────────────────────────
   'GAS':
@@ -145,8 +149,16 @@ export const KEYWORD_GLOSSARY: Record<string, string> = {
     '(TrenchHammer) Xenos race tag. Marks a model as a Hrud — a mysterious, rat-like Xenos species known for their entropic fields and temporal anomalies. Appears on the Hrud mercenary unit (available in Slanni warbands). The Hrud has: Entropic Field (PSYCHIC) making all enemy Success Rolls within 8\u201d Risky, Out of Time (-1 DICE to all attacks against it), Timewarp (teleport Action), and Toxic Skin (enemy melee attackers gain 1 BLOOD MARKER; NEGATE GAS is immune).',
 
   // ── I ────────────────────────────────────────────────────────────────────
+  'ICON':
+    '(TrenchHammer) This model is better at mission-specific objectives. While this model is not Down, it counts as fulfilling any warband-size requirement for mission objectives by itself. Standardises older special wording on banners, flags, and similar items that granted bonuses for holding objectives.',
   'IGNORE ARMOUR':
     'Ignore all -INJURY DICE and -INJURY MODIFIERS from the target\'s Armour Characteristic and any Armour or Shield Battlekit it has.',
+  'IGNORE ARMOUR on Critical Hit':
+    'On a Critical Hit, ignore all -INJURY DICE and -INJURY MODIFIERS from the target\'s Armour Characteristic and any Armour or Shield Battlekit it has. Normal (non-critical) hits do not ignore armour.',
+  'ARMOUR PIERCING 1 on Critical Hit':
+    'On a Critical Hit, reduces the target\'s total -INJURY MODIFIER from Armour/Shields by 1 (minimum 0). Normal (non-critical) hits do not benefit from this armour piercing.',
+  'ARMOUR PIERCING 2 on Critical Hit':
+    'On a Critical Hit, reduces the target\'s total -INJURY MODIFIER from Armour/Shields by 2 (minimum 0). Normal (non-critical) hits do not benefit from this armour piercing.',
   'IGNORE COVER':
     'Ignore the -1 DICE modifier for a target in Cover when making this attack.',
   'IGNORE LONG RANGE':
@@ -261,7 +273,7 @@ export const KEYWORD_GLOSSARY: Record<string, string> = {
   'SWEEPING':
     '(TrenchHammer) When this model takes a Fight Action, make 1 Melee Attack against every enemy model within 1" of it. Resolve each attack one at a time in the order of your choice.',
   'SYNAPSE':
-    '(TrenchHammer) Tyranids keyword. While within 6\u201d of a model with SYNAPSE (including the SYNAPSE model itself), a model with the TYRANID Keyword is considered Within Synapse Range. A model Within Synapse Range has +1 DICE to Dash Actions. The Hive Tyrant and similar large Tyranid units carry this keyword. The patron skill \u201cDirect Guidance (Synapse Only)\u201d requires the model to have SYNAPSE.',
+    '(TrenchHammer) Tyranids keyword. While within 4\u201d of a model with SYNAPSE (or within 6\u201d of a Hive Tyrant or Neurotyrant with SYNAPSE), a model with the TYRANID Keyword is considered Within Synapse Range. A model Within Synapse Range has +1 DICE to Dash Actions. The patron skill \u201cDirect Guidance (Synapse Only)\u201d requires the model to have SYNAPSE.',
 
   // ── T ────────────────────────────────────────────────────────────────────
   'THE COURT':
@@ -339,8 +351,8 @@ export function getKeywordDescription(keyword: string): string | undefined {
   // Try prefix matches for parameterised keywords
   const prefixes = [
     'ARMOUR PIERCING', 'AUTOMATIC', 'VICIOUS', 'BLAST', 'BLESSED',
-    'CLEAVE', 'DANGEROUS TERRAIN', 'GOETIC', 'PERILOUS', 'PUTRESCERE',
-    'PSYKER', 'REGENERATE', 'LIMIT', 'NEGATE', 'WHIP',
+    'CLEAVE', 'DANGEROUS', 'DANGEROUS TERRAIN', 'FUMBLE', 'GOETIC', 'ICON', 'IGNORE ARMOUR', 'PERILOUS',
+    'PUTRESCERE', 'PSYKER', 'REGENERATE', 'LIMIT', 'NEGATE', 'WHIP',
   ];
   for (const prefix of prefixes) {
     if (normalised.startsWith(prefix)) {
