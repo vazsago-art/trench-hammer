@@ -33,9 +33,9 @@ jobs:
         with:
           path: .
 
-      - name: Deploy to GitHub Pages (with retry)
+      - name: Deploy to GitHub Pages
         id: deploy
-        uses: nick-fields/retry@v3
+        uses: actions/deploy-pages@v5
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -43,3 +43,13 @@ jobs:
           command: |
             echo "Running deploy..."
             gh workflow run --help >/dev/null 2>&1 || true
+
+      - name: Deploy to GitHub Pages (attempt 1)
+        id: deploy1
+        uses: actions/deploy-pages@v5
+        continue-on-error: true
+
+      - name: Deploy to GitHub Pages (attempt 2)
+        id: deploy2
+        if: steps.deploy1.outcome == 'failure'
+        uses: actions/deploy-pages@v5
