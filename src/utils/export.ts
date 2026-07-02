@@ -7,6 +7,20 @@ import { getSubFactionById } from '../data/subfactions.js';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+import { hasMissingCombiModeSelection } from './combiModes.js';
+
+function warnLegacyCombiModeMissing(warband: Warband): void {
+  const offenders = warband.units.flatMap(unit =>
+    unit.selectedWargear
+      .filter(sw => hasMissingCombiModeSelection(sw))
+      .map(sw => `${unit.name}: ${sw.name}`),
+  );
+
+  if (offenders.length === 0) return;
+  console.warn(
+    `[TrenchHammer] Imported warband contains legacy Combi loadouts without second-mode metadata: ${offenders.join('; ')}`,
+  );
+}
 
 /**
  * Migration: ensure every HA variant warband unit that carries an auto-mark has
@@ -528,10 +542,12 @@ export function importWarbandFromJSON(input: string): Warband | null {
     ) {
       return null;
     }
-    return migrateLegacyMarkIds(migrateAutoMarkCost({
+    const imported = migrateLegacyMarkIds(migrateAutoMarkCost({
       ...data,
       id: `warband-${Date.now()}`,
     } as Warband));
+    warnLegacyCombiModeMissing(imported);
+    return imported;
   } catch {
     return null;
   }

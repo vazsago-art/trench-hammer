@@ -64,8 +64,7 @@ export const FACTION_RESOURCES: FactionResourceDef[] = [
   {
     id: 'arcane_points',
     name: 'Arcane Points',
-    factionIds: ['heretic_astartes'],
-    subfactionIds: ['thousand_sons'],
+    factionIds: ['thousand_sons'],
     description: 'Sorcerous knowledge gathered from relics and arcane sites. Used to unlock psychic abilities.',
   },
 
@@ -189,7 +188,7 @@ export const FACTION_RESOURCES: FactionResourceDef[] = [
   {
     id: 'influence_points',
     name: 'Influence Points',
-    factionIds: ['tau_empire'],
+    factionIds: ['t_au_empire'],
     description: 'Political influence earned through diplomacy. Used to convert Demographics and expand the Greater Good.',
   },
 

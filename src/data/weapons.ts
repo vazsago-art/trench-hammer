@@ -39,7 +39,7 @@ export const sharedBasicRangedWeapons: Weapon[] = [
     name: 'Bolt Carbine',
     type: 'ranged',
     range: 18,
-    cost: 15,
+    cost: 20,
     keywords: ['VICIOUS 11', 'ASSAULT', 'CRITICAL', 'TWO-HANDED'],
     description: '18" VICIOUS 11, ASSAULT, CRITICAL, TWO-HANDED. Has Scope.'
   },
@@ -48,7 +48,7 @@ export const sharedBasicRangedWeapons: Weapon[] = [
     name: 'Boltgun',
     type: 'ranged',
     range: 24,
-    cost: 12,
+    cost: 17,
     keywords: ['VICIOUS 11', 'CRITICAL', 'TWO-HANDED'],
     description: '24" VICIOUS 11, CRITICAL, TWO-HANDED. Has Scope.'
   },
@@ -116,7 +116,7 @@ export const sharedPistols: Weapon[] = [
     name: 'Bolt Pistol',
     type: 'ranged',
     range: 12,
-    cost: 10,
+    cost: 15,
     keywords: ['VICIOUS 11', 'CRITICAL', 'PISTOL'],
     description: '12" VICIOUS 11, CRITICAL, PISTOL. Has Scope.'
   },
@@ -125,7 +125,7 @@ export const sharedPistols: Weapon[] = [
     name: 'Condemnor Bolt Pistol',
     type: 'ranged',
     range: 12,
-    cost: 15,
+    cost: 18,
     limit: 2,
     keywords: ['CRITICAL', 'PISTOL'],
     description: 'Bolt mode: 12" VICIOUS 11, CRITICAL. Crossbow: +1 INJURY DICE vs DAEMON/PSYKER, once per battle. PISTOL.'
@@ -154,7 +154,7 @@ export const sharedPistols: Weapon[] = [
     name: 'Heavy Bolt Pistol',
     type: 'ranged',
     range: 12,
-    cost: 30,
+    cost: 35,
     limit: 2,
     keywords: ['+1 INJURY DICE', 'VICIOUS 11', 'CRITICAL', 'HEAVY', 'PISTOL'],
     description: '12" +1 INJURY DICE, VICIOUS 11, CRITICAL, HEAVY, PISTOL. TWO-HANDED for non-STRONG models.'
@@ -223,7 +223,7 @@ export const sharedPistols: Weapon[] = [
     name: 'Twin Bolt Pistols',
     type: 'ranged',
     range: 12,
-    cost: 15,
+    cost: 20,
     limit: 2,
     handedness: 'two-handed',
     keywords: ['+1 DICE', 'VICIOUS 11', 'CRITICAL', 'CUMBERSOME', 'TWO-HANDED', 'PISTOL'],
@@ -317,22 +317,11 @@ export const sharedSpecialRangedWeapons: Weapon[] = [
     description: '48" +1 DICE, VICIOUS 11, CRITICAL, HEAVY, RISKY, TWO-HANDED. Has Scope.'
   },
   {
-    id: 'combi_weapon',
-    name: 'Combi-Weapon',
-    type: 'ranged',
-    range: 24,
-    cost: 35,
-    limit: 1,
-    handedness: 'two-handed',
-    keywords: ['AUTOMATIC 2', 'ASSAULT', 'RISKY', 'TWO-HANDED'],
-    description: '24" AUTOMATIC 2, ASSAULT, RISKY, TWO-HANDED. Has Bayonet Lug.'
-  },
-  {
     id: 'condemnor_boltgun',
     name: 'Condemnor Boltgun',
     type: 'ranged',
     range: 24,
-    cost: 15,
+    cost: 20,
     limit: 2,
     handedness: 'two-handed',
     keywords: ['VICIOUS 11', 'IGNORE ARMOUR on Critical Hit', 'CRITICAL', 'TWO-HANDED'],
@@ -420,7 +409,7 @@ export const sharedSpecialRangedWeapons: Weapon[] = [
     cost: 2,
     costCurrency: 'glory',
     limit: 1,
-    keywords: ['+1 INJURY DICE', 'IGNORE ARMOUR', 'RISKY'],
+    keywords: ['+1 INJURY DICE', 'IGNORE ARMOUR', 'RISKY', 'TWO-HANDED'],
     description: '12" +1 INJURY DICE, IGNORE ARMOUR, RISKY.'
   },
   {
@@ -461,7 +450,7 @@ export const sharedSpecialRangedWeapons: Weapon[] = [
     name: 'Storm Bolter',
     type: 'ranged',
     range: 24,
-    cost: 35,
+    cost: 50,
     limit: 3,
     handedness: 'two-handed',
     keywords: ['AUTOMATIC 2', 'VICIOUS 11', 'ASSAULT', 'CRITICAL', 'TWO-HANDED'],
@@ -488,6 +477,17 @@ export const sharedSpecialRangedWeapons: Weapon[] = [
     keywords: ['IGNORE ARMOUR', '+2 INJURY DICE', 'STUN MARKERS', 'STUN', 'NONLETHAL', 'BLAST 2"', 'TWO-HANDED'],
     description: '18" IGNORE ARMOUR, +2 INJURY DICE, STUN MARKERS, NONLETHAL, BLAST 2", STUN, TWO-HANDED. Has Scope.'
   },
+  {
+    id: 'explosive_crossbow',
+    name: 'Explosive Crossbow',
+    type: 'ranged',
+    range: 30,
+    cost: 30,
+    limit: 1,
+    handedness: 'two-handed',
+    keywords: ['BLAST 2"', 'RELOAD', 'SHRAPNEL', 'TWO-HANDED'],
+    description: '30”, BLAST 2”, RELOAD, SHRAPNEL, TWO-HANDED'
+  },
 ];
 
 // ============================================================================
@@ -497,7 +497,7 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'heavy_heavy_stubber',
     name: 'Heavy Heavy Stubber',
-    type: 'heavy',
+    type: 'ranged',
     range: 36,
     cost: 15,
     keywords: ['HEAVY', 'SUSTAINED 4']
@@ -505,7 +505,7 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'incinerator',
     name: 'Incinerator',
-    type: 'heavy',
+    type: 'ranged',
     range: 12,
     cost: 20,
     keywords: ['HEAVY', 'TORRENT D6', 'IGNORES COVER']
@@ -513,7 +513,7 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'autocannon',
     name: 'Autocannon',
-    type: 'heavy',
+    type: 'ranged',
     range: 36,
     cost: 30,
     limit: 1,
@@ -524,17 +524,17 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'combi_bolter',
     name: 'Combi-Bolter',
-    type: 'heavy',
+    type: 'ranged',
     range: 24,
-    cost: 35,
+    cost: 30,
     handedness: 'two-handed',
-    keywords: ['AUTOMATIC 2', 'VICIOUS 11', 'CRITICAL', 'HEAVY', 'TWO-HANDED'],
-    description: '24" AUTOMATIC 2, VICIOUS 11, CRITICAL, HEAVY, TWO-HANDED.'
+    keywords: ['AUTOMATIC 2', 'TWO-HANDED'],
+    description: 'When making attacks, one attack must be made with the Bolter mode, and one with the other chosen mode.\n - Bolter: 24”, VICIOUS 11, CRITICAL\n - Combi: When you purchase this weapon, you must also purchase one of the following weapons that you have access to at the normal price, which permanently becomes the Combi-Bolter’s second mode: Bolter (a second one), Flamer, Grav Gun, Grenade Launcher, Melta Gun, or Plasma Gun'
   },
   {
     id: 'cyclone_missile_launcher',
     name: 'Cyclone Missile Launcher',
-    type: 'heavy',
+    type: 'ranged',
     range: 36,
     cost: 25,
     handedness: 'no-hands',
@@ -544,7 +544,7 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'grav_cannon',
     name: 'Grav Cannon',
-    type: 'heavy',
+    type: 'ranged',
     range: 30,
     cost: 45,
     handedness: 'two-handed',
@@ -554,7 +554,7 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'heavy_arc_rifle',
     name: 'Heavy Arc Rifle',
-    type: 'heavy',
+    type: 'ranged',
     range: 30,
     cost: 35,
     handedness: 'two-handed',
@@ -564,18 +564,18 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'heavy_bolter',
     name: 'Heavy Bolter',
-    type: 'heavy',
+    type: 'ranged',
     range: 36,
-    cost: 40,
+    cost: 60,
     limit: 1,
     handedness: 'two-handed',
-    keywords: ['+1 INJURY DICE', 'VICIOUS 11', 'CRITICAL', 'HEAVY', 'TWO-HANDED'],
-    description: '36" +1 INJURY DICE, VICIOUS 11, CRITICAL, HEAVY, TWO-HANDED.'
+    keywords: ['AUTOMATIC 3', 'RELOAD', 'VICIOUS 11', 'CRITICAL', 'HEAVY', 'TWO-HANDED'],
+    description: '36" AUTOMATIC 3, RELOAD, VICIOUS 11, CRITICAL, HEAVY, TWO-HANDED.'
   },
   {
     id: 'heavy_flamer',
     name: 'Heavy Flamer',
-    type: 'heavy',
+    type: 'ranged',
     range: 10,
     cost: 55,
     limit: 1,
@@ -586,7 +586,7 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'heavy_melta_rifle',
     name: 'Heavy Melta Rifle',
-    type: 'heavy',
+    type: 'ranged',
     range: 24,
     cost: 3,
     costCurrency: 'glory',
@@ -598,7 +598,7 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'lascannon',
     name: 'Lascannon',
-    type: 'heavy',
+    type: 'ranged',
     range: 48,
     cost: 35,
     limit: 1,
@@ -609,7 +609,7 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'mining_laser',
     name: 'Mining Laser',
-    type: 'heavy',
+    type: 'ranged',
     range: 24,
     cost: 25,
     keywords: ['-1 DICE', '+1 INJURY DICE', 'HEAVY', 'ARMOUR PIERCING 2', 'RISKY'],
@@ -618,7 +618,7 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'missile_launcher',
     name: 'Missile Launcher',
-    type: 'heavy',
+    type: 'ranged',
     range: 36,
     cost: 40,
     limit: 1,
@@ -629,17 +629,17 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'mole_launcher',
     name: 'Mole Launcher',
-    type: 'heavy',
+    type: 'ranged',
     range: 18,
     cost: 40,
     handedness: 'two-handed',
-    keywords: ['BLAST 3"', 'RISKY', 'SHRAPNEL', 'TWO-HANDED'],
-    description: '18" BLAST 3", RISKY, SHRAPNEL, TWO-HANDED. Can attack without line of sight.'
+    keywords: ['BLAST 3"', 'RISKY', 'SHRAPNEL', 'TWO-HANDED', 'IGNORE LINE OF SIGHT'],
+    description: 'Cannot target any model with FLYING unless it is Down, nor a model on overhanging terrain or on top of any building with an interior (even if only imagined); essentially, the attack must come up from the ground. Has -1 DICE if the attacker cannot see the target.'
   },
   {
     id: 'mortar',
     name: 'Mortar',
-    type: 'heavy',
+    type: 'ranged',
     range: 36,
     cost: 55,
     handedness: 'two-handed',
@@ -648,8 +648,8 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   },
   {
     id: 'multi_melta',
-    name: 'Multi Melta',
-    type: 'heavy',
+    name: 'Multi-Melta',
+    type: 'ranged',
     range: 12,
     cost: 4,
     costCurrency: 'glory',
@@ -661,7 +661,7 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'plasma_cannon',
     name: 'Plasma Cannon',
-    type: 'heavy',
+    type: 'ranged',
     range: 36,
     cost: 4,
     costCurrency: 'glory',
@@ -673,7 +673,7 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'reaper_chaincannon',
     name: 'Reaper Chaincannon',
-    type: 'heavy',
+    type: 'ranged',
     range: 24,
     cost: 35,
     limit: 1,
@@ -684,7 +684,7 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'ripper_gun',
     name: 'Ripper Gun',
-    type: 'heavy',
+    type: 'ranged',
     range: 12,
     cost: 15,
     limit: 2,
@@ -695,7 +695,7 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'twin_heavy_stubber',
     name: 'Twin Heavy Stubber',
-    type: 'heavy',
+    type: 'ranged',
     range: 36,
     cost: 50,
     limit: 1,
@@ -706,7 +706,7 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'twin_lascannon',
     name: 'Twin Lascannon',
-    type: 'heavy',
+    type: 'ranged',
     range: 48,
     cost: 40,
     limit: 1,
@@ -717,7 +717,7 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'harpoon_launcher',
     name: 'Harpoon Launcher',
-    type: 'heavy',
+    type: 'ranged',
     range: 18,
     cost: 30,
     handedness: 'two-handed',
@@ -727,7 +727,7 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'krumper_rivet_cannon',
     name: 'Krumper Rivet Cannon',
-    type: 'heavy',
+    type: 'ranged',
     range: 18,
     cost: 10,
     handedness: 'two-handed',
@@ -737,12 +737,32 @@ export const sharedHeavyRangedWeapons: Weapon[] = [
   {
     id: 'seismic_cannon',
     name: 'Seismic Cannon',
-    type: 'heavy',
+    type: 'ranged',
     range: 24,
     cost: 25,
     handedness: 'two-handed',
     keywords: ['HEAVY', 'ARMOUR PIERCING 1', 'RISKY', 'STUN', 'TWO-HANDED'],
     description: '24" HEAVY, ARMOUR PIERCING 1, RISKY, STUN, TWO-HANDED. On hit: target (including Down models) moves D3" directly away from wielder (non-LARGE only for push effect).'
+  },
+  {
+    id: 'hellfyre_missile_rack_ts',
+    name: 'Hellfyre Missile Rack',
+    type: 'ranged',
+    range: 36,
+    cost: 25,
+    handedness: 'two-handed',
+    keywords: ['36"', 'IGNORE COVER', 'FIRE', 'HEAVY', 'THROWN'],
+    description: '36”, IGNORE COVER, FIRE, HEAVY, THROWN'
+  },
+  {
+    id: 'assault_cannon',
+    name: 'Assault Cannon',
+    type: 'ranged',
+    range: 24,
+    cost: 50,
+    handedness: 'two-handed',
+    keywords: ['24"', 'AUTOMATIC 3', 'RISKY', 'HEAVY', 'TWO-HANDED'],
+    description: '24”, AUTOMATIC 3, RISKY, HEAVY, TWO-HANDED, all attacks must target the same enemy'
   },
 ];
 
@@ -855,8 +875,8 @@ export const sharedThrownWeapons: Weapon[] = [
     range: 8,
     cost: 5,
     limit: 1,
-    keywords: ['ASSAULT', 'FUMBLE', 'SCATTER', 'IGNORE COVER', 'IGNORE LONG RANGE', 'THROWN'],
-    description: '8" ASSAULT, FUMBLE, SCATTER, IGNORE COVER, IGNORE LONG RANGE, THROWN. Once per battle. No injury — place Smoke marker granting COVER and STEALTH within 3". Removed on 3- at end of Turn, otherwise at end of next Turn.'
+    keywords: ['ASSAULT', 'SCATTER', 'IGNORE COVER', 'IGNORE LONG RANGE', 'THROWN'],
+    description: 'Usable only once per battle. Causes no Injury. Instead, place a Smoke marker at the point hit. All models within 3” of a Smoke marker have the COVER and STEALTH Keywords. Any effect that ignores the STEALTH Keyword also ignores this COVER Keyword. At the end of the Turn, roll a D6. On a 3 or lower, remove the Smoke marker. Otherwise, remove it at the end of the next Turn.'
   },
 ];
 
@@ -1455,29 +1475,27 @@ export const sharedSpecialMeleeWeapons: Weapon[] = [
     name: 'Inferno Boltgun',
     type: 'ranged',
     range: 24,
-    cost: 15,
+    cost: 23,
     handedness: 'two-handed',
     keywords: ['VICIOUS 11', 'ARMOUR PIERCING 1 on Critical Hit', 'CRITICAL', 'TWO-HANDED'],
     description: '24", VICIOUS 11, ARMOUR PIERCING 1 on Critical Hit, CRITICAL, TWO-HANDED, Scope. (Thousand Sons Only)',
-    restrictedTo: ['Thousand Sons Only'],
   },
   {
     id: 'fatecater_greatbow_ts',
     name: 'Fatecater Greatbow',
     type: 'ranged',
     range: 30,
-    cost: 15,
+    cost: 25,
     handedness: 'two-handed',
     keywords: ['CRITICAL', 'IGNORE COVER', 'IGNORE LONG RANGE', 'PSYCHIC', 'TWO-HANDED'],
     description: '30", CRITICAL, IGNORE COVER, IGNORE LONG RANGE, PSYCHIC, TWO-HANDED',
-    restrictedTo: ['Tzaangor Only'],
   },
   {
     id: 'inferno_bolt_pistol_ts',
     name: 'Inferno Bolt Pistol',
     type: 'ranged',
     range: 12,
-    cost: 12,
+    cost: 20,
     limit: 1,
     keywords: ['VICIOUS 11', 'ARMOUR PIERCING 1 on Critical Hit', 'CRITICAL', 'PISTOL'],
     description: '12", VICIOUS 11, ARMOUR PIERCING 1 on Critical Hit, CRITICAL, PISTOL. LIMIT: 1. (Thousand Sons Only)'
@@ -1489,8 +1507,8 @@ export const sharedSpecialMeleeWeapons: Weapon[] = [
     range: 24,
     cost: 40,
     handedness: 'two-handed',
-    keywords: ['AUTOMATIC 2', 'VICIOUS 11', 'ARMOUR PIERCING 1 on Critical Hit', 'CRITICAL', 'HEAVY', 'TWO-HANDED'],
-    description: '24", AUTOMATIC 2, VICIOUS 11, ARMOUR PIERCING 1 on Critical Hit, CRITICAL, HEAVY, TWO-HANDED. (Thousand Sons Only)'
+    keywords: ['AUTOMATIC 2', 'TWO-HANDED'],
+    description: 'When making attacks, one attack must be made with the Bolter mode, and one with the other chosen mode. \n - Inferno Bolter: 24”, VICIOUS 11, ARMOUR PIERCING 1 on Critical Hit, CRITICAL \n - Combi: When you purchase this weapon, you must also purchase one of the following weapons that you have access to at the normal price, which permanently becomes the Combi-Bolter’s second mode: Inferno Bolter (a second one), Flamer, Grav Gun, Grenade Launcher, Melta Gun, or Plasma Gun'
   },
   {
     id: 'force_stave_ts',
@@ -1542,7 +1560,15 @@ export const sharedSpecialMeleeWeapons: Weapon[] = [
     limit: 2,
     keywords: ['FLAMETHROWER', 'IGNORE ARMOUR', '-2 INJURY DICE', 'FIRE', 'PISTOL'],
     description: '6" FLAMETHROWER, IGNORE ARMOUR, -2 INJURY DICE, FIRE, PISTOL. LIMIT: 2. Elite Only. (Thousand Sons Only)',
-    restrictedTo: ['ELITE'],
+  },
+  {
+    id: 'divining_spear_ts',
+    name: 'Divining Spear',
+    type: 'melee',
+    cost: 15,
+    limit: 1,
+    keywords: ['BLOCK', 'IGNORE DEFENDED OBSTACLE', 'PSYCHIC', 'TWO-HANDED'],
+    description: '+1 INJURY DICE during an Activation in which the equipped model Charged, whenever the equipped mode Charges one or more enemies, one of them of your choice gains 1 BLOOD MARKER',
   },
   // ── Heretic Astartes Variant Battlekit: World Eaters ─────────────────────
   {
@@ -1796,8 +1822,8 @@ export const sharedHeavyMeleeWeapons: Weapon[] = [
     type: 'melee',
     cost: 10,
     handedness: 'one-handed',
-    keywords: ['+1 INJURY MODIFIER', 'IGNORE ARMOUR on Critical Hit', 'CRITICAL', 'STUN'],
-    description: 'Melee, +1 INJURY MODIFIER, IGNORE ARMOUR on Critical Hit, CRITICAL, STUN.'
+    keywords: ['IGNORE ARMOUR on Critical Hit', 'CRITICAL', 'STUN'],
+    description: 'Melee, IGNORE ARMOUR on Critical Hit, CRITICAL, STUN.'
   },
 ];
 
@@ -2237,6 +2263,16 @@ export const leaguesOfVotannRangedWeapons: Weapon[] = [
     keywords: ['ARMOUR PIERCING 2', 'CRITICAL', 'FIRE', 'TWO-HANDED'],
     description: '18" ARMOUR PIERCING 2, CRITICAL, FIRE, TWO-HANDED. LIMIT: 2.',
   },
+  {
+    id: 'sp_conversion_beamer',
+    name: 'SP Conversion Beamer',
+    type: 'ranged',
+    range: 24,
+    cost: 15,
+    handedness: 'two-handed',
+    keywords: ['IGNORE LONG RANGE', 'CRITICAL', 'HEAVY', 'TWO-HANDED', 'VICIOUS 10 (Long Range)'],
+    description: '24" IGNORE LONG RANGE, CRITICAL, HEAVY, TWO-HANDED. VICIOUS 10 when firing at Long Range.',
+  },
   // Unique Pistols
   {
     id: 'etacarn_plasma_pistol',
@@ -2263,7 +2299,7 @@ export const leaguesOfVotannRangedWeapons: Weapon[] = [
   {
     id: 'heavy_volkanite_disintegrator',
     name: 'Heavy Volkanite Disintegrator',
-    type: 'heavy',
+    type: 'ranged',
     range: 24,
     cost: 40,
     limit: 1,
@@ -2274,7 +2310,7 @@ export const leaguesOfVotannRangedWeapons: Weapon[] = [
   {
     id: 'ion_beamer',
     name: 'Ion Beamer',
-    type: 'heavy',
+    type: 'ranged',
     range: 18,
     cost: 25,
     limit: 1,
@@ -2285,7 +2321,7 @@ export const leaguesOfVotannRangedWeapons: Weapon[] = [
   {
     id: 'magna_rail_rifle',
     name: 'Magna Rail Rifle',
-    type: 'heavy',
+    type: 'ranged',
     range: 18,
     cost: 45,
     limit: 1,
@@ -2293,16 +2329,7 @@ export const leaguesOfVotannRangedWeapons: Weapon[] = [
     keywords: ['+2 INJURY DICE', 'HEAVY', 'TWO-HANDED'],
     description: '18" +2 INJURY DICE, HEAVY, TWO-HANDED. LIMIT: 1.',
   },
-  {
-    id: 'sp_conversion_beamer',
-    name: 'SP Conversion Beamer',
-    type: 'heavy',
-    range: 24,
-    cost: 15,
-    handedness: 'two-handed',
-    keywords: ['IGNORE LONG RANGE', 'CRITICAL', 'HEAVY', 'TWO-HANDED', 'VICIOUS 10 at Long Range'],
-    description: '24" IGNORE LONG RANGE, CRITICAL, HEAVY, TWO-HANDED. VICIOUS 10 when firing at Long Range.',
-  },
+
   // Unique Thrown
   {
     id: 'throwing_plasma_knives',
@@ -2353,25 +2380,6 @@ export const leaguesOfVotannMeleeWeapons: Weapon[] = [
     handedness: 'two-handed',
     keywords: ['+1 DICE', '+1 INJURY MODIFIER', 'CUMBERSOME', 'HEAVY', 'STUN', 'TWO-HANDED'],
     description: 'Melee, +1 DICE, +1 INJURY MODIFIER, CUMBERSOME, HEAVY, STUN, TWO-HANDED. On hit vs non-LARGE target: moves target D3+1" directly away. Steeljack Only.',
-  },
-  {
-    id: 'plasma_blade_lv',
-    name: 'Plasma Blade',
-    type: 'melee',
-    cost: 15,
-    limit: 4,
-    keywords: ['CRITICAL', 'ARMOUR PIERCING 1'],
-    description: 'Melee, CRITICAL, ARMOUR PIERCING 1. LIMIT: 4.',
-  },
-  {
-    id: 'heavy_plasma_blade_lv',
-    name: 'Heavy Plasma Blade',
-    type: 'melee',
-    cost: 18,
-    limit: 2,
-    handedness: 'two-handed',
-    keywords: ['CRITICAL', 'ARMOUR PIERCING 1', 'HEAVY', 'TWO-HANDED'],
-    description: 'Melee, CRITICAL, ARMOUR PIERCING 1, HEAVY, TWO-HANDED. LIMIT: 2.',
   },
   // Campaign Shop Weapons
   { id: 'captive_abyss_votann', name: 'Captive Abyss', type: 'ranged', range: 6, cost: 2, costCurrency: 'glory', limit: 1, keywords: ['BLAST 3"', 'THROWN', 'SCATTER'], description: '6", +1 INJURY DICE per Grudge Token the target has, BLAST 3", THROWN, SCATTER. Can only be used once per battle. 2 Glory. LIMIT: 1.' },
@@ -4149,7 +4157,7 @@ export const factionSpecificWeaponIds = new Set<string>([
   'shrapnel_bolter_iw', 'shrapnel_cannon_iw', 'shrapnel_pistol_iw',
   'terrorchem_vials_nl',
   'inferno_boltgun_ts', 'inferno_bolt_pistol_ts', 'inferno_combi_bolter_ts', 'fatecater_greatbow_ts',
-  'force_stave_ts', 'power_claw_ts', 'soulreaper_cannon_ts',
+  'force_stave_ts', 'power_claw_ts', 'soulreaper_cannon_ts', 'divining_spear_ts',
   'meltagun_ts', 'hand_flamer_ts',
   'axe_of_dismemberment_we', 'blood_harpoon_we', 'heavy_chain_weapon_we',
   // Chaos Cult
@@ -4205,10 +4213,9 @@ export const factionSpecificWeaponIds = new Set<string>([
   'etacarn_plasma_beamer', 'etacarn_plasma_gun', 'ion_blaster', 'iron_ambassador',
   'volkanite_disintegrator', 'etacarn_plasma_pistol', 'ion_pistol',
   'heavy_volkanite_disintegrator', 'ion_beamer', 'magna_rail_rifle', 'sp_conversion_beamer',
-  'throwing_plasma_knives',
+  'throwing_plasma_knives', 
   'concussion_gauntlet', 'heavy_concussion_gauntlet',
   'twin_concussion_gauntlets', 'twin_heavy_concussion_gauntlets',
-  'plasma_blade_lv', 'heavy_plasma_blade_lv',
   // Genestealer Cults
   'bonesword_gsc', 'lash_whip_gsc', 'toxin_injector_claw',
   // Pirate Crew
@@ -4305,7 +4312,7 @@ export const factionSpecificWeaponIds = new Set<string>([
   // Necrons Campaign Shop
   'arrow_of_infinity_nec', 'conduit_of_stars_nec', 'solar_staff_nec', 'voidreaper_nec',
   // Leagues of Votann Campaign Shop
-  'captive_abyss_votann', 'exactor_votann', 'forgestar_votann', 'murmuring_stave_votann',
+  'captive_abyss_votann', 'exactor_votann', 'forgestar_votann', 'grudge_end_votann', 'murmuring_stave_votann', 'kahyrm_war_plate_votann', 'recyc_converter_votann', 'warpestryk_votann', 'wayfarer_grace_votann', 'thyrikite_plate_votann',
   // Heretic Astartes Base Campaign Shop
   'black_mace_ha', 'blade_of_the_relentless_ha', 'foecleaver_ha', 'orbs_of_unlife_ha', 'shadesword_ha', 'warps_malice_ha',
   // Death Guard Campaign Shop

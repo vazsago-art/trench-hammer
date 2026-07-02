@@ -60,7 +60,10 @@ npm run build
 npm run preview
 
 # Check for TypeScript errors
-npx tsc --noEmit
+npm run typecheck
+
+# Run data sanity scan (instruction docs vs faction data)
+npm run qa:scan
 ```
 
 ---

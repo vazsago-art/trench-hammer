@@ -101,7 +101,6 @@ describe('Adeptus Astartes – instruction armoury compliance', () => {
       'automatic_bolt_rifle', // Automatic Bolt Rifle 20cr (Primaris Only)
       'bolt_rifle',           // Bolt Rifle 15cr (Primaris Only)
       'bolt_sniper_rifle',    // Bolt Sniper Rifle 30cr
-      'combi_weapon',         // Combi-Weapon 35cr
       'flamer',               // Flamer 30cr
       'longlas',              // Longlas 25cr
       'melta_gun',            // Melta Gun 2 Glory

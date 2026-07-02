@@ -40,6 +40,7 @@ const FACTION_ALIGNMENT: Record<string, WarbandAlignment> = {
   heretic_astartes: 'chaos',
   chaos_daemons: 'chaos',
   vermintide: 'chaos',
+  thousand_sons: 'chaos',
   // Xenos
   aeldari: 'xenos',
   drukhari: 'xenos',

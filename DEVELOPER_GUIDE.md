@@ -40,7 +40,17 @@ Opens automatically at http://localhost:5173
 ```bash
 npm run build
 npm run preview
+npm run typecheck
+npm run qa:scan
 ```
+
+### Validation Policy
+- Unit tests under `src/test` are decommissioned and archived under `archive/legacy-tests`.
+- Use lightweight verification for changes:
+  - `npm run build`
+  - `npm run typecheck`
+  - `npm run qa:scan`
+  - Manual smoke checks on core builder flows
 
 ---
 

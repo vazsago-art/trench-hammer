@@ -170,33 +170,33 @@ export const FACTION_RULES: Record<string, FactionSpecialRulesData> = {
     rules: [
       '**Aspiring Sorcerers.** Any model you promote to an Elite gains the PSYKER 1 Keyword, and its cost is increased by 10 for the purposes of credit limits. When the model is promoted, choose the Change or Vengeance Psychic Discipline. That model may purchase up to two powers from the chosen discipline. It must be equipped with a PSYCHIC Weapon in order to use any Psychic Power.',
       '**Cabal of Sorcerers** (Battle). Keep track of your Cabal Points during each battle, beginning at 0 at the start of the battle. At the start of each Turn, you gain Cabal Points equal to the combined total PSYKER X values of all of your HERETIC ASTARTES TZEENTCH models on the battlefield. You can spend the listed Cabal Points to perform one of the following Rituals when one of your HERETIC ASTARTES TZEENTCH takes the Cast Action, before any Success Roll:'
-      + '\n - Cabbalistic Focus (3 Cabal Points). Enemies cannot Deny the Witch against the power.'
-      + '\n - Echoes From The Warp (5 Cabal Points). If the result of the Success roll is 10 or higher, the caster gains 1 BLESSING MARKER.'
-      + '\n - Imbued Manifestation (4 Cabal Points). If the power has a range of 6” or more, you can increase its range by 6”.'
-      + '\n - Kindred Sorcerers (2 Cabal Points). The caster has +1 DICE to Success Rolls for this power.'
-      + '\n - Malevolent Charge (4 Cabal Points). If the power inflicts any injuries, those injuries have +1 INJURY DICE.'
-      + '\n - Pact From Beyond (5 Cabal Points). The caster does not suffer Perils of the Warp on a result of 12 for this power. The PERILOUS Keyword only applies to numbers between 2 and 2 plus the PERILOUS X value for it.'
-      + '\n - Psychic Maelstrom (5 Cabal Points). The caster can use a power that any other friendly TZEENTCH PSYKER on the battlefield knows, as if it knew that power.'
-      + '\n - Warp Sight (3 Cabal Points). If the power requires the caster to see one or more models, you can choose another friendly TZEENTCH model on the battlefield. You can use that model’s line of sight instead of the caster’s for this power. This does not affect range.'
-      + '\n - Wrath Of The Immaterium (5 Cabal Points). The caster has +1 DICE to Success Rolls for this power, and reduce the X value of the PERILOUS X Keyword for the Success Roll by 2, to a minimum of 0.',
+      + '\n - **Cabbalistic Focus (3 Cabal Points).** Enemies cannot Deny the Witch against the power.'
+      + '\n - **Echoes From The Warp (5 Cabal Points).** If the result of the Success roll is 10 or higher, the caster gains 1 BLESSING MARKER.'
+      + '\n - **Imbued Manifestation (4 Cabal Points).** If the power has a range of 6” or more, you can increase its range by 6”.'
+      + '\n - **Kindred Sorcerers (2 Cabal Points).** The caster has +1 DICE to Success Rolls for this power.'
+      + '\n - **Malevolent Charge (4 Cabal Points).** If the power inflicts any injuries, those injuries have +1 INJURY DICE.'
+      + '\n - **Pact From Beyond (5 Cabal Points).** The caster does not suffer Perils of the Warp on a result of 12 for this power. The PERILOUS Keyword only applies to numbers between 2 and 2 plus the PERILOUS X value for it.'
+      + '\n - **Psychic Maelstrom (5 Cabal Points).** The caster can use a power that any other friendly TZEENTCH PSYKER on the battlefield knows, as if it knew that power.'
+      + '\n - **Warp Sight (3 Cabal Points).** If the power requires the caster to see one or more models, you can choose another friendly TZEENTCH model on the battlefield. You can use that model’s line of sight instead of the caster’s for this power. This does not affect range.'
+      + '\n - **Wrath Of The Immaterium (5 Cabal Points).** The caster has +1 DICE to Success Rolls for this power, and reduce the X value of the PERILOUS X Keyword for the Success Roll by 2, to a minimum of 0.',
       '**Discover the Arcane** (Campaign). Instead of the Dread Reputation special rule, during a campaign, keep track of your Arcane Points, beginning at 0. At the start of each battle, before deployment, your opponent places three 1” Arcana markers anywhere that is exactly half the battlefield size away from your deployment zone (18” away for 3’x3’ board, 24” away for a 4’x4’ board), but not within 6” of a battlefield edge or another marker, or on Impassable Terrain or completely surrounded by it.'
-      +'\nAt any point during the battle, one of your PSYKER models can make a Success Roll to try to study an Arcana marker while it is in contact with it. On a success, remove the marker and you earn 1 Arcane Point.'
-      +'\nDuring the quartermaster step between battles, you can empower one of your Elite PSYKER models with arcane knowledge. It gains a benefit depending on how many Arcane Points you have, then reset your Arcane points to 0. The benefit is either an Arcane Relic, which functions as battlekit but cannot be removed or sold, or an Arcane Power, which is an additional psychic power the model knows, which does not count towards its limit. Each model can gain only up to 1 Arcane Relic and up to 1 Arcane Power in this way.'
-      +'\n - 5-9 Arcane Points:'
-      +'\n     - Arcane Relic: Text Of Warp-Blown Ash. Once per battle, when the bearer would suffer Perils of the Warp, you can choose for it to ignore that Perils of the Warp.'
-      +'\n     - Arcane Power: Thief Of Fate. 18”, AUTOMATIC 3, PSYCHIC, RISKY. All attacks must target the same model.'
-      +'\n - 10-14 Arcane Points:'
-      +'\n     - Arcane Relic: Boonstone. Once per battle, the bearer can gain +2 DICE to any PSYCHIC Success Roll it takes, including an attack.'
-      +'\n     - Arcane Power: Visions Of Doom. As an Action with a Risky Success Roll with +1 DICE, the caster can choose one enemy within 18” of it that it can see. On a success, the target suffers -1 DICE to all Success Rolls and Injury rolls have +1 DICE against it until the end of the current Turn.'
-      +'\n - 15+ Arcane Points:'
-      +'\n     - Arcane Relic: Mesmeric Stave. +1 INJURY DICE against targets with DAEMON or PSYKER Keyword, PSYCHIC, HELD'
-      +'\n          - Strike: Melee, +1 INJURY DICE'
-      +'\n          - Shoot: 18”, +1 INJURY DICE, ASSAULT'
-      +'\n     - Arcane Power: Binding Flames. As an Action with a Risky Success Roll with +1 DICE, the caster can choose itself or one ally within 18” of it that it can see. On a success, until the end of the current Turn, attacks against the target have -1 DICE to Hit and -1 INJURY DICE against the chosen model.',
+      +'\n At any point during the battle, one of your PSYKER models can make a Success Roll to try to study an Arcana marker while it is in contact with it. On a success, remove the marker and you earn 1 Arcane Point.'
+      +'\n During the quartermaster step between battles, you can empower one of your Elite PSYKER models with arcane knowledge. It gains a benefit depending on how many Arcane Points you have, then reset your Arcane points to 0. The benefit is either an Arcane Relic, which functions as battlekit but cannot be removed or sold, or an Arcane Power, which is an additional psychic power the model knows, which does not count towards its limit. Each model can gain only up to 1 Arcane Relic and up to 1 Arcane Power in this way.'
+      +'\n - **5-9 Arcane Points:**'
+      +'\n     - **Arcane Relic: Text Of Warp-Blown Ash.** Once per battle, when the bearer would suffer Perils of the Warp, you can choose for it to ignore that Perils of the Warp.'
+      +'\n     - **Arcane Power: Thief Of Fate.** 18”, AUTOMATIC 3, PSYCHIC, RISKY. All attacks must target the same model.'
+      +'\n - **10-14 Arcane Points:**'
+      +'\n     - **Arcane Relic: Boonstone.** Once per battle, the bearer can gain +2 DICE to any PSYCHIC Success Roll it takes, including an attack.'
+      +'\n     - **Arcane Power: Visions Of Doom.** As an Action with a Risky Success Roll with +1 DICE, the caster can choose one enemy within 18” of it that it can see. On a success, the target suffers -1 DICE to all Success Rolls and Injury rolls have +1 DICE against it until the end of the current Turn.'
+      +'\n - **15+ Arcane Points:**'
+      +'\n     - **Arcane Relic: Mesmeric Stave.** +1 INJURY DICE against targets with DAEMON or PSYKER Keyword, PSYCHIC, HELD'
+      +'\n          - **Strike:** Melee, +1 INJURY DICE'
+      +'\n          - **Shoot:** 18”, +1 INJURY DICE, ASSAULT'
+      +'\n     - **Arcane Power: Binding Flames.** As an Action with a Risky Success Roll with +1 DICE, the caster can choose itself or one ally within 18” of it that it can see. On a success, until the end of the current Turn, attacks against the target have -1 DICE to Hit and -1 INJURY DICE against the chosen model.',
       '**Patron.** Your Patron must be the Tzeentch Shared Patron.',
       '**Warband Variant: Changehost** Optionally form a Changehost: cannot include Tzeentch Cultists or Sekhetar Robots; max 4 Rubric Marines; can recruit Scintillating Legion Daemon Troop models.'
-      +'\n - Limited Recruits. You cannot take any Tzeentch Cultists or Sekhetar Robots, and you cannot recruit any Summoned Mercenaries. You can take a maximum of 4 Rubric Marines.'
-      +'\n - Daemon Support. You can recruit Scintillating Legion Troop models from the Chaos Daemons faction.',
+      +'\n - **Limited Recruits.** You cannot take any Tzeentch Cultists or Sekhetar Robots, and you cannot recruit any Summoned Mercenaries. You can take a maximum of 4 Rubric Marines.'
+      +'\n - **Daemon Support.** You can recruit Scintillating Legion Troop models from the Chaos Daemons faction.',
     ],
     variantOption: {
         label: 'Warband Variant: Changehost',
@@ -325,9 +325,31 @@ export const FACTION_RULES: Record<string, FactionSpecialRulesData> = {
   t_au_empire: {
     title: 'T\'au Empire Special Rules',
     rules: [
-      '**For the Greater Good.** A model with the MARKERLIGHT keyword can declare it is marking a target instead of shooting — instead of an attack roll, the target simply gains 1 Markerlight token. Ranged attacks against models with Markerlight tokens have +1 DICE to Hit. Your models can spend Markerlight tokens as BLOOD MARKERS on ranged Injury rolls. All Markerlight tokens are removed at end of each Turn.',
-      '**Expanding The Empire** (Campaign). Choose a target Demographic (Brutal/Convicted/Downtrodden/Logical/Prosperous/Superstitious). Track Influence Points. Earn 1 Influence Point per battle when the Demographic\'s condition is met. After 3 Influence Points, you have Converted the Demographic and permanently gain its Reward (2 Glory, Elite XP, extra models, +50 credits + 100 credits, or leader skill choice), then reset and choose a new Demographic.',
-    ],
+      '**For the Greater Good.** When one of your models with the MARKERLIGHT keyword would make a ranged attack against an enemy, you can declare that it is attempting to mark that model instead of shooting it. Instead of taking an attack Success Roll, the target simply gains a Markerlight token. You cannot make multiple attacks or attack multiple targets with a weapon that normally allows you to in this way. The single Markerlight replaces all attacks with that weapon.'
+    + '\nRanged attacks against enemy models with at least one Markerlight token have +1 DICE to Hit. Your models can spend Markerlight tokens as if they were BLOOD MARKERS when making injury rolls for their ranged attacks. Remove all Markerlight tokens at the end of each Turn.',
+      '**Expanding The Empire** (Campaign). Expanding The Empire. During a campaign, when you create your Warband, or when you Convert a Demographic, choose one of the following Demographics to be your target (or roll randomly). You cannot choose a Demographic you have already Converted.'
+    + '\n **1. Brutal**'
+    + '\n      - **Conditions:** Gain an Influence Point if you took at least half of the enemy models, rounded up, Out of Action.'
+    + '\n      - **Reward:** You earn 2 Glory.'
+    + '\n **2. Convicted**'
+    + '\n      - **Conditions:** Gain an Influence Point if you succeeded on a Morale test, and/or if your opponent failed one.'
+    + '\n      - **Reward:** Each of your Elite models earns an additional 1 XP.'
+    + '\n **3. Downtrodden**'
+    + '\n      - **Conditions:** At the start of the battle, your opponent places a 1” Supplies marker on the battlefield, at least 6” closer to your deployment zone than their own. At the end of the battle, if your opponent has more models within 3” of the Supplies marker than you, they earn 50 credits. If you have more models than your opponent within 3” of the Supplies marker at the end of the battle, you gain an Influence Point.'
+    + '\n      - **Reward:** Permanently increase your Model Limit for each battle by 2.'
+    + '\n **4. Logical**'
+    + '\n      - **Conditions:** Gain an Influence Point if fewer than half of your models, rounded down, were taken Out of Action.'
+    + '\n      - **Reward:** Your credit limit is permanently increased by 50, and you earn 100 credits.'
+    + '\n **5. Prosperous**'
+    + '\n      - **Conditions:** Gain an Influence Point if you won the battle, or scored at least ⅔ of the number of VP as your opponent.'
+    + '\n      - **Reward:** Your credit limit is permanently increased by 50, and you earn 100 credits.'
+    + '\n **6. Superstitious**'
+    + '\n      - **Conditions:** Gain an Influence Point if one of your Elite models scored a Glorious Deed.'
+    + '\n      - **Reward:** Your Warband leader can choose to gain a Patron Skill the next time it has enough XP to learn a Campaign Skill, instead of rolling.'
+    + '\nKeep track of your Influence Points, beginning at 0. At the end of each battle, you gain 1 Influence Point if you satisfied the conditions listed for your target Demographic.'
+    + '\nOnce you have 3 Influence Points, you have Converted your target Demographic and permanently gain that Demographic’s Reward, then reset your Influence Points to 0 and choose a new target Demographic. If you have fewer than 3 Influence Points, you can choose to abandon your current Demographic target and choose another, but your Influence Points reset to 0 if you do.',
+      '**Patron:** Your patron must be an Ethereal Supreme.'      
+  ],
   },
 
   // ── Outlaw Factions ────────────────────────────────────────────────────────

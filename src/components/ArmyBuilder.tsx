@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useRef, useState } from 'react';
 import { Warband, UnitOption, UnitSubType, SelectedWargear, WargearOption, SelectedPsychicPower, SelectedGiftOfChaos, UnitUpgrade, WarbandMercenary, Mercenary, WarbandUnit, MercenaryStats, SharedWarbandProps } from '../types/index.js';
 import { getFactionById, allFactions } from '../data/factions_complete.js';
 import { calculateWarbandPoints, calculateWarbandGlory, calculateTotalModels, validateWarband, getUnitMaxCountForWarband } from '../data/validation.js';
@@ -7,7 +7,7 @@ import { validateLoadout } from '../data/wargearSlotValidation.js';
 import { lookupWargear, lookupWeapon } from '../data/wargearSlotValidation.js';
 import { allWeapons } from '../data/weapons.js';
 import { marksOfChaos } from '../data/equipment.js';
-import { saveWarbandLocal, exportWarbandToMDFile, importWarbandFromJSON } from '../utils/export.js';
+import { calculateUnitSupplementalCosts } from '../utils/unitSupplementalCosts.js';
 import { WargearPanel } from './WargearPanel.js';
 import { PsychicPanel } from './PsychicPanel.js';
 import { MutationsPanel } from './MutationsPanel.js';
@@ -36,19 +36,37 @@ import { getWarbandLore, hasWarbandLore } from '../data/warbandLore.js';
 import { WarbandLoreModal } from './WarbandLoreModal.js';
 import { RulesReference } from './RulesReference.js';
 import { CampaignManager } from './CampaignManager.js';
-import { buildShareUrl } from '../utils/shareUrl.js';
 import { TacticalAnalysis } from './TacticalAnalysis.js';
 import { analyseTactical } from '../utils/tacticalAnalysis.js';
 import { QuickBuildWizard } from './QuickBuildWizard.js';
+import { applyPromotionToggle } from '../utils/unitPromotion.js';
+import { resolveWarbandUnitKeywords } from '../utils/unitKeywords.js';
+import { resolveUnitCore } from '../utils/unitResolution.js';
+import { calculateUnitCostTotals } from '../utils/unitCosts.js';
+import { buildEffectiveWargearSelection } from '../utils/wargearSelection.js';
+import { resolveUpgradeSelection } from '../utils/upgradeSelection.js';
+import { addGiftToSelection, removeGiftFromSelection } from '../utils/giftSelection.js';
+import { addPsychicPowerToSelection, removePsychicPowerFromSelection } from '../utils/psychicPowerSelection.js';
+import { resolveAvailableUnits } from '../utils/availableUnits.js';
+import {
+  applyFactionChangeToWarband,
+  applySubFactionChangeToWarband,
+  createEmptyWarband,
+  hasUnsavedWarbandContent,
+  normalizeLoadedWarband,
+} from '../utils/warbandState.js';
+import {
+  handleConfirmNewBuildAction,
+  handleExportMarkdownAction,
+  handleImportFromFileAction,
+  handleImportFromPasteAction,
+  handleNewBuildAction,
+  handleSaveLocalAction,
+  handleShareUrlAction,
+} from '../utils/warbandIO.js';
+import { RuleTreeRenderer, parseRuleToTree } from './RuleTreeRenderer.js';
 import './ArmyBuilder.css';
-
-/** Renders a string with **bold** markdown markers as JSX with <strong> elements. */
-function renderFormattedText(text: string): ReactNode {
-  const parts = text.split(/\*\*(.*?)\*\*/g);
-  return parts.map((part, i) =>
-    i % 2 === 1 ? <strong key={i}>{part}</strong> : part
-  );
-}
+import React from 'react';
 
 export function ArmyBuilder({
   selectedFaction, setSelectedFaction,
@@ -60,34 +78,12 @@ export function ArmyBuilder({
 
   const currentFaction = getFactionById(selectedFaction);
   const currentSubFaction = getSubFactionById(selectedFaction, selectedSubFaction);
-  // Variant option (e.g. Changehost, Daemonkin, Tallyband, Carnival of Excess): merge extra bans/overrides/units when active
-  const variantCfg = warband.variantOptionEnabled ? currentSubFaction?.variantOption : undefined;
-  const bannedUnitIdsSet = new Set<string>([
-    ...(currentSubFaction?.bannedUnitIds ?? []),
-    ...(variantCfg?.bannedUnitIds ?? []),
-  ]);
-  const unitMaxCountOverrides: Record<string, number> = {
-    ...(currentSubFaction?.unitMaxCountOverrides ?? {}),
-    ...(variantCfg?.unitMaxCountOverrides ?? {}),
-  };
-  const upgradeMaxCountOverrides: Record<string, number> = {
-    ...(currentSubFaction?.upgradeMaxCountOverrides ?? {}),
-  };
-  const withMappedAbilities = (unit: UnitOption): UnitOption => {
-    if ((unit.abilities?.length ?? 0) > 0) return unit;
-    const mappedAbilities = unitAbilitiesMap[unit.id];
-    if (!mappedAbilities || mappedAbilities.length === 0) return unit;
-    return { ...unit, abilities: mappedAbilities };
-  };
-  const allAvailableUnits: UnitOption[] = [
-    ...(currentFaction?.units.filter(u => !bannedUnitIdsSet.has(u.id)).map(u =>
-      unitMaxCountOverrides[u.id] !== undefined
-        ? { ...u, maxCount: unitMaxCountOverrides[u.id] }
-        : u
-    ) ?? []),
-    ...(currentSubFaction?.extraUnits?.map(withMappedAbilities) ?? []),
-    ...(variantCfg?.extraUnits?.map(withMappedAbilities) ?? []),
-  ];
+  const { allAvailableUnits, upgradeMaxCountOverrides } = resolveAvailableUnits({
+    currentFaction,
+    currentSubFaction,
+    variantOptionEnabled: warband.variantOptionEnabled,
+    unitAbilitiesMap,
+  });
   const validation = validateWarband(warband);
   const totalPoints = calculateWarbandPoints(warband);
   const totalGlory = calculateWarbandGlory(warband);
@@ -164,8 +160,7 @@ export function ArmyBuilder({
     setTimeout(() => setSaveMsg(null), 3000);
   };
 
-  const hasUnsavedContent = () =>
-    warband.units.length > 0 || warband.name !== 'My Warband';
+  const hasUnsavedContent = () => hasUnsavedWarbandContent(warband);
 
   const createFreshWarband = () => {
     const defaultFaction = allFactions[0].id;
@@ -174,92 +169,84 @@ export function ArmyBuilder({
     setSelectedSubFaction(defaultSF);
     setPointLimit(700);
     setGloryLimit(0);
-    setWarband({
-      id: `warband-${Date.now()}`,
-      name: 'My Warband',
-      faction: defaultFaction,
-      pointLimit: 700,
-      gloryLimit: 0,
-      units: [],
-      mercenaries: [],
-      totalPoints: 0,
-      totalGlory: 0,
-      totalModels: 0,
-    });
+    setWarband(createEmptyWarband(defaultFaction, 700, 0));
     flashMsg('New build started!', true);
   };
 
   const handleNewBuild = () => {
-    if (hasUnsavedContent()) {
-      setShowNewBuildConfirm(true);
-    } else {
-      createFreshWarband();
-    }
+    handleNewBuildAction({
+      hasUnsavedContent: hasUnsavedContent(),
+      setShowNewBuildConfirm,
+      createFreshWarband,
+    });
   };
 
   const handleConfirmNewBuild = (saveFirst: boolean) => {
-    setShowNewBuildConfirm(false);
-    if (saveFirst) saveWarbandLocal(warband);
-    createFreshWarband();
-    if (saveFirst) flashMsg('Saved! Starting new build…', true);
+    handleConfirmNewBuildAction({
+      saveFirst,
+      warband,
+      setShowNewBuildConfirm,
+      createFreshWarband,
+      flashMsg,
+      saveAndNewMessage: 'Saved! Starting new build…',
+    });
   };
 
   const handleSaveLocal = () => {
-    saveWarbandLocal(warband);
-    flashMsg('Army saved to library!', true);
+    handleSaveLocalAction({
+      warband,
+      flashMsg,
+      successMessage: 'Army saved to library!',
+    });
   };
 
   const handleExportMD = async () => {
-    await exportWarbandToMDFile(warband);
+    await handleExportMarkdownAction({ warband });
   };
 
   const handleShareUrl = async () => {
-    try {
-      const url = await buildShareUrl({
-        faction: selectedFaction,
-        subfaction: selectedSubFaction,
-        pointLimit,
-        gloryLimit,
-        warband,
-      });
-      await navigator.clipboard.writeText(url);
-      flashMsg('Share link copied to clipboard!', true);
-    } catch {
-      flashMsg('Failed to generate share link.', false);
-    }
+    await handleShareUrlAction({
+      faction: selectedFaction,
+      subfaction: selectedSubFaction,
+      pointLimit,
+      gloryLimit,
+      warband,
+      flashMsg,
+      successMessage: 'Share link copied to clipboard!',
+      failureMessage: 'Failed to generate share link.',
+    });
   };
 
   const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      const imported = importWarbandFromJSON(result);
-      if (!imported) {
-        flashMsg('Import failed: invalid file.', false);
-      } else {
-        loadWarband(imported);
+    handleImportFromFileAction({
+      file,
+      onImported: loadWarband,
+      onSuccess: (imported) => {
         setShowImportModal(false);
         flashMsg(`Loaded "${imported.name}" from file.`, true);
-      }
-    };
-    reader.readAsText(file);
+      },
+      flashMsg,
+      invalidMessage: 'Import failed: invalid file.',
+    });
     // Reset so the same file can be re-imported
     e.target.value = '';
   };
 
   // Paste-text import — reliable on all platforms
   const handleImportFromPaste = () => {
-    const imported = importWarbandFromJSON(importPasteText);
-    if (!imported) {
-      flashMsg('Invalid data — check the text and try again.', false);
-    } else {
-      loadWarband(imported);
-      setImportPasteText('');
-      setShowImportModal(false);
-      flashMsg(`Loaded "${imported.name}"`, true);
-    }
+    handleImportFromPasteAction({
+      importText: importPasteText,
+      onImported: loadWarband,
+      onSuccess: (imported) => {
+        setImportPasteText('');
+        setShowImportModal(false);
+        flashMsg(`Loaded "${imported.name}"`, true);
+      },
+      flashMsg,
+      invalidMessage: 'Invalid data — check the text and try again.',
+    });
   };
 
   /** Replace the current builder state with a loaded warband. */
@@ -268,7 +255,7 @@ export function ArmyBuilder({
     setSelectedSubFaction(wb.subfaction ?? 'no_variant');
     setPointLimit(wb.pointLimit);
     setGloryLimit(wb.gloryLimit);
-    setWarband({ ...wb, mercenaries: wb.mercenaries ?? [] });
+    setWarband(normalizeLoadedWarband(wb));
   };
 
   /** Update the warband's hired mercenary list. */
@@ -287,29 +274,14 @@ export function ArmyBuilder({
     const defaultSF = getDefaultSubFactionId(newFactionId);
     setSelectedFaction(newFactionId);
     setSelectedSubFaction(defaultSF);
-    setWarband(prev => ({
-      ...prev,
-      faction: newFactionId,
-      subfaction: defaultSF === 'no_variant' ? undefined : defaultSF,
-      subfactionName: undefined,
-      patron: undefined,
-      units: [], // Clear units when changing faction
-      mercenaries: [], // Clear mercenaries when changing faction
-    }));
+    setWarband(prev => applyFactionChangeToWarband(prev, newFactionId, defaultSF));
   };
 
   const handleSubFactionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSubFactionId = e.target.value;
     const sf = getSubFactionById(selectedFaction, newSubFactionId);
     setSelectedSubFaction(newSubFactionId);
-    setWarband(prev => ({
-      ...prev,
-      subfaction: newSubFactionId === 'no_variant' ? undefined : newSubFactionId,
-      subfactionName: newSubFactionId === 'no_variant' ? undefined : (sf?.name ?? undefined),
-      variantOptionEnabled: undefined, // reset variant option when switching subfaction
-      units: [], // Clear units when changing subfaction
-      mercenaries: [], // Clear mercenaries when changing subfaction
-    }));
+    setWarband(prev => applySubFactionChangeToWarband(prev, newSubFactionId, sf?.name));
   };
 
   const handlePointLimitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -474,97 +446,7 @@ export function ArmyBuilder({
    */
   function buildResolvedUnit(unitDef: UnitOption, warbandUnit: Warband['units'][number]): UnitOption {
     const sub = warbandUnit.appliedSubType;
-    const mods = sub?.statModifiers ?? {};
-
-    // Compute the armourSave contributed by the unit's defaultWargear items
-    const defaultArmourMod = (unitDef.defaultWargear as Array<{ statModifiers?: { armourSave?: number } }>)
-      .reduce((sum, item) => sum + (item.statModifiers?.armourSave ?? 0), 0);
-
-    // Compute the armour+shield contribution from items the player has equipped in the WargearPanel
-    const selectedArmourMod = warbandUnit.selectedWargear.reduce((sum, sw) => {
-      const resolved: WargearOption | undefined = lookupWargear(sw.id);
-      return sum + ((resolved as WargearOption & { statModifiers?: { armourSave?: number } })?.statModifiers?.armourSave ?? 0);
-    }, 0);
-
-    // If the player has equipped a body-armour item, it replaces the default armour contribution.
-    // Detect whether selectedWargear contains any body-armour slot item.
-    const hasSelectedBodyArmour = warbandUnit.selectedWargear.some(sw => {
-      const resolved = lookupWargear(sw.id);
-      return resolved?.slot === 'body-armour';
-    });
-
-    // Base armourSave = stats value minus the default-wargear armour modifier
-    const bareArmourSave = (unitDef.stats.armourSave ?? 0) - defaultArmourMod;
-
-    // If the player explicitly equipped a body-armour in their selectedWargear, replace default armour contribution
-    const effectiveBodyArmour = hasSelectedBodyArmour
-      ? selectedArmourMod           // full override: bare + selected armour + selected shield (all in selectedArmourMod)
-      : defaultArmourMod + selectedArmourMod;  // keep default armour, add any extra from selectedWargear (e.g. shield)
-
-    const effectiveArmourSave = bareArmourSave + effectiveBodyArmour + (mods.armourSave ?? 0);
-
-    // Check for movement override from equipped wargear (e.g. Astartes Bike sets movement to 10")
-    const movementOverrideItem = warbandUnit.selectedWargear.find(sw => {
-      const resolved = lookupWargear(sw.id);
-      return (resolved?.movementOverride != null) || (sw.movementOverride != null);
-    });
-    const wargearMovementOverride = movementOverrideItem
-      ? (lookupWargear(movementOverrideItem.id)?.movementOverride ?? movementOverrideItem.movementOverride ?? null)
-      : null;
-
-    // Sum any movement bonuses/penalties granted by equipped wargear (e.g. Jump Pack +2")
-    // Also reads statModifiers directly from item if lookupWargear returns nothing
-    // (used for auto-mod items like Rubric Marines −1" or Jakhals +1").
-    const wargearMovementBonus = warbandUnit.selectedWargear.reduce((sum, sw) => {
-      const resolved = lookupWargear(sw.id);
-      return sum + (resolved?.statModifiers?.movement ?? sw.statModifiers?.movement ?? 0);
-    }, 0);
-    // Sum any ranged skill bonuses from wargear (e.g. Gal Vorbak +1 Ranged Skill)
-    const wargearRangedSkillBonus = warbandUnit.selectedWargear.reduce((sum, sw) => {
-      const resolved = lookupWargear(sw.id);
-      return sum + (resolved?.statModifiers?.rangedSkill ?? sw.statModifiers?.rangedSkill ?? 0);
-    }, 0);
-
-    // Sum any melee skill bonuses from wargear (e.g. Big Muscles automod +1 Melee Skill)
-    const wargearMeleeSkillBonus = warbandUnit.selectedWargear.reduce((sum, sw) => {
-      const resolved = lookupWargear(sw.id);
-      return sum + (resolved?.statModifiers?.meleeSkill ?? sw.statModifiers?.meleeSkill ?? 0);
-    }, 0);
-
-    // Aggregate stat modifiers from active upgrades (e.g. Battle Sister Mortisanctus +1M/-1R)
-    const upgradeMods = (unitDef.upgrades ?? [])
-      .filter(upg => ((warbandUnit.selectedUpgrades ?? {})[upg.id] ?? 0) > 0)
-      .reduce((acc, upg) => {
-        const m = upg.statModifiers ?? {};
-        return {
-          movement:    (acc.movement    ?? 0) + (m.movement    ?? 0),
-          rangedSkill: (acc.rangedSkill ?? 0) + (m.rangedSkill ?? 0),
-          meleeSkill:  (acc.meleeSkill  ?? 0) + (m.meleeSkill  ?? 0),
-          armourSave:  (acc.armourSave  ?? 0) + (m.armourSave  ?? 0),
-        };
-      }, {} as Partial<{ movement: number; rangedSkill: number; meleeSkill: number; armourSave: number }>);
-
-    // Aggregate stat modifiers from active Gifts of Chaos mutations
-    const activeGifts = (warbandUnit.selectedGiftsOfChaos ?? []).map(sg => GIFTS_OF_CHAOS.find(g => g.id === sg.id)).filter(Boolean);
-    const giftMods = activeGifts.reduce((acc, g) => {
-      const m = g!.statModifiers ?? {};
-      return {
-        movement:    (acc.movement    ?? 0) + (m.movement    ?? 0),
-        rangedSkill: (acc.rangedSkill ?? 0) + (m.rangedSkill ?? 0),
-        meleeSkill:  (acc.meleeSkill  ?? 0) + (m.meleeSkill  ?? 0),
-        armourSave:  (acc.armourSave  ?? 0) + (m.armourSave  ?? 0),
-      };
-    }, {} as Partial<{ movement: number; rangedSkill: number; meleeSkill: number; armourSave: number }>);
-
-    const effectiveStats = {
-      movement:    wargearMovementOverride != null
-        ? wargearMovementOverride + (giftMods.movement ?? 0)
-        : unitDef.stats.movement    + (mods.movement    ?? 0) + wargearMovementBonus + (upgradeMods.movement ?? 0) + (giftMods.movement ?? 0),
-      rangedSkill: unitDef.stats.rangedSkill + (mods.rangedSkill ?? 0) + wargearRangedSkillBonus + (upgradeMods.rangedSkill ?? 0) + (giftMods.rangedSkill ?? 0),
-      meleeSkill:  unitDef.stats.meleeSkill  + (mods.meleeSkill  ?? 0) + wargearMeleeSkillBonus + (upgradeMods.meleeSkill ?? 0) + (giftMods.meleeSkill ?? 0),
-      armourSave:  effectiveArmourSave + (upgradeMods.armourSave ?? 0) + (giftMods.armourSave ?? 0),
-      toughness:   mods.toughness ?? unitDef.stats.toughness,
-    };
+    const { effectiveStats, resolvedKeywords, activeGifts } = resolveUnitCore(unitDef, warbandUnit);
 
     // Collect abilities from any selected upgrades
     const upgradeAbilities = (unitDef.upgrades ?? [])
@@ -575,17 +457,6 @@ export function ArmyBuilder({
         description: upg.description,
         type: 'passive' as const,
       }));
-    // Always use the live warbandUnit.keywords (includes upgrade/wargear grants)
-    // Also merge in any keywords granted by currently equipped wargear (e.g. LARGE/VEHICLE from bike)
-    const wargearGrantedKeywords = warbandUnit.selectedWargear.flatMap(sw => {
-      const resolved = lookupWargear(sw.id);
-      return resolved?.grantsKeywords ?? sw.grantsKeywords ?? [];
-    });
-    // Keywords granted by Gifts of Chaos mutations
-    const giftGrantedKeywords = activeGifts.flatMap(g => g!.grantedKeywords ?? []);
-    const baseKeywords = warbandUnit.keywords.length > 0 ? warbandUnit.keywords : unitDef.keywords;
-    const resolvedKeywords = [...new Set([...baseKeywords, ...wargearGrantedKeywords, ...giftGrantedKeywords])];
-
     // Collect abilities granted by equipped wargear (e.g. Turbo-Boost from Astartes Bike)
     const wargearGrantedAbilities = warbandUnit.selectedWargear.flatMap(sw => {
       const resolved = lookupWargear(sw.id);
@@ -722,48 +593,7 @@ export function ArmyBuilder({
     newWargear: SelectedWargear[],
     unitDef?: UnitOption | null,
   ) {
-    const currency = unit.costCurrency ?? 'credits';
-    const creditWargear = newWargear
-      .filter(w => (w.costCurrency ?? 'credits') === 'credits')
-      .reduce((sum, w) => sum + w.cost * w.quantity, 0);
-    const gloryWargear = newWargear
-      .filter(w => w.costCurrency === 'glory')
-      .reduce((sum, w) => sum + w.cost * w.quantity, 0);
-    const baseCreditCost = currency === 'credits' ? unit.count * unit.baseCostPerModel : 0;
-    const baseGloryCost  = currency === 'glory'   ? unit.count * unit.baseCostPerModel : 0;
-
-    // When the user equips a purchased body-armour that replaces the unit's default
-    // body-armour (whose real cost is already baked into baseCostPerModel), subtract
-    // the real cost of the default armour so it isn't double-counted.
-    let defaultArmourOffset = 0;
-    if (unitDef) {
-      const hasSelectedBodyArmour = newWargear.some(w => lookupWargear(w.id)?.slot === 'body-armour');
-      if (hasSelectedBodyArmour) {
-        const defaultBodyItem = unitDef.defaultWargear.find(
-          item => lookupWargear(item.id)?.slot === 'body-armour',
-        );
-        if (defaultBodyItem) {
-          defaultArmourOffset = -(lookupWargear(defaultBodyItem.id)?.cost ?? 0);
-        }
-      }
-    }
-
-    // Gather keywords granted by the new wargear selection
-    const grantedKeywords: string[] = [];
-    for (const w of newWargear) {
-      if (w.grantsKeywords) {
-        for (const kw of w.grantsKeywords) {
-          if (!grantedKeywords.includes(kw)) grantedKeywords.push(kw);
-        }
-      }
-    }
-
-    return {
-      totalCost:       baseCreditCost + creditWargear + defaultArmourOffset,
-      totalGloryCost:  baseGloryCost  + gloryWargear,
-      // Merge base unit keywords with wargear-granted keywords
-      grantedKeywords,
-    };
+    return calculateUnitCostTotals(unit, newWargear, unitDef);
   }
 
   /** Add or replace a wargear item on the unit at `unitIndex`. */
@@ -771,59 +601,20 @@ export function ArmyBuilder({
     setWarband(prev => {
       const updatedUnits = [...prev.units];
       const unit = { ...updatedUnits[unitIndex] };
-      // Inject subfaction keyword grants (e.g. Raven Guard + Jump Pack → DEEP STRIKE)
-      const sfGrants = currentSubFaction?.wargearKeywordGrants?.[item.id] ?? [];
-      const sfCost = currentSubFaction?.wargearCostOverrides?.[item.id];
-      const effectiveItem: SelectedWargear = {
-        ...item,
-        ...(sfCost ? { cost: sfCost.cost, costCurrency: sfCost.costCurrency ?? 'credits' as const } : {}),
-        ...(sfGrants.length > 0 ? { grantsKeywords: [...(item.grantsKeywords ?? []), ...sfGrants] } : {}),
-      };
-      const existing = unit.selectedWargear.findIndex(w => w.id === effectiveItem.id);
-      let newWargear: SelectedWargear[];
-      if (existing >= 0) {
-        newWargear = unit.selectedWargear.map((w, i) => (i === existing ? effectiveItem : w));
-      } else {
-        newWargear = [...unit.selectedWargear, effectiveItem];
-        // Auto-add bonus weapon if the equipped item grants one (e.g. Astartes Bike → Twin Boltgun)
-        const gearDef = lookupWargear(effectiveItem.id);
-        if (gearDef?.grantsBonusWeapon) {
-          const bonusWeapon = lookupWeapon(gearDef.grantsBonusWeapon);
-          if (bonusWeapon && !newWargear.some(w => w.id === bonusWeapon.id)) {
-            newWargear = [...newWargear, {
-              id: bonusWeapon.id,
-              name: bonusWeapon.name,
-              cost: 0,
-              costCurrency: 'credits' as const,
-              type: 'weapon' as const,
-              quantity: 1,
-              isDefault: true,
-              grantsKeywords: bonusWeapon.grantsKeywords ?? [],
-              associatedWithId: effectiveItem.id,
-            }];
-          }
-        }
-      }
+      const newWargear = buildEffectiveWargearSelection(unit.selectedWargear, item, currentSubFaction);
       const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
       const calcs = recalcUnitCosts(unit, newWargear, unitDef);
-      const psychicCredits = (unit.selectedPsychicPowers ?? []).filter(p => (p.costCurrency ?? 'credits') === 'credits').reduce((s, p) => s + p.cost, 0);
-      const giftCredits0 = (unit.selectedGiftsOfChaos ?? []).reduce((s, g) => s + g.cost, 0);
-      const upgradeCreditCost = (unitDef?.upgrades ?? []).reduce((sum, upg) => {
-        return sum + ((unit.selectedUpgrades ?? {})[upg.id] ?? 0) * upg.cost;
-      }, 0);
-      // Recompute live keywords: unitDef base + subtype + wargear grants + upgrade grants
-      const baseKw = unitDef?.keywords ?? [];
-      const subKw = unit.appliedSubType?.grantedKeywords ?? [];
-      const wgKw = newWargear.flatMap(w => w.grantsKeywords ?? []);
-      const upgKw = Object.entries(unit.selectedUpgrades ?? {})
-        .filter(([, cnt]) => cnt > 0)
-        .flatMap(([id]) => unitDef?.upgrades?.find(u => u.id === id)?.grantedKeywords ?? []);
-      const newKeywords = [...new Set([...baseKw, ...subKw, ...wgKw, ...upgKw])];
+      const supplemental = calculateUnitSupplementalCosts(unit, unitDef);
+      
+      const newKeywords = resolveWarbandUnitKeywords(unitDef, unit, selectedFaction, {
+        includeEliteFromPromotion: true,
+      });
+      
       updatedUnits[unitIndex] = {
         ...unit,
         selectedWargear: newWargear,
         keywords:       newKeywords,
-        totalCost:      calcs.totalCost + psychicCredits + giftCredits0 + upgradeCreditCost,
+        totalCost:      calcs.totalCost + supplemental.psychicCredits + supplemental.giftCredits + supplemental.upgradeCreditCost,
         totalGloryCost: calcs.totalGloryCost,
       };
       return { ...prev, units: updatedUnits };
@@ -835,34 +626,23 @@ export function ArmyBuilder({
     setWarband(prev => {
       const updatedUnits = [...prev.units];
       const unit = { ...updatedUnits[unitIndex] };
-      // Guard: never remove pure default wargear (auto-marks, auto-modifications)
-      // Items with associatedWithId are bonus items auto-added by another item – only removable
-      // indirectly when their parent item is removed, not by direct user action.
       if (unit.selectedWargear.find(w => w.id === wargearId)?.isDefault) return prev;
-      // Remove the target item AND any bonus items that were auto-added alongside it
       const newWargear = unit.selectedWargear.filter(
         w => w.id !== wargearId && w.associatedWithId !== wargearId
       );
       const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
       const calcs = recalcUnitCosts(unit, newWargear, unitDef);
-      const psychicCredits = (unit.selectedPsychicPowers ?? []).filter(p => (p.costCurrency ?? 'credits') === 'credits').reduce((s, p) => s + p.cost, 0);
-      const giftCredits1 = (unit.selectedGiftsOfChaos ?? []).reduce((s, g) => s + g.cost, 0);
-      const upgradeCreditCost = (unitDef?.upgrades ?? []).reduce((sum, upg) => {
-        return sum + ((unit.selectedUpgrades ?? {})[upg.id] ?? 0) * upg.cost;
-      }, 0);
-      // Recompute live keywords after wargear removal
-      const baseKw = unitDef?.keywords ?? [];
-      const subKw = unit.appliedSubType?.grantedKeywords ?? [];
-      const wgKw = newWargear.flatMap(w => w.grantsKeywords ?? []);
-      const upgKw = Object.entries(unit.selectedUpgrades ?? {})
-        .filter(([, cnt]) => cnt > 0)
-        .flatMap(([id]) => unitDef?.upgrades?.find(u => u.id === id)?.grantedKeywords ?? []);
-      const newKeywords = [...new Set([...baseKw, ...subKw, ...wgKw, ...upgKw])];
+      const supplemental = calculateUnitSupplementalCosts(unit, unitDef);
+      
+      const newKeywords = resolveWarbandUnitKeywords(unitDef, unit, selectedFaction, {
+        includeEliteFromPromotion: true,
+      });
+      
       updatedUnits[unitIndex] = {
         ...unit,
         selectedWargear: newWargear,
         keywords:       newKeywords,
-        totalCost:      calcs.totalCost + psychicCredits + giftCredits1 + upgradeCreditCost,
+        totalCost:      calcs.totalCost + supplemental.psychicCredits + supplemental.giftCredits + supplemental.upgradeCreditCost,
         totalGloryCost: calcs.totalGloryCost,
       };
       return { ...prev, units: updatedUnits };
@@ -874,9 +654,8 @@ export function ArmyBuilder({
     setWarband(prev => {
       const updatedUnits = [...prev.units];
       const unit = { ...updatedUnits[unitIndex] };
-      const existing = (unit.selectedPsychicPowers ?? []).find(p => p.id === power.id);
-      if (existing) return prev; // already added
-      const newPowers = [...(unit.selectedPsychicPowers ?? []), power];
+      const newPowers = addPsychicPowerToSelection(unit.selectedPsychicPowers, power);
+      if (!newPowers) return prev; // already added
       const psychicCredits = newPowers.filter(p => (p.costCurrency ?? 'credits') === 'credits').reduce((s, p) => s + p.cost, 0);
       const psychicGlory   = newPowers.filter(p => p.costCurrency === 'glory').reduce((s, p) => s + p.cost, 0);
       const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
@@ -899,76 +678,22 @@ export function ArmyBuilder({
       const updatedUnits = [...prev.units];
       const unit = { ...updatedUnits[unitIndex] };
       const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
-      const upgrade = unitDef?.upgrades?.find(u => u.id === upgradeId);
-      // Upgrades with maxCount >= 10 are "stackable" stat boosts (e.g. Primaris) that
-      // can coexist with a class upgrade. Upgrades with maxCount < 10 are mutually exclusive
-      // class upgrades (e.g. Assault Marine, Bladeguard) — only one may be active at a time.
-      // Nested upgrades with requiredUpgradeId (e.g. Night Lords sub-upgrades) are stackable with base class.
-      // Upgrades with upgradeGroup are stackable (not cleared by class-upgrade clearing) but
-      // mutually exclusive within their group (e.g. Pirate Crew Backgrounds and Specialties).
-      const checkStackable = (upg: { maxCount?: number, keywords?: string[], requiredUpgradeId?: string, upgradeGroup?: string }) => 
-        ((upg?.maxCount ?? 1) >= 10) || !!upg?.requiredUpgradeId || !!upg?.upgradeGroup;
-      const isStackable = upgrade ? checkStackable(upgrade) : false;
-      let newUpgrades: Record<string, number>;
-      if (isStackable) {
-        // Keep everything; only update this one upgrade
-        newUpgrades = { ...(unit.selectedUpgrades ?? {}) };
-        if (count > 0) {
-          // If it has specific conflicts (mutually exclusive options like Depredator vs Warp Talon)
-          if (upgrade?.conflictsWithUpgradeIds) {
-             for (const conflictId of upgrade.conflictsWithUpgradeIds) {
-               delete newUpgrades[conflictId];
-             }
-          }
-          // If it belongs to an upgradeGroup, clear other members of the same group
-          if (upgrade?.upgradeGroup) {
-            for (const [id] of Object.entries(newUpgrades)) {
-              const existingUpg = unitDef?.upgrades?.find(u => u.id === id);
-              if (existingUpg?.upgradeGroup === upgrade.upgradeGroup && id !== upgradeId) {
-                delete newUpgrades[id];
-              }
-            }
-          }
-          newUpgrades[upgradeId] = count;
-        }
-        else {
-           delete newUpgrades[upgradeId];
-           // Also remove any upgrades that require THIS upgrade
-           for (const [id] of Object.entries(newUpgrades)) {
-             const dependent = unitDef?.upgrades?.find(u => u.id === id);
-             if (dependent?.requiredUpgradeId === upgradeId) delete newUpgrades[id];
-           }
-        }
-      } else {
-        // Clear other exclusive (non-stackable) upgrades, but preserve stackable/nested ones
-        newUpgrades = {};
-        for (const [id, cnt] of Object.entries(unit.selectedUpgrades ?? {})) {
-          const existingUpg = unitDef?.upgrades?.find(u => u.id === id);
-          if (existingUpg && checkStackable(existingUpg)) {
-             const reqId = existingUpg.requiredUpgradeId;
-             const reqUpg = reqId ? unitDef?.upgrades?.find(u => u.id === reqId) : null;
-             // Parent is valid if it's the one being added, or if it's stackable and thus preserved
-             const isParentStaying = !reqId || (reqId === upgradeId && count > 0) || (reqUpg && checkStackable(reqUpg));
-             if (isParentStaying) {
-               newUpgrades[id] = cnt;
-             }
-          }
-        }
-        if (count > 0) newUpgrades[upgradeId] = count;
-      }
+      const newUpgrades = resolveUpgradeSelection(unit.selectedUpgrades, unitDef?.upgrades, upgradeId, count);
+      
       const upgradeCreditCost = (unitDef?.upgrades ?? []).reduce((sum, upg) => {
         return sum + (newUpgrades[upg.id] ?? 0) * upg.cost;
       }, 0);
       const calcs = recalcUnitCosts(unit, unit.selectedWargear, unitDef);
       const psychicCredits = (unit.selectedPsychicPowers ?? []).filter(p => (p.costCurrency ?? 'credits') === 'credits').reduce((s, p) => s + p.cost, 0);
-      // Recompute live keywords from ALL active upgrades
-      const baseKw = unitDef?.keywords ?? [];
-      const subKw = unit.appliedSubType?.grantedKeywords ?? [];
-      const wgKw = unit.selectedWargear.flatMap(w => w.grantsKeywords ?? []);
-      const upgKw = Object.entries(newUpgrades)
-        .filter(([, cnt]) => cnt > 0)
-        .flatMap(([id]) => unitDef?.upgrades?.find(u => u.id === id)?.grantedKeywords ?? []);
-      const newKeywords = [...new Set([...baseKw, ...subKw, ...wgKw, ...upgKw])];
+      
+      const updatedForKeywords: Warband['units'][number] = {
+        ...unit,
+        selectedUpgrades: newUpgrades,
+      };
+      const newKeywords = resolveWarbandUnitKeywords(unitDef, updatedForKeywords, selectedFaction, {
+        includeEliteFromPromotion: false,
+      });
+      
       updatedUnits[unitIndex] = {
         ...unit,
         selectedUpgrades: newUpgrades,
@@ -984,9 +709,8 @@ export function ArmyBuilder({
     setWarband(prev => {
       const updatedUnits = [...prev.units];
       const unit = { ...updatedUnits[unitIndex] };
-      const existing = (unit.selectedGiftsOfChaos ?? []).find(g => g.id === gift.id);
-      if (existing) return prev;
-      const newGifts = [...(unit.selectedGiftsOfChaos ?? []), gift];
+      const newGifts = addGiftToSelection(unit.selectedGiftsOfChaos, gift);
+      if (!newGifts) return prev;
       const giftCredits = newGifts.reduce((s, g) => s + g.cost, 0);
       const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
       const calcs = recalcUnitCosts(unit, unit.selectedWargear, unitDef);
@@ -1006,7 +730,7 @@ export function ArmyBuilder({
     setWarband(prev => {
       const updatedUnits = [...prev.units];
       const unit = { ...updatedUnits[unitIndex] };
-      const newGifts = (unit.selectedGiftsOfChaos ?? []).filter(g => g.id !== giftId);
+      const newGifts = removeGiftFromSelection(unit.selectedGiftsOfChaos, giftId);
       const giftCredits = newGifts.reduce((s, g) => s + g.cost, 0);
       const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
       const calcs = recalcUnitCosts(unit, unit.selectedWargear, unitDef);
@@ -1026,7 +750,8 @@ export function ArmyBuilder({
     setWarband(prev => {
       const updatedUnits = [...prev.units];
       const unit = { ...updatedUnits[unitIndex] };
-      updatedUnits[unitIndex] = { ...unit, isPromoted: !unit.isPromoted };
+      updatedUnits[unitIndex] = applyPromotionToggle(unit, selectedFaction);
+
       return { ...prev, units: updatedUnits };
     });
   };
@@ -1047,7 +772,7 @@ export function ArmyBuilder({
     setWarband(prev => {
       const updatedUnits = [...prev.units];
       const unit = { ...updatedUnits[unitIndex] };
-      const newPowers = (unit.selectedPsychicPowers ?? []).filter(p => p.id !== powerId);
+      const newPowers = removePsychicPowerFromSelection(unit.selectedPsychicPowers, powerId);
       const psychicCredits = newPowers.filter(p => (p.costCurrency ?? 'credits') === 'credits').reduce((s, p) => s + p.cost, 0);
       const psychicGlory   = newPowers.filter(p => p.costCurrency === 'glory').reduce((s, p) => s + p.cost, 0);
       const unitDef = allAvailableUnits.find(u => u.id === unit.unitId);
@@ -1114,11 +839,16 @@ export function ArmyBuilder({
                 )}
                 <summary className="faction-rules-title">{factionRules.title}</summary>
                 <ul className="faction-rules-list">
+                  
+                  {/* DÙNG COMPONENT MỚI CHO RULES CHÍNH */}
                   {factionRules.rules.map((rule, i) => (
-                    <li key={i}>{renderFormattedText(rule)}</li>
+                    <li key={i} style={{ marginBottom: '12px' }}>
+                      <RuleTreeRenderer nodes={parseRuleToTree(rule)} />
+                    </li>
                   ))}
-                {factionRules?.variantOption && (
-                  <div className="changehost-section">
+
+                {factionRules.variantOption && (
+                  <div className="changehost-section" style={{ marginTop: '16px' }}>
                     <label className="changehost-label">
                       <input
                         type="checkbox"
@@ -1130,10 +860,14 @@ export function ArmyBuilder({
                       />
                       <strong>{factionRules.variantOption.label}</strong>
                     </label>
+                    
+                    {/* Render các rule con nếu checkbox được tick */}
                     {warband.variantOptionEnabled && (
                       <ul className="changehost-rule-list">
                         {factionRules.variantOption.rules.map((r, i) => (
-                          <li key={i}>{r}</li>
+                          <li key={i} style={{ marginBottom: '8px' }}>
+                            <RuleTreeRenderer nodes={parseRuleToTree(r)} />
+                          </li>
                         ))}
                       </ul>
                     )}
@@ -1185,7 +919,7 @@ export function ArmyBuilder({
                     </ul>
                   </div>
                 )}
-                {activeSF?.variantOption && (
+                {/* {activeSF?.variantOption && (
                   <div className="changehost-section">
                     <label className="changehost-label">
                       <input
@@ -1206,7 +940,7 @@ export function ArmyBuilder({
                       </ul>
                     )}
                   </div>
-                )}
+                )} */}
               </>
             );
           })()}

@@ -32,6 +32,7 @@ export const unitAbilitiesMap: Record<string, Ability[]> = {
   ],
   aa_terminator: [
     { id: 'aa_terminator_black_carapace', name: 'Black Carapace', description: 'Treats any Down result from the Injury Roll Table as a Minor Hit instead. Does not apply to Down results that already replaced another result (e.g. from TOUGH).', type: 'passive' },
+    { id: 'aa_terminator_fury_of_the_first', name: 'Fury of the First', description: 'The Terminator ignores any -DICE to its weapon attack success rolls except for Cover, Defended Obstacle, and Long Range.', type: 'passive' },
     { id: 'aa_terminator_terminator_armour', name: 'Terminator Armour', description: 'Rolls only D3 for extra charge distance instead of D6.', type: 'passive' },
   ],
   aa_dreadnought: [
@@ -713,29 +714,41 @@ export const unitAbilitiesMap: Record<string, Ability[]> = {
   // LEAGUES OF VOTANN
   // ========================================================================
   lv_kahl: [
-    { id: 'lv_kahl_grim_efficiency', name: 'Grim Efficiency', description: 'As an Action (no roll required), give 1 Grudge Token to one enemy model within 18" that this model can see.', type: 'action' },
+    { id: 'lv_kahl_grim_efficiency', name: 'Grim Efficiency', description: 'As an Action that does not require any roll, the Kâhl can give one enemy model it can see within 18” 1 Grudge Token.', type: 'action' },
+    { id: 'lv_kahl_heavily_armoured', name: 'Heavily Armoured', description: 'The first -1 of the Kâhl’s Armour, if any, has IMPERVIOUS.', type: 'passive' },
   ],
   lv_brokhyr_iron_master: [
-    { id: 'lv_brokhyr_iron_master_brokhyrs_guild', name: "Brôkhyr's Guild", description: "Success Roll — repair itself or a friendly ARTIFICIAL or VEHICLE model within 6\", removing 1 BLOOD MARKER (3 on Critical Success).", type: 'action' },
+    { id: 'lv_brokhyr_iron_master_brokhyrs_guild', name: "Brôkhyr's Guild", description: "As an Action with a Success Roll, the Brôkhyr Iron-Master can attempt to repair itself or a friendly ARTIFICIAL or VEHICLE model within 6” of it. If it succeeds, remove 1 BLOOD MARKER from that model, or 3 BLOOD MARKERS if the Success Roll was a Critical Success.", type: 'action' },
+    { id: 'lv_brokhyr_iron_master_heavily_armoured', name: "Heavily Armoured", description: "The first -1 of the Brôkhyr Iron Master's Armour, if any, has IMPERVIOUS.", type: 'passive' },
+  ],
+  lv_grymnyr:[
+    { id: 'lv_grymnyr_heavily_armoured', name: "Heavily Armoured", description: "The first -1 of the Grymnyr's Armour, if any, has IMPERVIOUS.", type: 'passive' },
+  ],
+  lv_heartkyn: [
+    { id: 'lv_heartkyn_heavily_armoured', name: "Heavily Armoured", description: "The first -1 of the Hearthkyn's Armour, if any, has IMPERVIOUS.", type: 'passive' },
   ],
   lv_cthonian_beserk: [
-    { id: 'lv_cthonian_beserk_cyberstimms', name: 'Cyberstimms', description: 'When taken Out of Action, before removing from the table, can make one melee attack against an enemy in close combat. BLOOD MARKERs cannot be spent on this roll.', type: 'passive' },
-    { id: 'lv_cthonian_beserk_rage', name: 'Rage', description: 'Injury rolls against this model have -1 DICE.', type: 'passive' },
+    { id: 'lv_cthonian_beserk_cyberstimms', name: 'Cyberstimms', description: 'When this model is taken Out of Action, before removing it from the table, it can make a single melee attack against an enemy it is in close combat with. BLOOD MARKERS cannot be spent on this attack’s Success Roll.', type: 'passive' },
+    { id: 'lv_cthonian_beserk_rage', name: 'Rage', description: 'Injury rolls against the Cthonian Beserk have -1 DICE.', type: 'passive' },
   ],
   lv_einhyr_hearthguard: [
-    { id: 'lv_einhyr_hearthguard_decisive_destruction', name: 'Decisive Destruction', description: '+1 DICE to Hit with ranged attacks made against the closest possible target.', type: 'passive' },
-    { id: 'lv_einhyr_hearthguard_oathband_bodyguard', name: 'Oathband Bodyguard', description: 'Can redirect any hit (excluding BLAST) on an ally within 1" to itself.', type: 'passive' },
+    { id: 'lv_einhyr_hearthguard_decisive_destruction', name: 'Decisive Destruction', description: 'The Hearthguard has +1 DICE to Hit with ranged attacks made against the closest possible target.', type: 'passive' },
+    { id: 'lv_einhyr_hearthguard_heavily_armoured', name: 'Heavily Armoured', description: 'The first -1 of the Hearthguard’s Armour, if any, has IMPERVIOUS.', type: 'passive' },
+    { id: 'lv_einhyr_hearthguard_oathband_bodyguard', name: 'Oathband Bodyguard', description: 'If any ally within 1” of the Einhyr Hearthguard is hit by a ranged or melee weapon (excluding BLAST weapons), you can choose to redirect the hit to the Einhyr Hearthguard instead. Determine the injuries exactly as if the weapon just hit the Einhyr Hearthguard.', type: 'passive' },
   ],
   lv_brokhyr_thunderkyn: [
-    { id: 'lv_brokhyr_thunderkyn_breaching_fire', name: 'Breaching Fire', description: 'When hitting with a ranged HEAVY weapon, the target cannot benefit from Cover until the end of the current Turn.', type: 'passive' },
-    { id: 'lv_brokhyr_thunderkyn_heavy_gunner', name: 'Heavy Gunner', description: 'Can ignore the HEAVY Keyword of one ranged weapon it carries.', type: 'passive' },
+    { id: 'lv_brokhyr_thunderkyn_breaching_fire', name: 'Breaching Fire', description: 'When the Brôkhyr Thunderkyn hits with a ranged attack with a HEAVY weapon, the target cannot benefit from Cover until the end of the current Turn.', type: 'passive' },
+    { id: 'lv_brokhyr_thunderkyn_heavily_armoured', name: 'Heavily Armoured', description: 'The first -1 of the Brôkhyr Thunderkyn’s Armour, if any, has IMPERVIOUS.', type: 'passive' },
+    { id: 'lv_brokhyr_thunderkyn_heavy_gunner', name: 'Heavy Gunner', description: 'The Brôkhyr Thunderkyn can ignore the HEAVY Keyword of one ranged weapon it carries.', type: 'passive' },
   ],
   lv_ironkin_steeljack: [
-    { id: 'lv_ironkin_steeljack_merciless_eradication', name: 'Merciless Eradication', description: 'When an enemy in melee Retreats, has +1 DICE to Hit and +1 INJURY DICE for its free attack against that model.', type: 'passive' },
-    { id: 'lv_ironkin_steeljack_purge_response', name: 'Purge Response', description: 'Once per Turn, when an enemy ends its movement within 6", can make one ranged attack against it.', type: 'passive' },
+    { id: 'lv_ironkin_steeljack_heavily_armoured', name: 'Heavily Armoured', description: 'The first -1 of the Ironkin Steeljack’s Armour, if any, has IMPERVIOUS.', type: 'passive' },
+    { id: 'lv_ironkin_steeljack_merciless_eradication', name: 'Merciless Eradication', description: 'When an enemy in close combat with the Ironkin Steeljack Retreats, the Ironkin Steeljack has +1 DICE to Hit and +1 INJURY DICE for its free attack against that model.', type: 'passive' },
+    { id: 'lv_ironkin_steeljack_purge_response', name: 'Purge Response', description: 'Once during each Turn, when an enemy model ends its movement within 6” of the Ironkin Steeljack, the Ironkin Steeljack can make a single ranged attack against that enemy.', type: 'passive' },
   ],
   lv_hernkyn_pioneer: [
-    { id: 'lv_hernkyn_pioneer_weapon_mount', name: 'Weapon Mount', description: 'Can ignore the HEAVY Keyword of one ranged weapon it wields.', type: 'passive' },
+    { id: 'lv_hernkyn_pioneer_heavily_armoured', name: 'Heavily Armoured', description: 'The first -1 of the Hernkyn Pioneer’s Armour, if any, has IMPERVIOUS.', type: 'passive' },
+    { id: 'lv_hernkyn_pioneer_weapon_mount', name: 'Weapon Mount', description: 'The Hernkyn Pioneer can ignore the HEAVY property of one ranged weapon it wields.', type: 'passive' },
   ],
 
   // ========================================================================

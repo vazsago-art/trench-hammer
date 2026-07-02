@@ -963,8 +963,8 @@ export const FACTION_LORE: Record<string, FactionLoreEntry> = {
       'Ideal for players who love strategic depth, psychic powers, and the poignant tale of a dying civilisation.',
   },
 
-  tau_empire: {
-    factionId: 'tau_empire',
+  t_au_empire: {
+    factionId: 't_au_empire',
     name: 'T\'au Empire',
     motto: '"For the Greater Good."',
     overview:

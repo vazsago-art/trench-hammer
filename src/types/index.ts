@@ -611,6 +611,17 @@ export interface SelectedWargear {
    * These are displayed in a separate "Subfaction Rules" section rather than in the wargear list.
    */
   isSubfactionRule?: boolean;
+  /**
+   * For Combi weapons: selected secondary mode weapon id (e.g. boltgun, plasma_gun).
+   * Optional to keep backward compatibility with legacy saved rosters.
+   */
+  combiSecondModeId?: string;
+  /** Human-readable secondary mode name stored at purchase time. */
+  combiSecondModeName?: string;
+  /** Base cost of the selected secondary mode at purchase time. */
+  combiSecondModeCost?: number;
+  /** Currency for the selected secondary mode cost (defaults to credits when omitted). */
+  combiSecondModeCostCurrency?: 'credits' | 'glory';
 }
 
 export interface Faction {

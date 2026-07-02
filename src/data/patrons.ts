@@ -508,7 +508,7 @@ export const FACTION_PATRONS: Record<string, Patron[]> = {
 
   death_guard: [PATRON_NURGLE, PATRON_KHORNE, PATRON_SLAANESH, PATRON_TZEENTCH, CHAOS_UNDIVIDED, CHAOS_WARLORD, HERETEK_LORD, PIRATE_LORD],
   emperors_children: [PATRON_SLAANESH, PATRON_KHORNE, PATRON_NURGLE, PATRON_TZEENTCH, CHAOS_UNDIVIDED, CHAOS_WARLORD, HERETEK_LORD, PIRATE_LORD],
-  thousand_sons: [PATRON_TZEENTCH, PATRON_KHORNE, PATRON_NURGLE, PATRON_SLAANESH, CHAOS_UNDIVIDED, CHAOS_WARLORD, HERETEK_LORD, PIRATE_LORD],
+  thousand_sons: [PATRON_TZEENTCH],
   world_eaters: [PATRON_KHORNE, PATRON_NURGLE, PATRON_SLAANESH, PATRON_TZEENTCH, CHAOS_UNDIVIDED, CHAOS_WARLORD, HERETEK_LORD, PIRATE_LORD],
 
   // ── CHAOS DAEMONS ────────────────────────────────────────────────────────
@@ -713,7 +713,7 @@ export const FACTION_PATRONS: Record<string, Patron[]> = {
   ],
 
   // ── T'AU EMPIRE ───────────────────────────────────────────────────────────
-  tau_empire: [
+  t_au_empire: [
     {
       id: 'ethereal_supreme',
       name: 'Ethereal Supreme',

@@ -1793,7 +1793,7 @@ const SLANNI: FixedKitUnit[] = [
 // ─────────────────────────────────────────────────────────────────────────────
 // T'AU EMPIRE
 // ─────────────────────────────────────────────────────────────────────────────
-const TAU_EMPIRE: FixedKitUnit[] = [
+const t_au_empire: FixedKitUnit[] = [
   {
     id: "tau_tau_drone_base",
     displayName: "T'au Drone (base)",
@@ -1949,7 +1949,7 @@ export const FIXED_KIT_UNITS_BY_FACTION: Record<string, FixedKitUnit[]> = {
   Tyranids: TYRANIDS,
   "Genestealer Cults": GENESTEALER_CULTS,
   Slanni: SLANNI,
-  "T'au Empire": TAU_EMPIRE,
+  "T'au Empire": t_au_empire,
 };
 
 /** Flat array of every fixed-kit unit across all factions */

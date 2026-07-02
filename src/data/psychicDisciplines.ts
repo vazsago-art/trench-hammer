@@ -644,10 +644,10 @@ export const discipline_vengeance: PsychicDiscipline = {
       name: 'Infernal Gateway',
       cost: 10,
       powerType: 'Attack',
-      range: '24"',
+      range: '12"',
       target: 'Nearest Enemy',
       timing: 'Immediate',
-      description: '24", +1 INJURY DICE, BLAST 3", CRITICAL, PSYCHIC, RISKY. This attack can target only the nearest enemy, but does not require line of sight.',
+      description: '12", +1 INJURY DICE, BLAST 3", CRITICAL, PSYCHIC, RISKY, IGNORE LINE OF SIGHT. This attack can target only the nearest enemy.',
     },
     {
       id: 'swelled_by_the_warp',
@@ -3117,7 +3117,7 @@ export const FACTION_DISCIPLINES: Record<string, PsychicDiscipline[]> = {
   chaos_daemons: [discipline_soulstain, discipline_warprot, discipline_tzeentch],
   death_guard: [discipline_contagion],
   emperors_children: [discipline_excess],
-  thousand_sons: [discipline_change, discipline_vengeance, discipline_heretic_astartes],
+  thousand_sons: [discipline_change, discipline_vengeance],
   world_eaters: [],
   // Xenos
   aeldari: [discipline_runes_of_battle, discipline_runes_of_fate, discipline_runes_of_fortune],

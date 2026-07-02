@@ -293,7 +293,7 @@ export function UnitInfoModal({ unit, baseUnit, selectedWargear, selectedUpgrade
                   <tbody>
                     {equippedWeapons.map(({ sw, w }) => (
                       <tr key={sw.id}>
-                        <td><strong>{w.name}</strong>{sw.quantity > 1 ? ` ×${sw.quantity}` : ''}</td>
+                        <td><strong>{sw.name || w.name}</strong>{sw.quantity > 1 ? ` ×${sw.quantity}` : ''}</td>
                         <td><span className={`weapon-type-badge type-${w.type}`}>{weaponTypeLabel(w)}</span></td>
                         <td>{weaponRangeLabel(w)}</td>
                         <td className="keywords-cell"><KeywordList keywords={w.keywords} /></td>

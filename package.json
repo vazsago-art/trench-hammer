@@ -10,8 +10,8 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "typecheck": "tsc --noEmit",
+    "qa:scan": "node scripts/qa_scan.mjs"
   },
   "keywords": [
     "wargame",
@@ -24,19 +24,13 @@
   "license": "MIT",
   "devDependencies": {
     "@capacitor/cli": "^8.1.0",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.4",
-    "@vitest/coverage-v8": "^4.0.18",
     "gh-pages": "^6.3.0",
-    "jsdom": "^28.1.0",
     "puppeteer": "^24.42.0",
     "typescript": "^5.9.3",
-    "vite": "^7.3.1",
-    "vitest": "^4.0.18"
+    "vite": "^7.3.1"
   },
   "dependencies": {
     "@capacitor/android": "^8.1.0",

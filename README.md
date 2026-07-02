@@ -52,7 +52,22 @@ npm run build
 
 # Preview production build
 npm run preview
+
+# Type-only validation
+npm run typecheck
+
+# Data sanity scan (instruction docs vs faction data)
+npm run qa:scan
 ```
+
+### Validation Workflow
+
+The project uses a lightweight validation workflow instead of a unit test runner.
+
+- Build gate: `npm run build`
+- Type gate: `npm run typecheck`
+- Data sanity gate: `npm run qa:scan`
+- Manual smoke checks: faction/subfaction switching, unit add/remove, wargear/upgrade updates, promotion toggles, import/export/share URL, and Battle Mode render
 
 ### Development
 
@@ -86,6 +101,10 @@ Currently loaded:
 ## Contributing
 
 This is a fan project for the Trench Hammer community. All game data is based on community rules documents.
+
+Validation references:
+- `docs/validation-workflow.md`
+- `docs/manual-smoke-checklist.md`
 
 ## License
 

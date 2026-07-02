@@ -149,6 +149,16 @@
   white-space: nowrap;
 }
 
+.wg-combi-warning {
+  font-size: 0.7rem;
+  color: #f7c948;
+  background: rgba(247, 201, 72, 0.12);
+  border: 1px solid rgba(247, 201, 72, 0.35);
+  border-radius: 3px;
+  padding: 0.1rem 0.35rem;
+  white-space: nowrap;
+}
+
 .wg-replaced-label {
   font-size: 0.75rem;
   color: #e0801a;
@@ -603,4 +613,72 @@
 .campaign-shop-section .wg-item-cost {
   color: #d4af37;
   font-weight: 600;
+}
+
+.wg-combi-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.wg-combi-modal {
+  width: 100%;
+  max-width: 520px;
+  background: #161c2f;
+  border: 1px solid #2f4267;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+}
+
+.wg-combi-modal h3 {
+  margin: 0 0 0.4rem;
+  color: #d9e7ff;
+  font-size: 1rem;
+}
+
+.wg-combi-modal-subtitle {
+  margin: 0 0 0.8rem;
+  color: #9fb2d3;
+  font-size: 0.85rem;
+}
+
+.wg-combi-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.wg-combi-option {
+  width: 100%;
+  background: #11182b;
+  border: 1px solid #2f4267;
+  border-radius: 6px;
+  color: #d9e7ff;
+  padding: 0.55rem 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-size: 0.86rem;
+}
+
+.wg-combi-option:hover {
+  border-color: #4fa3ff;
+  background: #18233e;
+}
+
+.wg-combi-cancel {
+  margin-top: 0.8rem;
+  background: transparent;
+  border: 1px solid #4a4a66;
+  color: #c7cce0;
+  border-radius: 6px;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
 }

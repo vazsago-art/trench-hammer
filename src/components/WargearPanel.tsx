@@ -21,6 +21,13 @@ import {
   lookupWeapon,
   lookupWargear,
 } from '../data/wargearSlotValidation.js';
+import {
+  formatCombiWargearName,
+  getCombiSecondModeOptions,
+  getMissingCombiModeWarning,
+  isCombiWeaponId,
+  type CombiSecondModeOption,
+} from '../utils/combiModes.js';
 import { WargearInfoModal } from './WargearInfoModal.js';
 import './WargearPanel.css';
 
@@ -34,6 +41,21 @@ interface SelectedItem {
   grantsKeywords?: string[];
   /** When true, this item was auto-applied by the warband variant and cannot be removed. */
   isDefault?: boolean;
+  /** Combi-only metadata. */
+  combiSecondModeId?: string;
+  combiSecondModeName?: string;
+  combiSecondModeCost?: number;
+  combiSecondModeCostCurrency?: 'credits' | 'glory';
+}
+
+interface PendingCombiSelection {
+  id: string;
+  name: string;
+  type: 'weapon' | 'armor' | 'equipment';
+  grantsKeywords?: string[];
+  cost: number;
+  costCurrency?: 'credits' | 'glory';
+  options: CombiSecondModeOption[];
 }
 
 interface WargearPanelProps {
@@ -106,6 +128,7 @@ export function WargearPanel({
   const [openCampaignCategory, setOpenCampaignCategory] = useState<string | null>(null);
   const [infoItem, setInfoItem] = useState<{ item: Weapon | WargearOption; catType: 'weapon' | 'armor' | 'equipment' } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [pendingCombiSelection, setPendingCombiSelection] = useState<PendingCombiSelection | null>(null);
 
   const selectedMap = new Map(selectedItems.map(s => [s.id, s]));
   const allowedSet = allowedIds ? new Set(allowedIds) : null;
@@ -163,12 +186,44 @@ export function WargearPanel({
   // Slot usage snapshot (recomputed on every render from selectedItems + unreplaced defaults)
   const usage = computeSlotUsage([...unreplacedDefaults, ...selectedItems], modelKeywords);
 
-  const totalWargearCredits = selectedItems
-    .filter(s => (s.costCurrency ?? 'credits') === 'credits')
-    .reduce((sum, s) => sum + s.cost * s.quantity, 0);
-  const totalWargearGlory = selectedItems
-    .filter(s => s.costCurrency === 'glory')
-    .reduce((sum, s) => sum + s.cost * s.quantity, 0);
+  function getSelectedItemTotals(item: SelectedItem): { credits: number; glory: number } {
+    const qty = item.quantity ?? 1;
+    let credits = 0;
+    let glory = 0;
+
+    const baseCurrency = item.costCurrency ?? 'credits';
+    if (baseCurrency === 'glory') glory += item.cost * qty;
+    else credits += item.cost * qty;
+
+    if (item.combiSecondModeCost != null) {
+      const secondCurrency = item.combiSecondModeCostCurrency ?? 'credits';
+      if (secondCurrency === 'glory') glory += item.combiSecondModeCost * qty;
+      else credits += item.combiSecondModeCost * qty;
+    }
+
+    return { credits, glory };
+  }
+
+  function formatSelectedItemCost(item: SelectedItem): string {
+    const totals = getSelectedItemTotals(item);
+    const parts = [
+      totals.credits > 0 ? `${totals.credits} Credits` : '',
+      totals.glory > 0 ? `${totals.glory} Glory` : '',
+    ].filter(Boolean);
+    return parts.join(' + ') || '0 Credits';
+  }
+
+  const wargearTotals = selectedItems.reduce(
+    (acc, item) => {
+      const totals = getSelectedItemTotals(item);
+      acc.credits += totals.credits;
+      acc.glory += totals.glory;
+      return acc;
+    },
+    { credits: 0, glory: 0 },
+  );
+  const totalWargearCredits = wargearTotals.credits;
+  const totalWargearGlory = wargearTotals.glory;
   const wargearSummary = [
     totalWargearCredits > 0 ? `${totalWargearCredits} Credits` : '',
     totalWargearGlory > 0 ? `${totalWargearGlory} Glory` : '',
@@ -334,6 +389,46 @@ export function WargearPanel({
     return errors.map(e => e.message).join(' ');
   }
 
+  function handleAddItem(item: Weapon | WargearOption, type: 'weapon' | 'armor' | 'equipment') {
+    const selected: SelectedItem = {
+      id: item.id,
+      name: item.name,
+      cost: getEffectiveCost(item),
+      costCurrency: getEffectiveCostCurrency(item),
+      type,
+      quantity: 1,
+      grantsKeywords: (item as any).grantsKeywords,
+    };
+
+    if (type === 'weapon' && isCombiWeaponId(item.id)) {
+      const options = getCombiSecondModeOptions(item.id);
+      if (options.length > 0) {
+        setPendingCombiSelection({ ...selected, options });
+        return;
+      }
+    }
+
+    onAdd(selected);
+  }
+
+  function handleConfirmCombiMode(option: CombiSecondModeOption) {
+    if (!pendingCombiSelection) return;
+    onAdd({
+      id: pendingCombiSelection.id,
+      name: formatCombiWargearName(pendingCombiSelection.name, option.name),
+      cost: pendingCombiSelection.cost,
+      costCurrency: pendingCombiSelection.costCurrency,
+      type: pendingCombiSelection.type,
+      quantity: 1,
+      grantsKeywords: pendingCombiSelection.grantsKeywords,
+      combiSecondModeId: option.id,
+      combiSecondModeName: option.name,
+      combiSecondModeCost: option.cost,
+      combiSecondModeCostCurrency: option.costCurrency,
+    });
+    setPendingCombiSelection(null);
+  }
+
   return (
     <>
       <div className="wargear-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
@@ -421,6 +516,9 @@ export function WargearPanel({
                 <div key={item.id} className={`wargear-selected-item${item.isDefault ? ' wg-auto-applied' : ''}`}>
                   {item.isDefault && <span className="wg-default-lock">🔒</span>}
                   <span className="wg-name">{item.name}</span>
+                  {getMissingCombiModeWarning(item) && (
+                    <span className="wg-combi-warning">⚠ Legacy mode missing</span>
+                  )}
                   {rawItem && (
                     <button
                       className="btn-wg-info"
@@ -434,7 +532,7 @@ export function WargearPanel({
                     <>
                       <span className="wg-qty">×{item.quantity}</span>
                       <span className="wg-cost">
-                        {item.cost * item.quantity} {item.costCurrency === 'glory' ? 'Glory' : 'Credits'}
+                        {formatSelectedItemCost(item)}
                       </span>
                       <div className="wg-qty-controls">
                         <button onClick={() => {
@@ -573,15 +671,7 @@ export function WargearPanel({
                             <button
                               className="btn-add-wg"
                               disabled={isBlocked}
-                              onClick={() => !isBlocked && onAdd({
-                                id: item.id,
-                                name: item.name,
-                                cost: getEffectiveCost(item),
-                                costCurrency: getEffectiveCostCurrency(item),
-                                type: cat.type,
-                                quantity: 1,
-                                grantsKeywords: (item as any).grantsKeywords,
-                              })}
+                              onClick={() => !isBlocked && handleAddItem(item, cat.type)}
                             >
                               Add
                             </button>
@@ -692,15 +782,7 @@ export function WargearPanel({
                                 <button
                                   className="btn-add-wg"
                                   disabled={isBlocked}
-                                  onClick={() => !isBlocked && onAdd({
-                                    id: item.id,
-                                    name: item.name,
-                                    cost: getEffectiveCost(item),
-                                    costCurrency: getEffectiveCostCurrency(item),
-                                    type: cat.type,
-                                    quantity: 1,
-                                    grantsKeywords: (item as any).grantsKeywords,
-                                  })}
+                                  onClick={() => !isBlocked && handleAddItem(item, cat.type)}
                                 >
                                   Add
                                 </button>
@@ -729,6 +811,34 @@ export function WargearPanel({
         factionNote={factionNotes[infoItem.item.id]}
         onClose={() => setInfoItem(null)}
       />
+    )}
+    {pendingCombiSelection && (
+      <div className="wg-combi-modal-backdrop" onClick={() => setPendingCombiSelection(null)}>
+        <div className="wg-combi-modal" onClick={(e) => e.stopPropagation()}>
+          <h3>Choose {pendingCombiSelection.name} second mode</h3>
+          <p className="wg-combi-modal-subtitle">
+            Select a mode to add its base cost. Final totals are shown after selection.
+          </p>
+          <div className="wg-combi-options">
+            {pendingCombiSelection.options.map(option => {
+              const addCurrency = option.costCurrency === 'glory' ? 'Glory' : 'Credits';
+              return (
+                <button
+                  key={option.id}
+                  className="wg-combi-option"
+                  onClick={() => handleConfirmCombiMode(option)}
+                >
+                  <span>{option.name}</span>
+                  <span>+{option.cost} {addCurrency}</span>
+                </button>
+              );
+            })}
+          </div>
+          <button className="wg-combi-cancel" onClick={() => setPendingCombiSelection(null)}>
+            Cancel
+          </button>
+        </div>
+      </div>
     )}
   </>
   );

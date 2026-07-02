@@ -266,7 +266,7 @@ night_lords: {
 
 thousand_sons: {
   warbandId: 'thousand_sons',
-  factionId: 'heretic_astartes',
+  factionId: 'thousand_sons',
   name: 'Thousand Sons',
   motto: '"All is dust."',
   overview:

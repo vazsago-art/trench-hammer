@@ -1,6 +1,5 @@
 import { useState, useCallback, useMemo, useRef } from 'react';
 import { flushSync } from 'react-dom';
-import type { ReactNode } from 'react';
 import { BattleReportLog } from './BattleReportLog.js';
 import type { BattleReport } from '../types/battleReport.js';
 import { Warband, UnitOption, WarbandUnit, WarbandMercenary, SelectedWargear, WargearOption, Weapon } from '../types/index.js';
@@ -19,8 +18,10 @@ import { getFactionById } from '../data/factions_complete.js';
 import { getSubFactionById, getSubFactions } from '../data/subfactions.js';
 import { EliteProgressionModal } from './EliteProgressionModal.js';
 import { RulesReference } from './RulesReference.js';
+import { RuleTreeRenderer, parseRuleToTree, renderFormattedText } from './RuleTreeRenderer.js';
 import { getAllWarbands, importWarbandFromJSON } from '../utils/export.js';
 import { parseShareUrlString } from '../utils/shareUrl.js';
+import { resolveUnitCore } from '../utils/unitResolution.js';
 import './BattleMode.css';
 
 function createEmptyBattleReport(playerName: string, opponentName: string): BattleReport {
@@ -74,13 +75,6 @@ function isWeapon(item: Weapon | WargearOption): item is Weapon {
   return ['melee', 'ranged', 'heavy', 'thrown'].includes((item as Weapon).type);
 }
 
-/** Renders **bold** markdown as JSX <strong> elements. */
-function renderFormattedText(text: string): ReactNode {
-  const parts = text.split(/\*\*(.*?)\*\*/g);
-  return parts.map((part, i) =>
-    i % 2 === 1 ? <strong key={i}>{part}</strong> : part
-  );
-}
 
 // ── Unit Card ────────────────────────────────────────────────────────────────
 
@@ -265,7 +259,7 @@ function UnitCard({
             <tbody>
               {equippedWeapons.map(({ sw, w }) => (
                 <tr key={sw.id}>
-                  <td><strong>{w.name}</strong>{sw.quantity > 1 ? ` ×${sw.quantity}` : ''}</td>
+                  <td><strong>{sw.name || w.name}</strong>{sw.quantity > 1 ? ` ×${sw.quantity}` : ''}</td>
                   <td><span className={`weapon-type-badge type-${w.type}`}>{weaponTypeLabel(w)}</span></td>
                   <td>{weaponRangeLabel(w)}</td>
                   <td className="keywords-cell"><KeywordList keywords={w.keywords} /></td>
@@ -565,69 +559,7 @@ function MercenaryCard({ wm }: { wm: WarbandMercenary }) {
  */
 function resolveOpponentUnit(unitDef: UnitOption, wu: WarbandUnit): UnitOption {
   const sub = wu.appliedSubType;
-  const mods = sub?.statModifiers ?? {};
-
-  const defaultArmourMod = ((unitDef.defaultWargear ?? []) as Array<{ statModifiers?: { armourSave?: number } }>)
-    .reduce((sum, item) => sum + (item.statModifiers?.armourSave ?? 0), 0);
-  const selectedArmourMod = wu.selectedWargear.reduce((sum, sw) => {
-    const r = lookupWargear(sw.id);
-    return sum + ((r as WargearOption & { statModifiers?: { armourSave?: number } })?.statModifiers?.armourSave ?? 0);
-  }, 0);
-  const hasSelectedBodyArmour = wu.selectedWargear.some(sw => lookupWargear(sw.id)?.slot === 'body-armour');
-  const bareArmourSave = (unitDef.stats.armourSave ?? 0) - defaultArmourMod;
-  const effectiveBodyArmour = hasSelectedBodyArmour ? selectedArmourMod : defaultArmourMod + selectedArmourMod;
-
-  const movOverride = wu.selectedWargear.find(sw => {
-    const r = lookupWargear(sw.id);
-    return (r?.movementOverride != null) || (sw.movementOverride != null);
-  });
-  const wargearMovOverride = movOverride
-    ? (lookupWargear(movOverride.id)?.movementOverride ?? movOverride.movementOverride ?? null)
-    : null;
-  const wargearMovBonus = wu.selectedWargear.reduce((s, sw) =>
-    s + (lookupWargear(sw.id)?.statModifiers?.movement ?? sw.statModifiers?.movement ?? 0), 0);
-  const wargearRngBonus = wu.selectedWargear.reduce((s, sw) =>
-    s + (lookupWargear(sw.id)?.statModifiers?.rangedSkill ?? sw.statModifiers?.rangedSkill ?? 0), 0);
-  const wargearMleBonus = wu.selectedWargear.reduce((s, sw) =>
-    s + (lookupWargear(sw.id)?.statModifiers?.meleeSkill ?? sw.statModifiers?.meleeSkill ?? 0), 0);
-
-  const upgradeMods = (unitDef.upgrades ?? [])
-    .filter(upg => ((wu.selectedUpgrades ?? {})[upg.id] ?? 0) > 0)
-    .reduce((acc, upg) => {
-      const m = upg.statModifiers ?? {};
-      return {
-        movement:    (acc.movement ?? 0) + (m.movement ?? 0),
-        rangedSkill: (acc.rangedSkill ?? 0) + (m.rangedSkill ?? 0),
-        meleeSkill:  (acc.meleeSkill ?? 0) + (m.meleeSkill ?? 0),
-        armourSave:  (acc.armourSave ?? 0) + (m.armourSave ?? 0),
-      };
-    }, {} as Partial<{ movement: number; rangedSkill: number; meleeSkill: number; armourSave: number }>);
-
-  const activeGifts = (wu.selectedGiftsOfChaos ?? []).map(sg => GIFTS_OF_CHAOS.find(g => g.id === sg.id)).filter(Boolean);
-  const giftMods = activeGifts.reduce((acc, g) => {
-    const m = g!.statModifiers ?? {};
-    return {
-      movement:    (acc.movement ?? 0) + (m.movement ?? 0),
-      rangedSkill: (acc.rangedSkill ?? 0) + (m.rangedSkill ?? 0),
-      meleeSkill:  (acc.meleeSkill ?? 0) + (m.meleeSkill ?? 0),
-      armourSave:  (acc.armourSave ?? 0) + (m.armourSave ?? 0),
-    };
-  }, {} as Partial<{ movement: number; rangedSkill: number; meleeSkill: number; armourSave: number }>);
-
-  const effectiveStats = {
-    movement: wargearMovOverride != null
-      ? wargearMovOverride + (giftMods.movement ?? 0)
-      : unitDef.stats.movement + (mods.movement ?? 0) + wargearMovBonus + (upgradeMods.movement ?? 0) + (giftMods.movement ?? 0),
-    rangedSkill: unitDef.stats.rangedSkill + (mods.rangedSkill ?? 0) + wargearRngBonus + (upgradeMods.rangedSkill ?? 0) + (giftMods.rangedSkill ?? 0),
-    meleeSkill:  unitDef.stats.meleeSkill + (mods.meleeSkill ?? 0) + wargearMleBonus + (upgradeMods.meleeSkill ?? 0) + (giftMods.meleeSkill ?? 0),
-    armourSave:  bareArmourSave + effectiveBodyArmour + (mods.armourSave ?? 0) + (upgradeMods.armourSave ?? 0) + (giftMods.armourSave ?? 0),
-    toughness:   mods.toughness ?? unitDef.stats.toughness,
-  };
-
-  const wargearGrantedKeywords = wu.selectedWargear.flatMap(sw => lookupWargear(sw.id)?.grantsKeywords ?? sw.grantsKeywords ?? []);
-  const giftGrantedKeywords = activeGifts.flatMap(g => g!.grantedKeywords ?? []);
-  const baseKeywords = wu.keywords.length > 0 ? wu.keywords : unitDef.keywords;
-  const resolvedKeywords = [...new Set([...baseKeywords, ...wargearGrantedKeywords, ...giftGrantedKeywords])];
+  const { effectiveStats, resolvedKeywords, activeGifts } = resolveUnitCore(unitDef, wu);
 
   const upgradeAbilities = (unitDef.upgrades ?? [])
     .filter(upg => ((wu.selectedUpgrades ?? {})[upg.id] ?? 0) > 0)
@@ -868,11 +800,16 @@ export function BattleMode({
                 <h2 className="bm-faction-rules-title">{factionRules.title}</h2>
                 <button className="bm-rules-panel-close" onClick={() => setShowFactionRules(false)}>✕</button>
               </div>
-              <ul className="bm-faction-rules-list">
-                {factionRules.rules.map((rule, i) => (
-                  <li key={i}>{renderFormattedText(rule)}</li>
-                ))}
-              </ul>
+              <ul className="faction-rules-list">
+                  
+                  {/* DÙNG COMPONENT MỚI CHO RULES CHÍNH */}
+                  {factionRules.rules.map((rule, i) => (
+                    <li key={i} style={{ marginBottom: '12px' }}>
+                      <RuleTreeRenderer nodes={parseRuleToTree(rule)} />
+                    </li>
+                  ))}
+
+                </ul>
             </section>
           )}
 

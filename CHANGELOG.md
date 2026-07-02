@@ -4,6 +4,17 @@ All notable changes to the Trench Hammer Army Builder application are documented
 
 ---
 
+## [1.4.3] - 2026-07-02
+
+### Changed
+- **Validation workflow reset**: Decommissioned Vitest runner usage from active development workflow and moved legacy test files from `src/test` to `archive/legacy-tests`.
+- Added lightweight validation scripts:
+	- `npm run typecheck` for static TypeScript validation
+	- `npm run qa:scan` for instruction-vs-data sanity scanning (`scripts/qa_scan.mjs`)
+- Removed Vitest-specific config from `vite.config.ts` and `tsconfig.json`, and removed test-runner script entries from `package.json`.
+
+---
+
 ## [1.4.2] - 2026-05-30
 
 ### Fixed
